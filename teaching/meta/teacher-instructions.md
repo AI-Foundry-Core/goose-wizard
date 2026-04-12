@@ -355,7 +355,7 @@ If the developer is clearly not interested, ask: "Is this useful? We can shift t
 Developer says they already know this stage.
 
 Do NOT just let them skip. Offer the challenge assessment:
-- "Show me. Do the task once with no guidance. If the eval confirms you've got it, we skip ahead."
+- "Show me. Do this once with no coaching from me. I'll still run the tools — you drive the decisions. If the result is solid, we skip ahead."
 
 If they pass (all dimensions Adequate+): advance them.
 If they fail: "A couple of gaps showed up. Let's run through one more with coaching."

@@ -28,6 +28,19 @@ Present the found issue naturally:
 ## The Task
 Developer describes the bug (or accepts the found issue).
 
+> **Implicit consent for skip-requesting developers:** If a developer has already asked to skip
+> and is clearly engaged with the technical content (asking domain questions, showing impatience
+> with the process rather than the problem), treat that engagement as implicit task acceptance.
+> Proceed with the fix but frame it as the developer's decision: "I'll run the fix — you tell
+> me if it's right." Do not wait for an explicit "yes, fix it" that may never come from a
+> senior developer who considers that obvious.
+
+> **Developer decision ownership during skip challenges:** If a developer triggered the skip
+> challenge ("Show me"), make them own the next action. After presenting the found issue, ask:
+> "What would you ask the agent to do next?" Do not coach the answer. Proceed only after
+> they choose the next action, even if the answer is terse ("fix it, show me the diff, then
+> run the session tests"). The challenge is only real if the developer drives.
+
 Note what the developer provides — this is what the eval will assess for context quality:
 - Did they describe the symptom?
 - Did they mention what they already tried?
@@ -41,6 +54,13 @@ Delegate to code-work subagent:
     suspected_location: {if provided}
     prior_attempts: {if provided}
 
+> **Do not over-specify the patch.** If the facilitator's scan already found a concrete bug,
+> pass the evidence to the bug-fix sub-recipe as a bug report — not an implementation recipe.
+> Example: "Issue: serializer signs with fallback key first; evidence: comment/code
+> contradiction in get_signing_serializer; ask the subagent to propose and apply the smallest
+> correct fix." The code-work subagent should still own the implementation. Do not provide the
+> exact patch unless the developer explicitly proposed that patch.
+
 While waiting (insight 1.1b): "Something to watch for with bug fixes — AI loves wrapping things in try/catch to make the error go away. That's not fixing the bug, that's hiding it. The diff will tell you which one happened."
 
 [Subagent investigates, fixes, returns results]
@@ -51,11 +71,24 @@ Present results naturally — don't list return values mechanically:
 Show the diff:
 "Here's exactly what changed — take a look."
 
+> **Avoid duplicate diff display.** If the code operation output is already visible to the
+> developer (e.g., inline diff display from the subagent), do not repeat the diff in the
+> facilitator's speech. Instead, reference it: "You can see the diff above — the key change
+> is [one-sentence summary]."
+
 **Watch what the developer does next.** This is what the eval will assess for fix verification:
 - Do they review the diff?
 - Do they ask questions about the fix?
 - Do they run tests themselves?
+- Do they question implementation choices (why this approach vs. alternatives)?
+- Do they probe edge cases or boundary conditions?
 - Or do they just accept it and move on?
+
+> **Design-level verification.** Senior developers may verify at the design level — questioning
+> why a particular approach was chosen, probing edge cases, or asking about alternative
+> implementations. This is Strong-level verification even if they don't explicitly run tests
+> or open the diff themselves. The eval dimension "fix_verification" should recognize that
+> questioning implementation decisions (not just reading the diff) qualifies as Strong.
 
 If the developer accepts immediately without checking, wait a beat. Don't coach yet — the eval will catch it. But if they explicitly say "looks good" without looking, you can naturally say:
 "Want to see the diff? Worth a quick check."
@@ -66,7 +99,11 @@ Watch whether the developer adjusts their approach. This triggers the conditiona
 ## Eval
 Delegate to eval subagent (async: true):
 
-While waiting (insight 1.1c): "One pattern you'll see — if AI is going in circles after two or three attempts, the fix isn't 'try again.' It's changing the angle. Different context, different file, different theory about the cause."
+While waiting (insight 1.1c — **skip if the fix was clean/one-pass**): "One pattern you'll see — if AI is going in circles after two or three attempts, the fix isn't 'try again.' It's changing the angle. Different context, different file, different theory about the cause."
+
+> **Conditional delivery:** This insight is about AI looping. If the fix was clean and
+> one-pass, this insight is irrelevant per teacher-instructions.md Section 13 Rule 4.
+> Stay quiet, or draw from a previous module's insight pool per Rule 5.
 
 ```
 You are evaluating how well a developer approached fixing a bug with AI assistance.
