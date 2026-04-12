@@ -1,5 +1,5 @@
 {
-  "current_cycle": 13,
+  "current_cycle": 14,
   "status": "idle",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -109,6 +109,15 @@
       "bucket_a_count": 4,
       "bucket_b_count": 3,
       "commit": "300e13d"
+    },
+    {
+      "cycle": 13,
+      "personality": "karthik_multitasker",
+      "stage": "5",
+      "recipe": "eval-ratchet",
+      "bucket_a_count": 4,
+      "bucket_b_count": 3,
+      "commit": null
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -197,7 +206,7 @@
       "promotes_at": 3,
       "promoted": true,
       "promoted_at_cycle": 7,
-      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11), spec-to-pipeline (c12). Remaining modules still need sections."
+      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11), spec-to-pipeline (c12), eval-ratchet (c13). Remaining modules still need sections."
     },
     "consecutive_wait_time_insights_missing": {
       "description": "Wait-time insights missing when code operations occur — no insight list in teaching script",
@@ -206,11 +215,11 @@
       "promotes_at": 3,
       "promoted": true,
       "promoted_at_cycle": 8,
-      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11), spec-to-pipeline (c12). Remaining modules still need lists."
+      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11), spec-to-pipeline (c12), eval-ratchet (c13). Remaining modules still need lists."
     },
     "haiku_persona_over_polishing": {
-      "description": "Mock dev models produce personas that fade defining traits after 60% of session (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9, overconfident senior drops to compliant in cycle 11, hostile dev becomes cooperative in cycle 12)",
-      "occurrences": 5,
+      "description": "Mock dev models produce personas that fade defining traits after 60% of session (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9, overconfident senior drops to compliant in cycle 11, hostile dev becomes cooperative in cycle 12, multitasker becomes fully engaged in cycle 13)",
+      "occurrences": 6,
       "first_seen": 5,
       "promotes_at": 3,
       "promoted": true,

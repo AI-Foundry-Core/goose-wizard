@@ -611,3 +611,50 @@ Each entry:
   - **Evidence:** cycles 5-12 (both evaluators every cycle)
   - **Occurrences:** 8 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, spec-first, escalation-routing, and spec-to-pipeline. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, three-agent-pipeline, parallel-reviewers, and remaining Stage 4-5 modules.
   - **Why not applied universally:** Same rationale — each module needs contextually appropriate enterprise questions.
+
+---
+
+### Cycle 13 — Karthik (multitasker) — Stage 5 / Eval Ratchet
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-5/eval-ratchet.teach.md
+  - **Before:** "Delegate to code-work subagent" with no guidance on developer-guessed thresholds. Facilitator presented measured value directly.
+  - **After:** Added "Let the developer set the threshold" block. If developer guesses, let them build with the guess, run the check, and discover the gap through execution. Two paths: guess (facilitator asks "how many tests can disappear?") vs. measured (proceed normally). Fully Adaptive mode — consequence teaches, not facilitator.
+  - **Why:** Both evaluators flagged the facilitator pre-empting the threshold mistake ("Before you set a ratchet, you need the actual number") as Guided-Adaptive behavior in a Fully Adaptive session. Opus: "The facilitator caught the mistake before it happened, preventing a natural teaching moment." Codex: "The session never tests whether Karthik would protect himself from a bad baseline." Threshold precision should be tested authentically.
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-ratchet.teach.md
+  - **Before:** Coaching section said "Read eval results. For each dimension:" — implying dimension-by-dimension delivery
+  - **After:** Replaced with holistic coaching instruction: "Deliver coaching as a holistic summary, not dimension by dimension. 1-3 sentences per dimension maximum. Lead with what's Strong, weave in what's Weak. Do not recap conclusions the developer already reached during the session."
+  - **Why:** Opus weakness #3: coaching synthesis covers four distinct topics across two paragraphs, going dimension by dimension. teacher-instructions.md Section 4 says "Do not mechanically go dimension by dimension." The script's framing ("For each dimension") invited the violation.
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-ratchet.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[define-success]`, `[specificity]`, `[feedback-loops]`, `[enterprise]`, `[verify]`, `[iteration]`
+  - **Why:** `consecutive_wait_time_insights_missing` was auto-promoted at cycle 8. Eval-ratchet has multiple subagent runs (baseline measurement, config/script creation, override mechanism). Cycle 13 transcript improvised three good insights but the script lacked a reusable list. This is the Stage 5 eval-ratchet application.
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-ratchet.teach.md
+  - **Before:** No enterprise grounding section existed. Facilitator never connected ratchet design to team governance, config conventions, or cross-project coordination.
+  - **After:** Added `## Enterprise Grounding` section before Bridge. Required question: "On your team, who is allowed to lower this threshold — and does that change need a PR approval?" Two optional follow-ups on config location and cross-project ratchets.
+  - **Why:** Enterprise readiness at 3/5 for ninth consecutive cycle (5-13). Opus flagged three specific gaps: no team governance, no file location conventions, no cross-project coordination. Codex flagged same gaps plus unused v1 artifacts polluting a shared repo. `enterprise_context_missed_openings` auto-promoted at cycle 7; this is the Stage 5 eval-ratchet application.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Karthik's multitasker persona fades in final third — attention breaks concentrate in first third, engagement increases monotonically
+  - **Evidence:** cycle 13 (Opus weakness on mock dev realism, Codex weakness #2). Also cycles 5, 7, 9, 11, 12 (cross-model persona fading)
+  - **Occurrences:** 6 (incrementing `haiku_persona_over_polishing` from 5). Already auto-promoted at cycle 9. Opus confirms this is now a "cross-model pattern" — both Haiku and GPT 5.4 show the same 60/40 split. Suggested fix: simulator persona instruction "Maintain persona-defining behaviors throughout, including the final third."
+  - **Why not applied:** Simulator persona constraint issue, not a teaching script gap.
+
+- **Finding:** Unused v1 artifacts (.quality-ratchet-v1.json, scripts/check_ratchet_v1.py) created as simulator scaffolding but not cleaned up
+  - **Evidence:** cycle 13 (Codex weakness #3)
+  - **Occurrences:** 1
+  - **Why not applied:** Simulator artifact hygiene issue, not a teaching script bug. If teaching scripts need contrast artifacts for "mistake instruction," they should be shown in the transcript and deleted after the contrast. Hidden scaffolding should not pollute the target repo.
+
+- **Finding:** Enterprise readiness at 3/5 for ninth consecutive cycle — structural gap
+  - **Evidence:** cycles 5-13 (both evaluators every cycle)
+  - **Occurrences:** 9 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, spec-first, escalation-routing, spec-to-pipeline, and eval-ratchet. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, three-agent-pipeline, parallel-reviewers, eval-foundation, and remaining Stage 5-7 modules.
+  - **Why not applied universally:** Same rationale — each module needs contextually appropriate enterprise questions.

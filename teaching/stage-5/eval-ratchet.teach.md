@@ -17,17 +17,30 @@ Let the developer connect this to their own experience.
 ## The Task
 Developer picks a metric to ratchet — test count, coverage percentage, lint score, or something else meaningful in their project.
 
+**Let the developer set the threshold.** If the developer guesses or rounds (e.g., "three hundred something"), do NOT correct them. Let them build the ratchet with their guessed value. Run the check. If the real value is far above the threshold, the gap will be visible — ask: "The ratchet says OK. But [actual] tests pass and your floor is [guess]. How many tests can disappear before this catches it?" The developer discovers the problem through execution, not instruction. This is Fully Adaptive — the consequence teaches, not the facilitator.
+
 Delegate to code-work subagent:
   sub-recipe: "eval-ratchet"
   parameters:
     metric_to_ratchet: {developer's chosen metric}
-    current_value: {if they know it}
+    current_value: {developer's stated value — even if it's a guess}
     ratchet_file: {if one exists}
 
 [Subagent measures current value, creates ratchet config, builds check script]
 
-Present results naturally:
-"Your [metric] is currently at [value]. I've set that as the floor. Here's the check script — it measures the metric, compares against the stored threshold, and fails with a specific message if it drops. When the metric improves, the threshold ratchets up automatically."
+If developer used a guess as the threshold:
+  Run the check script. It will pass (real value exceeds guess). Show the output.
+  "The ratchet says OK. But [real value] tests pass and your floor is [guessed value]. What does that gap mean?"
+  Let the developer reach the conclusion: the floor is too low, you need the real number.
+  "What command gives you the number you'd trust?"
+  Developer measures. Update the ratchet with the precise value.
+
+If developer measured first (unprompted):
+  Present results naturally:
+  "Your [metric] is currently at [value]. I've set that as the floor."
+
+Present the check script:
+"Here's the check script — it measures the metric, compares against the stored threshold, and fails with a specific message if it drops. When the metric improves, the threshold ratchets up automatically."
 
 Demonstrate the ratchet:
 "Let me show you what happens when it catches a regression. [Simulate or describe a drop.] See that error? '[Metric] dropped from 203 to 198. 5 tests were removed or broken.' That's specific enough to act on immediately."
@@ -86,7 +99,7 @@ Return as JSON:
 ```
 
 ## Coaching
-Read eval results. For each dimension:
+Read eval results. Deliver coaching as a holistic summary, not dimension by dimension. 1-3 sentences per dimension maximum. Lead with what's Strong, weave in what's Weak. Do not recap conclusions the developer already reached during the session.
 
 ### Metric Selection
 | Rating | Facilitator Says |
@@ -118,6 +131,25 @@ Read eval results. For each dimension:
 
 If ALL dimensions are Strong:
 "The ratchet is solid — right metric, precise baseline, clear failure messages, and a deliberate override mechanism. Quality can only go up from here. Literally."
+
+## Wait-Time Insights
+Deliver one insight per qualifying code operation (30+ seconds). Use colleague voice, 1-2 sentences. Suppress during challenge assessments (teacher-instructions.md Section 13 Rule 8).
+
+1. [define-success] "Ratchets work because they encode a decision you already made. The hard part was choosing the metric — the automation just remembers it."
+2. [specificity] "The failure message is the ratchet's user interface. If someone at 2am can't act on it without reading the code, the message needs more detail."
+3. [feedback-loops] "The override log solves a problem most teams discover the hard way — someone quietly lowers the bar and nobody notices until quality is gone."
+4. [enterprise] "In a team, the ratchet config file is a contract. Where it lives, who can change it, and whether changes need review are governance decisions."
+5. [verify] "A ratchet that passes on a bad threshold is worse than no ratchet — it gives false confidence. The measured value is the only honest baseline."
+6. [iteration] "Start with one ratchet on one metric. Once the team trusts it, adding a second is easy. Starting with five means nobody maintains any of them."
+
+## Enterprise Grounding
+After the override mechanism discussion (or after the regression demo if overrides are not triggered), ask one or two enterprise questions. Maximum two. Do not turn the session into process design.
+
+Required question: "On your team, who is allowed to lower this threshold — and does that change need a PR approval?"
+
+Optional follow-up (pick the most relevant):
+- "Where does the ratchet config live in your repo — root, a config directory, or somewhere the team has a convention for?"
+- "You're working on three projects. If ratchets work here, would you set them up the same way in the other two — or does each project need different metrics?"
 
 ## Bridge
 "The ratchet prevents regression on metrics you can count. But what about evaluation criteria that aren't numbers? 'Check quality' produces rubber stamps. 'Rate each assertion as meaningful, weak, or trivial' produces findings. That's eval design — making your criteria specific enough to actually catch problems."
