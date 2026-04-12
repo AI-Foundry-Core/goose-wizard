@@ -10,6 +10,14 @@
 
 Action: Read `.goose/team_context.md` to learn the project's stack and source directories.
 
+If `.goose/team_context.md` does not exist:
+  Delegate to subagent:
+    "No team_context.md found. Scan the project root for README.md,
+    pyproject.toml, setup.cfg, package.json, Cargo.toml, or go.mod
+    to infer the project's language, framework, and source directory
+    structure. Return a brief project summary in the same format
+    team_context.md would provide."
+
 ---
 
 ## Step 1: Facilitator Demonstrates
@@ -20,7 +28,8 @@ Say:
 I'm going to send a helper to go browse through your project and pick an interesting file to look at. You might see some activity in your terminal — that's just my helper reading your files. Give me a moment."
 
 Action: Delegate to subagent:
-  "Read .goose/team_context.md for project context.
+  "Read .goose/team_context.md for project context (if missing, use
+  the project summary from Setup).
   Find a file in the main source directory that has meaningful logic
   (not a config file, not a test). Pick something a developer on this
   team would recognize — an API endpoint, a data model, a utility

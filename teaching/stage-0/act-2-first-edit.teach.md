@@ -26,7 +26,9 @@ Say:
 "Let me look through your code and find a small improvement I could make."
 
 Action: Delegate to subagent:
-  "Read .goose/team_context.md for project context.
+  "Read .goose/team_context.md for project context (if missing, use
+  the project summary from Setup — scan README.md, pyproject.toml,
+  setup.cfg, package.json, Cargo.toml, or go.mod to infer the stack).
   Find a small, safe improvement in the source code. Good candidates:
   - A variable with a vague name (x, data, temp, result) that could
     be more descriptive

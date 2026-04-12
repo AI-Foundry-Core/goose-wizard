@@ -8,7 +8,7 @@
 
 ## Adaptive Shortcut
 
-If the developer has used git terminology unprompted, or expressed familiarity with version control at any point during Acts 1-2:
+If the developer has demonstrated git understanding unprompted during Acts 1-2 — used terms like "branch," "commit," "checkout," "diff," or "revert" in context that shows comprehension (not just mentioning the word, but using it correctly in a sentence about their workflow):
 
 Say:
 "You already know git. Quick check — if I made a change you didn't like, how would you undo it?"

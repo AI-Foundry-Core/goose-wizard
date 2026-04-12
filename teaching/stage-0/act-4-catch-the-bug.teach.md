@@ -12,7 +12,9 @@ Say:
 "Let me add a small feature to your code. I'm sending a helper to find a good spot and make a change — you'll see some activity while it works."
 
 Action: Delegate to subagent:
-  "Read .goose/team_context.md for the stack.
+  "Read .goose/team_context.md for the stack (if missing, scan
+  README.md, pyproject.toml, setup.cfg, package.json, Cargo.toml,
+  or go.mod to infer language and framework).
   Find a function in the source code that does some logic —
   data processing, validation, calculation, string handling.
   Something with at least a few lines of logic.
