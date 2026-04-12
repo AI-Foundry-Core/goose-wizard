@@ -70,17 +70,47 @@ If the one-pager is solid, proceed to elaboration:
 
 Let the developer decide. If they want to elaborate:
 
+**Before delegating:** The developer must own the concrete choices. For each open question the developer surfaced (filtering approach, error format, pagination style, auth mechanism, etc.), ask the developer to decide before passing to the subagent. Do not embed design decisions in the code-operation prompt that the developer has not explicitly chosen. Example prompts:
+- "You said filtering is needed — what fields does [persona] actually filter on?"
+- "You mentioned pagination — for a simple dashboard, which style fits: page numbers or a cursor?"
+- "Error format — what fields does the frontend need in every error response?"
+
+If the developer genuinely does not know (not avoidance, but real knowledge gap), mark the choice as provisional in the subagent prompt and flag it as an open design decision in the spec.
+
 Delegate to code-work subagent:
   sub-recipe: "idea-to-spec"
   parameters:
-    feature_idea: {one-pager content, with instruction to elaborate into full requirements}
+    feature_idea: {one-pager content, with developer's concrete choices, elaborated into full requirements}
     target_audience: {personas from one-pager}
-    context: {one-pager content as context}
+    context: {one-pager content as context, with any provisional choices flagged}
 
 [Subagent produces full requirements document]
 
 If the developer tries to jump to detailed requirements without the one-pager:
 "Hold on — before we go deep, let's make sure the idea survives a one-page summary. If you can't make the case in one page, more detail won't fix it. Start with the one-pager."
+
+---
+
+## Auth-Model Coaching Note
+
+When the developer's spec involves cross-origin API access (e.g., a React dashboard consuming a Flask API), CORS coaching alone is insufficient. After addressing CORS headers/origins, probe the deeper auth-model question:
+
+"CORS solves the browser-origin part. Separate question: does session-cookie auth work for [persona]'s client in your deployment? If the client isn't on the same cookie domain, session cookies won't arrive. That's a design decision — session-based with shared domain, or token-based auth for API clients. Worth capturing in the spec as an open question for review rather than assuming session cookies will work."
+
+Do not resolve this for the developer — surface it as an open design decision they need to flag in the spec.
+
+---
+
+## Wait-Time Insights
+
+Share one insight per subagent wait, in order. Adapt to what just happened in conversation.
+
+1. `[specificity]` — "The difference between a spec that works and one that doesn't usually isn't length. It's precision. 'Should be fast' gives the AI nothing. 'P95 under 200ms' gives it a test to write."
+2. `[specificity]` — "The questions you're asking now are the questions that would have come up three days into implementation. Cheaper to answer them in a document than in a debugging session."
+3. `[verify]` — "Every requirement in the spec should be something a machine can verify. If you can't write a test for it, the requirement is still too vague."
+4. `[progressive-elaboration]` — "A one-pager that kills a bad idea in 10 minutes is more valuable than a 25-page requirements doc that takes a week to write for the same bad idea."
+5. `[enterprise]` — "This is what your team lead can review quickly: persona, measurable success, kill gates. In a bigger team, that turns a vague ask into a concrete design-review conversation."
+6. `[define-success]` — "Kill criteria aren't pessimism — they're scope protection. Knowing when to stop is what keeps a 3-day feature from becoming a 3-month project."
 
 ---
 
