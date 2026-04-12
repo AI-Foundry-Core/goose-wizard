@@ -63,6 +63,12 @@ If the developer engages meaningfully:
 If the developer dismisses quickly ("yeah they look fine"):
   Pick a specific test: "Look at this one — [test name]. What happens if you swap the function's return value? Does this test fail?" Don't lecture — just make it concrete.
 
+**Disengagement check:** If the developer has given only one-word or one-phrase answers through the target selection and assertion review (e.g., "Sure," "OK," "They look fine" — no questions, no volunteered information), ask one explicit usefulness check before proceeding to iteration:
+
+  "Is this useful, or would you rather tackle something different?"
+
+If they choose to continue, proceed with one small iteration. If they redirect, follow their lead. Do not skip this check — "Want to add one?" is a task continuation prompt, not an engagement check. Per teacher-instructions.md Section 7: persistent minimal responses are the signal.
+
 **Watch what the developer does next.** The eval assesses multiple dimensions here:
 
 *Test execution:* Do they look at the test results? Do they examine failure messages? Or just glance and move on?
@@ -70,6 +76,8 @@ If the developer dismisses quickly ("yeah they look fine"):
 *Quality evaluation:* Do they question whether the tests are meaningful? Do they notice weak assertions? Or do they accept all passing tests without scrutiny?
 
 *Iteration:* Do they ask for a second round? Fix failures? Add edge cases? Or stop after the first pass?
+
+**No-overclaim rule:** Credit only what the developer actually did. If the facilitator supplied an edge case and the developer agreed it was missing, say they "checked" or "accepted" the gap — not that they "caught it" or "found it themselves." Accurate praise builds trust; inflated praise undermines it.
 
 If all tests pass on the first try and the developer accepts immediately, you can naturally surface:
 "All passing. Take a look at this one though — [pick a test with a weak assertion if one exists]. What do you think it's actually checking?"
@@ -81,6 +89,9 @@ If the developer doesn't iterate after failures, wait for the eval. Don't force 
 Delegate to eval subagent (async: true):
 
 While waiting (insight 1.2c): "The first round of tests is a starting point, not the finished product. The real coverage comes from the iteration — fix the failures, add the edge cases, tighten the assertions. Second pass is always better."
+
+If a second code operation occurs (iteration pass), use the next insight:
+While waiting (insight 1.2d): "Think of test writing as defining what 'correct' means before you ship. The tests are the spec — if the test doesn't break when the behavior changes, nobody agreed on what correct was."
 
 ```
 You are evaluating how well a developer approached writing tests with AI assistance.
@@ -162,6 +173,15 @@ Read eval results. For each dimension:
 - Lead with what was strong before coaching what was weak
 - Use contrast examples for weak ratings
 - Keep it to 1-3 sentences per dimension — don't lecture
+
+## Enterprise Grounding
+After the tests pass, ask one team-workflow question to connect the session to the developer's real environment:
+
+"These tests cover the function now. Where would your team see these results — local pytest only, CI, PR checks, or a coverage report?"
+
+Keep it to one question unless the developer wants to go deeper. If the developer has a CI or coverage setup, acknowledge it. If they don't, plant the seed: "Something to think about — tests that only run locally tend to rot. Getting them into CI is the difference between tests that exist and tests that protect you."
+
+Do not turn this into a lecture. One question, one follow-up at most.
 
 ## Bridge
 "You've been fixing bugs and writing tests — both times, you were the one checking the quality. Now imagine pointing AI at someone else's PR and getting a full review in 30 seconds. That's next."

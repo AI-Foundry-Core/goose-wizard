@@ -421,3 +421,50 @@ Each entry:
   - **Evidence:** cycle 8 (Codex weakness #1, Opus mock dev realism note)
   - **Occurrences:** 1
   - **Why not applied separately:** The metrics-conflict handling note added above addresses this structurally. The divergence was a mock model artifact, not a script gap. The script now tells facilitators to resolve conflicting numbers explicitly.
+
+---
+
+### Cycle 9 — Meera (quiet/disengaged) — Stage 1 / Test Writer
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-1/test-writer.teach.md
+  - **Before:** No disengagement check existed after the assertion-quality review. Facilitator proceeded to iteration without checking whether the developer found the session useful.
+  - **After:** Added "Disengagement check" block after the dismissal handling: if the developer has given only one-word/one-phrase answers through target selection and assertion review, ask "Is this useful, or would you rather tackle something different?" before proceeding. Explicitly notes that "Want to add one?" is a task prompt, not an engagement check.
+  - **Why:** Both evaluators flagged this. teacher-instructions.md Section 7 requires this check for persistent disengagement. Meera gave one-word answers across the entire session and the check was never triggered.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/test-writer.teach.md
+  - **Before:** No guidance on accurately crediting developer behavior during iteration coaching
+  - **After:** Added "No-overclaim rule" after the iteration observation checklist: credit only what the developer actually did. If the facilitator supplied an edge case and the developer agreed, say they "checked" or "accepted" the gap — not that they "caught it" or "found it themselves."
+  - **Why:** Codex flagged facilitator saying Meera "caught the empty list gap yourself" when the facilitator actually identified it and Meera agreed. Accurate praise builds trust; inflated praise undermines it.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/test-writer.teach.md
+  - **Before:** No enterprise grounding section — test writing occurred in a vacuum with no connection to team CI, coverage expectations, or test ownership
+  - **After:** Added `## Enterprise Grounding` section before Bridge. Required question: "Where would your team see these results — local pytest only, CI, PR checks, or a coverage report?" One question, one follow-up at most.
+  - **Why:** Enterprise readiness at 3/5 for five consecutive cycles (5-9). Both evaluators flagged the same structural absence. Test-writer is a natural fit for enterprise grounding — test ownership and CI visibility are core enterprise concerns.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/test-writer.teach.md
+  - **Before:** Only three wait-time insights (1.2b, 1.2a, 1.2c) existed. Insight 1.2d was missing from the script entirely.
+  - **After:** Added insight 1.2d ("Think of test writing as defining what 'correct' means before you ship") as an optional fourth insight for use during a second code operation (iteration pass).
+  - **Why:** Both evaluators noted 3 of 4 insights used but 1.2d was unavailable. Opus specifically noted 1.2d would have been appropriate during the eval wait or as a closing thought. Four insights now available for modules with multiple code operations.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Haiku breaks quiet/disengaged persona when asked specific technical questions — delivers two-clause analytical responses instead of one-word answers
+  - **Evidence:** cycle 5 (Ananya RFC vocabulary), cycle 7 (Arjun investigation rigor), cycle 9 (Meera mapping assertion analysis)
+  - **Occurrences:** 3 — **AUTO-PROMOTED to Bucket A.** Fix belongs in simulator persona constraints, not teaching scripts. Haiku needs explicit constraint: "Even when asked specific technical questions, keep answers to one clause maximum. Do not explain reasoning unless asked a follow-up."
+  - **Why not applied this cycle:** Simulator persona prompt change, not a teaching script edit. Will be applied when simulator infrastructure is next edited.
+
+- **Finding:** Facilitator fills gaps too quickly with quiet developers — answers own questions instead of asking follow-ups
+  - **Evidence:** cycle 9 (Opus pedagogy weakness #1)
+  - **Occurrences:** 1
+  - **Why not applied:** The facilitator's instinct to keep things moving is reasonable with a quiet person. This is execution quality, not a script bug. The disengagement check added above partially addresses this by creating a pause point. Need more quiet-persona cycles to confirm whether gap-filling degrades learning.
+
+- **Finding:** No domain-specific coaching — generic principles delivered regardless of developer's team context (e.g., pipeline reliability for data pipeline teams)
+  - **Evidence:** cycle 9 (Opus pedagogy weakness #2)
+  - **Occurrences:** 1
+  - **Why not applied:** Requires the facilitator to read team_context.md and connect coaching language to the developer's domain. This is an enhancement that could improve engagement with quiet developers. Need more persona-type combinations to confirm the pattern.

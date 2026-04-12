@@ -1,5 +1,5 @@
 {
-  "current_cycle": 9,
+  "current_cycle": 10,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -73,6 +73,15 @@
       "bucket_a_count": 4,
       "bucket_b_count": 3,
       "commit": "b7ed79f"
+    },
+    {
+      "cycle": 9,
+      "personality": "meera_quiet",
+      "stage": "1",
+      "recipe": "test-writer",
+      "bucket_a_count": 4,
+      "bucket_b_count": 3,
+      "commit": "PENDING"
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -171,9 +180,23 @@
       "promoted_at_cycle": 8
     },
     "haiku_persona_over_polishing": {
-      "description": "Haiku mock dev model produces personas that are too competent for stated experience level (vocabulary in cycle 5, investigation rigor in cycle 7)",
-      "occurrences": 2,
+      "description": "Haiku mock dev model produces personas that are too competent for stated experience level (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9)",
+      "occurrences": 3,
       "first_seen": 5,
+      "promotes_at": 3,
+      "promoted": true,
+      "promoted_at_cycle": 9
+    },
+    "facilitator_fills_gaps_quickly": {
+      "description": "Facilitator answers own questions too quickly with quiet developers instead of asking follow-ups",
+      "occurrences": 1,
+      "first_seen": 9,
+      "promotes_at": 3
+    },
+    "no_domain_specific_coaching": {
+      "description": "Generic coaching principles delivered regardless of developer's domain context (e.g., pipeline reliability for data pipeline teams)",
+      "occurrences": 1,
+      "first_seen": 9,
       "promotes_at": 3
     }
   },
