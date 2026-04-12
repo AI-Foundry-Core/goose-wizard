@@ -564,3 +564,50 @@ Each entry:
   - **Evidence:** cycles 5-11 (both evaluators every cycle)
   - **Occurrences:** 7 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, spec-first, and escalation-routing. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, three-agent-pipeline, parallel-reviewers, and all Stage 4-5 modules.
   - **Why not applied universally:** Same rationale as prior cycles — each module needs contextually appropriate enterprise questions.
+
+---
+
+### Cycle 12 — Deepak (hostile) — Stage 4 / Spec to Pipeline
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-4/spec-to-pipeline.teach.md
+  - **Before:** Phase 1 had no resistance fallback. Facilitator could skip the entire preflight testability check if the developer resisted.
+  - **After:** Added resistance fallback: scale down to one criterion ("Just one. Pick the rate threshold. What exact test proves it works?") instead of skipping. If developer will not engage with even one, flag test_specificity as untested.
+  - **Why:** Both evaluators flagged Phase 1 as entirely skipped. Opus: "The developer never independently classifies tests by level or writes test shapes." Codex: "The softer prompt never proves Deepak can choose unit vs integration vs e2e." The script's Phase 1 exists but needs a fallback for hostile developers who refuse the full three-criterion exercise.
+  - **Confidence:** high
+
+- **File:** teaching/stage-4/spec-to-pipeline.teach.md
+  - **Before:** No hard gate after weak matrix traces. Facilitator could acknowledge a weak trace and proceed to build.
+  - **After:** Added hard repair step in Phase 2: if developer finds a weak trace, do not proceed to execution plan. Developer must choose repair (add stronger test, split requirement, or mark manual gate). Delegate narrow revision, re-present changed trace, confirm it proves the requirement. Explicit instruction: "Do not proceed to Phase 4 until every requirement traces to at least one test that would actually prove it."
+  - **Why:** Codex central finding: "Deepak correctly says REQ-1 needs tests for create, update, and delete. The facilitator says 'That is the right catch,' but does not revise the coverage matrix. The build proceeds. The review agent later says the same thing." Opus also flagged this indirectly. A checkpoint that comments but does not gate is not a checkpoint.
+  - **Confidence:** high
+
+- **File:** teaching/stage-4/spec-to-pipeline.teach.md
+  - **Before:** Coaching section had no brevity constraint
+  - **After:** Added brevity rule: "1-3 sentences per dimension. Maximum. Pick one specific praise, one sharpening note, and the bridge. Do not recap what the developer did."
+  - **Why:** Opus weakness #3: coaching synthesis covers six points in ~12 sentences across multiple paragraphs. Violates teacher-instructions.md Section 5. A hostile developer who just finished a full spec-to-pipeline exercise does not need a multi-paragraph debrief.
+  - **Confidence:** high
+
+- **File:** teaching/stage-4/spec-to-pipeline.teach.md
+  - **Before:** No enterprise grounding section and no wait-time insights list existed
+  - **After:** Added `## Enterprise Grounding` section before Checkpoint with three contextually appropriate questions (coverage matrix location, spec sign-off, test naming conventions). Added `## Wait-Time Insights` with 6 ordered insights tagged [define-success], [verify], [specificity], [feedback-loops], [enterprise], [iteration].
+  - **Why:** Enterprise readiness at 3/5 for eighth consecutive cycle (5-12). `enterprise_context_missed_openings` auto-promoted at cycle 7; `consecutive_wait_time_insights_missing` auto-promoted at cycle 8. Spec-to-pipeline is a natural fit — coverage matrices are review artifacts, test naming should match team conventions.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** E7 Copilot comparison resolved in one exchange and never revisited as evidence accumulates
+  - **Evidence:** cycle 12 (Opus weakness #2 with detailed analysis, Codex weakness #3)
+  - **Occurrences:** 1
+  - **Why not applied:** Enhancement, not a script bug. The initial E7 response is strong (both evaluators praised it). Compounding E7 with later evidence (matrix catch, review agent results) would improve the session but requires facilitator judgment about when to callback, not a script instruction. If future hostile-persona cycles show the same one-shot E7 pattern, consider adding a scripted E7 callback point at the matrix inspection stage.
+
+- **Finding:** Hostile persona drops hostile voice in final third of session — becomes fully cooperative
+  - **Evidence:** cycle 12 (Opus mock dev realism weakness #1, Codex mock dev realism). Also cycles 5, 7, 9, 11 (Haiku and GPT 5.4 persona fading)
+  - **Occurrences:** 5 (incrementing `haiku_persona_over_polishing` from 4). Already auto-promoted at cycle 9. Both mock dev models (Haiku and GPT 5.4) show the same pattern: persona-defining behavior maintained for first 60% then evaporates.
+  - **Why not applied:** Simulator persona constraint issue, not a teaching script gap.
+
+- **Finding:** Enterprise readiness at 3/5 for eighth consecutive cycle — structural gap
+  - **Evidence:** cycles 5-12 (both evaluators every cycle)
+  - **Occurrences:** 8 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, spec-first, escalation-routing, and spec-to-pipeline. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, three-agent-pipeline, parallel-reviewers, and remaining Stage 4-5 modules.
+  - **Why not applied universally:** Same rationale — each module needs contextually appropriate enterprise questions.
