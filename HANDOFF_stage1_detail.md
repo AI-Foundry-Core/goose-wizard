@@ -1,7 +1,7 @@
 # Handoff: Flesh Out Stage 1 Detail
 
 ## What You're Doing
-Continue planning the RIL Agentic Harness — specifically, flesh out the missing pieces of Stage 1. The full plan lives at `ideas/ril-agentic-harness-plan.md` — read it first (it's ~1400 lines, read the whole thing).
+Continue planning the RIL Agentic Harness — specifically, flesh out the missing pieces of Stage 1. The full plan lives at `ideas/plan.md` — read it first (it's ~1400 lines, read the whole thing). Also read `REFERENCES.md` for quick-access technical details.
 
 ## Project Context
 We're building an agentic development harness for Reliance teams by forking Goose (https://github.com/aaif-goose/goose). The harness teaches teams agentic development progressively through 6 stages (0-5) using "recipes" (Goose's YAML workflow format). We combine Goose's runtime with our pipeline's design patterns and CourseForge's teaching model.
@@ -97,7 +97,7 @@ teaching/stage-1/
 - Working recipes should be clean and reusable — no teaching content mixed in
 
 ## Reference Files
-- Full plan: `ideas/ril-agentic-harness-plan.md`
-- Stage 0 act scripts (for format reference): in the plan under "Act Scripts (Say/Check/Action Detail)"
-- CourseForge script format: Say/Check/Action blocks, teacher follows precisely, Check points are gates
-- Project CLAUDE.md: context on the pipeline patterns being ported
+- Full plan: `ideas/plan.md`
+- Technical references: `REFERENCES.md` (pipeline patterns, Goose mechanics, CourseForge format)
+- Stage 0 act scripts (for format reference): in `ideas/plan.md` under "Act Scripts (Say/Check/Action Detail)" — these are COMPLETE scripts that have NOT yet been extracted to individual act files. Use them as the format template for Stage 1 scripts.
+- Project CLAUDE.md: project context, principles, decisions, structure
