@@ -1,5 +1,5 @@
 {
-  "current_cycle": 14,
+  "current_cycle": 15,
   "status": "idle",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -118,22 +118,46 @@
       "bucket_a_count": 4,
       "bucket_b_count": 3,
       "commit": "bf34fbf"
+    },
+    {
+      "cycle": 14,
+      "personality": "priya_eager",
+      "stage": "0",
+      "recipe": "(all 5 acts)",
+      "type": "regression",
+      "bucket_a_count": 0,
+      "bucket_b_count": 1,
+      "regression_result": "passed",
+      "baseline_cycle": 1,
+      "opus_score": "28/35",
+      "codex_score": "27/35"
     }
   ],
   "scripts_checkpoint_branch": null,
-  "next_planned": null,
+  "next_planned": {
+    "cycle": 15,
+    "type": "normal",
+    "stage": "1",
+    "recipe": "code-review",
+    "personality": "sneha_enterprise",
+    "mock_model": "haiku",
+    "edge_cases": ["E8_data_privacy"],
+    "rationale": "Stage 1 code-review with enterprise persona and data privacy edge case. Continues Phase 2 depth on Stage 1 recipes."
+  },
   "bucket_b_recurring": {
     "act2_review_verification": {
       "description": "Act 2 approval without review verification",
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": 1,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "note": "Confirmed again in cycle 14 regression by both evaluators"
     },
     "act3_developer_hands_on": {
       "description": "Act 3 developer never touches git",
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": 1,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "note": "Confirmed again in cycle 14 regression by both evaluators"
     },
     "act5_compatibility_check": {
       "description": "Act 5 specific-request may produce breaking changes without test/risk note",
@@ -143,9 +167,10 @@
     },
     "persona_enterprise_questions": {
       "description": "Persona simulation does not surface enterprise workflow questions",
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": 1,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "note": "Confirmed again in cycle 14 regression by both evaluators"
     },
     "transcript_metadata_leak": {
       "description": "Transcript metadata contains fourth-wall breaking annotations (EVAL RESULT, raw JSON, dimensions)",
@@ -241,6 +266,12 @@
       "description": "Generic coaching principles delivered regardless of developer's domain context (e.g., pipeline reliability for data pipeline teams)",
       "occurrences": 1,
       "first_seen": 9,
+      "promotes_at": 3
+    },
+    "act1_config_file_selection": {
+      "description": "Act 1 demonstration picks config.py despite script saying 'not a config file' — literal filename violates selection rule even though file contains real logic",
+      "occurrences": 1,
+      "first_seen": 14,
       "promotes_at": 3
     }
   },

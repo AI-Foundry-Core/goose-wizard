@@ -658,3 +658,25 @@ Each entry:
   - **Evidence:** cycles 5-13 (both evaluators every cycle)
   - **Occurrences:** 9 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, spec-first, escalation-routing, spec-to-pipeline, and eval-ratchet. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, three-agent-pipeline, parallel-reviewers, eval-foundation, and remaining Stage 5-7 modules.
   - **Why not applied universally:** Same rationale — each module needs contextually appropriate enterprise questions.
+
+---
+
+### Cycle 14 — Priya (eager) — Stage 0 (all acts) — REGRESSION
+
+**APPLIED (Bucket A):**
+
+None. This was a regression cycle — no script changes applied.
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Act 1 demonstration picks `src/flask/config.py` despite script saying "not a config file"
+  - **Evidence:** cycle 14 (Codex script faithfulness deduction)
+  - **Occurrences:** 1
+  - **Why not applied:** The file contains real framework logic (Flask's config module), so it is arguably "not a config file" in the application-config sense. But the literal filename violates the script's selection rule. This is a script instruction that could be tightened ("not a file whose primary purpose is configuration, and avoid files with 'config' in the name") or a simulator file-selection constraint. Not a regression — the same script instruction existed in Cycle 1.
+
+**Regression Result:**
+
+- **Opus:** 28/35 (+1 vs Cycle 1 baseline of 27/35). Script Faithfulness improved 4→5. All other dimensions held.
+- **Codex:** 27/35 (same as Cycle 1 baseline of 27/35). All dimensions held.
+- **Verdict:** NO REVERT. No dimension dropped. Pipeline improvements are net-positive.
+- **Carried forward:** Act 2 review verification, Act 3 hands-on step, and enterprise question paths remain unimplemented from Cycle 1 recommendations.
