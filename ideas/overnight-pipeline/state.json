@@ -1,5 +1,5 @@
 {
-  "current_cycle": 6,
+  "current_cycle": 7,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -46,6 +46,15 @@
       "bucket_a_count": 3,
       "bucket_b_count": 3,
       "commit": "40e941e"
+    },
+    {
+      "cycle": 6,
+      "personality": "karthik_multitasker",
+      "stage": "5",
+      "recipe": "eval-foundation",
+      "bucket_a_count": 6,
+      "bucket_b_count": 3,
+      "commit": "f9add79"
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -114,9 +123,11 @@
     },
     "simulation_notes_eval_metadata": {
       "description": "Simulation notes section in transcript file contains eval ratings and dimension names (distinct from EVAL RESULT block issue)",
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": 4,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "promoted": true,
+      "promoted_at_cycle": 6
     },
     "persona_rfc_vocabulary_break": {
       "description": "Anxious junior persona name-drops RFC 7807 and cursor-vs-offset pagination, breaking experience-level fidelity",
@@ -126,8 +137,14 @@
     },
     "enterprise_context_missed_openings": {
       "description": "Facilitator misses natural openings for enterprise context when developer mentions team lead or cross-team dependencies",
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": 5,
+      "promotes_at": 3
+    },
+    "consecutive_wait_time_insights_missing": {
+      "description": "Second wait-time insight missing when consecutive code operations occur",
+      "occurrences": 1,
+      "first_seen": 6,
       "promotes_at": 3
     }
   },

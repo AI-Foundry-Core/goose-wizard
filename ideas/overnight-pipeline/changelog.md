@@ -268,3 +268,62 @@ Each entry:
   - **Evidence:** cycle 4 (Codex), cycle 5 (Codex)
   - **Occurrences:** 2 (incremented from 1)
   - **Why not applied:** Simulator infrastructure change, not a teaching script fix. Evaluator disagreement continues: Opus considers it correctly sequestered, Codex considers it a leak.
+
+---
+
+### Cycle 6 — Karthik (multitasker) — Stage 5 / Eval Foundation
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-5/eval-foundation.teach.md
+  - **Before:** "The Task" section had facilitator delegating directly to code-work subagent after developer chose pipeline output, with no developer-driven verification design step
+  - **After:** Added "Developer-Driven Verification Design" subsection: facilitator asks developer to propose verification commands for each claim before any code delegation. Developer's plan is passed to the subagent. If developer proposes re-reading the summary, that becomes the teaching moment.
+  - **Why:** Both evaluators flagged as primary weakness (Opus weakness #1, Codex weakness #1). Facilitator drove verification in a Fully Adaptive session — developer never designed a check or selected a command. Explicit Bucket A criterion: mode mismatch in Stages 5-7.
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-foundation.teach.md
+  - **Before:** Results presented declaratively: "Here's what the pipeline claimed vs. what actually happened... See that? The pipeline said [X] but..."
+  - **After:** Converted to Socratic form: show raw numbers side-by-side, then ask "What do you make of that?" Let developer draw conclusions. Add explanation only if developer misses the discrepancy.
+  - **Why:** Both evaluators flagged ~12 declarative statements vs ~4 questions. Fully Adaptive mode requires inverted ratio. Coaching section now has explicit Socratic rule.
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-foundation.teach.md
+  - **Before:** Automation Instinct Adequate coaching: "You mentioned automating this later. Do it now — while the checks are fresh. A verification script that takes an hour to write saves you from..."
+  - **After:** "You described the structure. What's stopping you from writing it right now? Pick the first row — which claim, which command, what does pass look like?"
+  - **Why:** Both evaluators flagged facilitator describing automation instead of pushing the developer to act. Stage 5 answer is "build it" not "here's what to build."
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-foundation.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[verify]` (x2), `[define-success]`, `[feedback-loops]`, `[enterprise]`, `[specialization]`
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Stages 2-4 were fixed in cycles 3-5; Stage 5 was still missing. Opus flagged missing second insight for consecutive operations.
+  - **Confidence:** high
+
+- **File:** teaching/stage-5/eval-foundation.teach.md
+  - **Before:** No enterprise grounding guidance — verification pattern taught in a vacuum
+  - **After:** Added "Enterprise Grounding" subsection after results: CI stage placement question, merge-block vs alert question, multi-project verification, ownership rule for unverifiable claims ("If the answer is 'someone,' it means nobody"). Uses questions not statements per Stage 5 mode.
+  - **Why:** Both evaluators flagged enterprise readiness 3/5. Karthik mentioned 3 projects, Slack pings, 20-minute window — facilitator never connected verification to his workflow. Both evaluators provided specific fix suggestions.
+  - **Confidence:** high
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** Stage 5 guidance had 4 bullet points with no explicit developer-drives-verification rule or Socratic ratio guidance
+  - **After:** Added 2 new bullet points: (1) developer designs verification before any code operation — facilitator asks what commands, delegates developer's plan; (2) Socratic ratio for Stage 5 — convert statements to questions, deliver answers only if developer doesn't reach them.
+  - **Why:** The mode mismatch is a script structural issue, but teacher-instructions.md is where facilitator behavior is codified across all Stage 5 modules. Without this, future Stage 5 modules would repeat the same pattern.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Second wait-time insight missing for consecutive code operations
+  - **Evidence:** cycle 6 (Opus, pacing weakness — two code operations but only one insight)
+  - **Occurrences:** 1
+  - **Why not applied:** Minor pacing gap. The insight list now exists (6 insights). Teacher-instructions.md Rule 3 already says consecutive operations can each get an insight. This is execution quality, not a script gap.
+
+- **Finding:** Simulation notes section in transcript file contains eval ratings and dimension names
+  - **Evidence:** cycle 4 (Codex), cycle 5 (Codex), cycle 6 (Codex fix #6)
+  - **Occurrences:** 3 — **AUTO-PROMOTED to Bucket A.** Fix belongs in simulator instructions, not teaching scripts. Will be applied when simulator infrastructure is next edited.
+  - **Why not applied this cycle:** Simulator infrastructure change, not a teaching script edit.
+
+- **Finding:** Enterprise context opportunities missed — facilitator does not connect verification to developer's specific workflow reality
+  - **Evidence:** cycle 5 (both evaluators enterprise 3/5), cycle 6 (both evaluators enterprise 3/5)
+  - **Occurrences:** 2 (incremented from 1 — cycle 5 was generic enterprise, cycle 6 is specific to verification grounding)
+  - **Why not applied as recurring:** The enterprise grounding section added in this cycle's Bucket A fix directly addresses this for eval-foundation. The recurring tracking is for modules that DON'T yet have enterprise grounding guidance.
