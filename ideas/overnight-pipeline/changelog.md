@@ -522,3 +522,45 @@ Each entry:
   - **Evidence:** cycles 5-10 (both evaluators every cycle)
   - **Occurrences:** 6 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, and spec-first. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, and all Stage 3-5 modules. The per-module approach is working but not yet universal.
   - **Why not applied universally:** Each module needs a contextually appropriate enterprise question. Batch-adding generic "where does this run?" to all modules would be worse than the current per-cycle targeted additions.
+
+---
+
+### Cycle 11 — Vikram (senior/overconfident) — Stage 3 / Escalation Routing
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** Section 13 wait-time insight rules had 7 numbered rules with no exception for challenge assessments
+  - **After:** Added rule 8: "Suppress during challenge assessments. During a challenge assessment (Section 7 skip-request handling), do not share wait-time insights. The assessment requires uncoached performance. Resume insights after the assessment is complete and coaching has begun."
+  - **Why:** Both evaluators flagged the wait-time insight ("the failure that burns you is never the one you planned for") as coaching delivered during a no-coaching challenge assessment. The insight system's "fire immediately" rule conflicts with the challenge assessment's "no coaching" rule. One-sentence addition resolves the protocol conflict.
+  - **Confidence:** high
+
+- **File:** teaching/stage-3/escalation-routing.teach.md
+  - **Before:** Checkpoint asked two questions ("Which failure opens the breaker first?" and "What does the next owner receive...?"). No completeness check on failure classes. Facilitator could proceed with incomplete failure classification.
+  - **After:** Added third checkpoint question: "Are there failures your current classes don't cover?" Added follow-up coaching requirement: if classes are incomplete (missing timeout, shared-state conflict, repeated no-progress), do not proceed to bridge. Developer must add missing classes before checkpoint is satisfied.
+  - **Why:** Both evaluators flagged that failure_classification was rated Adequate with specific coaching ("add timeout and repeated no-progress") but the facilitator never delivered it. The other three dimensions got coaching to completion; failure_classification got a pass. Asymmetric teaching rigor.
+  - **Confidence:** high
+
+- **File:** teaching/stage-3/escalation-routing.teach.md
+  - **Before:** No enterprise grounding section existed. Facilitator never connected escalation design to team workflow, audit trails, or design review.
+  - **After:** Added `## Enterprise Grounding` section before Bridge. Required question: "On your team, who signs off on a new escalation route before it goes live?" Optional follow-up on audit trail for breaker decisions. Maximum two questions.
+  - **Why:** Enterprise readiness at 3/5 for seventh consecutive cycle (5-11). Opus identified three specific gaps: no design review connection, no audit trail for breaker decisions, no cross-team routing. Codex flagged "Who signs off? Where is the breaker decision recorded?" `enterprise_context_missed_openings` was auto-promoted at cycle 7; this is the Stage 3 escalation-routing application.
+  - **Confidence:** high
+
+- **File:** teaching/stage-3/escalation-routing.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[specialization]`, `[verify]`, `[feedback-loops]`, `[enterprise]`, `[risk-ladder]`, `[specificity]`
+  - **Why:** `consecutive_wait_time_insights_missing` was auto-promoted at cycle 8. Escalation-routing has two subagent runs — both need available insights. The cycle 11 transcript used one improvised insight; a curated list ensures consistency and avoids the challenge-assessment conflict (new rule 8 suppresses insights during assessments, so insights 2-6 are available for post-assessment operations).
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Vikram loses overconfident voice after opening — becomes compliant-senior after first pushback
+  - **Evidence:** cycle 11 (Opus weakness #1 with detailed analysis, Codex weakness #2). Also cycles 5, 7, 9 (Haiku persona over-polishing)
+  - **Occurrences:** 4 (incrementing `haiku_persona_over_polishing` from 3). Already auto-promoted at cycle 9. Fix belongs in simulator persona constraints: "When the facilitator identifies a gap in your design, push back at least once using a specific pattern from your production experience before conceding."
+  - **Why not applied:** Simulator persona prompt change, not a teaching script edit. The persona prompt needs experience-level-specific pushback instructions for Haiku.
+
+- **Finding:** Enterprise readiness at 3/5 for seventh consecutive cycle — structural gap
+  - **Evidence:** cycles 5-11 (both evaluators every cycle)
+  - **Occurrences:** 7 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, spec-first, and escalation-routing. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, three-agent-pipeline, parallel-reviewers, and all Stage 4-5 modules.
+  - **Why not applied universally:** Same rationale as prior cycles — each module needs contextually appropriate enterprise questions.

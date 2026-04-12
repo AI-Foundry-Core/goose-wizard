@@ -1,5 +1,5 @@
 {
-  "current_cycle": 11,
+  "current_cycle": 12,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -91,6 +91,15 @@
       "bucket_a_count": 6,
       "bucket_b_count": 2,
       "commit": "a756e32"
+    },
+    {
+      "cycle": 11,
+      "personality": "vikram_senior",
+      "stage": "3",
+      "recipe": "escalation-routing",
+      "bucket_a_count": 4,
+      "bucket_b_count": 2,
+      "commit": null
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -179,7 +188,7 @@
       "promotes_at": 3,
       "promoted": true,
       "promoted_at_cycle": 7,
-      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10). Remaining modules still need sections."
+      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11). Remaining modules still need sections."
     },
     "consecutive_wait_time_insights_missing": {
       "description": "Wait-time insights missing when code operations occur — no insight list in teaching script",
@@ -188,11 +197,11 @@
       "promotes_at": 3,
       "promoted": true,
       "promoted_at_cycle": 8,
-      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10). Remaining modules still need lists."
+      "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11). Remaining modules still need lists."
     },
     "haiku_persona_over_polishing": {
-      "description": "Haiku mock dev model produces personas that are too competent for stated experience level (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9)",
-      "occurrences": 3,
+      "description": "Haiku mock dev model produces personas that are too competent for stated experience level (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9, overconfident senior drops to compliant in cycle 11)",
+      "occurrences": 4,
       "first_seen": 5,
       "promotes_at": 3,
       "promoted": true,

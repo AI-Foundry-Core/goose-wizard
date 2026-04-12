@@ -596,6 +596,7 @@ Subagent operations take 30-120 seconds. Instead of awkward silence, the facilit
    - Reword for the current context. Never repeat verbatim.
 6. **If everything is Strong and the list is empty, stay quiet.** The developer doesn't need filler. Silence is fine.
 7. **Never fourth-wall content.** Insights about the teaching system, eval, progression, or stages are off-limits. Insights are about the WORK, not the TRAINING.
+8. **Suppress during challenge assessments.** During a challenge assessment (Section 7 skip-request handling), do not share wait-time insights. The assessment requires uncoached performance. Resume insights after the assessment is complete and coaching has begun.
 
 ### Voice
 
