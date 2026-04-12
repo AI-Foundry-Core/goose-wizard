@@ -1,5 +1,11 @@
 # Handoff: Flesh Out Stage 1 Detail
 
+> **UPDATE (2026-04-12):** This handoff was written before the syllabus redesign. The project is now 8 stages (0-7), uses an adaptive teaching model (not scripted), and Stage 1 has quality-rated dimensions instead of binary signals. **Read `ideas/syllabus.md` FIRST** — it is the source of truth. The 4 gaps below are still valid but need reinterpretation against the new adaptive model. Specifically:
+> - **Gap 1 (delegate convention):** Still needed — the code-work subagent convention must be documented
+> - **Gap 2 (dynamic content):** Largely solved by the adaptive model — the facilitator coaches on real results, not scripted content
+> - **Gap 3 (pitfall teaching):** Partially solved — pitfalls surface naturally during real work, but fallback strategy still needed for when they don't
+> - **Gap 4 (teacher-instructions.md):** Still needed — must now describe the facilitator/eval/code-work architecture, quality rating model, and teaching modes
+
 ## What You're Doing
 Continue planning the RIL Agentic Harness — specifically, flesh out the missing pieces of Stage 1. The full plan lives at `ideas/plan.md` — read it first (it's ~1400 lines, read the whole thing). Also read `REFERENCES.md` for quick-access technical details.
 

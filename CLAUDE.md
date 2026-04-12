@@ -1,10 +1,17 @@
 # RILGoose — Agentic Development Harness for Reliance Teams
 
 ## Current Work
-**Active handoff:** `HANDOFF_stage1_detail.md` — flesh out Stage 1 teaching scripts and working recipe YAMLs.
-**Stage 0:** Design complete (full Say/Check/Action scripts in `ideas/plan.md` under "Act Scripts" — not yet extracted to individual act files in `recipes/stage-0/acts/`).
-**Stage 1:** Outline complete, needs full scripts and working YAMLs.
-**Stages 2-5:** Outlined only.
+**Syllabus is designed.** The full 8-stage concept map with adaptive teaching framework is at `ideas/syllabus.md`. All design decisions are recorded in the syllabus's Decision Log section.
+
+**Next steps:**
+1. Resolve the 4 gaps in `HANDOFF_stage1_detail.md` (delegate convention, dynamic content, pitfall strategy, teacher-instructions.md) — these need updating to reflect the new adaptive model
+2. Write `teaching/meta/teacher-instructions.md` incorporating the adaptive teaching framework
+3. Write Stage 1 teaching scripts (bug-fix, test-writer, code-review, refactor) using the quality-rating model from the syllabus
+4. Write Stage 1 working recipe YAMLs
+
+**Stage 0:** Design complete (full Say/Check/Action scripts in `ideas/plan.md` under "Act Scripts" — not yet extracted to individual act files).
+**Stage 1:** Syllabus complete with quality dimensions. Teaching scripts and working YAMLs not yet written.
+**Stages 2-7:** Concepts defined in syllabus. Detailed scripts and recipes not started.
 
 ## User Context
 - **Doni** — non-technical, runs onboarding centrally for Reliance teams
@@ -16,10 +23,57 @@
 ## What This Is
 A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's agent platform) extended with progressive teaching recipes that take development teams from zero agentic experience to autonomous development pipelines.
 
+**Target audience:** Skeptical development teams at Reliance who have never used AI coding tools. The system must show value before teaching practices — lead with "look how powerful this is," not "here's what can go wrong."
+
+## Key Design Documents
+
+| Document | What It Contains | When to Read |
+|----------|-----------------|-------------|
+| `ideas/syllabus.md` | **Start here.** 8-stage concept map, adaptive teaching framework, quality-rating model, RIL agents integration, all design decisions with rationale | Every session — this is the source of truth |
+| `ideas/plan.md` | Original research, architecture decisions, Goose internals, Stage 0 act scripts (lines 707-1155), Stage 1 design (lines 1310-1430) | When writing teaching scripts or understanding a technical decision |
+| `ideas/rollout-playbook.md` | Rollout phases, ROI metrics, manager dashboard, internal selling guide | When discussing deployment, metrics, or stakeholder buy-in |
+| `REFERENCES.md` | Quick-access details on pipeline patterns, Goose mechanics, CourseForge format | When implementing recipes or teaching scripts |
+| `HANDOFF_stage1_detail.md` | Original handoff for Stage 1 work — lists 4 gaps to resolve before writing scripts | Before writing any Stage 1 content (gaps need re-evaluation against new adaptive model) |
+
+## Teaching Framework (Adaptive Evaluation)
+
+We don't teach by lecturing. We teach by having developers do real work and coaching them on what they're missing.
+
+**Core model:** Developer does real work → eval subagent rates quality (Strong/Adequate/Weak) → facilitator praises what's strong, coaches what's weak. Concepts are a checklist to verify, not a curriculum to deliver.
+
+**Three agent roles:**
+- **Facilitator** (main agent) — guides conversation, never touches code, teaches adaptively
+- **Code-Work Subagent** — does all code operations
+- **Eval Subagent** — rates quality of how the developer approached the work (batch, not real-time)
+
+**Four teaching modes:**
+| Mode | Stages | Why |
+|------|--------|-----|
+| Scripted | 0 | Can't evaluate what hasn't been encountered — need designed moments of surprise |
+| Guided-Adaptive | 1 | Set up real work, developer does it, eval rates quality, teach gaps |
+| Adaptive + Checkpoints | 2-4 | Developer builds real systems, facilitator checks in at defined points |
+| Fully Adaptive | 5-7 | Developer has mental models, facilitator is consulting role |
+
+Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluation."
+
+## 8-Stage Progression
+| Stage | Name | Mode | Key Concept |
+|-------|------|------|-------------|
+| 0 | See What AI Can Do | Scripted | AI reads/edits your code, everything reversible, AI makes mistakes, you control quality |
+| 1 | Get Real Work Done | Guided-Adaptive | Bug fix, test writing, code review, refactoring — ordered by impact, not risk |
+| 2 | Two AIs Are Better Than One | Adaptive+Checkpoints | Self-verification bias, separated concerns, execution checks, spec-first |
+| 3 | Build a Team of AI Specialists | Adaptive+Checkpoints | Agent roles, contracts, safety rails, layered testing, parallel coordination |
+| 4 | From Idea to Buildable Spec | Adaptive+Checkpoints | DDD artifact chain, persona decomposition, testable requirements, kill criteria |
+| 5 | Trust But Verify | Fully Adaptive | Independent verification, layered evals, ratchets, mock isolation |
+| 6 | Let It Run While You Sleep | Fully Adaptive | Cycle review, feedback loops, learnings capture, persistent memory |
+| 7 | The System Gets Smarter | Fully Adaptive | Curator agent, skill evolution, rule pruning, metrics-driven improvement |
+
 ## Core Architecture
 - **Goose fork** — battle-tested runtime, recipe system, sub-recipes, subagents, ACP, MCP extensions, desktop app + CLI
 - **Our pipeline patterns** (from AgenticSystem) — file ownership, circuit breakers, 4-tier testing, escalation routing, separated concerns
-- **CourseForge teaching model** — Say/Check/Action scripts, self-teaching architecture, exercise quality scorecard
+- **DDD spec system** (from ddd-mcp-server) — artifact chain, persona decomposition, testable requirements, quality gates
+- **RIL Agents** (from ~/ClaudeInfra/ril-agents/) — 112+ specialized agents used as the execution layer in recipes
+- **Adaptive teaching model** — evolved from CourseForge's scripted model into quality-rated adaptive evaluation
 
 ## Guiding Principles
 1. Meet teams where they are, not where we want them to be
@@ -31,81 +85,74 @@ A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's
 7. Fork light, stay mergeable
 8. Provider-agnostic, Claude Code default
 9. Recipes specify tiers, not models
+10. Show power first, teach practices second (skeptics need value before investment)
+11. Teach through real work, not designed exercises (except Stage 0 bootstrapping)
 
 ## Key Technical Decisions
 - **ACP** for subscription-based access (Claude Max, Codex) — no API keys
 - **Recipe layer only** — don't touch Goose's Rust core
 - **LLM-based orchestration** — use Goose's native subagents, add code-based orchestration only if needed
 - **Hooks deferred** — Goose's ToolInspector trait makes adding them later ~200 lines
-- **Teacher/Hands pattern** — main agent teaches (never touches code), subagents do all code work
-- **Forced teaching** — first run of any recipe is teaching mode, mandatory. `/teach` to revisit.
-- **Dual-mode recipes** — working YAML + teaching script (.teach.md), wrapped by teach-wrapper.yaml
+- **Facilitator/CodeWork/Eval pattern** — main agent facilitates, code subagent does hands work, eval subagent rates quality
+- **Quality ratings not binary** — eval subagent rates Strong/Adequate/Weak, not yes/no
+- **Stage 1 ordered by impact** — Bug Fix → Test Writer → Code Review → Refactor (not risk order)
+- **RIL Agents as execution layer** — recipes invoke existing agents from ~/ClaudeInfra/ril-agents/
 
 ## Project Structure
 ```
 RILGoose/
 ├── CLAUDE.md                           # This file
 ├── ideas/
-│   └── plan.md                         # Master plan with all decisions and research
+│   ├── syllabus.md                     # 8-stage concept map + adaptive teaching framework + decisions
+│   ├── plan.md                         # Original master plan with research and Stage 0 scripts
+│   └── rollout-playbook.md             # Rollout phases, ROI metrics, selling guide
+├── REFERENCES.md                       # Quick-access technical details (pipeline, Goose, CourseForge)
+├── HANDOFF_stage1_detail.md            # Stage 1 gaps to resolve (needs re-eval against new model)
 ├── recipes/                            # Working recipes (Goose YAML format)
-│   ├── stage-0/                        # "From Chat to Code"
-│   │   ├── from-chat-to-code.yaml      # Parent recipe (teacher orchestrator)
-│   │   ├── acts/                       # Act scripts loaded via load()
-│   │   │   ├── act-1-see-your-code.md
-│   │   │   ├── act-2-first-edit.md
-│   │   │   ├── act-3-undo-button.md
-│   │   │   ├── act-4-catch-the-bug.md
-│   │   │   └── act-5-say-it-better.md
-│   │   └── state/                      # Per-user progress tracking
-│   ├── stage-1/                        # "Real Work" (code-review, test-writer, bug-fix, refactor)
-│   ├── stage-2/                        # "Agent + Verification"
-│   ├── stage-3/                        # "Multi-Agent Pipelines"
-│   ├── stage-4/                        # "Autonomous Cycles"
-│   └── stage-5/                        # "Self-Improving Systems"
-├── teaching/                           # Teaching scripts (separate from working recipes)
+│   ├── stage-0/                        # "See What AI Can Do"
+│   ├── stage-1/                        # "Get Real Work Done" (bug-fix, test-writer, code-review, refactor)
+│   ├── stage-2/                        # "Two AIs Are Better Than One"
+│   ├── stage-3/                        # "Build a Team of AI Specialists"
+│   ├── stage-4/                        # "From Idea to Buildable Spec"
+│   ├── stage-5/                        # "Trust But Verify"
+│   ├── stage-6/                        # "Let It Run While You Sleep"
+│   └── stage-7/                        # "The System Gets Smarter"
+├── teaching/                           # Teaching scripts and meta
 │   ├── meta/
 │   │   ├── teach-wrapper.yaml          # Meta-recipe that wraps any recipe in teaching
-│   │   └── teacher-instructions.md     # How the teacher should behave (level-adapted)
-│   ├── stage-0/                        # Stage 0 is self-contained (acts are teaching)
-│   ├── stage-1/
-│   │   ├── code-review.teach.md
-│   │   ├── test-writer.teach.md
+│   │   ├── teacher-instructions.md     # How the facilitator should behave (TO BE CREATED)
+│   │   └── module-designer/            # Skill for designing modules (load when building)
+│   │       ├── SKILL.md                # Main skill file (~300 lines)
+│   │       └── references/             # Templates, formats, example module
+│   │           ├── goose-recipe-format.md
+│   │           ├── eval-prompt-template.md
+│   │           ├── example-module.md   # Complete Bug Fix module as reference
+│   │           ├── progression-format.md
+│   │           └── ril-agents-map.md
+│   ├── stage-0/                        # Stage 0 is scripted (acts are the teaching)
+│   ├── stage-1/                        # Stage 1 guided-adaptive scripts (TO BE CREATED)
 │   │   ├── bug-fix.teach.md
+│   │   ├── test-writer.teach.md
+│   │   ├── code-review.teach.md
 │   │   └── refactor.teach.md
-│   └── stage-2/
+│   └── stage-2+/                       # Later stages (TO BE CREATED)
 ├── onboarding/                         # Project onboarding recipe
-│   └── onboard.yaml                    # Auto-detect + ask + generate + validate + handoff
-├── install/                            # Setup scripts
-│   └── install.sh                      # Zero-assumption install script
-└── HANDOFF_stage1_detail.md            # Current handoff for Stage 1 work
+│   └── onboard.yaml
+└── install/                            # Setup scripts
+    └── install.sh
 ```
 
-## 6-Stage Maturity Model
-| Stage | Name | Key Concept |
-|-------|------|-------------|
-| 0 | From Chat to Code | AI can see/edit code, git safety, AI makes mistakes, prompting |
-| 1 | Real Work | Code review, test writing, bug fixing, refactoring |
-| 2 | Agent + Verification | Separation of concerns, second AI checks first |
-| 3 | Multi-Agent Pipelines | Agent roles, escalation, circuit breakers |
-| 4 | Autonomous Cycles | Cycle review, meta-improvement, learnings |
-| 5 | Self-Improving Systems | Skill evolution, metrics-driven improvement |
+## Cross-Project References
+- **This project (RILGoose)**: Recipes, teaching scripts, onboarding, syllabus, plan
+- **AgenticSystem** (`~/ClaudeProjects/AgenticSystem/`): Source pipeline patterns — file ownership, circuit breakers, escalation, cycle review. Read `LEARNINGS.md` and `Evaluations/` for concepts that inform Stages 2-7.
+- **ddd-mcp-server** (`~/ClaudeProjects/ddd-mcp-server/`): DDD spec system — artifact chain, golden prompts, quality gates, executive review simulation. Informs Stage 4.
+- **RIL Agents** (`~/ClaudeInfra/ril-agents/`): 112+ specialized agents used as execution layer. See syllabus "RIL Agents Integration" section for stage-to-agent mapping.
+- **CourseForge** (`~/ClaudeProjects/CourseForge/`): Original teaching model (Say/Check/Action). Stage 0 still uses this. Stages 1+ evolved to adaptive model.
+- **The Goose fork** (TBD): The actual forked runtime with our recipes added.
 
-## How to Work in This Project
-1. Read `ideas/plan.md` for the full plan with all decisions and research
-2. Read `REFERENCES.md` for quick-access technical details on all three source systems (pipeline patterns, Goose mechanics, CourseForge format)
-3. Stage 0 design is complete (teaching scripts in the plan, need to be extracted to act files)
-4. Stage 1 design needs fleshing out — see `HANDOFF_stage1_detail.md`
-5. Stages 2-5 are outlined but not designed yet
-6. The Goose fork hasn't been created yet — recipes are being designed first
-
-## When to Read Reference Sources
-- **Writing teaching scripts?** Read `REFERENCES.md` Section 3 (CourseForge format) + the Stage 0 act scripts in the plan for format examples
+## When to Read What
+- **Starting a new session?** Read `ideas/syllabus.md` — it's the source of truth for everything designed so far
+- **Writing teaching scripts?** Read syllabus Stage 1 quality dimensions + `REFERENCES.md` Section 3 (CourseForge format) + plan.md Stage 0 act scripts (format reference)
 - **Designing working recipes?** Read `REFERENCES.md` Section 2 (Goose recipe YAML, subagent syntax)
-- **Designing Stage 2+ content?** Read `REFERENCES.md` Section 1 (pipeline patterns, learnings, evaluation findings)
-- **Need deep context on a decision?** Read `ideas/plan.md` — every decision has rationale and research
-
-## What Lives Where
-- **This project (RILGoose)**: Recipes, teaching scripts, onboarding, install scripts, plan
-- **AgenticSystem**: The source pipeline patterns we're porting (reference only, don't modify)
-- **CourseForge**: The teaching model we're adapting (reference only, don't modify)
-- **The Goose fork** (TBD): The actual forked runtime with our recipes added
+- **Discussing rollout or metrics?** Read `ideas/rollout-playbook.md`
+- **Need deep context on a decision?** Check syllabus Decision Log first, then `ideas/plan.md`
