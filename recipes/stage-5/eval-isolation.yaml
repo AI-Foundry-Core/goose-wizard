@@ -1,0 +1,70 @@
+version: 1.0.0
+title: "Eval Isolation"
+description: "Make evaluation gates reliable by mocking or recording external dependencies."
+# tier: reasoning
+
+parameters:
+  - key: external_dependencies
+    input_type: string
+    requirement: required
+    description: "External APIs, services, databases, queues, or cloud resources used by the eval or tests"
+  - key: test_scope
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "The test suite, gate, or pipeline stage that currently touches external dependencies"
+  - key: current_test_command
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Command currently used for the gate tests"
+
+instructions: |
+  You are isolating evaluation gates from live external dependencies. Follow
+  the reliability patterns in
+  ~/ClaudeInfra/ril-agents/plugins/product-evaluation/agents/product-evaluation.md
+
+  Read .goose/team_context.md for the project's test commands, fixture
+  conventions, and integration test setup.
+
+  Process:
+  1. Identify which gate tests or eval steps depend on live external systems.
+  2. Classify each dependency:
+     - Safe to mock.
+     - Best handled with recorded responses or fixtures.
+     - Requires a separate live integration check outside the gate.
+  3. Inspect the existing test structure and choose the smallest isolation
+     strategy that fits project conventions.
+  4. Implement or propose recorded fixtures, mocks, fakes, service
+     virtualization, or dependency injection for gate tests.
+  5. Separate live API checks from the blocking gate. Live checks may run on a
+     schedule or manual command, but the gate must be deterministic.
+  6. Run the isolated gate command if available and report reliability risks.
+
+  IMPORTANT:
+  - Do not delete live integration coverage. Move it out of the gate if it is
+    flaky or environment-dependent.
+  - Do not commit secrets, tokens, or raw production payloads into fixtures.
+  - Recorded responses must be sanitized and stable.
+  - If mocking would hide important behavior, pair it with a slower live smoke
+    check outside the gate.
+
+  Return:
+  - dependency_map: External systems used by the eval or tests.
+  - isolation_plan: Mock, fixture, fake, or live-nonblocking strategy for each.
+  - implementation_changes: Files changed or exact changes recommended.
+  - gate_command: Deterministic command that should run before autonomy.
+  - live_check_command: Optional separate live check and when to run it.
+  - verification: Results from running the isolated gate or blockers to running it.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  External dependencies:
+  {{ external_dependencies }}
+  Test or gate scope: {{ test_scope }}
+  Current test command: {{ current_test_command }}
+
+  Make the blocking eval gate deterministic by isolating live dependencies.

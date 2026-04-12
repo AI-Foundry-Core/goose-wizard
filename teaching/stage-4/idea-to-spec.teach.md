@@ -1,0 +1,202 @@
+# Recipe 4.1 + 4.2: Idea to Spec — "From napkin to blueprint"
+
+Covers concepts:
+- 4.1 Vague specs produce vague output
+- 4.2 Progressive elaboration
+
+Mode: Adaptive + Checkpoints
+Checkpoint after 4.2: Has the developer internalized progressive elaboration?
+
+---
+
+## Setup
+
+Read .goose/team_context.md for project context.
+Read .goose/state/progression.json — check if concepts 4.1 and 4.2 are already demonstrated.
+If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
+If 4.1 demonstrated but not 4.2: skip to the elaboration phase.
+
+---
+
+## Framing
+
+"You've got a pipeline that can build and verify code. But every pipeline needs input — and the quality of that input determines the quality of everything downstream. Got a feature idea you've been kicking around? Something your team has been meaning to build, or a new capability someone asked for? Tell me about it — even a single sentence is fine."
+
+If developer has no current feature idea:
+  "No problem. Let me look at your codebase for opportunities."
+  Delegate to code-work subagent:
+    "Read .goose/team_context.md. Look for TODOs, feature requests in comments, or obvious gaps in the codebase that represent a real feature opportunity. Describe it as a feature idea the developer would recognize — one paragraph max."
+
+---
+
+## Phase 1: The One-Pager (Concept 4.1 — Vague specs produce vague output)
+
+Developer describes their feature idea.
+
+Facilitator takes the developer's raw idea and asks them to refine it into a one-pager BEFORE delegating to the recipe. This is the teaching moment — the developer needs to be the one making vague things concrete.
+
+"Before we hand this to AI, let's sharpen it. I need you to answer six questions — just a sentence or two each:
+1. Who has this problem? Give me a real person, not 'the user.'
+2. What's the problem they're hitting today?
+3. What does the solution look like in one sentence?
+4. How would you know it worked? Give me a number.
+5. What would make you kill this project?
+6. What's the biggest risk?"
+
+Listen to the developer's answers. Note which ones are vague (adjectives instead of numbers, "the user" instead of a named persona, missing kill criteria, success criteria that aren't measurable).
+
+Then delegate to code-work subagent:
+  sub-recipe: "idea-to-spec"
+  parameters:
+    feature_idea: {developer's refined idea with their answers}
+    target_audience: {from developer's persona answer}
+    context: {any context the developer provided}
+
+[Subagent produces the one-pager]
+
+Facilitator presents the one-pager, then draws attention to the difference between the developer's original idea and the structured output:
+
+"Look at what just happened. You started with [paraphrase their original vague idea]. Now you have a one-pager with named personas, measurable success criteria, and kill conditions. This is the difference between 'build me something' and 'build me this specific thing.' The spec is the prompt for your pipeline — vague in, vague out."
+
+---
+
+## Phase 2: Progressive Elaboration (Concept 4.2 — One-pager before requirements)
+
+If the one-pager reveals the idea is weak:
+"The one-pager just did its job — it exposed that [specific weakness]. This is why we start here. You just killed a bad idea in 10 minutes instead of discovering it 3 months into development. That's progressive elaboration."
+
+If the one-pager is solid, proceed to elaboration:
+"This one-pager holds up. Now the question is: does this need a full requirements document, or is the one-pager enough to start building? What would you need to know before handing this to a development team?"
+
+Let the developer decide. If they want to elaborate:
+
+Delegate to code-work subagent:
+  sub-recipe: "idea-to-spec"
+  parameters:
+    feature_idea: {one-pager content, with instruction to elaborate into full requirements}
+    target_audience: {personas from one-pager}
+    context: {one-pager content as context}
+
+[Subagent produces full requirements document]
+
+If the developer tries to jump to detailed requirements without the one-pager:
+"Hold on — before we go deep, let's make sure the idea survives a one-page summary. If you can't make the case in one page, more detail won't fix it. Start with the one-pager."
+
+---
+
+## Eval
+
+Delegate to eval subagent (async: true):
+
+```
+You are evaluating how well a developer approached turning a feature idea into a spec.
+
+Here is the full conversation transcript between the developer and the facilitator:
+
+---
+{transcript}
+---
+
+Rate each quality dimension below. For each dimension:
+1. Rate as "Strong", "Adequate", or "Weak"
+2. Cite specific evidence from the transcript (quote or paraphrase what the developer said/did)
+3. If not Strong, write 1-2 sentences of coaching the facilitator should say — conversational, specific, never mentions the eval system or ratings
+
+Quality dimensions:
+
+1. SPEC CONCRETENESS (Concept 4.1)
+   Strong: Developer's spec input contained concrete details — specific numbers for success criteria, named personas with real context, measurable thresholds, no placeholder language like "should be fast" or "TBD."
+   Adequate: Developer provided some concrete details but fell back on vague language in places — adjectives instead of numbers, "the user" instead of a named persona, or success criteria that aren't measurable.
+   Weak: Developer's input was mostly vague — "it should be good," "users will like it," no numbers, no named personas, no measurable outcomes. The AI had to invent all the specifics.
+
+2. SPEC COMPLETENESS (Concept 4.1)
+   Strong: Developer addressed all six one-pager elements without prompting — problem, persona, solution, success criteria, kill criteria, and risk. Nothing material was missing.
+   Adequate: Developer covered most elements but missed one or two — typically kill criteria or risk. Needed prompting to fill gaps.
+   Weak: Developer provided a feature description but left out most of the one-pager structure. The AI had to generate the entire framework.
+
+3. PROGRESSIVE DISCIPLINE (Concept 4.2)
+   Strong: Developer started with the constrained one-pager format and only elaborated after validating it. Did not try to write a 25-page doc first. Made a deliberate decision about whether elaboration was warranted.
+   Adequate: Developer followed the one-pager-first flow but showed impatience — wanted to jump to details or asked "can we skip to the full requirements?" before completing the one-pager.
+   Weak: Developer tried to skip the one-pager entirely and go straight to detailed requirements, or treated the one-pager as a formality rather than a kill gate.
+
+4. KILL GATE RECOGNITION (Concept 4.2 — conditional)
+   Condition: Only rate this if the one-pager revealed a weakness in the idea (vague value prop, unclear problem, no differentiation).
+   If condition not met: return rating=null, evidence="Not triggered — one-pager was solid", coaching=null
+   Strong: Developer recognized the weakness and adjusted — refined the idea, narrowed scope, or decided to pivot before elaborating.
+   Adequate: Developer acknowledged the weakness when pointed out but needed facilitator guidance to decide what to do about it.
+   Weak: Developer ignored the weakness and pushed to elaborate anyway, or didn't see the one-pager as a validation tool.
+
+Return as JSON:
+{
+  "dimensions": [
+    {"name": "spec_concreteness", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "spec_completeness", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "progressive_discipline", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "kill_gate_recognition", "rating": "...", "evidence": "...", "coaching": "..."}
+  ],
+  "overall_note": "..."
+}
+```
+
+---
+
+## Coaching
+
+Read eval results. For each dimension:
+
+### Spec Concreteness (4.1)
+
+| Rating | Facilitator Says |
+|--------|-----------------|
+| Strong | "Your spec had real numbers — [quote their specific metric]. That's a spec an AI team can build from. 'P95 latency under 200ms' is a requirement. 'Should be fast' is a wish." |
+| Adequate | "You had some good specifics, but [quote the vague part] is still fuzzy. What number would make that concrete? The spec is the prompt for your entire pipeline — every vague line produces vague output downstream." |
+| Weak | "Compare what you said — [quote their vague input] — to what the spec produced: [quote the AI's concrete version]. See the difference? The AI guessed all those numbers. If those guesses are wrong, everything built from this spec is wrong. You need to own the specifics." |
+
+### Spec Completeness (4.1)
+
+| Rating | Facilitator Says |
+|--------|-----------------|
+| Strong | "You covered all the bases — problem, persona, solution, success, kill criteria, risk. That's a complete one-pager. Nothing for the AI to guess at." |
+| Adequate | "You missed [the missing element]. That's one of the most common gaps — [explain why that element matters]. Next time, use all six questions as a checklist before handing off." |
+| Weak | "The AI had to invent your personas, your success criteria, and your kill conditions. That means the spec reflects the AI's assumptions, not your knowledge. The six questions — who, what problem, what solution, how to measure, when to kill, biggest risk — take 5 minutes and save weeks." |
+
+### Progressive Discipline (4.2)
+
+| Rating | Facilitator Says |
+|--------|-----------------|
+| Strong | "You started small and only expanded when the one-pager earned it. That discipline — start constrained, elaborate only if warranted — kills bad ideas cheaply." |
+| Adequate | "I noticed you wanted to jump ahead to the full requirements. The one-pager is a kill gate, not a formality. If the idea can't survive one page, more detail won't save it." |
+| Weak | "You tried to skip straight to detailed requirements. Here's why that's expensive: a 25-page requirements doc for a bad idea wastes a week. A one-pager that exposes the same flaw takes 10 minutes. Start small. Elaborate only if the one-pager holds up." |
+
+### Kill Gate Recognition (4.2 — conditional)
+
+| Rating | Facilitator Says |
+|--------|-----------------|
+| Strong | "You caught the weakness in the one-pager and adjusted before going deeper. That's exactly the instinct — the one-pager exists to expose problems early." |
+| Adequate | "The one-pager showed [the weakness], and you saw it once I pointed it out. Next time, read the one-pager as a critic before deciding to elaborate. Ask: does this actually hold up?" |
+| Weak | "The one-pager revealed [the weakness], but you pushed to elaborate anyway. That's how zombie projects start — you see the warning signs but keep building because you've already invested time. The one-pager is permission to stop." |
+
+---
+
+## Checkpoint After 4.2
+
+If ALL 4.1 and 4.2 dimensions are Adequate or Strong:
+"You can take a vague idea and turn it into something concrete and structured — and you know when to stop elaborating. That's the foundation. Next up: how you organize those requirements changes everything about whether an AI team can execute on them."
+
+If any dimension is Weak:
+Coach on the weak dimensions (using coaching language above), then offer:
+"Want to try another feature idea and see if the one-pager process clicks? Sometimes it takes two rounds to feel natural."
+
+---
+
+## Bridge to Spec Decomposition
+
+"You've got a solid spec. But right now it's organized around features — what the system does. The problem is, features miss cross-cutting needs. When you organize by persona — real people with real workflows — you catch edge cases that feature lists miss. That's Recipe 4.3."
+
+---
+
+## State Update
+
+Write to .goose/state/progression.json:
+  concept 4.1 dimensions (spec_concreteness, spec_completeness) with eval ratings + timestamp
+  concept 4.2 dimensions (progressive_discipline, kill_gate_recognition) with eval ratings + timestamp

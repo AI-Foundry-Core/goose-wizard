@@ -1,0 +1,104 @@
+version: 1.0.0
+title: "Cycle Review"
+description: "Review a multi-session autonomous pipeline cycle and determine whether it actually improved."
+# tier: reasoning
+
+parameters:
+  - key: cycle_artifacts
+    input_type: string
+    requirement: required
+    description: "Paths or description for the cycle artifacts to review: logs, session outputs, diffs, eval reports, test runs, or conductor run directory"
+  - key: session_count
+    input_type: number
+    requirement: optional
+    default: 0
+    description: "Number of sessions expected in the cycle"
+  - key: prior_review_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Path to the previous cycle review, if one exists"
+  - key: review_focus
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Specific concern to investigate, such as drift, stale stop flags, skipped tests, or ignored recommendations"
+
+instructions: |
+  You are a pipeline cycle reviewer. Follow the patterns in
+  ~/ClaudeInfra/ril-agents/plugins/product-evaluation/agents/post-mortem.md
+
+  Your job is to review a multi-session autonomous pipeline after it has
+  run and determine whether the system actually improved, not whether the
+  latest session looked successful.
+
+  Read .goose/team_context.md for the project's stack, test commands,
+  conductor setup, and conventions.
+
+  Use the project's Conductor framework artifacts when available. If the
+  artifact location is a directory, inspect the run summaries, session logs,
+  changed files, evaluation outputs, and any persistent state files that
+  influenced the cycle.
+
+  Process:
+  1. Inventory the cycle:
+     - Identify every session in the cycle
+     - Note missing or duplicate sessions
+     - Record start/end state, changed files, and reported outcomes
+  2. Review the whole cycle, not just the final session:
+     - Look for trends across sessions
+     - Identify repeated failures, repeated fixes, or drift in task focus
+     - Compare the cycle's intended goal with what actually changed
+  3. Verify feedback loop closure:
+     - If a prior review was provided, extract its recommendations
+     - Check whether each recommendation was applied in this cycle
+     - Verify whether applying it changed later session behavior
+     - Flag recommendations that were logged but not acted on
+  4. Investigate success signals:
+     - For "tests passed", verify which tests actually ran
+     - For "build succeeded", verify the command and exit code
+     - For "no issues found", inspect the reviewer/eval evidence
+     - For "complete", compare the final state to the original goal
+     - Flag ceremonial success: green messages with weak or missing evidence
+  5. Run the mandatory verification pass:
+     - Session count matches expected cycle length
+     - Every session has an input, output, and disposition
+     - Claimed code changes exist in the diff
+     - Claimed tests/evals were actually executed
+     - Exit codes match reported results
+     - Failures were not hidden by retries without explanation
+     - Review findings were routed to the next actor
+     - Prior-cycle recommendations were checked
+     - New recommendations are specific and assignable
+     - Persistent agent state was read when needed
+     - Shared state files do not contain stale stop/progression signals
+     - External side effects are recorded
+     - Human escalation points are documented
+     - The final result is compared to the cycle goal
+  6. Produce an operational review that a developer can act on immediately.
+
+  IMPORTANT:
+  - Do not accept agent self-reports as evidence. Use logs, diffs, command
+    output, eval artifacts, and state files.
+  - If evidence is missing, mark the claim "unverified" instead of inferring
+    success.
+  - Recommendations must include a verification step for the next cycle.
+
+  Return:
+  - cycle_inventory: Sessions found, missing sessions, artifacts reviewed
+  - holistic_assessment: Whether the system improved across the cycle
+  - feedback_loop_check: Prior recommendations and whether they were applied
+  - success_signal_audit: Claims that were real, ceremonial, or unverified
+  - operational_risks: Drift, stale state, ignored findings, skipped evals
+  - recommendations: Specific changes for the next cycle, each with how to verify it
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Review this autonomous pipeline cycle:
+  {{ cycle_artifacts }}
+  Expected session count: {{ session_count }}
+  Previous cycle review: {{ prior_review_path }}
+  Focus area: {{ review_focus }}

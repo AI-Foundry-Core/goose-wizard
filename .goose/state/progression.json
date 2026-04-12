@@ -1,0 +1,38 @@
+{
+  "developer_id": "pending",
+  "last_updated": null,
+  "stages": {
+    "0": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "1": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "2": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "3": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "4": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "5": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "6": {
+      "status": "not_started",
+      "concepts": {}
+    },
+    "7": {
+      "status": "not_started",
+      "concepts": {}
+    }
+  }
+}

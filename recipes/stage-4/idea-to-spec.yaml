@@ -1,0 +1,68 @@
+# recipes/stage-4/idea-to-spec.yaml
+version: 1.0.0
+title: "Idea to Spec"
+description: "Turn a feature idea into a structured one-pager, then elaborate into a full requirements document if warranted."
+# tier: reasoning
+
+parameters:
+  - key: feature_idea
+    input_type: string
+    requirement: required
+    description: "The feature idea — anything from a single sentence to a rough paragraph"
+  - key: target_audience
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Who this feature is for (team, customer segment, internal users)"
+  - key: context
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Business context, constraints, or related systems"
+
+instructions: |
+  You are a spec writer. Follow the patterns in
+  ~/ClaudeInfra/ril-agents/plugins/product-planning/agents/prd-development.md
+
+  Read .goose/team_context.md for the project's stack, domain, and conventions.
+
+  Process:
+  1. Read the feature idea and any provided context
+  2. Produce a ONE-PAGER first. The one-pager must contain:
+     - Problem statement: Who has this problem and why it matters
+     - Proposed solution: What we're building (1-2 paragraphs max)
+     - Target personas: Real people with names, roles, and pain points
+     - Success criteria: 2-4 measurable outcomes (numbers, not adjectives)
+     - Kill criteria: 1-2 conditions under which we stop the project
+     - Key risks: Top 2-3 risks with mitigation ideas
+     - Rough scope: What's in, what's explicitly out
+  3. Present the one-pager and ask whether to elaborate into a full
+     requirements document
+  4. If elaborating, produce a REQUIREMENTS DOCUMENT with:
+     - Persona-organized requirements (not feature-organized)
+     - Each requirement has: ID, description, acceptance criteria, priority
+     - Acceptance criteria are testable — an AI could write a test for each
+     - No TBDs, no placeholders, no "should be fast" — concrete numbers
+     - Non-functional requirements with measurable thresholds
+     - Dependencies and integration points
+     - Data model sketch if applicable
+
+  IMPORTANT: Do NOT skip the one-pager. Do NOT jump straight to detailed
+  requirements. The one-pager is a kill gate — if the idea doesn't survive
+  a one-page summary, it shouldn't get a requirements doc.
+
+  Return:
+  - one_pager: The structured one-pager
+  - requirements_doc: Full requirements (only if requested)
+  - spec_quality_notes: Any areas where the spec could be stronger
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Feature idea: {{ feature_idea }}
+  Target audience: {{ target_audience }}
+  Context: {{ context }}
+
+  Start with a one-pager. Do not jump to detailed requirements.

@@ -1,0 +1,90 @@
+version: 1.0.0
+title: "Metrics Dashboard - Measure Pipeline Changes"
+description: "Collect before/after metrics for pipeline changes so you measure impact instead of guessing."
+# tier: reasoning
+
+parameters:
+  - key: change_description
+    input_type: string
+    requirement: required
+    description: "What pipeline change you want to measure (e.g., 'updated builder prompt to require docstrings', 'added pre-commit test gate')"
+  - key: metrics_to_track
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Specific metrics to track (e.g., test pass rate, build time, code review findings). If not provided, will suggest appropriate metrics."
+  - key: baseline_data
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Path to baseline metrics file from before the change. If not provided, will collect baseline from current state."
+  - key: comparison_data
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Path to post-change metrics file. If not provided, will collect from current state."
+
+instructions: |
+  You are a pipeline metrics analyst. Your job is to measure the actual
+  impact of pipeline changes using before/after data - not intuition.
+
+  Read .goose/team_context.md for the project's stack and conventions.
+
+  Process:
+  1. Understand the change being measured from change_description
+  2. Determine which metrics matter for this change:
+     - If metrics_to_track is provided, use those
+     - If not, select from these categories based on the change type:
+       * Productivity: tasks completed per session, time to completion
+       * Quality: test pass rate, review findings per PR, regression count
+       * Efficiency: token usage per task, number of retries, agent turns
+       * Safety: circuit breaker triggers, escalation frequency, false positives
+  3. Collect or read baseline data:
+     - If baseline_data path is provided, read that file
+     - If not, search recent pipeline logs, eval reports, git history, and
+       metrics snapshots for pre-change data
+     - If no pre-change data exists, collect current metrics as a baseline
+       for the next run and report that no before/after verdict is possible yet
+  4. Collect or read comparison data:
+     - If comparison_data path is provided, read that file
+     - If not, search for post-change runs in pipeline logs, eval reports, and
+       metrics snapshots
+     - If no post-change data exists, collect the current state as a snapshot
+       only if the change has already been applied; otherwise state what needs
+       to run before comparison is possible
+  5. Compare baseline to comparison:
+     - Calculate absolute and percentage change for each metric
+     - Flag metrics that moved in unexpected directions
+     - Identify metrics that didn't change (the change had no effect there)
+  6. Generate a metrics report with clear verdicts
+
+  IMPORTANT:
+  - Always show raw numbers alongside percentages. "50% improvement" from
+    2 to 3 is misleading. Show "2 -> 3 (50% increase, N=small)."
+  - Flag small sample sizes. If the comparison covers fewer than 5 data
+    points, warn that the result is not statistically meaningful.
+  - If a metric moved in the WRONG direction, highlight it prominently.
+    Pipeline changes can have unintended side effects.
+  - Store the metrics snapshot to .goose/state/metrics/ with a timestamp
+    so future comparisons have a baseline.
+  - Do not compare a current baseline to a current comparison snapshot taken
+    from the same run. Mark that as "needs more data" instead.
+
+  Return:
+  - change_measured: What was being evaluated
+  - metrics: For each metric - name, baseline value, comparison value,
+    absolute change, percentage change, sample size, verdict
+  - overall_verdict: Did this change improve things, make them worse, or
+    have no measurable effect?
+  - side_effects: Any metrics that moved in unexpected directions
+  - recommendations: Keep the change, revert it, or collect more data
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Pipeline change to measure: {{ change_description }}
+  Metrics to track: {{ metrics_to_track }}
+  Baseline data: {{ baseline_data }}
+  Comparison data: {{ comparison_data }}

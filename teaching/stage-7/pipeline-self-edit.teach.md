@@ -1,0 +1,209 @@
+# Recipes 7.3 & 7.5: Pipeline Self-Edit - "One source of truth per rule"
+
+Covers:
+- 7.3 Rules accumulate and conflict (pipeline-self-edit)
+- 7.5 Audit your guardrails (pipeline-self-edit)
+
+Mode: Fully Adaptive. Facilitator is pure consulting - available when the developer asks, not driving.
+
+---
+
+## Setup
+
+Read .goose/team_context.md for project context.
+Read .goose/state/progression.json - check concepts 7.3 and 7.5.
+If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
+
+Check prerequisites:
+- Concepts 7.1 and 7.2 should be complete (developer has edited instructions)
+- Developer should have multiple agent instruction files in their pipeline
+  (at least 3 - if fewer, the audit won't surface meaningful duplication)
+
+If developer has fewer than 3 instruction files:
+  "Rule conflicts become a real problem once you have 3+ agents with their own
+  instruction files. If your pipeline is smaller than that, this recipe won't
+  show you much yet. Come back when you've added more agents."
+
+---
+
+## Framing
+
+"Every time you fix something, you add a rule. Every time an agent misbehaves,
+you add a constraint. Over time, those rules pile up. Some end up in multiple
+files. Some contradict each other. Some were written for a model version that's
+two generations old. When agents see conflicting rules, they pick one at random  - 
+and you get inconsistent behavior that's nearly impossible to debug."
+
+Pause for developer response. Follow their lead.
+
+If developer asks how bad this actually gets:
+  "In one pipeline, the same naming convention rule existed in 3 different files
+  with slightly different wording. The builder followed one version, the reviewer
+  enforced another, and every PR got flagged for a 'violation' that was actually
+  just the two agents disagreeing. Accuracy dropped 37% before anyone figured
+  out why."
+
+---
+
+## Task
+
+The developer drives. The facilitator is available for questions.
+
+**What the developer needs to do:**
+
+1. Gather all agent instruction/skill files across their pipeline
+2. Run the pipeline-self-edit recipe to audit for duplication and conflicts
+3. Review the safe edits it applied and the items it flagged for judgment
+4. For concept 7.5 specifically: identify at least one guardrail that exists
+   because of a model limitation that may no longer apply
+
+Delegate to code-work subagent when the developer is ready:
+  sub-recipe: "pipeline-self-edit"
+  parameters:
+    instruction_files: {developer's list of instruction file paths}
+    audit_focus: {if developer wants to focus on a specific area}
+    known_issues: {if developer has known conflicts to prioritize}
+    verification_command: {if developer provides one}
+
+[Subagent reads all files, extracts rules, cross-references, applies safe consolidation edits, verifies, and generates report]
+
+Facilitator presents results naturally:
+"[Here's the rule count before and after...] [These duplicates were consolidated...] 
+[These conflicts need judgment...] [These guardrails might be outdated...] [Verification result...]"
+
+**After the audit report:**
+The developer should make decisions about unresolved conflicts, outdated guardrails, or any proposed cleanup the recipe intentionally did not apply.
+The facilitator does not decide for them - this requires judgment about their
+specific pipeline.
+
+If the developer asks for the facilitator's opinion on a specific rule:
+  Give it. Consulting mode means being genuinely helpful when asked, not
+  withholding useful perspective.
+
+**For concept 7.5 (guardrail audit):**
+If the audit didn't surface any POTENTIALLY_OUTDATED rules, prompt:
+  "Look at your oldest rules - the ones you added in the first few weeks. Are
+  any of them working around a model behavior that's since been fixed? Models
+  improve. Rules written for GPT-4 might not apply to GPT-5. Worth checking."
+
+---
+
+## Eval
+
+Delegate to eval subagent (async: true):
+
+```
+You are evaluating how well a developer audited and pruned rules across their
+pipeline's agent instruction files.
+
+Here is the full conversation transcript between the developer and the facilitator:
+
+---
+{transcript}
+---
+
+Rate each quality dimension below. For each dimension:
+1. Rate as "Strong", "Adequate", or "Weak"
+2. Cite specific evidence from the transcript
+3. If not Strong, write 1-2 sentences of coaching the facilitator should say  - 
+   conversational, specific, never mentions the eval system or ratings
+
+Quality dimensions:
+
+1. DUPLICATION AWARENESS
+   Strong: Developer identified rules that appeared in multiple files and chose a single source of truth for each. Understood that duplication causes drift - files get updated independently and diverge.
+   Adequate: Developer found duplicates but handled them inconsistently - consolidated some, left others "because they seem harmless." Didn't fully grasp that even benign duplication causes problems when files get edited later.
+   Weak: Developer didn't look for duplication, or dismissed duplicate rules as "not a big deal" without considering the downstream effects.
+
+2. CONFLICT RESOLUTION QUALITY
+   Strong: Developer resolved conflicts by making a deliberate choice about which version to keep, with reasoning about why. Didn't just pick the first one found - considered which is more specific, more correct, or more aligned with the pipeline's current goals.
+   Adequate: Developer acknowledged conflicts but resolved them mechanically - kept the longer version, or the newer one, without reasoning about which is actually correct for the pipeline.
+   Weak: Developer left conflicts unresolved, or "resolved" them by keeping both versions in the same file (which doesn't fix the problem - it just moves it).
+
+3. GUARDRAIL SKEPTICISM
+   Strong: Developer questioned at least one existing constraint and evaluated whether it's still necessary. Either confirmed it with evidence ("this model still hallucinates function names - I checked") or removed it with justification ("this was for GPT-4's tendency to X, which GPT-5 doesn't do").
+   Adequate: Developer acknowledged that guardrails can become outdated but didn't actually evaluate any specific ones. Theoretical understanding without practical action.
+   Weak: Developer treated all existing rules as sacred - never questioned whether any constraint might be unnecessary overhead.
+
+4. CONSOLIDATION FOLLOW-THROUGH (conditional)
+   Condition: Only rate this if the developer actually applied consolidation changes (not just reviewed the report).
+   If condition not met: return rating=null, evidence="Developer reviewed audit but did not apply changes in this session", coaching=null
+   Strong: Developer applied changes, verified the pipeline still works after consolidation, and the rule count is measurably lower.
+   Adequate: Developer applied some changes but skipped verification - consolidated rules without checking that agents still behave correctly.
+   Weak: Developer applied changes that introduced new problems - consolidated rules incorrectly or removed something that was actually needed.
+
+Return as JSON:
+{
+  "dimensions": [
+    {"name": "duplication_awareness", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "conflict_resolution_quality", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "guardrail_skepticism", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "consolidation_follow_through", "rating": "...", "evidence": "...", "coaching": "..."}
+  ],
+  "overall_note": "..."
+}
+```
+
+---
+
+## Coaching
+
+Read eval results. For each dimension:
+
+### Duplication Awareness
+
+| Rating | Coaching |
+|--------|----------|
+| **Strong** | "Right - one source of truth per rule. When you need to change a rule later, you change it in one place. No drift, no surprises." |
+| **Adequate** | "You found the duplicates, but leaving some 'because they're harmless' is how this problem comes back. When someone edits one copy six months from now and not the other, you get a ghost conflict. Consolidate all of them." |
+| **Weak** | "Count how many files contain a rule about [specific example from their pipeline]. Now imagine changing that rule. You'd need to update every copy - and if you miss one, the agents disagree. That's why duplication matters." |
+
+### Conflict Resolution Quality
+
+| Rating | Coaching |
+|--------|----------|
+| **Strong** | "Good judgment calls. You didn't just pick arbitrarily - you thought about which version actually serves the pipeline. That's the difference between cleanup and improvement." |
+| **Adequate** | "You resolved the conflicts, but 'keep the longer version' isn't always right. The shorter, more specific version might be better. For each conflict, ask: which version produces the behavior I actually want?" |
+| **Weak** | "Leaving conflicts in place means your agents are making random choices. Pick one version. If you're not sure which is right, test both - run the pipeline with version A, then version B, and see which produces better output." |
+
+### Guardrail Skepticism
+
+| Rating | Coaching |
+|--------|----------|
+| **Strong** | "That's the right question to keep asking. Models improve, your pipeline matures, and rules that were essential six months ago become unnecessary drag. Periodic guardrail audits should be a habit." |
+| **Adequate** | "You understand the concept - now pick one specific guardrail and actually test whether it's still needed. Remove it temporarily, run the pipeline, and see what happens. Evidence beats theory." |
+| **Weak** | "Every rule has a cost - it's a constraint on what the agent can do. Some of those constraints were written for a model that's two generations old. Ask yourself: does this rule exist because of a model limitation that may no longer apply? If you can't remember why a rule exists, that's a sign it needs review." |
+
+### Consolidation Follow-Through (if triggered)
+
+| Rating | Coaching |
+|--------|----------|
+| **Strong** | "Clean execution - you consolidated, verified, and the pipeline is leaner. That's maintenance that most teams never do, and it compounds over time." |
+| **Adequate** | "You consolidated but didn't verify. Rule changes can have unexpected effects - an agent might rely on a rule you thought was a duplicate but was actually slightly different for a reason. Always run the pipeline after consolidation." |
+| **Weak** | "The consolidation introduced new issues. That's actually fine - it means you're learning which rules matter. Revert what broke, understand why, and try again with a more targeted approach." |
+
+If ALL dimensions are Strong:
+  "Your pipeline is cleaner, your rules don't conflict, and you're questioning
+  whether old guardrails still earn their keep. That's the maintenance mindset
+  that separates a pipeline that degrades from one that stays sharp."
+
+---
+
+## Bridge
+
+"Your instructions evolve. Your rules are clean. But how do you know any of
+this is actually making things better? Right now you're going on intuition.
+Next: measuring the impact of pipeline changes with real data."
+
+---
+
+## State Update
+
+Write to .goose/state/progression.json:
+  concept 7.3 dimensions:
+    - duplication_awareness: {rating from eval}
+    - conflict_resolution_quality: {rating from eval}
+  concept 7.5 dimensions:
+    - guardrail_skepticism: {rating from eval}
+    - consolidation_follow_through: {rating from eval, may be null}
+  Both with timestamps.
