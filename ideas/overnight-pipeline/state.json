@@ -1,5 +1,5 @@
 {
-  "current_cycle": 2,
+  "current_cycle": 4,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -10,6 +10,24 @@
       "bucket_a_count": 4,
       "bucket_b_count": 5,
       "commit": "7e9ada4"
+    },
+    {
+      "cycle": 2,
+      "personality": "vikram_senior",
+      "stage": "1",
+      "recipe": "bug-fix",
+      "bucket_a_count": 7,
+      "bucket_b_count": 1,
+      "commit": "ed27c3b"
+    },
+    {
+      "cycle": 3,
+      "personality": "deepak_hostile",
+      "stage": "2",
+      "recipe": "build-then-test",
+      "bucket_a_count": 3,
+      "bucket_b_count": 2,
+      "commit": "f63f6a6"
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -39,9 +57,23 @@
       "promotes_at": 3
     },
     "transcript_metadata_leak": {
-      "description": "Transcript metadata contains fourth-wall breaking annotations",
-      "occurrences": 1,
+      "description": "Transcript metadata contains fourth-wall breaking annotations (EVAL RESULT, raw JSON, dimensions)",
+      "occurrences": 3,
       "first_seen": 1,
+      "promotes_at": 3,
+      "promoted": true,
+      "promoted_at_cycle": 3
+    },
+    "hostile_persona_register_break": {
+      "description": "Hostile persona produces polished metaphors inconsistent with established terse response register",
+      "occurrences": 1,
+      "first_seen": 3,
+      "promotes_at": 3
+    },
+    "skeptic_objection_path": {
+      "description": "Experienced skeptic 'I could have found that myself' objection handled ad-hoc, not scripted",
+      "occurrences": 1,
+      "first_seen": 3,
       "promotes_at": 3
     }
   },
