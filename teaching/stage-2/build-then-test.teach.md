@@ -1,0 +1,166 @@
+# Recipes 2.1 & 2.2: Build-Then-Test — "Two AIs Are Better Than One"
+
+Covers concepts 2.1 (Why one AI isn't enough) and 2.2 (Specialists beat generalists).
+Mode: Adaptive + Checkpoints. Checkpoint after 2.2.
+
+---
+
+## Quality Dimensions
+
+### Concept 2.1 — Why One AI Isn't Enough
+
+| Quality Dimension | Strong | Adequate | Weak |
+|-------------------|--------|----------|------|
+| **Separation awareness** | Developer recognized why the tester being independent matters — mentioned something like "it doesn't know what the builder assumed" or "fresh eyes." *"Exactly — the tester doesn't share the builder's blind spots. That's why it caught [X]. Same AI grading its own work misses the same things every time."* | Developer acknowledged the tester caught something but didn't articulate why independence matters. *"The tester found [X] that the builder missed. Think about why — the builder assumed its own code was correct. The tester read the code cold, with no assumptions. That independence is the whole point."* | Developer treated both agents as interchangeable or didn't notice the tester caught something the builder missed. *"Look at the tester's findings: [X]. The builder didn't flag that. It wrote the code, so it thought it was correct — like grading your own exam. A separate tester with no shared context is what caught it."* |
+| **Result inspection** | Developer examined the discrepancies between builder and tester — read the tester's findings, asked questions about what was caught. *"Good — you dug into what the tester found instead of just glancing at pass/fail. That's how you learn what the builder's blind spots are."* | Developer looked at the summary but didn't examine the specific discrepancies. *"The summary said the tester found issues, but you didn't dig into what they were. Open the tester's findings — the specific discrepancies tell you where one-AI workflows break down."* | Developer ignored the tester's findings or accepted the result without reading it. *"Stop — the tester found [X] and you skipped right past it. The whole point of two agents is the second one catches things. If you don't read what it caught, you're back to trusting one AI."* |
+
+### Concept 2.2 — Specialists Beat Generalists
+
+| Quality Dimension | Strong | Adequate | Weak |
+|-------------------|--------|----------|------|
+| **Role separation** | Developer configured or understood that the builder and tester had different scopes — builder writes code, tester only tests. Didn't try to make one agent do both. *"You kept the roles clean — builder builds, tester tests, neither does the other's job. That separation is why the tester caught [X]. An agent trying to do both optimizes for the easy path."* | Developer understood there were two agents but was fuzzy on why they need different scopes. *"Two agents is the right structure, but the key is they have different jobs. The builder's job is implementation. The tester's job is finding problems. If you let one do both, it'll build something and then write tests that confirm what it built — not tests that challenge it."* | Developer suggested merging the agents or having the builder also write tests. *"Think about what happens if the builder also writes the tests: it writes code, then writes tests that match what it wrote. The tests pass, but they don't prove anything. The tester found [X] because it wasn't trying to justify the builder's code."* |
+| **Information boundary** | Developer understood or respected that the tester shouldn't see the builder's reasoning — the independence is deliberate. *"Right — the tester only gets the task description and the code. No builder notes, no assumptions, no 'here's what I was going for.' That clean boundary is what makes the review honest."* | Developer understood the agents are separate but questioned why the tester can't see the builder's notes. *"The tester doesn't see the builder's reasoning on purpose. If it knows the builder assumed users always pass valid input, it'll test for valid input too. Blind review catches the assumptions. That's the point."* | Developer tried to pass builder context to the tester or didn't understand why the separation exists. *"You wanted to tell the tester what the builder was thinking. That defeats the purpose — if the tester shares the builder's assumptions, it shares the builder's blind spots. The tester reads the code cold. No context from the builder. That's what makes it effective."* |
+
+---
+
+## Setup
+
+Read .goose/team_context.md for project context.
+Read .goose/state/progression.json — check concepts 2.1 and 2.2.
+If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
+Verify Stage 1 is complete. If not, flag it — Stage 2 assumes the developer already knows single-agent workflows.
+
+## Framing
+
+"You've been running single-agent workflows — one AI does the work, you review the result. That works, but you're the only quality check. Let's try something different: one AI builds, and a completely separate AI tests the result. The tester doesn't know what the builder was thinking — it just reads the code cold."
+
+"What's a feature or change you need to make? Something small enough to build in a few minutes — a new function, a small module, an endpoint, a utility."
+
+If developer has no current task:
+  "No problem. Let me look at your codebase for something we can work with."
+  Delegate to code-work subagent:
+    "Read .goose/team_context.md. Find a TODO, a missing utility function,
+    or a small feature gap that would take 10-20 minutes to build manually.
+    Describe it as a task the developer would recognize as real work."
+
+## The Task — Concept 2.1
+
+Developer describes the task (or accepts the found task).
+
+Delegate to code-work subagent:
+  sub-recipe: "build-then-test"
+  parameters:
+    task_description: {developer's description}
+    acceptance_criteria: {if provided}
+    target_files: {if provided}
+
+[Subagent runs the two-phase workflow, returns builder summary + tester findings]
+
+Facilitator presents the results naturally:
+
+"Here's what the builder did: [summary]. Now here's what the independent tester found: [tester findings]."
+
+If the tester caught something the builder missed (expected):
+"See that? The tester found [specific issue] that the builder didn't flag. The builder wrote the code, so it thought it was correct. The tester read it cold and caught [X]. That's why one AI isn't enough."
+
+If the tester found no issues (rare but possible):
+"The tester verified everything clean this time. That doesn't always happen — when the builder makes assumptions, the independent tester is what catches them. The value is the verification, even when it confirms the code is solid."
+
+Let the developer examine the results. Watch for the quality dimensions — are they inspecting the discrepancies? Do they understand why the tester being independent matters?
+
+## Transition to Concept 2.2
+
+"So you've seen that a separate tester catches things the builder misses. But notice something else — the builder's entire job was writing code. The tester's entire job was finding problems. Neither was trying to do both. That's why it works."
+
+"Let's look at what happens when you're deliberate about those roles. This time, I want you to think about what the builder should focus on versus what the tester should focus on. Tell me — if you were setting up these two agents, what would each one's job description be?"
+
+Let the developer articulate the roles. Guide toward: the builder implements, the tester challenges. The tester should NOT see the builder's reasoning.
+
+If the developer suggests the builder should also write tests:
+  "Think about what happens if the builder writes the tests: it implements
+  something, then writes tests that match what it built. Those tests pass,
+  but they prove nothing. The tester found [X] because it wasn't trying
+  to justify the builder's work."
+
+Run another build-then-test if the developer wants to try with deliberate role awareness, or continue to the checkpoint if the concept is clear.
+
+## Checkpoint (after 2.2)
+
+Delegate to eval subagent (async: true):
+  [See eval prompt below]
+
+Read eval results. For each dimension across both concepts:
+- Strong: Acknowledge specifically using the coaching language from the quality dimension table.
+- Adequate: Light suggestion using the coaching language from the quality dimension table.
+- Weak: Targeted coaching with contrast using the coaching language from the quality dimension table.
+
+Checkpoint framing:
+"Quick check — you've now seen the build-then-test pattern. Two agents, separated roles, no shared context. [Address any weak dimensions]. The tester catches what the builder misses because it doesn't share the builder's assumptions."
+
+If any 2.1 or 2.2 dimension is Weak, work through it before proceeding:
+  "Before we move on — [coaching for weak dimension]. Let's try one more to make sure this clicks."
+  Run another build-then-test with focus on the weak dimension.
+
+If all dimensions are Adequate or Strong:
+"Good foundation. Next we'll take this further — instead of just testing after building, you'll set up a review gate that blocks bad code from being accepted. Same principle, higher stakes."
+
+## Bridge
+
+"You've got two agents that don't trust each other's work. Next up: turning that tester into a gate that actually blocks bad code — and making sure it checks by running things, not just looking at them."
+
+## State Update
+
+Write to .goose/state/progression.json:
+  concepts 2.1 and 2.2 dimensions with eval ratings + timestamp.
+
+---
+
+## Eval Subagent Prompt
+
+```
+You are evaluating how well a developer approached a two-agent build-then-test workflow. This covers concepts 2.1 (Why one AI isn't enough) and 2.2 (Specialists beat generalists).
+
+Here is the full conversation transcript between the developer and the facilitator:
+
+---
+{transcript}
+---
+
+Rate each quality dimension below. For each dimension:
+1. Rate as "Strong", "Adequate", or "Weak"
+2. Cite specific evidence from the transcript (quote or paraphrase what the developer said/did)
+3. If not Strong, write 1-2 sentences of coaching the facilitator should say — conversational, specific, never mentions the eval system or ratings
+
+Quality dimensions:
+
+1. SEPARATION AWARENESS (concept 2.1)
+   Strong: Developer recognized why the tester being independent matters — mentioned the builder's blind spots, fresh perspective, or "grading your own work" dynamic. Articulated that shared context reduces the tester's effectiveness.
+   Adequate: Developer acknowledged the tester caught something the builder missed but did not articulate why independence (no shared context) is the mechanism that makes it work.
+   Weak: Developer treated both agents as interchangeable, didn't notice the tester caught something new, or didn't engage with why two agents are different from one.
+
+2. RESULT INSPECTION (concept 2.1)
+   Strong: Developer examined the specific discrepancies between builder and tester — read the tester's findings in detail, asked about specific issues caught, or discussed what the builder's blind spot was.
+   Adequate: Developer looked at the pass/fail summary but did not dig into the specific discrepancies or what exactly the tester found that the builder missed.
+   Weak: Developer ignored the tester's findings, accepted the result without reading it, or showed no interest in what the second agent caught.
+
+3. ROLE SEPARATION (concept 2.2)
+   Strong: Developer understood or articulated that builder and tester have different scopes and jobs — builder implements, tester challenges. Did not suggest merging them or having one agent do both.
+   Adequate: Developer understood there are two agents but was unclear on why they need different scopes, or initially suggested one agent could do both but accepted the separation after discussion.
+   Weak: Developer actively suggested merging the agents, having the builder write its own tests, or showed no understanding of why role separation matters.
+
+4. INFORMATION BOUNDARY (concept 2.2)
+   Strong: Developer understood or respected that the tester should not see the builder's reasoning or assumptions — recognized that the information wall is deliberate and makes the review honest.
+   Adequate: Developer understood the agents are separate but questioned why the tester can't see the builder's notes, or didn't proactively think about what information the tester receives.
+   Weak: Developer tried to pass builder context to the tester, suggested the tester should know the builder's intent, or did not understand that shared information undermines the independence.
+
+Return as JSON:
+{
+  "dimensions": [
+    {"name": "separation_awareness", "concept": "2.1", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "result_inspection", "concept": "2.1", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "role_separation", "concept": "2.2", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "information_boundary", "concept": "2.2", "rating": "...", "evidence": "...", "coaching": "..."}
+  ],
+  "overall_note": "Any cross-cutting observation about how the developer is internalizing the two-agent pattern"
+}
+```

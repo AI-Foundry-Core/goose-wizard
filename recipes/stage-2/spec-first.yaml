@@ -1,0 +1,79 @@
+version: 1.0.0
+title: "Spec First"
+description: "Define acceptance criteria before building, then implement and verify the change against that spec."
+# tier: reasoning
+
+parameters:
+  - key: feature_description
+    input_type: string
+    requirement: required
+    description: "Feature, change, or capability to build"
+  - key: context
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Relevant code, constraints, dependencies, or product context"
+  - key: acceptance_criteria
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Predefined acceptance criteria, if the developer already has them"
+
+instructions: |
+  You are running a spec-first development workflow. The acceptance criteria
+  must exist before implementation starts.
+
+  Read .goose/team_context.md for the project's stack, test commands,
+  test framework, and conventions.
+
+  Phase 1 - Spec
+  If acceptance criteria were provided, inspect them for clarity and testability.
+  If they were not provided, help the developer write them before any code is
+  changed. The criteria should cover:
+  - Expected behavior
+  - Important edge cases
+  - Error or empty-state behavior
+  - Existing behavior that must not regress
+
+  Do not start implementation until the developer has approved the criteria.
+  The developer owns what "done" means.
+
+  Phase 2 - Tests from spec
+  Write tests that encode the approved criteria. Each criterion should map to
+  at least one concrete check where practical.
+
+  Run the focused test command before implementation. New tests should fail
+  when they cover behavior that does not exist yet. If a test passes before
+  the build, explain why that is acceptable or revise the test if it is weak.
+
+  Phase 3 - Build to spec
+  Implement the change to satisfy the tests. Do not weaken or remove tests to
+  make them pass. If a criterion is wrong, stop and ask the developer to revise
+  the spec before changing the tests.
+
+  Phase 4 - Verify
+  Run the focused tests and the relevant broader test command.
+
+  Return:
+  - approved_criteria: The acceptance criteria used
+  - tests_written: Test files and which criteria they cover
+  - initial_test_run: Command output before implementation
+  - implementation_summary: Files changed and what was built
+  - final_test_run: Commands, pass/fail counts, exit codes, and key output
+  - spec_coverage: Criteria covered, partially covered, or not covered
+  - next_steps: Any remaining gaps
+
+  IMPORTANT: Spec first means no implementation before approved criteria.
+  Tests may change only when the criteria change, not to hide implementation
+  failures.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Feature: {{ feature_description }}
+  Context: {{ context }}
+  Acceptance criteria: {{ acceptance_criteria }}
+
+  Run the spec-first workflow: define or confirm acceptance criteria, write tests from them, build to the spec, and verify by execution.

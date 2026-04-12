@@ -1,0 +1,289 @@
+# Recipe 4.4: Spec to Pipeline - "Can the pipeline run this?"
+
+Covers concept:
+- 4.4 Every requirement must be testable
+
+Mode: Adaptive + Checkpoints
+
+This wrapper can run in two positions:
+- As the focused 4.4 module after persona decomposition
+- As a Stage 4 capstone after spec review, using the latest reviewed decomposed spec
+
+---
+
+## Setup
+
+Read .goose/team_context.md for project context, including stack, test framework, test commands, and conventions.
+
+Read .goose/state/progression.json and check concepts 4.1 through 4.6.
+
+Before starting, confirm concepts 4.1, 4.2, and 4.3 are complete or that the developer has an equivalent decomposed spec with persona-driven acceptance criteria. If those prerequisites are missing, bridge back to idea-to-spec or spec-decomposition before running this wrapper.
+
+If concept 4.4 is already complete with all required dimensions adequate or strong:
+"You've already shown the core testability move: requirements tracing to tests. Want to run this as a capstone on the latest spec, or skip ahead?"
+
+If the developer skips:
+- If concepts 4.5 and 4.6 are not complete, bridge to spec review.
+- If concepts 4.1 through 4.6 are complete, bridge to Stage 5.
+
+Prerequisite: The developer should have a decomposed spec with acceptance criteria, ideally from spec-decomposition. If they do not, either run spec-decomposition first or use an existing project spec with clear requirements.
+
+If this is being run as a capstone after spec-review, use the reviewed version of the decomposed spec rather than the pre-review draft.
+
+---
+
+## Framing
+
+"You've got a spec with clear acceptance criteria. Now the question is: can an AI pipeline actually execute against it? Let's turn the requirements into test specs, a coverage matrix, and an implementation plan."
+
+Ask:
+"Which spec should we use? Point me at the decomposed spec or the reviewed spec if you already ran the quality gate."
+
+If the developer does not know the test framework:
+"No problem. I can read the project context and infer the default test framework from the repo."
+
+---
+
+## Stuck Path
+
+If the developer has no spec ready:
+"No ready spec is fine. I can look for the latest Stage 4 output or a requirements doc we can use."
+
+Delegate to code-work subagent:
+  "Read .goose/team_context.md and scan the repo for recent Stage 4 spec artifacts, requirements docs, or decomposed specs with acceptance criteria. Prefer files that include persona use cases and Given/When/Then criteria. Return the best candidate path, why it is usable, and any gaps that might block spec-to-pipeline conversion."
+
+If no usable spec exists:
+"We need a decomposed spec before this step has anything real to translate. Let's run spec-decomposition first, then come back to pipeline translation."
+
+Delegate to code-work subagent:
+  sub-recipe: "spec-decomposition"
+  parameters:
+    spec_path: {developer-provided requirements doc or best available spec}
+    personas: {developer-provided personas, if any}
+
+Then continue with the produced decomposed spec.
+
+---
+
+## Phase 1: Preflight Testability Check
+
+Before delegating to the recipe, ask the developer to inspect three acceptance criteria:
+
+"Pick three acceptance criteria from the spec. For each one, tell me what kind of test it wants: unit, integration, e2e, or manual. Then name the setup, the action, and the expected result."
+
+Listen for:
+- Does each criterion have a clear pass/fail outcome?
+- Does the developer distinguish automated tests from manual checks?
+- Does the developer notice subjective language like "easy," "seamless," "professional," "fast," or "intuitive"?
+- Does the developer choose the right test level, or make every test an e2e test by default?
+
+If the developer gives a vague test idea:
+"That's the direction, but make it executable. What state exists before the test, what action does the test perform, and what exact result proves it passed?"
+
+If the developer says a subjective criterion is fine:
+"An AI pipeline cannot test 'feels intuitive.' Rewrite it into an observable outcome: completion rate, number of steps, error rate, time threshold, or a binary accessibility check."
+
+---
+
+## Phase 2: Convert Spec to Pipeline Artifacts
+
+Delegate to code-work subagent:
+  sub-recipe: "spec-to-pipeline"
+  parameters:
+    spec_path: {path to decomposed or reviewed spec}
+    test_framework: {developer preference or inferred project default}
+
+[Subagent returns test specifications, non-automatable criteria, pipeline execution plan, skeleton test files, and coverage matrix.]
+
+Present the result naturally:
+"The conversion produced [N] test specs from [M] requirements. [K] criteria need attention because they are not fully automatable. The coverage matrix is the important artifact: it tells us whether every requirement has a test behind it."
+
+Then ask:
+"Let's inspect the matrix. Which requirement has the weakest trace to a test?"
+
+If every requirement maps cleanly:
+"Good. No orphan requirements. Now we check whether the tests are specific enough to run without another conversation."
+
+If any requirement has no test:
+"That's an orphan requirement. Either the requirement is not testable and needs rewriting, or the test plan missed it. We do not hand this to a build pipeline until every requirement traces to at least one test."
+
+---
+
+## Phase 3: Handle Non-Automatable Criteria
+
+If the recipe returns non-automatable criteria:
+"These are the weak points. A manual check is sometimes legitimate, but 'needs human judgment' is not a free pass. For each one, decide: rewrite it into an automated check, keep it as an explicit manual gate, or remove it because it is not really a requirement."
+
+Ask the developer to choose one non-automatable criterion and rewrite it.
+
+If the developer rewrites it well:
+"That's now test-shaped: setup, action, measurable outcome. The pipeline can execute against that."
+
+If the developer keeps it manual:
+"That's fine as long as it is explicit. Write the manual gate with who performs it, what evidence they collect, and what pass/fail means."
+
+If the developer ignores non-automatable criteria:
+"Leaving these vague means the pipeline will either guess or skip them. Both are bad. Pick one and make the decision visible."
+
+Optionally delegate a narrow revision:
+  "Revise only the non-automatable criteria selected by the developer. Convert them into automated criteria where possible. For true manual gates, define owner, evidence, and pass/fail condition. Preserve the rest of the spec."
+
+---
+
+## Phase 4: Pipeline Execution Plan Review
+
+Ask:
+"Would you hand this execution plan to a build agent now? Check three things: task order, dependencies, and which tests validate each task."
+
+Listen for:
+- Does each implementation task map back to one or more test IDs?
+- Are dependency-heavy tasks ordered before dependent work?
+- Are independent tasks identified for parallel work?
+- Are side effects and teardown needs visible?
+- Are skeleton test files organized by persona or use case, not random file names?
+
+If the developer reviews the plan carefully:
+"That is the handoff. A build agent can now take task [X], know which tests prove it, and know what depends on it."
+
+If the developer accepts the plan without inspection:
+"Pause before build. A pipeline plan can look complete while hiding a bad dependency. Check one task: what must exist before it starts, and which test proves it is done?"
+
+---
+
+## Eval
+
+Delegate to eval subagent (async: true):
+
+```
+You are evaluating how well a developer turned acceptance criteria into a test-ready pipeline plan.
+
+Here is the full conversation transcript between the developer and the facilitator:
+
+---
+{transcript}
+---
+
+Rate each quality dimension below. For each dimension:
+1. Rate as "Strong", "Adequate", or "Weak"
+2. Cite specific evidence from the transcript (quote or paraphrase what the developer said/did)
+3. If not Strong, write 1-2 sentences of coaching the facilitator should say - conversational, specific, never mentions the eval system or ratings
+
+Quality dimensions:
+
+1. TRACEABILITY DISCIPLINE (Concept 4.4)
+   Strong: Developer inspected the coverage matrix or equivalent mapping and confirmed every requirement traces to at least one test. They noticed or asked about orphan requirements, duplicate/overbroad tests, or missing mappings.
+   Adequate: Developer looked at the coverage matrix or test mapping but did not inspect it deeply. They accepted the main mapping without checking for weak traces or orphan requirements.
+   Weak: Developer accepted the generated test plan without checking whether every requirement maps to a test.
+
+2. TEST SPECIFICITY (Concept 4.4)
+   Strong: Developer evaluated or wrote tests with explicit setup, steps/actions, expected results, and measurable pass/fail outcomes. They avoided subjective language and chose appropriate test levels such as unit, integration, e2e, or manual.
+   Adequate: Developer made tests more concrete or identified obvious vague tests, but left some missing setup, ambiguous expected results, or unclear test levels.
+   Weak: Developer accepted vague test descriptions such as "should work," "should be fast," or "user should have a good experience" without pushing for executable detail.
+
+3. NON-AUTOMATABLE HANDLING (Concept 4.4)
+   Strong: Developer engaged with criteria that could not be automated, rewrote at least one into a measurable automated check or explicitly marked it as a manual gate with owner, evidence, and pass/fail condition.
+   Adequate: Developer acknowledged non-automatable criteria and discussed possible rewrites, but left the final handling partly vague or unresolved.
+   Weak: Developer ignored non-automatable criteria, accepted "needs human judgment" without defining a manual gate, or treated subjective requirements as acceptable.
+
+4. PIPELINE READINESS (conditional)
+   Condition: Only rate this if the developer reviewed the pipeline execution plan or discussed handing it to a build agent.
+   If condition not met: return rating=null, evidence="Not triggered - developer did not review the execution plan", coaching=null
+   Strong: Developer checked task order, dependencies, test mappings, and parallelization or sequencing before treating the plan as build-ready.
+   Adequate: Developer reviewed task order or test mappings but missed dependencies, sequencing risks, or parallelization constraints.
+   Weak: Developer treated the execution plan as build-ready because it looked complete, without checking dependencies or which tests validate each task.
+
+Return as JSON:
+{
+  "dimensions": [
+    {"name": "traceability_discipline", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "test_specificity", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "non_automatable_handling", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "pipeline_readiness", "rating": "...", "evidence": "...", "coaching": "..."}
+  ],
+  "overall_note": "..."
+}
+```
+
+---
+
+## Coaching
+
+Read eval results. Coach naturally; do not list ratings.
+
+### Traceability Discipline
+
+| Rating | Facilitator Says |
+|--------|------------------|
+| Strong | "You checked the matrix instead of trusting the generated plan. That is the habit: every requirement needs at least one test, and every test should point back to the requirement it proves." |
+| Adequate | "You looked at the matrix, which is good. Next time go one level deeper: find the weakest requirement-to-test trace and ask whether that test would actually prove the requirement." |
+| Weak | "Do not accept a test plan just because it is long. The coverage matrix is the proof. If a requirement has no test behind it, the pipeline can build the wrong thing and still look successful." |
+
+### Test Specificity
+
+| Rating | Facilitator Says |
+|--------|------------------|
+| Strong | "Your test shape was executable: setup, action, expected result, and a clear pass/fail line. That is what lets a pipeline run without stopping to ask what 'done' means." |
+| Adequate | "The test is close, but [specific missing part] is still doing too much work in the reader's head. Add the exact setup or expected result so two agents would write the same test." |
+| Weak | "A test like '[quote vague test]' is not executable. Compare it to: 'Given a new user with an empty cart, when they add item X and check out, then the order is created and the total equals Y.' The second one can become a test." |
+
+### Non-Automatable Handling
+
+| Rating | Facilitator Says |
+|--------|------------------|
+| Strong | "Good handling of the manual edge. You either rewrote it into something measurable or made the manual gate explicit. The pipeline knows what it can automate and what needs a human decision." |
+| Adequate | "You spotted the non-automatable bit. Now close the loop: either rewrite it into a measurable check or define the manual gate with owner, evidence, and pass/fail condition." |
+| Weak | "'Needs human judgment' is not a requirement yet. If it stays manual, say who judges it and what evidence they use. If it should be automated, rewrite the subjective word into a number or binary outcome." |
+
+### Pipeline Readiness
+
+| Rating | Facilitator Says |
+|--------|------------------|
+| Strong | "That is build-ready: tasks are ordered, dependencies are visible, and each task has tests that prove it. A build agent can execute that without guessing." |
+| Adequate | "The order looks reasonable, but check the dependency line before handing it off. A good pipeline plan says what must already exist and which tests prove each task is done." |
+| Weak | "A complete-looking plan is not the same as a build-ready plan. Pick one task and ask: what does it depend on, what can run in parallel, and which test proves it passed?" |
+
+---
+
+## Checkpoint
+
+This is the concept 4.4 checkpoint and can also serve as a Stage 4 completion checkpoint if concepts 4.1 through 4.6 are already complete.
+
+If all required 4.4 dimensions are Adequate or Strong:
+"You have the requirement-to-test move now. The spec is no longer just a document; it is a pipeline input with traceability, executable tests, and a build plan."
+
+If any required 4.4 dimension is Weak:
+Coach the weak dimensions, then ask the developer to fix one requirement-to-test trace before closing:
+"Let's tighten one trace before we move on. Pick the weakest requirement, rewrite the test spec until it has setup, action, expected result, and a clear pass/fail condition."
+
+If 4.5 and 4.6 are not complete:
+"The next step is the spec quality gate: review the spec before build and define when the project should stop. That catches expensive mistakes while they are still cheap."
+
+If all Stage 4 concepts are complete:
+"That closes the spec stage. You can now turn an idea into a spec an AI team can build from: concrete, persona-driven, testable, reviewed, and honest about when to stop."
+
+---
+
+## Bridge
+
+If continuing to spec-review:
+"Now that every requirement can trace to a test, the next question is whether the spec itself is worth building. We review it before the pipeline spends time on implementation."
+
+If continuing to Stage 5:
+"Next is trust but verify. The pipeline can now build from the spec; Stage 5 is about proving the pipeline's claims are true instead of trusting its own report."
+
+---
+
+## State Update
+
+Write to .goose/state/progression.json:
+  concept 4.4 dimensions with eval ratings and timestamp:
+    - traceability_discipline
+    - test_specificity
+    - non_automatable_handling
+    - pipeline_readiness (conditional; rating null does not block completion)
+
+Mark concept 4.4 complete when traceability_discipline, test_specificity, and non_automatable_handling are all Adequate or Strong. If pipeline_readiness is triggered, record it, but do not block concept completion on a null rating.
+
+If concepts 4.1 through 4.6 are complete, mark Stage 4 complete with completed_at timestamp.
+
+Never overwrite a Strong rating with a lower one. If the developer re-runs this module, update ratings only if they improve.
