@@ -80,6 +80,17 @@ Delegate to code-work subagent:
 Present the safety patch:
 "Now the failure route is explicit: [failure] retries [N] times, then routes to [owner] with [packet fields]."
 
+## Wait-Time Insights
+
+Share one insight per subagent wait, in order. Adapt to what just happened in conversation.
+
+1. `[specialization]` — "The Spec Agent only writes acceptance criteria — it never sees the implementation. That constraint is the point. A spec writer who also builds will unconsciously write specs that match what they plan to build."
+2. `[specialization]` — "The Build Agent gets a scoped context: the spec contract and the files it's allowed to touch. It doesn't see the reviewer's logic or the spec agent's reasoning. That's what keeps each agent's judgment independent."
+3. `[verify]` — "The Review Agent checks the build against the spec — not against what the builder intended. That separation is what makes the review real instead of a rubber stamp."
+4. `[feedback-loops]` — "When the reviewer rejects, the builder gets specific fields: which criteria failed, which tests broke. Not a paragraph of feedback — structured data it can act on without guessing."
+5. `[enterprise]` — "In a team setting, these contracts become the API between agent roles. Different developers can own different agents and evolve them independently, as long as the contract holds."
+6. `[define-success]` — "The safety rail is not about preventing failure — it's about making failure bounded. Three rejected reviews cost you three cycles. Without the rail, a subtle bug can burn fifty."
+
 ## Eval
 Delegate to eval subagent (async: true):
 
