@@ -1,18 +1,51 @@
 {
-  "current_cycle": 1,
+  "current_cycle": 2,
   "status": "ready",
   "total_planned_cycles": 20,
-  "completed_cycles": [],
+  "completed_cycles": [
+    {
+      "cycle": 1,
+      "personality": "priya_eager",
+      "stage": "0",
+      "bucket_a_count": 4,
+      "bucket_b_count": 5,
+      "commit": "7e9ada4"
+    }
+  ],
   "scripts_checkpoint_branch": null,
-  "bucket_b_recurring": {},
+  "bucket_b_recurring": {
+    "act2_review_verification": {
+      "description": "Act 2 approval without review verification",
+      "occurrences": 1,
+      "first_seen": 1,
+      "promotes_at": 3
+    },
+    "act3_developer_hands_on": {
+      "description": "Act 3 developer never touches git",
+      "occurrences": 1,
+      "first_seen": 1,
+      "promotes_at": 3
+    },
+    "act5_compatibility_check": {
+      "description": "Act 5 specific-request may produce breaking changes without test/risk note",
+      "occurrences": 1,
+      "first_seen": 1,
+      "promotes_at": 3
+    },
+    "persona_enterprise_questions": {
+      "description": "Persona simulation does not surface enterprise workflow questions",
+      "occurrences": 1,
+      "first_seen": 1,
+      "promotes_at": 3
+    },
+    "transcript_metadata_leak": {
+      "description": "Transcript metadata contains fourth-wall breaking annotations",
+      "occurrences": 1,
+      "first_seen": 1,
+      "promotes_at": 3
+    }
+  },
   "eval_known_issues": [],
   "codex_failures": 0,
-  "next_planned": {
-    "personality": "priya_eager",
-    "stage": "0",
-    "recipe": null,
-    "mock_dev_model": "haiku",
-    "edge_cases": ["accepts_without_checking"],
-    "rationale": "First cycle: test Stage 0 with an over-accepting developer. Stresses fix-verification paths and weak-coaching delivery."
-  }
+  "next_planned": null
 }
