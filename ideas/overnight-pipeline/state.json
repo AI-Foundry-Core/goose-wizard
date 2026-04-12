@@ -1,7 +1,7 @@
 {
   "current_cycle": 1,
   "status": "ready",
-  "total_planned_cycles": 12,
+  "total_planned_cycles": 20,
   "completed_cycles": [],
   "scripts_checkpoint_branch": null,
   "bucket_b_recurring": {},
@@ -13,6 +13,6 @@
     "recipe": null,
     "mock_dev_model": "haiku",
     "edge_cases": ["accepts_without_checking"],
-    "rationale": "First cycle: test Stage 0 with an over-accepting developer. This stresses fix-verification paths and weak-coaching delivery. Edge case: developer accepts everything without reviewing diffs."
+    "rationale": "First cycle: test Stage 0 with an over-accepting developer. Stresses fix-verification paths and weak-coaching delivery."
   }
 }
