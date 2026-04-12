@@ -89,10 +89,12 @@ Run another build-then-test if the developer wants to try with deliberate role a
 Delegate to eval subagent (async: true):
   [See eval prompt below]
 
-Read eval results. For each dimension across both concepts:
-- Strong: Acknowledge specifically using the coaching language from the quality dimension table.
-- Adequate: Light suggestion using the coaching language from the quality dimension table.
-- Weak: Targeted coaching with contrast using the coaching language from the quality dimension table.
+Read eval results. Follow the priority order from teacher-instructions.md Section 4 exactly:
+1. Acknowledge what was Strong — specific praise for the specific behavior the developer demonstrated.
+2. Coach what was Weak — targeted, with contrast. This is the priority teaching.
+3. Suggest for Adequate — light touch, one sentence with the "why." Do NOT praise Adequate as if it were Strong.
+
+Use the coaching language from the quality dimension table above for each rating level. If a dimension is rated Adequate, use the Adequate coaching language — not the Strong language. Minimal role labels like "builder writes, tester tests" are Adequate unless the developer explains scope, challenge behavior, and independence.
 
 Checkpoint framing:
 "Quick check — you've now seen the build-then-test pattern. Two agents, separated roles, no shared context. [Address any weak dimensions]. The tester catches what the builder misses because it doesn't share the builder's assumptions."
@@ -103,6 +105,19 @@ If any 2.1 or 2.2 dimension is Weak, work through it before proceeding:
 
 If all dimensions are Adequate or Strong:
 "Good foundation. Next we'll take this further — instead of just testing after building, you'll set up a review gate that blocks bad code from being accepted. Same principle, higher stakes."
+
+## Wait-Time Insights
+
+Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
+
+1. `[specialization]` "While it's working — notice the builder's entire job is implementation. It's not thinking about edge cases or security. That focus is why it's fast — and why it needs a second pair of eyes."
+2. `[verify]` "One thing to keep in mind — the tester reads the code cold. No knowledge of what the builder intended. That's the same advantage a fresh code reviewer has on Monday morning."
+3. `[self-verification-bias]` "Something you'll notice — when one agent writes and reviews its own code, it skips the same things every time. Same blind spots, same assumptions. Splitting the work breaks that cycle."
+4. `[enterprise]` "In production systems at scale, the bugs that make it to prod are almost never syntax errors. They're assumption errors — thread safety, resource cleanup, edge cases nobody thought to test. That's exactly what an independent tester catches."
+5. `[specialization]` "The builder optimizes for making the algorithm work. The tester optimizes for finding where it breaks. Those are opposing goals — which is why one agent can't do both well."
+6. `[feedback-loops]` "Every time the tester catches something the builder missed, that's data about the builder's blind spots. Over time, you learn which kinds of issues need the hardest scrutiny."
+
+---
 
 ## Bridge
 
