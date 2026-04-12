@@ -327,3 +327,50 @@ Each entry:
   - **Evidence:** cycle 5 (both evaluators enterprise 3/5), cycle 6 (both evaluators enterprise 3/5)
   - **Occurrences:** 2 (incremented from 1 — cycle 5 was generic enterprise, cycle 6 is specific to verification grounding)
   - **Why not applied as recurring:** The enterprise grounding section added in this cycle's Bucket A fix directly addresses this for eval-foundation. The recurring tracking is for modules that DON'T yet have enterprise grounding guidance.
+
+---
+
+### Cycle 7 — Arjun (curious) — Stage 6 / Cycle Review
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** E4 transparency response pattern said "It reads the implementation systematically — session artifacts, diffs, test outputs" as a factual statement with no hedge
+  - **After:** Added precision rule: describe intended behavior as intended, not as fact. New DO example uses "It is supposed to read..." and "The output should tell us whether it actually did." Pushback answer now ends with "Whether it actually did that this time is exactly the question your review should answer."
+  - **Why:** Codex flagged E4 answer contradicting the session's own evidence. The facilitator described eval agent behavior as fact, then the transcript proved the eval accepted summary claims without checking diffs or test outputs. In a session about "success signals can lie," the facilitator should not make success claims about the eval agent.
+  - **Confidence:** high
+
+- **File:** teaching/stage-6/cycle-review.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[verify]` (x2), `[feedback-loops]` (x2), `[define-success]`, `[enterprise]`
+  - **Why:** Opus flagged 1 insight across 6-7 code operations. teacher-instructions.md Section 13 requires each module to have an ordered insight list. Stages 2-5 were fixed in cycles 3-6; Stage 6 was still missing.
+  - **Confidence:** high
+
+- **File:** teaching/stage-6/cycle-review.teach.md
+  - **Before:** No enterprise grounding section existed — facilitator never connected findings to team workflows
+  - **After:** Added `## Enterprise Grounding` section after Facilitator Response. Includes required enterprise-context question after developer drafts findings ("How does your team find out about these findings?"). Added stop-flag lifecycle grounding with two-part push: team ownership and audit trail preservation.
+  - **Why:** Enterprise readiness at 3/5 for three consecutive cycles (5, 6, 7). `enterprise_context_missed_openings` auto-promoted at 3 occurrences. Opus identified stop flag lifecycle and "write it up as a pattern" as natural openings that were not exploited. Codex identified missing audit-history plan for deleted stop flags.
+  - **Confidence:** high
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** Stage 6 guidance had 5 bullet points with no enterprise grounding rule or stop-flag lifecycle guidance
+  - **After:** Added 2 new bullet points: (1) enterprise grounding after findings — ask where findings live and who acts on them, and (2) stop-flag lifecycle — require two-part answer (control signal + audit trail) and push for multi-developer ownership.
+  - **Why:** Enterprise and stop-flag gaps are structural, not cycle-specific. Without teacher-instructions.md codification, future Stage 6 modules would repeat the same pattern.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Mock developer (Arjun, 3yr) performs senior-level operational audit after initial mistake — too polished for experience level
+  - **Evidence:** cycle 7 (Opus weakness #1, Codex weakness #2), also cycle 5 (Ananya RFC vocabulary)
+  - **Occurrences:** 2 (Haiku over-polishing persona fidelity — distinct from RFC vocabulary but same root cause)
+  - **Why not applied:** Simulator persona fidelity issue, not a teaching script bug. Haiku tends to make mock developers slightly more capable than their profile warrants. Fix belongs in simulator persona constraints (experience-level calibration for investigation rigor, not just vocabulary).
+
+- **Finding:** Enterprise context opportunities missed — facilitator does not connect findings to team workflows
+  - **Evidence:** cycle 5 (both evaluators 3/5), cycle 6 (both evaluators 3/5), cycle 7 (both evaluators 3/5)
+  - **Occurrences:** 3 — **AUTO-PROMOTED to Bucket A.** Applied this cycle: enterprise grounding section added to cycle-review script, teacher-instructions.md Stage 6 updated.
+  - **Why not applied previously:** Needed confirmation that the pattern was systemic, not persona-specific.
+
+- **Finding:** Consecutive wait-time insights missing when multiple code operations occur
+  - **Evidence:** cycle 6 (Opus pacing), cycle 7 (Opus pacing weakness — 1 insight across 6-7 operations)
+  - **Occurrences:** 2 (incremented from 1)
+  - **Why not applied as recurring:** The insight list added in this cycle's Bucket A fix directly addresses this for cycle-review. The recurring tracking is for modules that DON'T yet have insight lists (Stage 7 modules still missing).

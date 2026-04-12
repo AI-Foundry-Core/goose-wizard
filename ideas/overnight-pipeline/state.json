@@ -1,5 +1,5 @@
 {
-  "current_cycle": 7,
+  "current_cycle": 8,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -55,6 +55,15 @@
       "bucket_a_count": 6,
       "bucket_b_count": 3,
       "commit": "f9add79"
+    },
+    {
+      "cycle": 7,
+      "personality": "arjun_curious",
+      "stage": "6",
+      "recipe": "cycle-review",
+      "bucket_a_count": 4,
+      "bucket_b_count": 3,
+      "commit": "621467a"
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -137,14 +146,22 @@
     },
     "enterprise_context_missed_openings": {
       "description": "Facilitator misses natural openings for enterprise context when developer mentions team lead or cross-team dependencies",
-      "occurrences": 2,
+      "occurrences": 3,
       "first_seen": 5,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "promoted": true,
+      "promoted_at_cycle": 7
     },
     "consecutive_wait_time_insights_missing": {
       "description": "Second wait-time insight missing when consecutive code operations occur",
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": 6,
+      "promotes_at": 3
+    },
+    "haiku_persona_over_polishing": {
+      "description": "Haiku mock dev model produces personas that are too competent for stated experience level (vocabulary in cycle 5, investigation rigor in cycle 7)",
+      "occurrences": 2,
+      "first_seen": 5,
       "promotes_at": 3
     }
   },
