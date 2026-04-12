@@ -81,7 +81,7 @@
       "recipe": "test-writer",
       "bucket_a_count": 4,
       "bucket_b_count": 3,
-      "commit": "PENDING"
+      "commit": "b28b7ef"
     }
   ],
   "scripts_checkpoint_branch": null,
