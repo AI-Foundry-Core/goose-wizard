@@ -1,5 +1,5 @@
 {
-  "current_cycle": 8,
+  "current_cycle": 9,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -64,9 +64,19 @@
       "bucket_a_count": 4,
       "bucket_b_count": 3,
       "commit": "621467a"
+    },
+    {
+      "cycle": 8,
+      "personality": "ravi_all_strong",
+      "stage": "7",
+      "recipe": "metrics-dashboard",
+      "bucket_a_count": 4,
+      "bucket_b_count": 3,
+      "commit": "pending"
     }
   ],
   "scripts_checkpoint_branch": null,
+  "next_planned": null,
   "bucket_b_recurring": {
     "act2_review_verification": {
       "description": "Act 2 approval without review verification",
@@ -153,10 +163,12 @@
       "promoted_at_cycle": 7
     },
     "consecutive_wait_time_insights_missing": {
-      "description": "Second wait-time insight missing when consecutive code operations occur",
-      "occurrences": 2,
+      "description": "Wait-time insights missing when code operations occur — no insight list in teaching script",
+      "occurrences": 3,
       "first_seen": 6,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "promoted": true,
+      "promoted_at_cycle": 8
     },
     "haiku_persona_over_polishing": {
       "description": "Haiku mock dev model produces personas that are too competent for stated experience level (vocabulary in cycle 5, investigation rigor in cycle 7)",
@@ -166,6 +178,5 @@
     }
   },
   "eval_known_issues": [],
-  "codex_failures": 0,
-  "next_planned": null
+  "codex_failures": 0
 }

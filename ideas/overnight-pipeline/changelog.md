@@ -374,3 +374,50 @@ Each entry:
   - **Evidence:** cycle 6 (Opus pacing), cycle 7 (Opus pacing weakness — 1 insight across 6-7 operations)
   - **Occurrences:** 2 (incremented from 1)
   - **Why not applied as recurring:** The insight list added in this cycle's Bucket A fix directly addresses this for cycle-review. The recurring tracking is for modules that DON'T yet have insight lists (Stage 7 modules still missing).
+
+---
+
+### Cycle 8 — Ravi (all-strong natural) — Stage 7 / Metrics Dashboard
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-7/metrics-dashboard.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[define-success]`, `[verify]`, `[feedback-loops]`, `[enterprise]`, `[specificity]`, `[iteration]`
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Stages 2-6 were fixed in cycles 3-7; Stage 7 was still missing. Both evaluators flagged zero insights across two non-trivial code operations. `consecutive_wait_time_insights_missing` hit 3 occurrences — auto-promoted from Bucket B.
+  - **Confidence:** high
+
+- **File:** teaching/stage-7/metrics-dashboard.teach.md
+  - **Before:** No guidance on handling metrics contradictions between report data and developer-stated numbers
+  - **After:** Added "Metrics conflict handling" block after the metrics report: facilitator must pause and resolve source of truth before interpreting results. Ask which dataset gates the decision and why. Do not continue with contradictory dashboard values.
+  - **Why:** Codex flagged as primary weakness. In a recipe about "measure, don't guess," conflicting numbers (report says 2.70/0, developer says 2.1/2) are the teaching moment, not a wrinkle to smooth over. Opus noted the facilitator handled it gracefully but did not resolve the discrepancy explicitly.
+  - **Confidence:** high
+
+- **File:** teaching/stage-7/metrics-dashboard.teach.md
+  - **Before:** All-Strong coaching line said "catching side effects" even when side_effect_awareness was null. No guidance on E10 over-coaching restraint.
+  - **After:** Changed to "watching for side effects" (accurate regardless of whether a side effect appeared). Added E10 restraint note: do not suggest additional metrics or extensions when all dimensions are Strong. One sentence is enough — do not prescribe where the developer can decide.
+  - **Why:** Both evaluators flagged the fourth-metric suggestion as over-coaching for E10. The coaching line claimed the developer "caught" side effects when the conditional dimension was null. Opus weakness #1, Codex weakness in pedagogy and stuck-path handling.
+  - **Confidence:** high
+
+- **File:** teaching/stage-7/metrics-dashboard.teach.md
+  - **Before:** No enterprise grounding section existed — facilitator validated dashboard and threshold-gating concepts without asking where the dashboard lives or who sees failures
+  - **After:** Added `## Enterprise Grounding` section before Bridge. Required question: "Where does the team see these numbers?" For threshold-gating, also ask what happens on failure (block, review item, alert). Kept to one question unless developer wants to go deeper.
+  - **Why:** Enterprise readiness at 3/5 for four consecutive cycles (5, 6, 7, 8). Both evaluators identified the metrics-dashboard recipe as the most naturally enterprise-connectable recipe in the pipeline — a dashboard without a viewer is a log. `enterprise_context_missed_openings` was already promoted at cycle 7; this is the Stage 7 application.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Facilitator over-coaches by suggesting specific fourth metric ("session lifecycle assertions per auth-related test") when developer already identified the gap
+  - **Evidence:** cycle 8 (Opus weakness #1, Codex pedagogy/stuck-path)
+  - **Occurrences:** 1
+  - **Why not applied:** The E10 restraint note added above addresses this structurally ("do not prescribe where the developer can decide"). The specific fourth-metric text is in the transcript, not in the teaching script. No script text to remove. If future cycles show facilitators still prescribing specific metrics for all-strong developers despite the new note, escalate to teacher-instructions.md.
+
+- **Finding:** Session is compressed — only five developer turns for the capstone recipe of the entire 8-stage progression
+  - **Evidence:** cycle 8 (Opus pacing weakness #2, Codex pacing)
+  - **Occurrences:** 1
+  - **Why not applied:** All-strong developers arriving prepared will naturally produce shorter sessions. This is execution quality, not a script bug. The script does not constrain session length. Future E10 testing might benefit from a richer scenario (e.g., change that made things worse), but that is a cycle-plan enhancement, not a script fix.
+
+- **Finding:** Mock developer data divergence (Ravi says 2.1/2, report says 2.70/0) handled smoothly but not explicitly resolved
+  - **Evidence:** cycle 8 (Codex weakness #1, Opus mock dev realism note)
+  - **Occurrences:** 1
+  - **Why not applied separately:** The metrics-conflict handling note added above addresses this structurally. The divergence was a mock model artifact, not a script gap. The script now tells facilitators to resolve conflicting numbers explicitly.
