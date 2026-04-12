@@ -79,10 +79,17 @@ RILGoose/
 
 ## How to Work in This Project
 1. Read `ideas/plan.md` for the full plan with all decisions and research
-2. Stage 0 design is complete (teaching scripts in the plan, need to be extracted to act files)
-3. Stage 1 design needs fleshing out — see `HANDOFF_stage1_detail.md`
-4. Stages 2-5 are outlined but not designed yet
-5. The Goose fork hasn't been created yet — recipes are being designed first
+2. Read `REFERENCES.md` for quick-access technical details on all three source systems (pipeline patterns, Goose mechanics, CourseForge format)
+3. Stage 0 design is complete (teaching scripts in the plan, need to be extracted to act files)
+4. Stage 1 design needs fleshing out — see `HANDOFF_stage1_detail.md`
+5. Stages 2-5 are outlined but not designed yet
+6. The Goose fork hasn't been created yet — recipes are being designed first
+
+## When to Read Reference Sources
+- **Writing teaching scripts?** Read `REFERENCES.md` Section 3 (CourseForge format) + the Stage 0 act scripts in the plan for format examples
+- **Designing working recipes?** Read `REFERENCES.md` Section 2 (Goose recipe YAML, subagent syntax)
+- **Designing Stage 2+ content?** Read `REFERENCES.md` Section 1 (pipeline patterns, learnings, evaluation findings)
+- **Need deep context on a decision?** Read `ideas/plan.md` — every decision has rationale and research
 
 ## What Lives Where
 - **This project (RILGoose)**: Recipes, teaching scripts, onboarding, install scripts, plan
