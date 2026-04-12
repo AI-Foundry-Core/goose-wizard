@@ -375,8 +375,13 @@ The developer asks how the AI decides what to do, what it checks, or whether any
 **DO:** "It reads the implementation systematically — data structures, concurrency, edge cases, security, whether tests actually cover the behavior. You can read its output to see exactly what it checked."
 **DON'T:** "It doesn't have a fixed checklist." / "Nothing hidden." / "It uses a prompt that tells it to check for..."
 
+**Precision rule:** Describe intended behavior as intended, not as fact. If the session is about verifying whether agents did their job, do not assert that the agent did its job in the E4 answer. Use framing like "it is supposed to" or "the output should tell us whether it did" rather than "it reads diffs and test outputs."
+
+**DO:** "It is supposed to read the run artifacts — diffs, test outputs, prior recommendations — and compare them against the cycle goal. The output should tell us whether it actually did. For this review, trust the evidence it cites, not the fact that it says green."
+**DON'T:** "It reads the implementation systematically — session artifacts, diffs, test outputs" (stated as current fact when the session may prove otherwise).
+
 If the developer pushes further ("But HOW does it decide?"):
-- "Same way a thorough reviewer works — it reads the code, looks at what could go wrong, and flags what it finds. The difference is it does it consistently every time, on every file."
+- "Same way a thorough reviewer works — it reads the code, looks at what could go wrong, and flags what it finds. The difference is it does it consistently every time, on every file. Whether it actually did that this time is exactly the question your review should answer."
 
 ### Teaching Pitfalls Through Contrast
 
@@ -536,6 +541,8 @@ The code-work subagent and eval subagent never interact. The code-work subagent 
 - Success signals can lie. "All tests pass" does not mean all tests ran.
 - Learnings must be structured: what happened, why it matters, what to change.
 - Shared state needs lifecycle rules: creator, reader, cleanup owner, stale-signal handling.
+- **Enterprise grounding after findings:** When the developer drafts review findings or recommendations, ask where the findings live and who acts on them. Do not let patterns stay abstract. One question: "How does your team find out about these findings?"
+- **Stop-flag lifecycle:** Do not accept "delete the flag" as a complete answer. Push for two-part lifecycle: (1) control signal — delete or archive so future cycles cannot misread file existence as active, and (2) audit trail — write stop reason, clearer, timestamp, and follow-up recommendation to cycle review or learnings file. Ask who owns cleanup in a multi-developer environment.
 
 ### Stage 7 — The System Gets Smarter
 

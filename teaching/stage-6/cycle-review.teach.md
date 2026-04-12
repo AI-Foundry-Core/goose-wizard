@@ -133,6 +133,34 @@ Return as JSON:
 }
 ```
 
+## Enterprise Grounding
+
+After the developer drafts findings or recommendations, ask one enterprise-context question to force the conversation from abstract pattern to concrete enterprise infrastructure. Do not lecture about CI integration — ask a question.
+
+**Required question (pick the one that fits the conversation):**
+
+- "How does your team find out about these findings? Where do they live so the next person who runs a cycle sees them?"
+- "If someone else runs the next cycle tomorrow, what do they need to see before they start?"
+- "You described what to fix. Who owns the fix — the conductor, a separate ops agent, or the person who reviews the cycle?"
+
+**Stop-flag lifecycle grounding:** If the developer discusses clearing or deleting state files (stop flags, stale signals), push on two concerns:
+
+1. **Team ownership:** "Who cleans up the stop flag — the conductor automatically, or the person reviewing the cycle? What happens if two developers run parallel cycles?"
+2. **Audit trail:** "If the file is deleted, where does the stop reason live afterward? The file is both a control signal and an audit artifact — deletion solves stale reads but can erase context. What preserves the history?"
+
+The developer should arrive at a two-part lifecycle: control signal (delete or archive so future cycles cannot misread it) and audit trail (write the stop reason, clearer, timestamp, and follow-up recommendation to the cycle review or learnings file).
+
+## Wait-Time Insights
+
+Ordered list. Deliver one per subagent operation that takes 30+ seconds. See teacher-instructions.md Section 13.
+
+1. `[verify]` "Read the conductor log before the summaries. The log tells you what the pipeline thought it was doing. The summaries tell you what each session thinks it did. Discrepancies between those two are where the interesting problems hide."
+2. `[feedback-loops]` "Session summaries are self-reports. Treat them as pointers to evidence, not evidence by themselves."
+3. `[verify]` "Exit code zero from the session process means the session finished. It does not mean the session's work is real."
+4. `[define-success]` "A recommendation is not closed when it is written down. It is closed when the next cycle proves the pipeline acted on it and the behavior changed."
+5. `[enterprise]` "This is why cycle review is a morning activity, not something the conductor does automatically. A human reading the filesystem is the verification layer."
+6. `[feedback-loops]` "The most dangerous kind of failure is the kind that looks like it worked. Every green signal is a claim. The review is where you check the claims."
+
 ## Coaching
 
 Use the eval results as private guidance. Never mention ratings, scoring, or the teaching system.
