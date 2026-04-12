@@ -1,5 +1,18 @@
 # RILGoose — Agentic Development Harness for Reliance Teams
 
+## Current Work
+**Active handoff:** `HANDOFF_stage1_detail.md` — flesh out Stage 1 teaching scripts and working recipe YAMLs.
+**Stage 0:** Design complete (full Say/Check/Action scripts in `ideas/plan.md` under "Act Scripts" — not yet extracted to individual act files in `recipes/stage-0/acts/`).
+**Stage 1:** Outline complete, needs full scripts and working YAMLs.
+**Stages 2-5:** Outlined only.
+
+## User Context
+- **Doni** — non-technical, runs onboarding centrally for Reliance teams
+- **Platform:** Windows 11
+- **Subscriptions:** Claude Max (primary), Codex (optional add-on)
+- **Role:** Designs the system, doesn't write the recipes himself — works with AI to design and iterate
+- **Writing style:** Direct, confident, no jargon. Has a captured style profile at `~/ClaudeProjects/General/style_profile_executive_strategy_memo.md` for written communications.
+
 ## What This Is
 A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's agent platform) extended with progressive teaching recipes that take development teams from zero agentic experience to autonomous development pipelines.
 
