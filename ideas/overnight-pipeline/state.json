@@ -99,7 +99,7 @@
       "recipe": "escalation-routing",
       "bucket_a_count": 4,
       "bucket_b_count": 2,
-      "commit": null
+      "commit": "fe5be4d"
     }
   ],
   "scripts_checkpoint_branch": null,
