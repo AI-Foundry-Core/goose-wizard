@@ -73,9 +73,12 @@ Pause after the escalation routing run.
 
 "Checkpoint: the pipeline now has a stop rule. I am looking for three things: different failure classes, numeric thresholds, and an escalation packet with enough evidence for the next owner to act."
 
-Ask two concrete questions:
+Ask three concrete questions:
 "Which failure opens the breaker first?"
 "What does the next owner receive that lets them act without rereading the whole conversation?"
+"Are there failures your current classes don't cover?"
+
+If the developer's failure classes are incomplete (e.g., missing timeout, shared-state conflict, or repeated no-progress), do not proceed to the bridge. Coach: "Your classes cover the common cases. What about timeout — the agent hangs and never returns? Or repeated no-progress — valid output three times in a row but the same wrong output? Those are different from test failure because more retries won't help." The developer must add the missing classes to the policy before the checkpoint is satisfied.
 
 If the developer cannot answer:
 - Failure classification gap: "Name the failure class first. Malformed output, test failure, timeout, and shared-state conflict need different routes."
@@ -161,10 +164,29 @@ Read eval results. Coach naturally; do not list ratings.
 If all required dimensions are Strong:
 "That is the version you can leave running: distinct failure routes, numeric breakers, and escalation packets that carry enough evidence to be useful."
 
+## Enterprise Grounding
+After coaching and before the bridge, ask one enterprise-context question:
+"On your team, who signs off on a new escalation route before it goes live?"
+
+If the developer engages, follow up with one more: "When the pipeline opens a breaker and sends an escalation packet, where is that decision recorded — just the archived artifacts, or somewhere a compliance audit could find it?"
+
+Do not ask more than two questions. The goal is to connect the exercise to enterprise reality (design review, audit trails), not to design the full integration.
+
 ## Bridge
 "Safety rails answer what the team does when it gets stuck. The next big jump is what you feed that team: specs precise enough that agents can build without guessing."
 
 "If you continue through the rest of Stage 3 first, parallel reviewers are the coordination exercise: multiple agents checking different layers at the same time without corrupting shared state."
+
+## Wait-Time Insights
+
+Ordered list for use during subagent operations (see teacher-instructions.md Section 13):
+
+1. `[specialization]` "Different failures need different routes — a malformed contract and a timeout are not the same problem, even if both stop the pipeline."
+2. `[verify]` "The escalation packet is only useful if the next owner can act on it without reconstructing the run. Think about what you'd need at 2 AM on a PagerDuty alert."
+3. `[feedback-loops]` "A breaker that opens but never reports why it opened is a dead end. The loop only closes when the next owner knows what to try differently."
+4. `[enterprise]` "In a team environment, the person who designed the escalation route is rarely the person who gets woken up by it. Design for the reader, not the writer."
+5. `[risk-ladder]` "Cleanup before retry is the part most people skip. Retrying against dirty state produces misleading results — the second run is debugging the first run's mess."
+6. `[specificity]` "Vague thresholds feel safe because they give you room to interpret. That is exactly why they fail — every developer interprets 'a few times' differently."
 
 ## State Update
 Write to .goose/state/progression.json:
