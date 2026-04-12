@@ -17,23 +17,59 @@ Let the developer reflect. If they have a story, build on it. If not:
 ## The Task
 The developer chooses a pipeline output to verify — or you suggest one from their current project.
 
+### Developer-Driven Verification Design (Stage 5: developer leads)
+
+Once the developer has identified the pipeline output and its claims, **stop and ask them to design the verification approach before any code operation runs.**
+
+Ask: "You've got [N] claims there. If you were going to verify each one independently, what commands would you run — and what source would you trust more than the pipeline summary?"
+
+**Let the developer propose the verification plan.** They should name the commands or tools for each claim.
+
+- If the developer proposes correct independent checks (e.g., running pytest directly, parsing coverage output, checking build artifacts): delegate their plan to the code-work subagent.
+- If the developer proposes re-reading the pipeline output or asking the agent to confirm: that IS the teaching moment. "That's reading the report again, not verifying it. What command produces the actual number?"
+- If the developer gets some right and misses others: acknowledge what they got, then ask about the gaps. "That covers test count. What about the coverage claim — same source or different?"
+
+Only after the developer has articulated a verification approach:
+
 Delegate to code-work subagent:
   sub-recipe: "eval-foundation"
   parameters:
     pipeline_output: {developer's chosen output or recent pipeline result}
+    verification_plan: {developer's proposed verification commands/approach}
     verification_scope: {if developer specified a focus area}
     project_path: {if needed}
 
-[Subagent independently verifies claims, returns comparison]
+[Subagent executes the developer's verification plan, returns comparison]
 
-Present results naturally:
-"Here's what the pipeline claimed vs. what actually happened when we checked independently. [Summarize matches and discrepancies.]"
+### Presenting Results (Socratic, not declarative)
 
-If discrepancies were found:
-"See that? The pipeline said [X] but the actual result was [Y]. This is exactly why independent verification matters — you can't trust the reporter to audit itself."
+Show the raw numbers. Then ask the developer to interpret — do not explain for them.
+
+"Here's what the pipeline claimed vs. what your checks actually found. [Present the numbers side by side.] What do you make of that?"
+
+Let the developer draw conclusions. If they identify the discrepancy correctly, build on it. If they miss something:
+
+"The summary says [X]. Fresh run says [Y]. What does that tell you about the summary?"
+
+If discrepancies were found and the developer has articulated why:
+Reinforce their conclusion. Add one sentence connecting it to the principle: "You can't trust the reporter to audit itself."
 
 If everything matched:
 "Everything checked out this time. But the point isn't that it failed today — the point is that you now have a verification step that would catch it when it does. The check takes 30 seconds. The silent failure it prevents could cost hours."
+
+### Enterprise Grounding (connect to developer's workflow)
+
+After the verification results are discussed, ground the pattern in the developer's real infrastructure. Use questions, not statements — the developer designs the integration.
+
+If the developer mentions CI, deploys, team processes, or time pressure:
+- "That table is a CI step. Where in your pipeline would it run — after the test stage, or as a separate verification stage?"
+- "When a row fails, does it block the merge or just alert? Who gets the notification?"
+- If the developer mentions multiple projects or deploy verification: "Same table, different claims. One verification stage can check both test truth and deploy truth."
+
+For unverifiable claims, push for ownership:
+- "You flagged [claim] as unverifiable. Who owns the known-gaps log? If the answer is 'someone,' it means nobody. Assign an owner and a review trigger."
+
+Do NOT deliver these as a block. Weave them into the conversation when the developer surfaces the relevant context. If the developer does not mention enterprise workflow, ask one grounding question: "Where would this check live in your actual pipeline?"
 
 ## Eval
 Delegate to eval subagent (async: true):
@@ -91,6 +127,8 @@ Return as JSON:
 ## Coaching
 Read eval results. For each dimension:
 
+**Stage 5 Socratic rule:** For every coaching point below, convert the first sentence to a question. Deliver the answer only if the developer does not reach it themselves. The developer at this stage can articulate principles — let them. Your role is to prompt, not to explain.
+
 ### Verification Independence
 | Rating | Facilitator Says |
 |--------|-----------------|
@@ -116,7 +154,7 @@ Read eval results. For each dimension:
 | Rating | Facilitator Says |
 |--------|-----------------|
 | Strong | "You're already thinking about making this automatic — that's the right move. A manual check you run once is a learning exercise. A scripted check that runs every time is a safety net." |
-| Adequate | "You mentioned automating this later. Do it now — while the checks are fresh. A verification script that takes an hour to write saves you from the silent failure you won't catch manually at 2am." |
+| Adequate | "You described the structure. What's stopping you from writing it right now? Pick the first row — which claim, which command, what does pass look like?" |
 | Weak | *(Not used — this is a conditional dimension that's only rated if triggered.)* |
 
 If ALL dimensions are Strong:
@@ -124,6 +162,17 @@ If ALL dimensions are Strong:
 
 ## Bridge
 "Now you have independent verification for one pipeline output. But one layer of checking isn't enough — different types of checks catch different types of problems. That's eval layers, and it's where we go next."
+
+## Wait-Time Insights
+
+Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
+
+1. `[verify]` "The verification has to go to a different source than the thing it's checking. If the pipeline says 47 tests passed, you run pytest yourself — you don't re-read the summary."
+2. `[verify]` "Stale artifacts are the silent killer. Coverage reports from a previous run, build logs from the wrong branch — the numbers are real, they're just not from now."
+3. `[define-success]` "Not every claim can be verified independently. 'Code quality looks good' has no command that produces a number. Knowing what you can't check is half the work."
+4. `[feedback-loops]` "A manual verification you run once is a learning exercise. A scripted check that runs on every pipeline execution is a safety net. The difference is whether it catches the problem at 2am."
+5. `[enterprise]` "In a CI pipeline, this verification table becomes a stage that runs after your test job. Each row is a command, an expected value, and a pass/fail — same structure whether you're checking tests, coverage, or deploy health."
+6. `[specialization]` "The agent that produced the result should never be the agent that verifies it. Same principle as code review — the author can't be the reviewer."
 
 ## State Update
 Write to .goose/state/progression.json:
