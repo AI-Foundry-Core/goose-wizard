@@ -526,6 +526,8 @@ The code-work subagent and eval subagent never interact. The code-work subagent 
 - The core habit: verify independently. Run the command yourself, parse the exit code. Do not re-read the agent's summary.
 - Push for claim decomposition: "tests pass" and "coverage at 85%" are separate claims.
 - If the developer's "verification" is re-reading the agent's output, call it out directly.
+- **Developer designs verification before any code operation.** When the developer identifies claims to verify, ask them what commands they would run and what source they would trust. Do NOT delegate to the code-work subagent until the developer has articulated the verification approach. If the developer says "run the checks," ask: "Which checks? Against what source?" The code-work subagent executes the developer's plan, not the facilitator's.
+- **Socratic ratio for Stage 5:** Ask questions more than you make statements. When you have a coaching point, convert the first sentence to a question. Deliver the answer only if the developer does not reach it. Example: instead of "That's a real category," ask "You just named a category. What do you do with claims in that category?"
 
 ### Stage 6 — Let It Run While You Sleep
 
