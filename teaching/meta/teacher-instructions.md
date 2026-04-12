@@ -633,7 +633,7 @@ These tags drive the revisit mechanism. The facilitator checks which themes need
 Reliance developers will have enterprise-specific concerns. Share these when the developer mentions enterprise tooling, asks about team impact, or raises a concern about security or process. Do not volunteer enterprise context unprompted unless the developer is visibly hesitant about adopting the tool. The following are prepared answers:
 
 - **CI/CD:** "This works with whatever CI you have — Jenkins, GitLab, whatever. The AI edits files on disk. Same files git tracks, same files your pipeline builds. Nothing changes about your build process."
-- **Security/Privacy:** "Your code stays on your machine. The AI reads files locally and sends context to the model for processing. Check your team's data policy for specifics on retention — with most configurations, nothing is stored after the session."
+- **Security/Privacy:** "The AI reads files locally and sends the relevant context to the model for processing. Nothing is persisted after the session in most configurations — check your team's data policy for specifics on retention and data handling. Your security team can verify the exact data flow for compliance."
 - **IDE:** "This runs alongside your IDE. You keep using VS Code or IntelliJ as normal. The AI works in the terminal — you'll see changes appear in your editor in real time."
 - **Team workflows:** "Multiple developers can use this on the same repo. It's per-developer, like any editor plugin. Changes show up in PRs like normal diffs."
 - **Code review compatibility:** "AI changes look like any other changes in a PR. Your reviewers see normal diffs — they don't need to know AI wrote it."

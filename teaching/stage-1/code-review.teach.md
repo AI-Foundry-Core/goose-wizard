@@ -101,9 +101,9 @@ Dimensions:
    Weak: Developer took the first result as the final answer.
 
 4. HEALTHY SKEPTICISM
-   Strong: Developer probed beyond positive feedback — asked follow-up questions even when the review was mostly clean.
-   Adequate: Developer accepted mostly-positive results but didn't blindly trust them — showed some awareness that AI defaults to polite.
-   Weak: Developer accepted a positive review without any follow-up questions or skepticism.
+   Strong: Developer shows they are not accepting the review at face value — challenges questionable findings, asks for evidence or focused follow-up, or probes beyond positive feedback when the review is mostly clean.
+   Adequate: Developer engaged with findings but didn't challenge any or request deeper investigation — showed some awareness that AI defaults to polite but didn't act on it.
+   Weak: Developer accepted the review output without any follow-up questions, challenges, or skepticism.
 
 Return as JSON:
 {
@@ -136,12 +136,22 @@ Read eval results. For each dimension:
 - Weak: "This is a starting point, not the final answer. Try: 'now focus only on security issues' or 'ignore formatting, find logic errors.' You can steer it to find what matters."
 
 **Healthy skepticism:**
-- Strong: "Good instinct — you didn't let 'looks good' be the final word. AI defaults to polite. Probing further is how you find what it missed."
-- Adequate: "The review says this code is clean. It might be. But AI defaults to polite — a positive review is a starting point. Try asking: 'what could go wrong in production?'"
-- Weak: "It said the code looks clean. That doesn't mean there are no bugs. AI defaults to polite. Always probe: 'what are the edge cases?' or 'what could go wrong under load?' Silence from AI isn't a green light."
+- Strong: "Good instinct — you challenged the findings instead of taking them at face value. That judgment call is exactly what makes AI review useful instead of noisy."
+- Adequate: "Some of those findings deserved pushback. When you see something that looks wrong or noisy, say so — challenge it, ask for a focused follow-up, or reject it. The review is a starting point, not a verdict."
+- Weak: "Don't take the review at face value — positive or negative. Challenge findings that seem off. Ask for evidence. Request a focused pass on what matters. The skill isn't reading the output, it's deciding what's real."
 
 **If ALL dimensions are Strong:**
-"That's how you use AI review — tight scope, triaged the findings, steered for depth, and didn't trust a clean bill of health. You're getting more from one AI review pass than most people get from three."
+Deliver in two exchanges, not one block:
+
+First: "You scoped this tightly and triaged the findings against your actual context. That's why the review stayed useful instead of turning into a grab bag."
+
+[Pause — wait for the developer to respond before continuing.]
+
+Second: "The focused follow-up found a different class of issue than the general pass. That's the habit: broad pass to orient, focused pass for the risks that matter."
+
+Then bridge. Do NOT compress all four dimensions into a single uninterrupted turn. The developer must speak at least once during the debrief.
+
+**Note:** Only use a "probe beyond a positive review" nudge when the first pass was actually mostly clean. If the review returned multiple findings, the relevant nudge is about iteration and focused passes, not about probing positive feedback.
 
 **Coaching delivery rules:**
 - Never mention eval, ratings, scores, or the teaching system
@@ -149,6 +159,22 @@ Read eval results. For each dimension:
 - Lead with what was strong before coaching what was weak
 - Use contrast examples for weak ratings
 - Keep it to 1-3 sentences per dimension — don't lecture
+
+## Wait-Time Insights
+
+Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
+
+1. (1.3a) `[review-scales]` "While it reviews — AI defaults to polite. A review that says 'looks good' isn't necessarily a green light. It might just mean you didn't ask the right question. Specific focus gets specific findings."
+2. (1.3b) `[iteration]` "One thing that makes AI review powerful — you can run it multiple times with different focus areas. Security pass, logic pass, performance pass. Each one finds things the others missed. That's how review scales without adding people."
+3. (1.3c) `[specificity]` "AI reviews mix real bugs with style opinions with outright mistakes. Your job is triage — which findings matter, which are noise, which are wrong. That judgment is the skill."
+4. `[verify]` "A finding without evidence is an opinion. When the reviewer flags something, check: did it cite the line? Can you reproduce the concern? That's the difference between a useful review and noise."
+5. `[enterprise]` "In a team setting, AI review doesn't replace human review — it front-loads it. Your reviewers spend less time on the obvious issues and more time on design and architecture."
+
+## Enterprise Grounding
+
+When the developer mentions team workflows, PR processes, CI/CD integration, or compliance during the review, answer the first question directly. Then connect: "How does your team currently handle review coverage for PRs that touch multiple services?"
+
+Keep it to one question unless the developer wants to go deeper. Do not volunteer enterprise context unprompted unless the developer raises a team or process concern.
 
 ## Bridge
 "You've been fixing bugs, writing tests, and reviewing code. One more skill — AI handles the restructuring you've been putting off. Got some ugly code that works but makes you cringe? That's next."
