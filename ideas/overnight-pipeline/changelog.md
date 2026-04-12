@@ -227,3 +227,44 @@ Each entry:
   - **Evidence:** cycle 4 (Codex — FAIL on transcript cleanliness; Opus — PASS, considers it evaluator-only metadata)
   - **Occurrences:** 1 (new framing — previous transcript_metadata_leak was about EVAL RESULT blocks in conversation, which is fixed)
   - **Why not applied:** Evaluator disagreement. Opus says simulation notes are evaluator-only metadata, correctly sequestered. Codex says any eval content in the transcript file is a leak. Decision: the transcript FILE should be clean; notes belong in simulator logs. But this is a simulator infrastructure change, not a teaching script fix.
+
+---
+
+### Cycle 5 — Ananya (anxious junior) — Stage 4 / Idea-to-Spec
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-4/idea-to-spec.teach.md
+  - **Before:** Phase 2 delegation said "Let the developer decide" and passed one-pager content directly to subagent with no guidance on who owns the concrete design choices
+  - **After:** Added developer-ownership block before delegation: facilitator must ask the developer to choose each open question (filtering fields, pagination style, error format, etc.) before passing to the subagent. Provisional choices are flagged explicitly. Subagent prompt now includes developer's concrete choices rather than facilitator-invented defaults.
+  - **Why:** Both evaluators flagged facilitator embedding design decisions (author_id filtering, offset pagination, specific error schema, CORS defaults, 3600s TTL) in the code-operation prompt instead of having Ananya decide. Violates the script's own principle: "the developer needs to be the one making vague things concrete."
+  - **Confidence:** high
+
+- **File:** teaching/stage-4/idea-to-spec.teach.md
+  - **Before:** No auth-model coaching guidance existed — CORS coaching was the only cross-origin teaching path
+  - **After:** Added "Auth-Model Coaching Note" section: after addressing CORS headers, facilitator probes whether session-cookie auth is appropriate for the API client's deployment (cookie domain, CSRF, token-based alternative). Surfaces it as an open design decision, not a resolved answer.
+  - **Why:** Both evaluators flagged the auth-model gap. Session cookies + cross-origin is identified as risky, but coaching only addressed CORS headers. The deeper question — whether session auth is appropriate for API clients — was raised but never resolved.
+  - **Confidence:** high
+
+- **File:** teaching/stage-4/idea-to-spec.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[specificity]` (x2), `[verify]`, `[progressive-elaboration]`, `[enterprise]`, `[define-success]`
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Stage 2 fixed in cycle 3, Stage 3 fixed in cycle 4, Stage 4 was still missing. Facilitator improvised well but had no module-specific insights to draw from.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Ananya name-drops RFC 7807 and cursor-vs-offset pagination — breaking persona fidelity for a 1.5yr anxious junior
+  - **Evidence:** cycle 5 (Opus weakness #1, Codex weakness #3)
+  - **Occurrences:** 1
+  - **Why not applied:** Simulator persona fidelity issue, not a teaching script bug. Fix belongs in simulator persona constraints (Haiku produced technically sophisticated output inconsistent with Ananya's experience level). The teaching script is not responsible for mock model vocabulary.
+
+- **Finding:** Enterprise context opportunities missed — Ananya mentions team lead and cross-team dependency but facilitator doesn't surface enterprise integration context
+  - **Evidence:** cycle 5 (Opus enterprise readiness 3/5, Codex enterprise readiness 3/5)
+  - **Occurrences:** 1
+  - **Why not applied:** Adding enterprise coaching paths could help enterprise personas but overwhelm anxious juniors. The wait-time insight #5 (`[enterprise]`) partially addresses this. Full enterprise coaching branches are a structural enhancement that needs confirmation across persona types.
+
+- **Finding:** Simulation notes section in transcript file contains eval ratings and dimension names
+  - **Evidence:** cycle 4 (Codex), cycle 5 (Codex)
+  - **Occurrences:** 2 (incremented from 1)
+  - **Why not applied:** Simulator infrastructure change, not a teaching script fix. Evaluator disagreement continues: Opus considers it correctly sequestered, Codex considers it a leak.

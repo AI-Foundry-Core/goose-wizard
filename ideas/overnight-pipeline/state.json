@@ -1,5 +1,5 @@
 {
-  "current_cycle": 5,
+  "current_cycle": 6,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -37,6 +37,15 @@
       "bucket_a_count": 3,
       "bucket_b_count": 4,
       "commit": "4d72ddd"
+    },
+    {
+      "cycle": 5,
+      "personality": "ananya_anxious",
+      "stage": "4",
+      "recipe": "idea-to-spec",
+      "bucket_a_count": 3,
+      "bucket_b_count": 3,
+      "commit": "40e941e"
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -105,8 +114,20 @@
     },
     "simulation_notes_eval_metadata": {
       "description": "Simulation notes section in transcript file contains eval ratings and dimension names (distinct from EVAL RESULT block issue)",
-      "occurrences": 1,
+      "occurrences": 2,
       "first_seen": 4,
+      "promotes_at": 3
+    },
+    "persona_rfc_vocabulary_break": {
+      "description": "Anxious junior persona name-drops RFC 7807 and cursor-vs-offset pagination, breaking experience-level fidelity",
+      "occurrences": 1,
+      "first_seen": 5,
+      "promotes_at": 3
+    },
+    "enterprise_context_missed_openings": {
+      "description": "Facilitator misses natural openings for enterprise context when developer mentions team lead or cross-team dependencies",
+      "occurrences": 1,
+      "first_seen": 5,
       "promotes_at": 3
     }
   },
