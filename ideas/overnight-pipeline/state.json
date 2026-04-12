@@ -117,7 +117,7 @@
       "recipe": "eval-ratchet",
       "bucket_a_count": 4,
       "bucket_b_count": 3,
-      "commit": null
+      "commit": "bf34fbf"
     }
   ],
   "scripts_checkpoint_branch": null,
