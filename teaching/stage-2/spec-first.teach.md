@@ -94,7 +94,25 @@ If all tests pass:
 "Every test passes. And here's the key — those tests existed before the code. The builder didn't write tests to match its code. It wrote code to match your tests. Your spec was the contract."
 
 If some tests fail:
-"[Y] tests pass, but [Z] fail. Look at which criteria aren't met yet: [specific failing criteria]. The spec just told you exactly what's missing — no guessing, no 'it seems to work.' The failing tests are the to-do list."
+"[Y] tests pass, but [Z] fail. Go back to your acceptance criteria and check each one against the test results. Tell me which are met and which aren't."
+
+Do NOT name the failing test or criterion. The developer must do the full criterion-by-criterion sweep — that is the verification habit this module teaches. Only narrow to a specific failure if the developer cannot identify it after a genuine attempt.
+
+After the developer identifies the unmet criterion:
+"Would you approve this build as done?"
+
+The developer must practice explicitly rejecting incomplete work. If they say yes or hedge, redirect: "One of your own criteria isn't met. The spec is the contract — if the contract isn't satisfied, the build isn't done."
+
+**Reject-and-repair loop:**
+Once the developer rejects the build, delegate a targeted repair:
+  sub-recipe: "spec-first-repair"
+  parameters:
+    failing_criterion: {the criterion the developer identified}
+    instruction: "Fix only the failing criterion. Do not broaden scope. Rerun the full acceptance suite."
+
+Present the rerun result. If all tests pass, proceed to coaching. If the same test fails twice, treat it as an implementation stuck path and escalate.
+
+Do not bridge or coach until the acceptance suite is fully green or explicitly blocked.
 
 ## Eval
 
@@ -108,16 +126,24 @@ Read eval results. For each dimension:
 - Adequate: Light suggestion using the coaching language from the quality dimension table.
 - Weak: Targeted coaching with contrast using the coaching language from the quality dimension table.
 
+**Brevity rule:** 1-3 sentences per dimension. Maximum. Do not make the same point multiple ways. If the developer already demonstrated understanding (e.g., identified the gap themselves), one sentence of confirmation is enough. Let the learning breathe — over-explaining dilutes the insight.
+
 ## Checkpoint (after 2.4 — Stage 2 completion)
 
-This is the stage completion checkpoint. Review all of Stage 2.
+This is the stage completion checkpoint. It is NOT optional and must NOT be folded into the bridge.
 
 Read .goose/state/progression.json for all Stage 2 concept ratings.
+
+**Checkpoint question (required):** After summarizing the four capabilities below, ask:
+"Which of these would you rely on to stop a wrong-but-working implementation?"
+
+This question tests whether the developer has internalized spec-first as the answer. If they point to the tester or reviewer instead, coach: "The tester confirms the wrong solution works perfectly. The spec is the only thing that defines 'right.'"
 
 If any concept has Weak dimensions:
   "Before we close out Stage 2, let's revisit [weak area]. [Specific coaching].
   Want to run through another example focused on that?"
   Run the appropriate recipe again with targeted coaching.
+  Do NOT bridge to Stage 3 until the Weak dimension is Adequate or better.
 
 If all concepts are Adequate or Strong:
 
@@ -129,9 +155,31 @@ If all concepts are Adequate or Strong:
 
 "One AI builds, another AI tests. Neither trusts the other's work. Your code is more reliable than when you checked everything yourself."
 
+## Enterprise Grounding
+
+After the acceptance suite is green (or explicitly blocked) and before the bridge, ask one enterprise-context question:
+
+"In your team, who else would review these acceptance criteria before you start building?"
+
+If the developer engages, follow up with one more:
+"These tests will run on every future PR — that's the spec protecting the feature as the codebase evolves. Where would they run for your team — local only, PR checks, or CI before deploy?"
+
+Keep it to two questions maximum. Do not design the CI workflow — just connect the exercise to enterprise reality.
+
 ## Bridge to Stage 3
 
 "Right now you have two agents — a builder and a tester. That's the minimum for reliable work. But what happens when the task is bigger? When you need a builder, a tester, a reviewer, and maybe a specialist for the database layer? Stage 3 is about building a team of AI specialists — multiple agents with defined roles, file ownership, and coordination. The patterns you learned here — separation, independence, execution verification — are the foundation."
+
+## Wait-Time Insights
+
+Deliver one insight per code operation wait. Use in order. Do not repeat.
+
+1. **[define-success]** "The spec you wrote is doing something important right now. It's a contract. The builder doesn't decide what done means anymore — your acceptance criteria do."
+2. **[verify]** "Every test that fails before code exists proves it's a real check. A test that passes before you build anything is a tautology — it confirms nothing."
+3. **[feedback-loops]** "When the repair finishes, the same six tests run again. The spec doesn't care whether it's the first build or the fifth — it checks the same criteria every time. That consistency is what makes it a contract, not a one-time checklist."
+4. **[enterprise]** "In a team, these acceptance criteria outlive the feature. Next quarter, someone changes the endpoint — these tests enforce your original intent. The spec protects the feature long after you move on."
+5. **[specificity]** "Notice the difference between 'should handle caching' and 'returns cached response within 50ms for same user within 5-minute window.' The second one is a test. The first one is a hope."
+6. **[iteration]** "Each repair cycle narrows the gap. The spec tells you exactly what's left — no guessing, no 'it seems close enough.' When the last test goes green, done means done."
 
 ## State Update
 
