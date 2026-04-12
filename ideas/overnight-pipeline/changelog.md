@@ -680,3 +680,56 @@ None. This was a regression cycle — no script changes applied.
 - **Codex:** 27/35 (same as Cycle 1 baseline of 27/35). All dimensions held.
 - **Verdict:** NO REVERT. No dimension dropped. Pipeline improvements are net-positive.
 - **Carried forward:** Act 2 review verification, Act 3 hands-on step, and enterprise question paths remain unimplemented from Cycle 1 recommendations.
+
+---
+
+### Cycle 15 — Sneha (enterprise) — Stage 1 / Code Review
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** Security/Privacy: "Your code stays on your machine. The AI reads files locally and sends context to the model for processing. Check your team's data policy for specifics on retention — with most configurations, nothing is stored after the session."
+  - **After:** Security/Privacy: "The AI reads files locally and sends the relevant context to the model for processing. Nothing is persisted after the session in most configurations — check your team's data policy for specifics on retention and data handling. Your security team can verify the exact data flow for compliance."
+  - **Why:** "Your code stays on your machine" directly contradicts "sends context to the model for processing." Enterprise security teams would flag this. Both evaluators independently flagged as critical.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/code-review.teach.md
+  - **Before:** All-Strong coaching was a single block: "That's how you use AI review — tight scope, triaged the findings, steered for depth, and didn't trust a clean bill of health..."
+  - **After:** Split into two exchanges with a required developer response between them. Added note: only use "probe beyond positive review" nudge when the first pass was actually mostly clean.
+  - **Why:** Both evaluators flagged 5-sentence monologue debrief violating teacher-instructions.md Section 5 (1-3 sentences max) and Section 4 (never read eval results as a list). Recurring pattern from prior cycles.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/code-review.teach.md
+  - **Before:** HEALTHY SKEPTICISM Strong criterion: "Developer probed beyond positive feedback — asked follow-up questions even when the review was mostly clean."
+  - **After:** "Developer shows they are not accepting the review at face value — challenges questionable findings, asks for evidence or focused follow-up, or probes beyond positive feedback when the review is mostly clean."
+  - **Why:** Codex flagged rubric mismatch — Sneha demonstrated real skepticism (challenged findings, requested security pass) but the criterion only recognized probing clean reviews. The old criterion was too narrow for code review where findings exist.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/code-review.teach.md
+  - **Before:** No `## Wait-Time Insights` section, no `## Enterprise Grounding` section
+  - **After:** Added 5 ordered wait-time insights tagged with `[review-scales]`, `[iteration]`, `[specificity]`, `[verify]`, `[enterprise]`. Added Enterprise Grounding section with team workflow connection question.
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Enterprise grounding section follows pattern established in test-writer (cycle 9) and applied to all subsequent modules.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/code-review.teach.md
+  - **Before:** Healthy skepticism coaching phrases referenced only probing positive feedback
+  - **After:** Coaching phrases updated to reflect broadened criterion — Strong praises challenging findings, Adequate coaches on pushback and focused follow-ups, Weak shows the full range of skepticism behaviors
+  - **Why:** Coaching language must match the updated dimension definition. Old coaching was misaligned after criterion broadening.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Eval-mediated coaching loop not evidenced in code-review simulator artifacts
+  - **Evidence:** cycle 15 (Opus weakness #2, Codex weakness #2)
+  - **Occurrences:** 1
+  - **Why not applied:** The script already specifies eval delegation (async: true). The issue is that simulator transcripts don't show the eval step running even when all dimensions are Strong. This is a simulator/transcript format concern, not a script bug. If other Stage 1 modules show the same pattern, promotes to cross-cutting simulator fix.
+
+- **Finding:** Triage prompt fires proactively before developer has a chance to treat findings equally
+  - **Evidence:** cycle 15 (Opus script faithfulness deduction, Codex script faithfulness deduction)
+  - **Occurrences:** 1
+  - **Why not applied:** The script already says the prompt fires "If the developer treats all findings equally without triaging." One occurrence of premature firing is not enough to require a structural guard. Tracking.
+
+- **Finding:** Out-of-order stage completion not handled — developer who completed Stage 3 returns to Stage 1 recipe
+  - **Evidence:** cycle 15 (simulator note)
+  - **Occurrences:** 1
+  - **Why not applied:** Structural addition to all recipe scripts. Would need a universal handling pattern in teacher-instructions.md. One occurrence — tracking.

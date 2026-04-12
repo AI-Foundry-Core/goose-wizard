@@ -1,5 +1,5 @@
 {
-  "current_cycle": 15,
+  "current_cycle": 16,
   "status": "idle",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -131,18 +131,29 @@
       "baseline_cycle": 1,
       "opus_score": "28/35",
       "codex_score": "27/35"
+    },
+    {
+      "cycle": 15,
+      "personality": "sneha_enterprise",
+      "stage": "1",
+      "recipe": "code-review",
+      "edge_cases": ["E8_data_privacy"],
+      "bucket_a_count": 5,
+      "bucket_b_count": 3,
+      "opus_score": "31/35",
+      "codex_score": "27/35"
     }
   ],
   "scripts_checkpoint_branch": null,
   "next_planned": {
-    "cycle": 15,
+    "cycle": 16,
     "type": "normal",
-    "stage": "1",
-    "recipe": "code-review",
-    "personality": "sneha_enterprise",
-    "mock_model": "haiku",
-    "edge_cases": ["E8_data_privacy"],
-    "rationale": "Stage 1 code-review with enterprise persona and data privacy edge case. Continues Phase 2 depth on Stage 1 recipes."
+    "stage": "6",
+    "recipe": "continuous-dev",
+    "personality": "ananya_anxious",
+    "mock_model": "gpt-5.4",
+    "edge_cases": ["E5_no_task"],
+    "rationale": "Stage 6 continuous-dev with anxious persona and no-task edge case. First Stage 6 depth pass with a persona who may struggle with overnight autonomy confidence."
   },
   "bucket_b_recurring": {
     "act2_review_verification": {
@@ -272,6 +283,24 @@
       "description": "Act 1 demonstration picks config.py despite script saying 'not a config file' — literal filename violates selection rule even though file contains real logic",
       "occurrences": 1,
       "first_seen": 14,
+      "promotes_at": 3
+    },
+    "eval_loop_not_evidenced": {
+      "description": "Eval-mediated coaching loop not visible in simulator transcripts — script specifies async eval delegation but transcript shows no eval step even when all dimensions are Strong",
+      "occurrences": 1,
+      "first_seen": 15,
+      "promotes_at": 3
+    },
+    "triage_prompt_fires_proactively": {
+      "description": "Code-review triage prompt fires before developer has a chance to treat findings equally, reducing diagnostic value",
+      "occurrences": 1,
+      "first_seen": 15,
+      "promotes_at": 3
+    },
+    "out_of_order_stage_completion": {
+      "description": "No handling when developer who completed a later stage returns to an earlier recipe — script doesn't address experience level mismatch",
+      "occurrences": 1,
+      "first_seen": 15,
       "promotes_at": 3
     }
   },
