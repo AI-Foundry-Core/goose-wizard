@@ -72,7 +72,7 @@
       "recipe": "metrics-dashboard",
       "bucket_a_count": 4,
       "bucket_b_count": 3,
-      "commit": "pending"
+      "commit": "b7ed79f"
     }
   ],
   "scripts_checkpoint_branch": null,
