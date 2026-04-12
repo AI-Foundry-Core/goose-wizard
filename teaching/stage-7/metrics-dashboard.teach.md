@@ -22,6 +22,21 @@ Check prerequisites:
 
 ---
 
+## Wait-Time Insights
+
+Ordered list. Use at least one per code operation per teacher-instructions.md Section 13.
+For all-strong developers, use insights that deepen rather than teach — colleague sharing
+a related observation, not explaining a concept.
+
+1. `[define-success]` "A dashboard is only useful if the metric maps to the behavior you changed. Generic health numbers are background noise."
+2. `[verify]` "Keep raw counts next to percentages. '50% improvement' from 2 to 3 is not the same signal as 200 to 300."
+3. `[feedback-loops]` "Thresholds need a consequence. Decide whether a miss blocks the cycle, creates a review item, or just posts an alert."
+4. `[enterprise]` "If other people depend on the pipeline, terminal output is not a dashboard. Put the gate where the team already looks."
+5. `[specificity]` "Aggregates hide the next fix. When the total improves, break it down by module to find what still needs instruction context."
+6. `[iteration]` "A metric that does not move is still data. It tells you the change did not touch the behavior you thought it would."
+
+---
+
 ## Framing
 
 "You changed the builder prompt last week. You consolidated rules across three
@@ -72,6 +87,14 @@ Facilitator presents results naturally:
 "[Here's what we measured...] [Here's how it changed...] [Watch out for this...]"
 
 **After the metrics report:**
+
+**Metrics conflict handling:** If the developer cites numbers that conflict with
+the metrics report, pause and resolve the source of truth before interpreting the
+result. Ask which dataset gates the decision and why: "The report says X; you're
+seeing Y. Which one is the decision source?" Do not continue with contradictory
+dashboard values — in a recipe about disciplined measurement, conflicting numbers
+are the teaching moment, not a wrinkle to smooth over.
+
 Guide the developer through interpretation if they ask. Key things to watch for:
 - Small sample sizes that make percentages misleading
 - Metrics that moved in unexpected directions (side effects)
@@ -182,9 +205,39 @@ Read eval results. For each dimension:
 | **Weak** | "A metric moved in the wrong direction and you didn't address it. That's a signal. Maybe the change had an unintended consequence. Maybe two things are coupled in a way you didn't expect. Ignoring it doesn't make it go away." |
 
 If ALL dimensions are Strong:
-  "You're measuring changes, questioning the data, and catching side effects.
+  "You're measuring changes, questioning the data, and watching for side effects.
   That's the difference between a pipeline that someone hopes is improving
   and one that demonstrably is."
+
+  Note: Use "watching for" not "catching" — if side_effect_awareness was null
+  (all metrics moved as expected), the developer did not catch a side effect.
+  "Watching for" is accurate regardless of whether one appeared.
+
+  Do NOT suggest additional metrics, tracking approaches, or extensions. The
+  developer drove the session and got everything right. Confirm, connect to
+  outcomes, and bridge. For E10 (all-strong), one sentence is enough — do not
+  prescribe where the developer can decide.
+
+---
+
+## Enterprise Grounding
+
+When the developer proposes automatic dashboard gating or pipeline-integrated
+metrics, ask one enterprise question to ground the design in team workflow:
+
+  "Where does the team see these numbers — PR comment, CI job, Slack alert,
+  cycle review file, or a team dashboard?"
+
+Follow the developer's answer. If they want design help, assist. If they have
+a clear answer, confirm and move on. Keep it to one question unless the developer
+wants to go deeper.
+
+For threshold-gated automation specifically, also ask what happens on failure:
+  "When a threshold is breached — does it block the merge, create a review item,
+  post an alert, or something else?"
+
+These questions are not lectures. They are the minimum to make the dashboard
+operationally real instead of conceptually complete.
 
 ---
 
