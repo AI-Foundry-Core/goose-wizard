@@ -6,10 +6,12 @@
   "scripts_checkpoint_branch": null,
   "bucket_b_recurring": {},
   "eval_known_issues": [],
+  "codex_failures": 0,
   "next_planned": {
     "personality": "priya_eager",
     "stage": "0",
     "recipe": null,
+    "mock_dev_model": "haiku",
     "edge_cases": ["accepts_without_checking"],
     "rationale": "First cycle: test Stage 0 with an over-accepting developer. This stresses fix-verification paths and weak-coaching delivery. Edge case: developer accepts everything without reviewing diffs."
   }

@@ -40,8 +40,10 @@ Spawn an Agent subagent (Opus) with this structure:
 - Instructions to read `C:\Users\donid\ClaudeProjects\RILGoose\teaching\meta\teacher-instructions.md`
 - Instructions to do REAL code operations on `C:\Users\donid\ClaudeProjects\MockTestTarget`
 - The facilitator follows scripts exactly; the mock developer follows the persona
-- For the mock developer: spawn a HAIKU subagent (model: haiku) at each Check/interaction point to generate the developer's response, passing it the persona definition and conversation context so far
-- Output: a complete labeled transcript (FACILITATOR / MOCK DEV turns) plus simulation notes
+- **Mock developer model depends on cycle number:**
+  - **Odd cycles (1, 3, 5, 7, 9, 11) — Haiku:** Spawn a HAIKU subagent (model: haiku) at each Check/interaction point to generate the developer's response, passing it the persona definition and conversation context so far
+  - **Even cycles (2, 4, 6, 8, 10, 12) — GPT 5.4:** BEFORE starting the simulation, generate all mock developer responses upfront via Codex. Write a prompt to `.codex_mock_dev.md` with: the full persona definition, the teaching script structure showing every Check/interaction point, the edge cases to force. Run: `python C:/Users/donid/ClaudeProjects/AgenticSystem/codex_review.py --project-dir C:/Users/donid/ClaudeProjects/RILGoose --prompt-file C:/Users/donid/ClaudeProjects/RILGoose/.codex_mock_dev.md --timeout 300`. Parse the returned responses and use them at each Check point during simulation. Clean up `.codex_mock_dev.md` after. If Codex fails, fall back to Haiku for this cycle and log the failure.
+- Output: a complete labeled transcript (FACILITATOR / MOCK DEV turns) plus simulation notes. Note which model generated the mock dev responses.
 - Write the transcript to `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\transcripts\cycle-{N}.md`
 
 **CRITICAL subagent tool rules (include in prompt):**
