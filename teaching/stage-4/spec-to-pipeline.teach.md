@@ -83,6 +83,10 @@ If the developer gives a vague test idea:
 If the developer says a subjective criterion is fine:
 "An AI pipeline cannot test 'feels intuitive.' Rewrite it into an observable outcome: completion rate, number of steps, error rate, time threshold, or a binary accessibility check."
 
+If the developer resists or tries to skip Phase 1 entirely:
+Scale down to one criterion instead of skipping: "Just one. Pick the rate threshold — or whichever criterion feels most concrete. What exact test proves it works: what kind of test, what setup, what action, what result?"
+Do NOT skip Phase 1. If the developer will not engage with even one criterion, note it and proceed, but flag test_specificity as untested in the eval context.
+
 ---
 
 ## Phase 2: Convert Spec to Pipeline Artifacts
@@ -106,6 +110,13 @@ If every requirement maps cleanly:
 
 If any requirement has no test:
 "That's an orphan requirement. Either the requirement is not testable and needs rewriting, or the test plan missed it. We do not hand this to a build pipeline until every requirement traces to at least one test."
+
+If the developer finds a weak trace (requirement maps to a test that does not fully prove it):
+Do NOT proceed to the execution plan yet. Ask the developer to choose the repair: add a stronger test, split the requirement, or mark a manual gate. Then delegate a narrow matrix/test-spec revision to the code-work subagent covering only the changed traces. Re-present only the changed trace and ask whether it now proves the requirement.
+
+"That trace is the gap. Before we hand this to a build agent, fix it. You have three moves: add a test that actually covers the requirement, split the requirement so each part has a real test, or mark it as a manual gate with an owner and pass/fail condition. Which one?"
+
+Do not proceed to Phase 4 until every requirement traces to at least one test that would actually prove it. A build agent will execute the plan exactly as written — a known weak trace becomes a known weak build.
 
 ---
 
@@ -210,6 +221,8 @@ Return as JSON:
 
 Read eval results. Coach naturally; do not list ratings.
 
+Brevity rule: 1-3 sentences per dimension. Maximum. Pick one specific praise, one sharpening note, and the bridge. Do not recap what the developer did (they were there). Do not touch dimensions rated Adequate unless the coaching changes behavior. A colleague would not deliver six paragraphs of feedback after a working session.
+
 ### Traceability Discipline
 
 | Rating | Facilitator Says |
@@ -241,6 +254,31 @@ Read eval results. Coach naturally; do not list ratings.
 | Strong | "That is build-ready: tasks are ordered, dependencies are visible, and each task has tests that prove it. A build agent can execute that without guessing." |
 | Adequate | "The order looks reasonable, but check the dependency line before handing it off. A good pipeline plan says what must already exist and which tests prove each task is done." |
 | Weak | "A complete-looking plan is not the same as a build-ready plan. Pick one task and ask: what does it depend on, what can run in parallel, and which test proves it passed?" |
+
+---
+
+## Enterprise Grounding
+
+Before bridging, ask one enterprise workflow question. Choose the most natural fit for the session:
+
+- "Where would this coverage matrix live for your team: in the spec PR, the test plan, or a CI artifact?"
+- "On your team, who would need to sign off on this spec before you built from it?"
+- "Do your existing tests follow a naming convention or directory structure that these skeleton files should match?"
+
+One question. One follow-up at most. Do not turn this into a workflow design session.
+
+---
+
+## Wait-Time Insights
+
+Ordered list of insights to share during subagent operations. Use one per code operation. Do not repeat. Do not share during challenge assessments (teacher-instructions.md rule 8).
+
+1. [define-success] "The spec is not documentation. It is the input the pipeline reads. If the spec is vague, the pipeline guesses."
+2. [verify] "Coverage matrices are the contract between spec and implementation. A requirement without a test is a promise nobody checks."
+3. [specificity] "Setup, action, expected result. If a test does not have all three, two agents will write two different tests from the same spec."
+4. [feedback-loops] "The review agent checks alignment, not correctness. It can confirm the build matches the spec — it cannot confirm the spec is right."
+5. [enterprise] "In a team, the coverage matrix is also a review artifact. It tells a reviewer what is tested without reading every test file."
+6. [iteration] "A weak trace found before build is a two-minute fix. The same gap found after build is a rework cycle."
 
 ---
 
