@@ -181,3 +181,49 @@ Each entry:
   - **Evidence:** cycle 1 (Codex), cycle 2 (Opus + Codex), cycle 3 (assumed present — auto-promoted)
   - **Occurrences:** 3 — **AUTO-PROMOTED to Bucket A.** Fix in next cycle: split developer-visible transcript from evaluator trace in simulator instructions.
   - **Why not applied this cycle:** Requires simulator infrastructure change, not a teaching script edit. Will be applied in cycle 4 as a simulator fix.
+
+---
+
+### Cycle 4 — Sneha (enterprise) — Stage 3 / Three-Agent Pipeline
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** Stage 3 guidance said "The developer designs the pipeline. You do not design it for them" but had no specific guidance for enterprise integration questions
+  - **After:** Added enterprise Q&A coaching pattern: answer the first question directly to establish credibility, then coach remaining questions through prompts ("You described the escalation target — what fields does the packet need?")
+  - **Why:** Both evaluators flagged facilitator delivering multi-paragraph explanations of PR integration, escalation routing, and audit chains instead of coaching through questions. Violates "the developer designs the pipeline" principle.
+  - **Confidence:** high
+
+- **File:** teaching/meta/teacher-instructions.md
+  - **Before:** Universal Rules had 10 rules; no guidance on describing unbuilt capabilities
+  - **After:** Added Rule 11: "Frame unbuilt capabilities as design targets, not current facts." With DO/DON'T example contrasting "The PR integration is straightforward" vs "That's the right shape for it — when you wire this up..."
+  - **Why:** Both evaluators flagged facilitator presenting PR integration, configurable escalation, and audit chains as current capabilities. Enterprise developers will try to use what is described; over-promising is risky for SOC2-aware audience.
+  - **Confidence:** high
+
+- **File:** teaching/stage-3/three-agent-pipeline.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[specialization]` (x2), `[verify]`, `[feedback-loops]`, `[enterprise]`, `[define-success]`
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Stage 2 was fixed in cycle 3; Stage 3 was still missing. Facilitator had no module-specific insights to draw from.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Checkpoint after 3.3 not explicitly framed with the three-item checklist from the script
+  - **Evidence:** cycle 4 (Opus weakness #2)
+  - **Occurrences:** 1
+  - **Why not applied:** The checkpoint text already exists in the script (lines 62-70). The facilitator delivered coaching organically but skipped the explicit "I am looking for three things" framing. This is execution quality, not a script bug.
+
+- **Finding:** Scope-contract contradiction — spec allowlists only auth.py/blog.py but build changes test files, reviewer says scope is clean
+  - **Evidence:** cycle 4 (Codex weakness #2)
+  - **Occurrences:** 1
+  - **Why not applied:** Simulator/mock execution issue, not a teaching script bug. The script correctly describes contracts; the simulated pipeline produced an inconsistent contract. Fix belongs in simulator instructions (contract examples should include test file paths).
+
+- **Finding:** File-locking question deserves a minimal operational answer before bridging to next module
+  - **Evidence:** cycle 4 (Codex fix #7)
+  - **Occurrences:** 1
+  - **Why not applied:** The bridge is correct per script design. Adding a one-sentence operational answer is an enhancement. Need more cycles to confirm whether the terse bridge leaves enterprise personas unsatisfied.
+
+- **Finding:** Simulation notes section in transcript file contains eval ratings, dimension names, concept status
+  - **Evidence:** cycle 4 (Codex — FAIL on transcript cleanliness; Opus — PASS, considers it evaluator-only metadata)
+  - **Occurrences:** 1 (new framing — previous transcript_metadata_leak was about EVAL RESULT blocks in conversation, which is fixed)
+  - **Why not applied:** Evaluator disagreement. Opus says simulation notes are evaluator-only metadata, correctly sequestered. Codex says any eval content in the transcript file is a leak. Decision: the transcript FILE should be clean; notes belong in simulator logs. But this is a simulator infrastructure change, not a teaching script fix.

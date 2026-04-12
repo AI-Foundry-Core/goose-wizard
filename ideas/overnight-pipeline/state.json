@@ -1,5 +1,5 @@
 {
-  "current_cycle": 4,
+  "current_cycle": 5,
   "status": "ready",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -28,6 +28,15 @@
       "bucket_a_count": 3,
       "bucket_b_count": 2,
       "commit": "f63f6a6"
+    },
+    {
+      "cycle": 4,
+      "personality": "sneha_enterprise",
+      "stage": "3",
+      "recipe": "three-agent-pipeline",
+      "bucket_a_count": 3,
+      "bucket_b_count": 4,
+      "commit": "4d72ddd"
     }
   ],
   "scripts_checkpoint_branch": null,
@@ -74,6 +83,30 @@
       "description": "Experienced skeptic 'I could have found that myself' objection handled ad-hoc, not scripted",
       "occurrences": 1,
       "first_seen": 3,
+      "promotes_at": 3
+    },
+    "checkpoint_explicit_framing": {
+      "description": "Checkpoint after 3.3 not explicitly framed with three-item checklist from script",
+      "occurrences": 1,
+      "first_seen": 4,
+      "promotes_at": 3
+    },
+    "scope_contract_contradiction": {
+      "description": "Spec contract allowlists only implementation files but build changes test files; reviewer misses violation",
+      "occurrences": 1,
+      "first_seen": 4,
+      "promotes_at": 3
+    },
+    "file_locking_bridge_terse": {
+      "description": "File-locking question gets bridge-only response without minimal operational answer",
+      "occurrences": 1,
+      "first_seen": 4,
+      "promotes_at": 3
+    },
+    "simulation_notes_eval_metadata": {
+      "description": "Simulation notes section in transcript file contains eval ratings and dimension names (distinct from EVAL RESULT block issue)",
+      "occurrences": 1,
+      "first_seen": 4,
       "promotes_at": 3
     }
   },
