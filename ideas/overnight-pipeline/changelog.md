@@ -468,3 +468,57 @@ Each entry:
   - **Evidence:** cycle 9 (Opus pedagogy weakness #2)
   - **Occurrences:** 1
   - **Why not applied:** Requires the facilitator to read team_context.md and connect coaching language to the developer's domain. This is an enhancement that could improve engagement with quiet developers. Need more persona-type combinations to confirm the pattern.
+
+---
+
+### Cycle 10 — Priya (eager) — Stage 2 / Spec-First
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-2/spec-first.teach.md
+  - **Before:** Partial-failure response named the specific failing test: "Look at which criteria aren't met yet: [specific failing criteria]"
+  - **After:** Changed to full criterion sweep: "Go back to your acceptance criteria and check each one against the test results. Tell me which are met and which aren't." Added rule: do NOT name the failing test — developer must do the sweep. Only narrow if developer cannot find it after genuine attempt.
+  - **Why:** Opus weakness #1: facilitator names `test_cache_invalidated_on_post_update FAILED` instead of forcing Priya to check all six criteria. This teaches "check the failing test" (reactive) instead of "check every criterion" (the spec-as-contract habit E9 is meant to build).
+  - **Confidence:** high
+
+- **File:** teaching/stage-2/spec-first.teach.md
+  - **Before:** No reject-and-repair loop existed. Session ended with a known failing acceptance criterion.
+  - **After:** Added reject-and-repair branch: after developer identifies the unmet criterion, ask "Would you approve this build as done?" Developer must practice explicit rejection. Then delegate targeted repair, rerun full suite, present result. Do not bridge or coach until suite is green or explicitly blocked.
+  - **Why:** Codex weakness #1: session identifies the gap but bridges without fixing it. "Spec as contract" should end with the contract satisfied or explicitly blocked, not with a recognized-but-unresolved failure.
+  - **Confidence:** high
+
+- **File:** teaching/stage-2/spec-first.teach.md
+  - **Before:** Coaching section had no brevity constraint
+  - **After:** Added brevity rule: "1-3 sentences per dimension. Maximum. Do not make the same point multiple ways. If the developer already demonstrated understanding, one sentence of confirmation is enough."
+  - **Why:** Opus weakness #2: five consecutive facilitator paragraphs making the same spec-as-contract point three ways. Violates teacher-instructions.md Section 5 brevity rule.
+  - **Confidence:** high
+
+- **File:** teaching/stage-2/spec-first.teach.md
+  - **Before:** Stage 2 checkpoint existed but could be folded into the bridge. No comprehension question.
+  - **After:** Made checkpoint non-optional with explicit instruction: "It is NOT optional and must NOT be folded into the bridge." Added required comprehension question: "Which of these would you rely on to stop a wrong-but-working implementation?" Added coaching redirect if developer points to tester instead of spec.
+  - **Why:** Codex weakness #2: transcript jumps from coaching to bridge without explicit checkpoint review. If earlier Stage 2 concepts were Weak, they would go undetected.
+  - **Confidence:** high
+
+- **File:** teaching/stage-2/spec-first.teach.md
+  - **Before:** No `## Wait-Time Insights` section existed
+  - **After:** Added 6 ordered wait-time insights tagged with `[define-success]`, `[verify]`, `[feedback-loops]`, `[enterprise]`, `[specificity]`, `[iteration]`
+  - **Why:** Codex weakness #3: teacher-instructions.md requires ordered insights for subagent waits. Facilitator improvised one useful insight but the script lacked a reusable list. `consecutive_wait_time_insights_missing` was auto-promoted at cycle 8; this is the Stage 2 spec-first application.
+  - **Confidence:** high
+
+- **File:** teaching/stage-2/spec-first.teach.md
+  - **Before:** No enterprise grounding section existed
+  - **After:** Added `## Enterprise Grounding` section before Bridge. Required question: "In your team, who else would review these acceptance criteria before you start building?" Follow-up: "Where would these tests run — local only, PR checks, or CI before deploy?" Maximum two questions.
+  - **Why:** Enterprise readiness at 3/5 for six consecutive cycles (5-10). Both evaluators flagged spec-first as a natural fit for enterprise grounding — specs get team review, tests run in CI. `enterprise_context_missed_openings` was auto-promoted at cycle 7.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Mock developer recovery too thorough for first correction — Priya audits three criteria unprompted after being caught not checking one
+  - **Evidence:** cycle 10 (Opus mock dev realism weakness #1)
+  - **Occurrences:** 1 (GPT 5.4 specific — distinct from Haiku over-polishing)
+  - **Why not applied:** Simulator persona fidelity issue, not a teaching script bug. GPT 5.4 shows learning too fast — realistic first-correction recovery would focus on the one missed criterion, not audit three others. May need explicit constraint in mock developer prompt: "After first correction, address only the specific gap flagged."
+
+- **Finding:** Enterprise readiness at 3/5 for sixth consecutive cycle — structural gap
+  - **Evidence:** cycles 5-10 (both evaluators every cycle)
+  - **Occurrences:** 6 — already promoted and applied per-module since cycle 7. Enterprise grounding sections now exist in cycle-review, metrics-dashboard, test-writer, and spec-first. Remaining: Stage 0 acts, bug-fix, code-review, refactor, build-then-test, role-separation, review-gate, and all Stage 3-5 modules. The per-module approach is working but not yet universal.
+  - **Why not applied universally:** Each module needs a contextually appropriate enterprise question. Batch-adding generic "where does this run?" to all modules would be worse than the current per-cycle targeted additions.
