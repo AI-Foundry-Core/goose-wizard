@@ -34,6 +34,7 @@ A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's
 | `ideas/rollout-playbook.md` | Rollout phases, ROI metrics, manager dashboard, internal selling guide | When discussing deployment, metrics, or stakeholder buy-in |
 | `REFERENCES.md` | Quick-access details on pipeline patterns, Goose mechanics, CourseForge format | When implementing recipes or teaching scripts |
 | `HANDOFF_stage1_detail.md` | Original handoff for Stage 1 work — lists 4 gaps to resolve before writing scripts | Before writing any Stage 1 content (gaps need re-evaluation against new adaptive model) |
+| `overnight-pipeline/README.md` | Overnight pipeline framework — how to run, adapt, and start new runs | When setting up an overnight run or reviewing past results |
 
 ## Teaching Framework (Adaptive Evaluation)
 
@@ -108,6 +109,15 @@ RILGoose/
 │   └── rollout-playbook.md             # Rollout phases, ROI metrics, selling guide
 ├── REFERENCES.md                       # Quick-access technical details (pipeline, Goose, CourseForge)
 ├── HANDOFF_stage1_detail.md            # Stage 1 gaps to resolve (needs re-eval against new model)
+├── overnight-pipeline/                 # Autonomous overnight test-evaluate-fix framework
+│   ├── README.md                       # How to use and adapt for different activities
+│   ├── personas.md                     # 9 reusable mock developer personas
+│   ├── edge-cases.md                   # 14 reusable edge case scenarios
+│   ├── templates/                      # Copy these to start a new run
+│   │   ├── loop-prompt.md              # Generic loop prompt with {ACTIVITY} placeholders
+│   │   └── state.json                  # Starting state template
+│   └── runs/                           # Archived completed runs
+│       └── 2026-04-13-hardening/       # 20 cycles, 72 fixes, all regressions passed
 ├── recipes/                            # Working recipes (Goose YAML format)
 │   ├── stage-0/                        # "See What AI Can Do"
 │   ├── stage-1/                        # "Get Real Work Done" (bug-fix, test-writer, code-review, refactor)
@@ -120,7 +130,7 @@ RILGoose/
 ├── teaching/                           # Teaching scripts and meta
 │   ├── meta/
 │   │   ├── teach-wrapper.yaml          # Meta-recipe that wraps any recipe in teaching
-│   │   ├── teacher-instructions.md     # How the facilitator should behave (TO BE CREATED)
+│   │   ├── teacher-instructions.md     # How the facilitator should behave
 │   │   └── module-designer/            # Skill for designing modules (load when building)
 │   │       ├── SKILL.md                # Main skill file (~300 lines)
 │   │       └── references/             # Templates, formats, example module
@@ -130,12 +140,12 @@ RILGoose/
 │   │           ├── progression-format.md
 │   │           └── ril-agents-map.md
 │   ├── stage-0/                        # Stage 0 is scripted (acts are the teaching)
-│   ├── stage-1/                        # Stage 1 guided-adaptive scripts (TO BE CREATED)
+│   ├── stage-1/                        # Stage 1 guided-adaptive scripts
 │   │   ├── bug-fix.teach.md
 │   │   ├── test-writer.teach.md
 │   │   ├── code-review.teach.md
 │   │   └── refactor.teach.md
-│   └── stage-2+/                       # Later stages (TO BE CREATED)
+│   ├── stage-2/ through stage-7/       # All stages now have teaching scripts
 ├── onboarding/                         # Project onboarding recipe
 │   └── onboard.yaml
 └── install/                            # Setup scripts
@@ -156,3 +166,4 @@ RILGoose/
 - **Designing working recipes?** Read `REFERENCES.md` Section 2 (Goose recipe YAML, subagent syntax)
 - **Discussing rollout or metrics?** Read `ideas/rollout-playbook.md`
 - **Need deep context on a decision?** Check syllabus Decision Log first, then `ideas/plan.md`
+- **Setting up an overnight run?** Read `overnight-pipeline/README.md`, copy templates from `overnight-pipeline/templates/`

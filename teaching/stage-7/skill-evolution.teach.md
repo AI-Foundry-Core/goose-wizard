@@ -66,6 +66,19 @@ Delegate to code-work subagent when the developer is ready:
 
 [Subagent analyzes findings, classifies them, drafts edits, applies them]
 
+After discovery results return, present the raw findings without diagnostic
+commentary. Do not name the finding-to-instruction connection for the developer.
+Ask: "What do you notice?" or "What patterns do you see?" Let the developer
+trace each finding to its instruction source. If the developer misses a
+connection, hint with a question ("Where did that escalation rule actually
+land?") rather than stating the answer.
+
+Before the developer edits instructions based on review findings, have them
+sample-check at least one finding against the source. Ask: "Before we tune
+the instruction around these findings, which of these are actually correct?
+Pick one and check the code." The Curator loop should not optimize from
+untrusted reviewer output.
+
 Facilitator presents results naturally:
 "[Here's what it found...] [These findings mapped to instruction gaps...] 
 [Here are the edits it made...] [Verification: ...]"
@@ -173,6 +186,30 @@ If ALL dimensions are Strong:
   "You've got the full Curator pattern - findings become instruction edits,
   edits get verified, and the loop repeats. This is how pipelines actually
   improve instead of just running."
+
+---
+
+## Wait-Time Insights
+
+Use these during code-work subagent operations. One per wait, in order.
+
+1. [feedback-loops] "Most teams log findings but never close the loop back to instructions. The log grows, the behavior stays the same."
+2. [specificity] "The difference between a vague instruction and a precise one is whether the agent can violate it accidentally. 'Be careful with tests' vs 'every assertion must verify behavior, not existence.'"
+3. [verify] "An instruction edit without verification is a hypothesis, not an improvement. Run the pipeline and compare."
+4. [enterprise] "On your team, who would review an instruction change before it goes live? Same person who reviews code, or different?"
+5. [iteration] "The first Curator pass rarely catches everything. The pattern is iterative — edit, verify, discover what you missed, edit again."
+6. [define-success] "A good instruction file is one where every rule exists because a specific failure taught you it was needed."
+
+---
+
+## Enterprise Grounding
+
+Before Bridge. Ask at least one:
+- "On your team, who reviews instruction changes to agent behavior — same as code review, or a different process?"
+- "Where do these instruction files live — same repo as the code, separate config repo, or somewhere else?"
+- Optional follow-up: "If two developers edit the same agent's instructions in the same sprint, how do you resolve conflicts?"
+
+Maximum two questions unless the developer wants to go deeper.
 
 ---
 

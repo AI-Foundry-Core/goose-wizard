@@ -1,5 +1,31 @@
 # RILGoose — Technical Learnings
 
+## 2026-04-13 (Overnight Pipeline Results — 20 Cycles)
+
+- **[pipeline] Planner agents over-increment cycle counters.** The Haiku planner subagent repeatedly advanced `current_cycle` in state.json before the cycle actually ran (cycles 12-14). Root cause: the planner was told to "update state.json" without being told that current_cycle should stay at N until the decision-maker finishes. Fix: planner should ONLY set `next_planned`, never touch `current_cycle` or `completed_cycles`.
+
+- **[pipeline] Codex evaluator is the most time-expensive step.** Each Codex eval takes 100-200 seconds vs 90-170s for Opus agent evals. The Codex agent explores the repo extensively before writing its evaluation. Future runs should give Codex a tighter prompt: "write evaluation only, do not explore pipeline state or read prior evaluations."
+
+- **[pipeline] Systematic gaps compound across modules — batch-fix them.** Wait-time insights and enterprise grounding were missing from EVERY module. Each cycle found the same gap in the next module, requiring the same fix 10+ times across cycles 7-18. Future pipeline design should batch-fix structural patterns across all modules at once when first discovered, not one module per cycle.
+
+- **[pipeline] Bucket B auto-promotion at 3 is too slow for module-level patterns.** When every module has the same gap, it takes 3 cycles to promote and N more to apply everywhere. For clearly structural patterns (not persona-dependent), promote immediately and batch-apply.
+
+- **[pipeline] Mock dev persona fidelity degrades after ~60% of every session.** Happened with every mock model (Haiku and GPT 5.4) and every persona. Persona-defining traits (hostility, anxiety, multitasking) concentrate in the first third and default to cooperative-competent. This is fundamental LLM behavior. Future simulations need mid-session persona reinforcement checkpoints.
+
+- **[pipeline] GPT 5.4 (Codex) produces better persona fidelity than Haiku.** GPT 5.4 generates more distinctive, domain-specific responses (Vikram's payment jargon, Sneha's SOC2 vocabulary). Haiku defaults to helpful/cooperative faster. For stress-testing hostile/anxious/quiet personas, Codex is the better mock dev model.
+
+- **[pipeline] Regression cycles must match the mock model to the baseline.** Cycle 19 used Haiku for a Cycle 4 baseline that used GPT 5.4, causing a mock-dev-realism regression that was purely model-dependent, not script-dependent. Match models for clean comparison.
+
+- **[pipeline] "Fully adaptive mode mismatch" is the most impactful bug class.** Appeared in 3 different Stage 5-7 scripts (Cycles 6, 13, 16). The facilitator naturally defaults to guided-adaptive behavior even when the script says "developer drives." The fix — requiring an open question and developer design before any code operation — is the single most important structural change.
+
+- **[pipeline] Privacy/security language must be reviewed for contradictions before pilot.** "Code stays on your machine" + "sends context to the model" (Cycle 15) would fail enterprise security review. All enterprise-facing language needs internal-contradiction review, not just simulation discovery.
+
+- **[orchestration] Decision-maker is the most reliable subagent role.** Structured input (two eval reports + classification rules) produces consistent, reliable output. Simulators vary widely because the task is creative. Evaluators vary based on how much they explore before writing. Decision-makers are deterministic because the rules are explicit.
+
+- **[orchestration] Subagents still use compound commands despite explicit warnings.** Despite "NEVER use && or ||" in every prompt, subagents occasionally use them, causing permission stalls. The most reliable mitigation is global CLAUDE.md rules, but subagent prompts should still include the warning since subagents don't inherit parent CLAUDE.md.
+
+- **[orchestration] Codex writes files to the repo when you just want stdout evaluation.** Codex agents (via codex_review.py) often create evaluation files directly in the repo rather than returning text to stdout. This is sometimes useful (saves a Write step) but sometimes creates untracked files that need cleanup. Be explicit in prompts: "return your evaluation as text, do NOT write files."
+
 ## 2026-04-12 (Session 2 — Install, Config, Validation)
 
 - **[goose-install] Windows install via PowerShell script.** `Invoke-WebRequest -Uri "https://raw.githubusercontent.com/aaif-goose/goose/main/download_cli.ps1" -OutFile "download_cli.ps1"; .\download_cli.ps1`. Installs to `C:\Users\<user>\.local\bin\goose.exe`. The interactive configure step fails with "not connected" on first install — expected, provider must be configured manually afterward.

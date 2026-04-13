@@ -14,6 +14,8 @@ If all three concepts are already demonstrated with Adequate or Strong ratings, 
 
 This is Fully Adaptive mode. Act as a consulting partner. The developer is operating a real autonomous pipeline; your role is to help harden the operational loop, not to run a scripted lesson.
 
+**Fully adaptive guardrail:** After presenting discovery results, do not enumerate or sequence the findings. Ask an open question: "What stands out to you?" or "Where do you want to start?" Let the developer identify and prioritize the problems. If the developer misses a finding, raise it after they finish their own agenda. The developer sets the direction; the facilitator spots gaps the developer missed.
+
 ## Framing
 
 "The cycle review found what happened. Now we make sure the next cycle can benefit from it. The goal is simple: write down the useful surprises, give periodic agents their own memory, and make shared state files safe to consume."
@@ -76,6 +78,8 @@ If a learning is too vague:
 If agent memory is shared or buried:
 
 "This agent needs its own state file. If the reviewer shares a general log with the builder, it will not reliably find its own prior decision next cycle."
+
+**Per-agent memory design guardrail:** The developer must specify each agent's owner, purpose, key fields, and update timing before state files are created. Ask: "What does the test runner need to remember between cycles?" then repeat for each relevant agent. The facilitator may suggest missing safety-critical fields, but the code-work delegation should reflect the developer's design, not a facilitator-authored schema.
 
 If shared state cleanup is missing:
 
@@ -155,6 +159,28 @@ Use the eval results as private guidance. Never mention ratings, scoring, or the
 If all dimensions are Strong:
 
 "That is the continuous loop: review produces learnings, agents carry their own memory, and shared state gets consumed cleanly. Now the pipeline can run repeatedly without depending on someone remembering what happened last night."
+
+## Enterprise Grounding
+
+When the developer discusses learnings capture, state file ownership, or cleanup rules, ask one enterprise-context question. Do not lecture — ask.
+
+**Required question (pick the one that fits):**
+
+- "If a different team member reviews the next cycle, where do they find the learnings and state files? Is there a handoff or do they have to discover the layout?"
+- "When two developers run parallel pipelines, how do per-agent state files avoid conflicts? Does each pipeline get its own state directory?"
+- "Your team has multiple services. If the test runner's memory is useful across repos, where does the shared insight live — per-repo LEARNINGS.md or a central location?"
+
+Keep it to one question unless the developer wants to go deeper. Do not volunteer enterprise context unprompted.
+
+## Wait-Time Insights
+
+Ordered list. Deliver one per subagent operation that takes 30+ seconds. See teacher-instructions.md Section 13.
+
+1. `[feedback-loops]` "A learning that says 'tests failed' is noise. A learning that says 'coverage dropped because the new endpoint had no tests, and the ratchet caught it at 3am' is a signal. Context is what makes the next cycle smarter."
+2. `[verify]` "Per-agent state files are claims about the last cycle. Before the next run, spot-check one: does the test runner's last_coverage match what the actual test report shows? Trust but verify applies to your own pipeline's memory."
+3. `[define-success]` "Shared state hygiene is invisible when it works. You notice it when it fails — a stale stop flag blocks a run, or an old handoff file triggers duplicate work. The cleanup rule is the cheapest insurance you have."
+4. `[enterprise]` "In a team setting, per-agent state files become a lightweight dashboard. The morning reviewer reads three small files instead of scrolling a 200-line shared log. That scales to multiple pipelines."
+5. `[feedback-loops]` "The escalation threshold matters more than the finding. If the same issue repeats for 3 cycles without action, the learning is not driving change — it is just documentation. Escalation turns a note into a forcing function."
 
 ## Bridge
 

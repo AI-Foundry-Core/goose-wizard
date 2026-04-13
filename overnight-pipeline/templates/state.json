@@ -1,0 +1,10 @@
+{
+  "current_cycle": 1,
+  "status": "ready",
+  "total_planned_cycles": 20,
+  "completed_cycles": [],
+  "next_planned": null,
+  "bucket_b_recurring": {},
+  "eval_known_issues": [],
+  "codex_failures": 0
+}
