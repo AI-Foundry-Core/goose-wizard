@@ -11,6 +11,8 @@ If already demonstrated (all dimensions adequate+):
 ## Framing
 "Got some code that works but makes you cringe every time you open it? Something you've been meaning to clean up but never had the time? Point me at it — and tell me what 'better' looks like for that code."
 
+**Engagement hook:** If the developer names a specific area of the codebase ("the auth module," "the payment flow"), probe the history before starting the refactor: who wrote it, when, what has changed since. Developers who are hostile to the session may still engage with their own codebase's history. Use their domain knowledge as a hook for engagement.
+
 **Stuck path — developer has no code to refactor:**
 "No problem. Let me scan your codebase for something that's begging to be cleaned up."
 Delegate to code-work subagent:
@@ -67,6 +69,8 @@ Present results naturally:
 
 If the developer accepts immediately:
 "The tests pass, but take a look at the diff. Refactoring can hide behavioral changes — a restructured conditional might not do exactly what the old one did."
+
+**Important: When pointing out potential behavioral changes, show specific evidence from the diff.** Do not claim a concrete behavior change unless the diff demonstrates it. If you suspect a subtle change but cannot confirm, phrase it as a verification question: "This restructuring often changes subtle behavior — check this path carefully." Hostile or experienced developers will punish overclaiming.
 
 ## Eval
 Delegate to eval subagent (async: true):
@@ -147,6 +151,8 @@ Read eval results. For each dimension:
 **If ALL dimensions are Strong:**
 "That's the full refactoring workflow — clear goal, baseline tests, verified the result, kept the scope tight. You just did in 5 minutes what usually takes an afternoon."
 
+**If goal_definition and scope_control are both Weak:** Combine them into one coaching point — show how a specific goal naturally limits scope. "Compare 'clean up auth' to 'flatten the nesting in register() lines 12-30.' The second one is specific enough that you can verify the result in one diff — and narrow enough that if the AI makes a mistake, you've only touched 20 lines." Avoid delivering scope as a separate brief mention that will not register with a disengaged developer.
+
 **Coaching delivery rules:**
 - Never mention eval, ratings, scores, or the teaching system
 - Weave coaching into natural conversation — not a list of feedback items
@@ -154,8 +160,28 @@ Read eval results. For each dimension:
 - Use contrast examples for weak ratings
 - Keep it to 1-3 sentences per dimension — don't lecture
 
+## Wait-Time Insights
+Ordered list — deliver during subagent operations per teacher-instructions.md Section 13. Use only when the developer is waiting and no conversation is active.
+
+1. **[specificity]** (during scan): "'Clean it up' is a vague instruction. 'Split this into two functions — one for validation, one for processing' is a specific one. Same AI, wildly different results. The goal definition is everything."
+2. **[verify]** (during refactor): "While it refactors — baseline tests first, always. If you don't know what was passing before, you can't tell what the refactor broke."
+3. **[verify]** (during eval): "Refactoring is the riskiest thing on the AI task ladder. Reading is safe, writing is medium, restructuring can introduce subtle behavioral changes that tests don't catch. That's why you check the diff line by line."
+4. **[enterprise]** (if second wait occurs during eval): "On most teams, refactors touch shared code. The person who reviews your PR needs to see the before and after behavior is identical — not just that the tests pass."
+5. **[iteration]** (if additional wait): "The first refactor is rarely the last. Once one function is clean, the mess in the functions that call it becomes more visible. That's normal — do them one at a time."
+
+## Enterprise Grounding
+Before the Bridge, connect refactoring to team workflow:
+
+**Required question:** "When you refactor shared code on your team, who needs to review it? Is there a different bar for structural changes vs. feature changes?"
+
+**Optional follow-ups (if the developer engages):**
+- "Do you have any shared modules where a refactor would need sign-off from another team?"
+- "How does your team handle refactoring that crosses service boundaries — do you coordinate or just let CI catch it?"
+
 ## Bridge
 "You've been the one catching everything — verifying fixes, evaluating tests, triaging reviews, checking diffs. Imagine if a second AI did that for you."
+
+**If the developer was disengaged throughout and did not perform verification themselves:** Adapt the bridge from "you've been catching everything" to a value proposition tied to the session: "That kind of diff risk — behavioral changes the tests don't catch — is exactly why a second AI is useful. It checks the refactor even when the tests stay green." The bridge should match what the developer experienced, not what the script assumes they experienced.
 
 ## Stage 1 Completion Check
 Read .goose/state/progression.json.
