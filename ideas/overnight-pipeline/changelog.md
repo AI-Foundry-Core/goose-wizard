@@ -897,3 +897,29 @@ None. This was a regression cycle — no script changes applied.
 - **Opus:** 34/35 (+3 vs Cycle 4 baseline of 31/35). Script Faithfulness +1, Pedagogy +1, Pacing +1, Enterprise Readiness +1. Mock Dev Realism -1 (model quality, not script). Stuck-Path carried from baseline (no edge case triggered).
 - **Codex:** 27/35 (same as Cycle 4 Codex baseline of 27/35). Script Faithfulness +1, Pedagogy +1, Enterprise Readiness +2. Mock Dev Realism -1, Stuck-Path +1 (carried). Fourth-Wall held at 3/5 (transcript artifact leak still unfixed).
 - **Verdict:** NO REVERT. No dimension dropped 2+. All facilitator-controlled dimensions improved or held. The one regression (Mock Dev Realism -1) is attributable to Haiku mock model quality, not script degradation. Both Cycle 4 enterprise-overclaiming and scope-contract issues are visibly fixed.
+
+---
+
+### Cycle 20 -- Karthik (multitasker) -- Stage 5 / Eval Foundation -- FINAL REGRESSION
+
+**APPLIED (Bucket A):**
+
+None. This was the final regression cycle and no script degradation was found.
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Known-gaps ownership question not fully exercised
+  - **Evidence:** cycle 20 (Opus Enterprise Readiness 4/5, Codex weakness #1). The facilitator asks whether unverifiable claims go to a known-gaps log or human review, but does not ask who owns the log or what trigger keeps it reviewed.
+  - **Occurrences:** 2 total (first seen in Cycle 6's "someone periodically checks" known-gaps concern, confirmed in Cycle 20 regression).
+  - **Why not applied:** `teaching/stage-5/eval-foundation.teach.md` already contains the exact ownership rule: "Who owns the known-gaps log? If the answer is 'someone,' it means nobody." This is a simulator/facilitator adherence issue, not missing script text.
+
+- **Finding:** Clean regression under-tests Karthik's multitasker texture
+  - **Evidence:** cycle 20 (Opus Mock Dev Realism 4/5, Codex Mock Dev Realism 4/5). Karthik has time pressure and stale-memory trust, but no Slack tangent, memory slip, or forced context switch like Cycle 6.
+  - **Occurrences:** 1
+  - **Why not applied:** The cycle intentionally used no forced edge cases to isolate the structural fix. Both evaluators agree this is not a teaching-script regression. Future Stage 5 regressions should include one realistic interruption to verify the fix under distraction.
+
+**Regression Result:**
+
+- **Opus:** 28/30 on comparable dimensions (+4 vs Cycle 6 comparable baseline of 24/30). Script Faithfulness +1, Pedagogy +2, Pacing +1, Enterprise Readiness +1. Mock Dev Realism -1 due to clean no-edge-case design. Stuck-Path not tested.
+- **Codex:** 28/30 on comparable dimensions (+4 vs Cycle 6 comparable baseline of 24/30). Same score movement as Opus: Script Faithfulness +1, Pedagogy +2, Pacing +1, Enterprise Readiness +1, Mock Dev Realism -1, Stuck-Path not tested.
+- **Verdict:** NO REVERT. No dimension dropped 2+. The primary regression target is verified: Karthik designs the verification plan before any code operation runs. The developer-driven Stage 5 fix holds.

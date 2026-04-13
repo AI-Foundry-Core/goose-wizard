@@ -1,6 +1,6 @@
 {
-  "current_cycle": 20,
-  "status": "idle",
+  "current_cycle": 21,
+  "status": "complete",
   "total_planned_cycles": 20,
   "completed_cycles": [
     {
@@ -188,21 +188,24 @@
       "baseline_cycle": 4,
       "opus_score": "34/35",
       "codex_score": "27/35"
+    },
+    {
+      "cycle": 20,
+      "personality": "karthik_multitasker",
+      "stage": "5",
+      "recipe": "eval-foundation",
+      "type": "regression",
+      "edge_cases": [],
+      "bucket_a_count": 0,
+      "bucket_b_count": 2,
+      "regression_result": "passed",
+      "baseline_cycle": 6,
+      "opus_score": "28/30",
+      "codex_score": "28/30"
     }
   ],
   "scripts_checkpoint_branch": null,
-  "next_planned": {
-    "cycle": 20,
-    "type": "regression",
-    "stage": "5",
-    "recipe": "eval-foundation",
-    "personality": "karthik_multitasker",
-    "mock_model": "gpt-5.4",
-    "edge_cases": [],
-    "baseline_cycle": 6,
-    "final_cycle": true,
-    "rationale": "FINAL CYCLE. Regression test for Stage 5 eval-foundation. Baseline is Cycle 6 (Karthik, multitasker, Opus 29/35, Codex 29/35). No forced edge cases — clean regression. GPT 5.4 (even cycle) for model diversity. Karthik's multitasker persona tests whether the developer-driven verification design fix from Cycle 6 (the biggest structural change in the pipeline) holds under regression. Stage 5 was chosen because it had the most Bucket A fixes (6 applied in Cycle 6) and the most significant mode-compliance correction (facilitator-led → developer-driven). This cycle triggers the FINAL MORNING BRIEF."
-  },
+  "next_planned": null,
   "bucket_b_recurring": {
     "act2_review_verification": {
       "description": "Act 2 approval without review verification",
@@ -360,6 +363,20 @@
       "first_seen": 16,
       "promotes_at": 3,
       "note": "Confirmed in cycle 17 skill-evolution by Codex"
+    },
+    "known_gaps_log_ownership": {
+      "description": "Known-gaps log is mentioned but ownership and review trigger are not forced in the transcript",
+      "occurrences": 2,
+      "first_seen": 6,
+      "promotes_at": 3,
+      "note": "Confirmed in cycle 20 final regression. The eval-foundation script already contains the ownership rule, so this is simulator/facilitator adherence rather than missing script text."
+    },
+    "clean_regression_under_tests_persona_texture": {
+      "description": "Clean no-edge-case regression cycles can under-test persona texture and stuck-path handling",
+      "occurrences": 1,
+      "first_seen": 20,
+      "promotes_at": 3,
+      "note": "Cycle 20 intentionally used no forced edge case to isolate the Stage 5 structural fix. Mock Dev Realism dropped by 1 but no script regression was found."
     }
   },
   "eval_known_issues": [],
