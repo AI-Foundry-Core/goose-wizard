@@ -1,5 +1,5 @@
 {
-  "current_cycle": 16,
+  "current_cycle": 20,
   "status": "idle",
   "total_planned_cycles": 20,
   "completed_cycles": [
@@ -142,18 +142,66 @@
       "bucket_b_count": 3,
       "opus_score": "31/35",
       "codex_score": "27/35"
+    },
+    {
+      "cycle": 16,
+      "personality": "ananya_anxious",
+      "stage": "6",
+      "recipe": "continuous-dev",
+      "edge_cases": ["E5_no_task"],
+      "bucket_a_count": 3,
+      "bucket_b_count": 2,
+      "opus_score": "30/35",
+      "codex_score": "29/35"
+    },
+    {
+      "cycle": 17,
+      "personality": "arjun_curious",
+      "stage": "7",
+      "recipe": "skill-evolution",
+      "edge_cases": ["E4_transparency"],
+      "bucket_a_count": 3,
+      "bucket_b_count": 4,
+      "opus_score": "31/35",
+      "codex_score": "29/35"
+    },
+    {
+      "cycle": 18,
+      "personality": "deepak_hostile",
+      "stage": "1",
+      "recipe": "refactor",
+      "edge_cases": ["E1_refuses_edit", "E9_all_weak"],
+      "bucket_a_count": 5,
+      "bucket_b_count": 3,
+      "opus_score": "33/35",
+      "codex_score": "3/5"
+    },
+    {
+      "cycle": 19,
+      "personality": "sneha_enterprise",
+      "stage": "3",
+      "recipe": "three-agent-pipeline",
+      "type": "regression",
+      "bucket_a_count": 0,
+      "bucket_b_count": 3,
+      "regression_result": "passed",
+      "baseline_cycle": 4,
+      "opus_score": "34/35",
+      "codex_score": "27/35"
     }
   ],
   "scripts_checkpoint_branch": null,
   "next_planned": {
-    "cycle": 16,
-    "type": "normal",
-    "stage": "6",
-    "recipe": "continuous-dev",
-    "personality": "ananya_anxious",
+    "cycle": 20,
+    "type": "regression",
+    "stage": "5",
+    "recipe": "eval-foundation",
+    "personality": "karthik_multitasker",
     "mock_model": "gpt-5.4",
-    "edge_cases": ["E5_no_task"],
-    "rationale": "Stage 6 continuous-dev with anxious persona and no-task edge case. First Stage 6 depth pass with a persona who may struggle with overnight autonomy confidence."
+    "edge_cases": [],
+    "baseline_cycle": 6,
+    "final_cycle": true,
+    "rationale": "FINAL CYCLE. Regression test for Stage 5 eval-foundation. Baseline is Cycle 6 (Karthik, multitasker, Opus 29/35, Codex 29/35). No forced edge cases — clean regression. GPT 5.4 (even cycle) for model diversity. Karthik's multitasker persona tests whether the developer-driven verification design fix from Cycle 6 (the biggest structural change in the pipeline) holds under regression. Stage 5 was chosen because it had the most Bucket A fixes (6 applied in Cycle 6) and the most significant mode-compliance correction (facilitator-led → developer-driven). This cycle triggers the FINAL MORNING BRIEF."
   },
   "bucket_b_recurring": {
     "act2_review_verification": {
@@ -254,8 +302,8 @@
       "note": "Applied per-module: cycle-review (c7), metrics-dashboard (c8), test-writer (c9), spec-first (c10), escalation-routing (c11), spec-to-pipeline (c12), eval-ratchet (c13). Remaining modules still need lists."
     },
     "haiku_persona_over_polishing": {
-      "description": "Mock dev models produce personas that fade defining traits after 60% of session (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9, overconfident senior drops to compliant in cycle 11, hostile dev becomes cooperative in cycle 12, multitasker becomes fully engaged in cycle 13)",
-      "occurrences": 6,
+      "description": "Mock dev models produce personas that fade defining traits after 60% of session (vocabulary in cycle 5, investigation rigor in cycle 7, analytical responses for quiet persona in cycle 9, overconfident senior drops to compliant in cycle 11, hostile dev becomes cooperative in cycle 12, multitasker becomes fully engaged in cycle 13, curious dev becomes cooperative-competent in cycle 17, hostile dev flatlines to passive in cycle 18, enterprise dev loses distinctive vocabulary in cycle 19)",
+      "occurrences": 9,
       "first_seen": 5,
       "promotes_at": 3,
       "promoted": true,
@@ -287,9 +335,12 @@
     },
     "eval_loop_not_evidenced": {
       "description": "Eval-mediated coaching loop not visible in simulator transcripts — script specifies async eval delegation but transcript shows no eval step even when all dimensions are Strong",
-      "occurrences": 1,
+      "occurrences": 4,
       "first_seen": 15,
-      "promotes_at": 3
+      "promotes_at": 3,
+      "promoted": true,
+      "promoted_at_cycle": 18,
+      "note": "Confirmed in cycles 16 (continuous-dev), 17 (skill-evolution), 18 (refactor). Four occurrences across four different modules. Cross-cutting simulator/transcript format concern — needs structural fix to simulator harness."
     },
     "triage_prompt_fires_proactively": {
       "description": "Code-review triage prompt fires before developer has a chance to treat findings equally, reducing diagnostic value",
@@ -302,6 +353,13 @@
       "occurrences": 1,
       "first_seen": 15,
       "promotes_at": 3
+    },
+    "sub_recipe_delegation_not_exercised": {
+      "description": "Formal sub-recipe delegation with structured parameters and result fields not exercised — transcript uses ad-hoc code-work delegations instead",
+      "occurrences": 2,
+      "first_seen": 16,
+      "promotes_at": 3,
+      "note": "Confirmed in cycle 17 skill-evolution by Codex"
     }
   },
   "eval_known_issues": [],

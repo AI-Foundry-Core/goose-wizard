@@ -733,3 +733,167 @@ None. This was a regression cycle — no script changes applied.
   - **Evidence:** cycle 15 (simulator note)
   - **Occurrences:** 1
   - **Why not applied:** Structural addition to all recipe scripts. Would need a universal handling pattern in teacher-instructions.md. One occurrence — tracking.
+
+### Cycle 16 — Ananya (anxious) — Stage 6/continuous-dev
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-6/continuous-dev.teach.md
+  - **Before:** No fully adaptive discovery guardrail after Setup section
+  - **After:** Added guardrail: "After presenting discovery results, do not enumerate or sequence the findings. Ask an open question. Let the developer identify and prioritize the problems. If the developer misses a finding, raise it after they finish their own agenda."
+  - **Why:** Both evaluators found the facilitator drives the agenda ("Three problems, three fixes"), sequences topics, and decides when each is complete. This is guided-adaptive behavior in a fully-adaptive session. Same mode-mismatch pattern from cycles 6 and 13.
+  - **Confidence:** high
+
+- **File:** teaching/stage-6/continuous-dev.teach.md
+  - **Before:** No per-agent memory design guardrail in Facilitator Response section
+  - **After:** Added guardrail: "The developer must specify each agent's owner, purpose, key fields, and update timing before state files are created. The facilitator may suggest missing safety-critical fields, but the code-work delegation should reflect the developer's design, not a facilitator-authored schema."
+  - **Why:** Ananya said "each agent gets its own file" but the facilitator specified all fields (owner, purpose, update timing, data schemas) without developer input. Both evaluators flagged this as the most consequential mode violation — the eval cannot meaningfully rate per-agent memory design if the developer did not design it.
+  - **Confidence:** high
+
+- **File:** teaching/stage-6/continuous-dev.teach.md
+  - **Before:** No `## Wait-Time Insights` section, no `## Enterprise Grounding` section
+  - **After:** Added 5 ordered wait-time insights tagged with `[feedback-loops]`, `[verify]`, `[define-success]`, `[enterprise]`, `[feedback-loops]`. Added Enterprise Grounding section with three enterprise-context questions for team handoff, parallel pipelines, and cross-repo learnings.
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Enterprise grounding section follows pattern established in cycle-review (c7) and applied to all subsequent modules. continuous-dev was missing both.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Eval-mediated coaching loop not evidenced in continuous-dev simulator artifacts
+  - **Evidence:** cycle 16 (Opus weakness #3, Codex finding #3). Same pattern as cycle 15.
+  - **Occurrences:** 2 (incremented from 1)
+  - **Why not applied:** Recurring issue — same as `eval_loop_not_evidenced` in state.json. The script already specifies async eval delegation. This is a simulator/transcript format concern, not a script bug.
+
+- **Finding:** Formal continuous-dev sub-recipe delegation not exercised in transcript
+  - **Evidence:** cycle 16 (Opus weakness #3, Codex weakness #3)
+  - **Occurrences:** 1
+  - **Why not applied:** The transcript uses ad-hoc code-work delegations instead of the structured `sub-recipe: "continuous-dev"` call. May require coordination with simulator harness and recipe wrapper. The conversational approach is pedagogically valid but leaves the production recipe interface untested.
+
+---
+
+### Cycle 17 — Arjun (curious/distracted) — Stage 7 / Skill Evolution
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-7/skill-evolution.teach.md
+  - **Before:** After discovery results, facilitator presented findings with diagnostic commentary: "[Here's what it found...] [These findings mapped to instruction gaps...]"
+  - **After:** Added fully adaptive discovery guardrail: "Present raw findings without diagnostic commentary. Do not name the finding-to-instruction connection for the developer. Ask 'What do you notice?' Let the developer trace each finding to its instruction source. If the developer misses a connection, hint with a question rather than stating the answer."
+  - **Why:** Both evaluators flagged facilitator saying "The escalation rule you wrote landed in LEARNINGS.md instead of in the agent's instruction file" — pre-digesting the core 7.1 skill (finding-to-instruction tracing). Opus: "the facilitator does the hardest analytical step of the session." Codex: "the first and most important trace is partially handed to him." Same mode-mismatch pattern from cycles 13 and 16.
+  - **Confidence:** high
+
+- **File:** teaching/stage-7/skill-evolution.teach.md
+  - **Before:** No finding-validity check before using review findings to edit instructions
+  - **After:** Added verification-quality guardrail: "Before the developer edits instructions based on review findings, have them sample-check at least one finding against the source. Ask: 'Before we tune the instruction around these findings, which of these are actually correct? Pick one and check the code.'"
+  - **Why:** Codex flagged that baseline review data included shaky claims (abort() NoReturn finding, get_flashed_messages() caching treated as bug). The session teaches "measure before changing" but not "validate that the measurement source is trustworthy." For Stage 7 where findings update agent instructions, bad findings are not incidental — they make bad signal more durable.
+  - **Confidence:** high
+
+- **File:** teaching/stage-7/skill-evolution.teach.md
+  - **Before:** No `## Wait-Time Insights` section, no `## Enterprise Grounding` section
+  - **After:** Added 6 ordered wait-time insights tagged with `[feedback-loops]`, `[specificity]`, `[verify]`, `[enterprise]`, `[iteration]`, `[define-success]`. Added Enterprise Grounding section with two enterprise-context questions on instruction review process and file location.
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Enterprise grounding section follows pattern established in cycle-review (c7) and applied to all subsequent modules. skill-evolution was missing both. `consecutive_wait_time_insights_missing` and `enterprise_context_missed_openings` both auto-promoted.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Facilitator does not probe instruction design decisions — accepts threshold values and edge cases uncritically after challenging the intuition-based removal
+  - **Evidence:** cycle 17 (Opus weakness #3)
+  - **Occurrences:** 1
+  - **Why not applied:** The facilitator correctly challenges the intuition-based style removal (strong intervention). Probing every design decision would be enhancement, not a bug fix. In fully-adaptive consulting mode, accepting the developer's design and letting the pipeline verify is valid. If future cycles show facilitators consistently skipping edge-case probes, escalate.
+
+- **Finding:** Arjun's persona flattens to cooperative-competent after a single tangent — curiosity demonstrated once then abandoned
+  - **Evidence:** cycle 17 (Opus weakness #1, Codex weakness #3). Also cycles 5, 7, 9, 11, 12, 13 (cross-model persona fading)
+  - **Occurrences:** 7 (incrementing `haiku_persona_over_polishing` from 6). Already auto-promoted at cycle 9. Opus confirms single-tangent-then-perfect-focus pattern.
+  - **Why not applied:** Simulator persona constraint issue, not a teaching script gap.
+
+- **Finding:** Eval-mediated coaching loop not evidenced in skill-evolution simulator artifacts
+  - **Evidence:** cycle 17 (Opus evidence-against on script faithfulness). Same pattern as cycles 15-16.
+  - **Occurrences:** 3 (incrementing `eval_loop_not_evidenced` from 2)
+  - **Why not applied:** Recurring issue. The script specifies async eval delegation. Simulator transcripts consistently show no eval step. Three occurrences — tracking for potential promotion at next cycle.
+
+- **Finding:** Sub-recipe delegation not exercised — ad-hoc code-work delegations used instead of structured skill-evolution sub-recipe call
+  - **Evidence:** cycle 17 (Codex script faithfulness deduction). Same pattern as cycle 16.
+  - **Occurrences:** 2 (incrementing `sub_recipe_delegation_not_exercised` from 1)
+  - **Why not applied:** Same rationale as cycle 16 — conversational approach is pedagogically valid but leaves production recipe interface untested.
+
+---
+
+### Cycle 18 — Deepak (hostile) — Stage 1 / Refactor
+
+**APPLIED (Bucket A):**
+
+- **File:** teaching/stage-1/refactor.teach.md
+  - **Before:** No verification-evidence guardrail after "If the developer accepts immediately" diff review prompt
+  - **After:** Added note: "When pointing out potential behavioral changes, show specific evidence from the diff. Do not claim a concrete behavior change unless the diff demonstrates it. If you suspect a subtle change but cannot confirm, phrase it as a verification question." Added overclaiming warning for hostile/experienced developers.
+  - **Why:** Codex weakness #1: facilitator claimed early-return refactor changed error-display behavior, but the `elif` in the original code already showed only one error. Teaching from a false diff interpretation undermines facilitator credibility, especially with hostile developers who will exploit factual errors.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/refactor.teach.md
+  - **Before:** No engagement-probing guidance in Framing section
+  - **After:** Added "Engagement hook" block: if the developer names a specific codebase area, probe the history (who wrote it, when, what changed). Developers hostile to the session may still engage with their codebase's story.
+  - **Why:** Opus weakness #2: facilitator had only one engagement tool (direct challenge "did you actually read the diff?"). Probing domain knowledge gives a second engagement strategy that connects to the developer's existing expertise rather than confronting their disengagement.
+  - **Confidence:** medium
+
+- **File:** teaching/stage-1/refactor.teach.md
+  - **Before:** No guidance for combining goal_definition and scope_control coaching when both are Weak
+  - **After:** Added combined coaching pattern: "Compare 'clean up auth' to 'flatten the nesting in register() lines 12-30.' The second one is specific enough that you can verify the result in one diff — and narrow enough that if the AI makes a mistake, you've only touched 20 lines." Avoids delivering scope as a separate brief mention that won't register with disengaged developers.
+  - **Why:** Opus weakness #3: scope-control coaching was one sentence at the end of the debrief. For a hostile developer barely processing coaching at all, a brief separate mention is functionally no mention. Combining scope into goal-definition coaching leverages the stronger teaching point.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/refactor.teach.md
+  - **Before:** Bridge had no adaptation for disengaged developers
+  - **After:** Added hostile-persona adaptation: if developer was disengaged and did not verify, reframe bridge from "you've been catching everything" to a value proposition tied to the diff risk demonstrated in the session.
+  - **Why:** Opus pacing weakness: bridge assumes the developer felt the weight of being "the one catching everything," but a disengaged developer caught nothing. The bridge should match what the developer experienced.
+  - **Confidence:** high
+
+- **File:** teaching/stage-1/refactor.teach.md
+  - **Before:** No `## Wait-Time Insights` section, no `## Enterprise Grounding` section
+  - **After:** Added 5 ordered wait-time insights tagged with `[specificity]`, `[verify]`, `[verify]`, `[enterprise]`, `[iteration]`. Added Enterprise Grounding section with team review question and two optional follow-ups on shared modules and cross-service refactoring.
+  - **Why:** teacher-instructions.md Section 13 requires each module to have an ordered insight list. Enterprise grounding section follows pattern established in cycle-review (c7) and applied to all subsequent modules. refactor was missing both. `consecutive_wait_time_insights_missing` and `enterprise_context_missed_openings` both auto-promoted.
+  - **Confidence:** high
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Deepak's hostility flatlines to passive indifference after E1 refusal — no active pushback after the initial refusal
+  - **Evidence:** cycle 18 (Opus weakness #1, Codex weakness #3). Also cycles 5, 7, 9, 11, 12, 13, 17 (cross-model persona fading)
+  - **Occurrences:** 8 (incrementing `haiku_persona_over_polishing` from 7). Already auto-promoted at cycle 9. Both evaluators confirm sustained active resistance would be the true stress test.
+  - **Why not applied:** Simulator persona constraint issue, not a teaching script gap.
+
+- **Finding:** All-weak eval forced against module rubric — scope_control and goal_definition ratings may not be grounded in transcript evidence
+  - **Evidence:** cycle 18 (Codex weakness #2). Deepak narrows to one function and provides rough structural direction ("too nested," "flatten it out").
+  - **Occurrences:** 1
+  - **Why not applied:** Simulator eval calibration issue. If E9 requires all-weak, the developer behavior should actually be all-weak. The teaching script rubric is correct; the simulator needs to generate behavior that matches.
+
+- **Finding:** Eval-mediated coaching loop not evidenced in refactor simulator artifacts
+  - **Evidence:** cycle 18 (implicit — same pattern as cycles 15-17)
+  - **Occurrences:** 4 (incrementing `eval_loop_not_evidenced` from 3). **Promoting to Bucket A at next applicable cycle** — four occurrences across four different modules.
+  - **Why not applied:** Cross-cutting simulator/transcript format concern. The scripts specify async eval delegation. All four cycles (15-18) show no eval step in transcripts. Needs a structural fix to the simulator harness, not individual script changes.
+
+---
+
+### Cycle 19 — Sneha (enterprise) — Stage 3 / Three-Agent Pipeline — REGRESSION
+
+**APPLIED (Bucket A):**
+
+None. This was a regression cycle — no script changes applied.
+
+**PROPOSED (Bucket B):**
+
+- **Finding:** Mock developer violates Stage 3 mistake-realism instruction — pipeline design arrives fully structured with no coachable flaw
+  - **Evidence:** cycle 19 (Opus mock dev realism -1, Codex weakness #2). Sneha's handoffs are typed and complete from the start; the script's designed flaw (partly-prose handoffs) never triggers.
+  - **Occurrences:** 1
+  - **Why not applied:** Simulator/test-harness issue, not a teaching script regression. The Stage 3 loop prompt says mock developers should include at least one subtle pipeline flaw. Haiku-generated Sneha did not comply. Future Stage 3 regressions should enforce this constraint more explicitly.
+
+- **Finding:** Haiku-generated Sneha lacks distinctive enterprise vocabulary compared to GPT 5.4 Sneha
+  - **Evidence:** cycle 19 (Opus mock dev realism -1). Missing "compliance-grade traceability," "policy violation," no spontaneous E8 data privacy question. Incrementing `haiku_persona_over_polishing` from 8 to 9 (already promoted).
+  - **Occurrences:** 9 total. Already auto-promoted at cycle 9. Model quality issue, not script regression.
+  - **Why not applied:** Simulator persona/model quality concern. The teaching script and facilitator behavior both improved; the persona simulation was weaker due to model choice.
+
+- **Finding:** Advertised mock model provenance ambiguous — transcript says "Haiku (pre-generated responses)" but simulator log says "Haiku (simulated by Opus)"
+  - **Evidence:** cycle 19 (Codex weakness #3)
+  - **Occurrences:** 1
+  - **Why not applied:** Simulator labeling issue. If Opus simulated Haiku rather than invoking Haiku, the model-diversity claim is weaker. Should be logged honestly.
+
+**Regression Result:**
+
+- **Opus:** 34/35 (+3 vs Cycle 4 baseline of 31/35). Script Faithfulness +1, Pedagogy +1, Pacing +1, Enterprise Readiness +1. Mock Dev Realism -1 (model quality, not script). Stuck-Path carried from baseline (no edge case triggered).
+- **Codex:** 27/35 (same as Cycle 4 Codex baseline of 27/35). Script Faithfulness +1, Pedagogy +1, Enterprise Readiness +2. Mock Dev Realism -1, Stuck-Path +1 (carried). Fourth-Wall held at 3/5 (transcript artifact leak still unfixed).
+- **Verdict:** NO REVERT. No dimension dropped 2+. All facilitator-controlled dimensions improved or held. The one regression (Mock Dev Realism -1) is attributable to Haiku mock model quality, not script degradation. Both Cycle 4 enterprise-overclaiming and scope-contract issues are visibly fixed.
