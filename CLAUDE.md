@@ -44,6 +44,7 @@ A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's
 | `ideas/plan.md` | Original research, architecture decisions, Goose internals, Stage 0 act scripts (lines 707-1155), Stage 1 design (lines 1310-1430) | When writing teaching scripts or understanding a technical decision |
 | `ideas/rollout-playbook.md` | Rollout phases, ROI metrics, manager dashboard, internal selling guide | When discussing deployment, metrics, or stakeholder buy-in |
 | `REFERENCES.md` | Quick-access details on pipeline patterns, Goose mechanics, CourseForge format | When implementing recipes or teaching scripts |
+| `HOW_GOOSE_WORKS.md` | Goose operational learnings — scheduler, recipes, subagents, ACP providers, extensions, CLI reference | When building anything on Goose or debugging Goose behavior |
 | `handoffs/stage1-detail.md` | Original handoff for Stage 1 work — lists 4 gaps to resolve before writing scripts | Before writing any Stage 1 content (gaps need re-evaluation against new adaptive model) |
 | `overnight-pipeline/README.md` | Overnight pipeline framework — how to run, adapt, and start new runs | When setting up an overnight run or reviewing past results |
 
@@ -114,6 +115,7 @@ Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluati
 ```
 RILGoose/
 ├── CLAUDE.md                           # This file
+├── HOW_GOOSE_WORKS.md                  # Goose operational learnings (scheduler, recipes, extensions, CLI)
 ├── ideas/
 │   ├── syllabus.md                     # 8-stage concept map + adaptive teaching framework + decisions
 │   ├── plan.md                         # Original master plan with research and Stage 0 scripts
@@ -194,4 +196,5 @@ RILGoose/
 - **Designing working recipes?** Read `REFERENCES.md` Section 2 (Goose recipe YAML, subagent syntax)
 - **Discussing rollout or metrics?** Read `ideas/rollout-playbook.md`
 - **Need deep context on a decision?** Check syllabus Decision Log first, then `ideas/plan.md`
-- **Setting up an overnight run?** Read `overnight-pipeline/pipeline-kit.md` for quick start. Run: `python overnight-pipeline/pipeline_runner.py <config_dir>`
+- **Setting up an overnight run?** Read `overnight-pipeline/pipeline-kit.md` for quick start
+- **Working with Goose?** Read `HOW_GOOSE_WORKS.md` for scheduler, recipes, extensions, CLI reference
