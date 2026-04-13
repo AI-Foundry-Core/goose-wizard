@@ -4,7 +4,7 @@
 **Syllabus is designed.** The full 8-stage concept map with adaptive teaching framework is at `ideas/syllabus.md`. All design decisions are recorded in the syllabus's Decision Log section.
 
 **Next steps:**
-1. Resolve the 4 gaps in `HANDOFF_stage1_detail.md` (delegate convention, dynamic content, pitfall strategy, teacher-instructions.md) — these need updating to reflect the new adaptive model
+1. Resolve the 4 gaps in `handoffs/stage1-detail.md` (delegate convention, dynamic content, pitfall strategy, teacher-instructions.md) — these need updating to reflect the new adaptive model
 2. Write `teaching/meta/teacher-instructions.md` incorporating the adaptive teaching framework
 3. Write Stage 1 teaching scripts (bug-fix, test-writer, code-review, refactor) using the quality-rating model from the syllabus
 4. Write Stage 1 working recipe YAMLs
@@ -20,6 +20,9 @@
 - **Role:** Designs the system, doesn't write the recipes himself — works with AI to design and iterate
 - **Writing style:** Direct, confident, no jargon. Has a captured style profile at `~/ClaudeProjects/General/style_profile_executive_strategy_memo.md` for written communications.
 
+## Conventions
+- **Handoffs go in `handoffs/`.** When ending a session or switching context, write a handoff document to `handoffs/` with enough context for a fresh session to continue the work. Name it descriptively (e.g., `tonight-untested-recipes.md`).
+
 ## What This Is
 A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's agent platform) extended with progressive teaching recipes that take development teams from zero agentic experience to autonomous development pipelines.
 
@@ -33,7 +36,7 @@ A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's
 | `ideas/plan.md` | Original research, architecture decisions, Goose internals, Stage 0 act scripts (lines 707-1155), Stage 1 design (lines 1310-1430) | When writing teaching scripts or understanding a technical decision |
 | `ideas/rollout-playbook.md` | Rollout phases, ROI metrics, manager dashboard, internal selling guide | When discussing deployment, metrics, or stakeholder buy-in |
 | `REFERENCES.md` | Quick-access details on pipeline patterns, Goose mechanics, CourseForge format | When implementing recipes or teaching scripts |
-| `HANDOFF_stage1_detail.md` | Original handoff for Stage 1 work — lists 4 gaps to resolve before writing scripts | Before writing any Stage 1 content (gaps need re-evaluation against new adaptive model) |
+| `handoffs/stage1-detail.md` | Original handoff for Stage 1 work — lists 4 gaps to resolve before writing scripts | Before writing any Stage 1 content (gaps need re-evaluation against new adaptive model) |
 | `overnight-pipeline/README.md` | Overnight pipeline framework — how to run, adapt, and start new runs | When setting up an overnight run or reviewing past results |
 
 ## Teaching Framework (Adaptive Evaluation)
@@ -108,7 +111,12 @@ RILGoose/
 │   ├── plan.md                         # Original master plan with research and Stage 0 scripts
 │   └── rollout-playbook.md             # Rollout phases, ROI metrics, selling guide
 ├── REFERENCES.md                       # Quick-access technical details (pipeline, Goose, CourseForge)
-├── HANDOFF_stage1_detail.md            # Stage 1 gaps to resolve (needs re-eval against new model)
+├── handoffs/                           # Session handoff documents (save all handoffs here)
+│   ├── stage1-detail.md                # Stage 1 gaps to resolve
+│   ├── overnight-pipeline-setup.md     # Overnight pipeline design and setup
+│   ├── overnight-results.md            # 20-cycle hardening results
+│   ├── v1-modules.md                   # V1 module generation handoff
+│   └── v2-fixes-and-audit.md           # V2 fixes and audit handoff
 ├── overnight-pipeline/                 # Autonomous overnight test-evaluate-fix framework
 │   ├── README.md                       # How to use and adapt for different activities
 │   ├── personas.md                     # 9 reusable mock developer personas
