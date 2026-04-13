@@ -31,8 +31,17 @@ from pathlib import Path
 
 
 def read_json(path):
-    with open(path, "r", encoding="utf-8") as f:
-        return json.load(f)
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except (json.JSONDecodeError, ValueError):
+        # Try .tmp fallback (from interrupted atomic write)
+        tmp_path = path + ".tmp"
+        if os.path.exists(tmp_path):
+            print(f"Warning: {path} corrupted, falling back to {tmp_path}")
+            with open(tmp_path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        raise
 
 
 def write_json_atomic(path, data):
@@ -57,6 +66,8 @@ def parse_markdown_table(path):
         line = line.strip()
         if not line.startswith("|"):
             continue
+        if not line.endswith("|"):
+            line += "|"
         cells = [c.strip() for c in line.split("|")[1:-1]]
         if headers is None:
             headers = [h.lower().replace(" ", "_") for h in cells]
@@ -171,9 +182,10 @@ def run_pipeline(config_dir):
         for step in cycle_steps:
             step_name = step.get("name", step.get("recipe", "unknown"))
             recipe = step.get("recipe", "")
-            timeout = int(step.get("timeout", 600))
+            timeout = int(step.get("timeout", "") or 600)
 
             print(f"  [{step_name}] running... ", end="", flush=True)
+            step_start = time.time()
 
             cmd = build_goose_command(step, config_dir, cycle_num, schedule_entry)
 
@@ -186,9 +198,9 @@ def run_pipeline(config_dir):
                     cwd=config_dir,
                 )
 
-                # Save output
-                output_path = os.path.join(cycle_dir, f"{step_name}-output.md")
-                with open(output_path, "w", encoding="utf-8") as f:
+                # Save stdout (separate from recipe-written output files)
+                stdout_path = os.path.join(cycle_dir, f"{step_name}-stdout.md")
+                with open(stdout_path, "w", encoding="utf-8") as f:
                     f.write(result.stdout or "(no output)")
 
                 if result.returncode != 0:
@@ -202,8 +214,8 @@ def run_pipeline(config_dir):
                         cycle_stopped = True
                         break
                 else:
-                    elapsed = time.time() - cycle_start
-                    print(f"OK ({elapsed:.0f}s)")
+                    step_elapsed = time.time() - step_start
+                    print(f"OK ({step_elapsed:.0f}s)")
                     state["consecutive_failures"] = 0
                     steps_completed += 1
 
