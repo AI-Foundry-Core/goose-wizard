@@ -50,6 +50,12 @@ Also read:
 - Include: configuration used, key decisions made, full output
 - Save the full agent output to `logs/cycle-{N}-activity.md`
 
+**Transcript format rules (for simulation runs):**
+- Transcript body contains ONLY the facilitator ↔ developer conversation plus `>> CODE OPERATION:` blocks
+- If the teaching script specifies async eval delegation, include a visible marker in the transcript: `>> EVAL DELEGATION: [description of what is being evaluated]` followed later by `>> EVAL RESULT USED: [coaching point derived from eval]`. This shows the eval-mediated coaching loop in action.
+- End the transcript with `=== SIMULATION NOTES ===` for session-level observations (facilitator decisions, pacing notes, persona behavior)
+- Do NOT include eval dimension scores, ratings, raw JSON, or evaluator metadata in the transcript or simulation notes. Those belong in `evaluations/`, not `transcripts/`. If the simulator internally generates ratings, write them to `logs/` only.
+
 **CRITICAL subagent tool rules (include in every agent prompt):**
 > - NEVER use compound commands (&&, ||, ;, |). One command per Bash call.
 > - NEVER use cd dir && command. Use absolute paths or git -C instead.
@@ -72,7 +78,8 @@ Launch TWO evaluators simultaneously:
 - Write prompt to `.codex_prompt_tmp.md` — include "write evaluation only, do NOT explore the repo"
 - Run: `python {CODEX_SCRIPT} --project-dir {PROJECT_DIR} --prompt-file {PROJECT_DIR}/.codex_prompt_tmp.md --timeout 300`
 - Save to `logs/cycle-{N}-eval-codex.md` and `evaluations/cycle-{N}-codex.md`
-- If Codex fails: proceed with Opus eval only, increment `codex_failures`
+- If Codex fails (exit code != 0): proceed with Opus eval only, increment `codex_failures`
+- If Codex times out but produces no usable output: increment `codex_timeouts` (separate from failures — timeouts are non-fatal reliability signals)
 - Clean up `.codex_prompt_tmp.md`
 
 ## Step 4: Decision-Maker
@@ -93,6 +100,10 @@ Spawn an Agent subagent (Opus) that:
 **Bucket B (log only)** — Everything else:
 - Tone/style suggestions, alternative approaches, single-occurrence evidence
 
+**Bucket C (harness/simulator fix)** — Issues with the testing infrastructure itself, not the content being tested:
+- Persona fading, transcript format problems, eval loop visibility, mock model quirks
+- These get tracked separately and fixed in the pipeline template, not in the content files
+
 {ADDITIONAL_BUCKET_A_CRITERIA}
 <!-- Add domain-specific auto-fix criteria here -->
 
@@ -100,11 +111,15 @@ Spawn an Agent subagent (Opus) that:
 
 **For recurring Bucket B items:** If same finding appears 3+ times, promote to Bucket A.
 
+**Batch-fix rule:** If a structural gap is confirmed in 3+ modules (e.g., missing section, missing question pattern), fix ALL remaining modules in one cycle — do not fix one per cycle. This was the #1 efficiency lesson from the first run.
+
 **Append ALL findings to the changelog** with before/after/why/confidence format.
 
 ## Step 5: Planner
 
-Spawn an Agent subagent (Opus) that designs the next cycle:
+Spawn a SEPARATE Agent subagent (Opus) for planning — do NOT embed planner logic inside the decision-maker. Each step must have its own log file for reviewability.
+
+The planner designs the next cycle:
 - What configuration to use (persona, target, edge cases)
 - One-sentence rationale
 

@@ -76,11 +76,17 @@ Action: Delegate to subagent:
   Confirm the edit was applied. Return the file path."
 
 Say:
-"Done. Open [file_path] in your editor and look at line [line_number] — you should see the change.
-
-This is the core loop of AI-assisted development: I propose, you review, you approve, I apply. You're always in control."
+"Done. Open [file_path] in your editor and look at line [line_number] — you should see the change."
 
 Check: Wait for the developer to confirm they see the change.
+
+Say:
+"Now — before we move on, take a look at what actually changed. Does this do what you expected? Is the new version better than the old one, or did I miss something?"
+
+Check: Wait for the developer to evaluate the change. If they say it looks fine without specifics, prompt once: "What specifically makes the new version better? That habit — checking what actually changed instead of assuming it's right — is the single most important skill in working with AI."
+
+Say:
+"That's the core loop of AI-assisted development: I propose, you review the details, you approve, I apply. You're always in control — but only if you actually look at what changed."
 
 ---
 

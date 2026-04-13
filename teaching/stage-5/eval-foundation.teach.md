@@ -66,8 +66,10 @@ If the developer mentions CI, deploys, team processes, or time pressure:
 - "When a row fails, does it block the merge or just alert? Who gets the notification?"
 - If the developer mentions multiple projects or deploy verification: "Same table, different claims. One verification stage can check both test truth and deploy truth."
 
-For unverifiable claims, push for ownership:
+For unverifiable claims, push for ownership (REQUIRED — do not skip this):
 - "You flagged [claim] as unverifiable. Who owns the known-gaps log? If the answer is 'someone,' it means nobody. Assign an owner and a review trigger."
+- If the developer gives a vague answer ("the team" or "we'll figure it out"): "That means nobody. Name one person. What triggers them to review it — a calendar reminder, a pipeline event, or a PR label?"
+- If no unverifiable claims were surfaced: "Were there any claims you couldn't independently verify? Even 'the build completed successfully' sometimes means 'the build script exited 0 but skipped three steps.' What would you put on the known-gaps list?"
 
 Do NOT deliver these as a block. Weave them into the conversation when the developer surfaces the relevant context. If the developer does not mention enterprise workflow, ask one grounding question: "Where would this check live in your actual pipeline?"
 

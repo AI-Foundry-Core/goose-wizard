@@ -5,6 +5,9 @@
   "completed_cycles": [],
   "next_planned": null,
   "bucket_b_recurring": {},
+  "bucket_c_harness": {},
   "eval_known_issues": [],
-  "codex_failures": 0
+  "codex_failures": 0,
+  "codex_timeouts": 0,
+  "batch_fixes_applied": []
 }
