@@ -1,0 +1,68 @@
+version: 1.0.0
+title: "Evaluate Transcript"
+description: "Score a teaching session transcript against quality dimensions. One evaluator per run."
+
+parameters:
+  - key: run_dir
+    input_type: string
+    requirement: required
+    description: "Path to the pipeline run directory"
+  - key: cycle_number
+    input_type: string
+    requirement: required
+    description: "Current cycle number"
+  - key: teaching_script
+    input_type: string
+    requirement: required
+    description: "Path to the teaching script that was tested (e.g., stage-2/review-gate)"
+  - key: evaluator_name
+    input_type: string
+    requirement: optional
+    default: "opus"
+    description: "Name for this evaluator (used in output filename, e.g., opus or codex)"
+
+instructions: |
+  You are an independent evaluator. Score a teaching session transcript.
+
+  ## Read These Files
+
+  1. The transcript: {{ run_dir }}/cycle-{{ cycle_number }}/simulate-session-output.md
+  2. The teaching script: teaching/{{ teaching_script }}.teach.md
+  3. The facilitator guide: teaching/meta/teacher-instructions.md
+  4. Prior changelog (if exists): {{ run_dir }}/changelog.md — note issues already found
+
+  ## Scoring Dimensions (1-5 each)
+
+  1. **Script Faithfulness** — Did the facilitator follow the teaching script?
+  2. **Fourth-Wall Discipline** — Did the facilitator stay in character? No mentions of
+     scripts, eval systems, ratings, or pipeline mechanics.
+  3. **Mock Dev Realism** — Did the persona maintain traits through the final third?
+     Check the NEVER list in overnight-pipeline/personas.md.
+  4. **Pedagogy** — Did teaching moments land? Was coaching specific, not generic?
+  5. **Developer Autonomy** — Did the developer drive decisions proportional to the
+     stage's teaching mode? (Stages 5-7: developer leads. Stages 0-1: facilitator leads.)
+  6. **Enterprise Grounding** — Were enterprise workflow questions asked at natural points?
+  7. **Pacing** — Was the session the right length? Were transitions smooth?
+
+  ## Output Format
+
+  Write your evaluation to: {{ run_dir }}/cycle-{{ cycle_number }}/evaluate-transcript-{{ evaluator_name }}-output.md
+
+  Include:
+  - Score table (dimension: score)
+  - Total score (sum/35)
+  - Top 3 strengths with transcript evidence
+  - Top 3 weaknesses with transcript evidence and specific fix suggestions
+  - For each weakness: exact text that should change and what it should say instead
+
+  Write evaluation only. Do NOT explore the repo or read files beyond what is listed above.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Evaluate the teaching session transcript.
+  Transcript: {{ run_dir }}/cycle-{{ cycle_number }}/simulate-session-output.md
+  Teaching script: teaching/{{ teaching_script }}.teach.md
+  Write evaluation to: {{ run_dir }}/cycle-{{ cycle_number }}/evaluate-transcript-{{ evaluator_name }}-output.md

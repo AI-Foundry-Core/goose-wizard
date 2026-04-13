@@ -1,6 +1,6 @@
 {
   "current_cycle": 1,
-  "max_cycles": 20,
+  "max_cycles": 15,
   "status": "ready",
   "sleep_seconds": 30,
   "completed_cycles": [],

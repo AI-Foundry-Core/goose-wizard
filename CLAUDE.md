@@ -13,6 +13,14 @@
 **Stage 1:** Syllabus complete with quality dimensions. Teaching scripts and working YAMLs not yet written.
 **Stages 2-7:** Concepts defined in syllabus. Detailed scripts and recipes not started.
 
+## Two Audiences — AIF vs RIL
+
+**AIF (AI Foundry)** is Doni's team — the builders and teachers. ~10-12 people (Nate, Kyle, Jessica, Elsa, Rod, Kani, Kathleen, James, Jennifer, Doni, plus RIL-side collaborators Dharmendra, Amit, Anindya). All AI-literate experts. AIF uses Linear (workspace: "Aifoundry") as their task management system and is dogfooding the agentic workflow — Linear + AI agents — for their own work before teaching it to RIL teams.
+
+**RIL (Reliance) teams** are the students — skeptical development teams with little or no AI coding experience. They are the target audience for the 8-stage curriculum. AIF teaches/builds systems for them.
+
+When discussing "the team" or "our workflow," it means AIF unless explicitly stated otherwise. When discussing "the audience" or "developers learning," it means RIL teams.
+
 ## User Context
 - **Doni** — non-technical, runs onboarding centrally for Reliance teams
 - **Platform:** Windows 11
@@ -117,13 +125,25 @@ RILGoose/
 │   ├── overnight-results.md            # 20-cycle hardening results
 │   ├── v1-modules.md                   # V1 module generation handoff
 │   └── v2-fixes-and-audit.md           # V2 fixes and audit handoff
-├── overnight-pipeline/                 # Autonomous overnight test-evaluate-fix framework
-│   ├── README.md                       # How to use and adapt for different activities
+├── overnight-pipeline/                 # Pipeline kit: run any Goose recipes overnight
+│   ├── pipeline_runner.py              # Deterministic Python loop (no LLM in orchestration)
+│   ├── pipeline-kit.md                 # Instructions: how to build and run a pipeline
+│   ├── README.md                       # Overview and key learnings
 │   ├── personas.md                     # 9 reusable mock developer personas
 │   ├── edge-cases.md                   # 14 reusable edge case scenarios
+│   ├── recipes/                        # Pipeline-specific Goose recipes (NOT course recipes)
+│   │   ├── simulate-session.yaml       # Run one mock teaching session
+│   │   ├── evaluate-transcript.yaml    # Score one transcript
+│   │   ├── classify-findings.yaml      # Bucket A/B/C classification
+│   │   ├── apply-fixes.yaml            # Apply fixes + git commit
+│   │   ├── plan-next-cycle.yaml        # Decide what's next or stop
+│   │   └── summarize-run.yaml          # Write morning brief
+│   ├── configs/                        # Run configurations (one folder per run)
+│   │   └── tonight-untested/           # 9 untested recipes from first hardening run
 │   ├── templates/                      # Copy these to start a new run
-│   │   ├── loop-prompt.md              # Generic loop prompt with {ACTIVITY} placeholders
-│   │   └── state.json                  # Starting state template
+│   │   ├── cycle-template.md           # Recipe checklist format
+│   │   ├── schedule-template.md        # Per-cycle variation format
+│   │   └── state.json                  # Starting state
 │   └── runs/                           # Archived completed runs
 │       └── 2026-04-13-hardening/       # 20 cycles, 72 fixes, all regressions passed
 ├── recipes/                            # Working recipes (Goose YAML format)
@@ -174,4 +194,4 @@ RILGoose/
 - **Designing working recipes?** Read `REFERENCES.md` Section 2 (Goose recipe YAML, subagent syntax)
 - **Discussing rollout or metrics?** Read `ideas/rollout-playbook.md`
 - **Need deep context on a decision?** Check syllabus Decision Log first, then `ideas/plan.md`
-- **Setting up an overnight run?** Read `overnight-pipeline/README.md`, copy templates from `overnight-pipeline/templates/`
+- **Setting up an overnight run?** Read `overnight-pipeline/pipeline-kit.md` for quick start. Run: `python overnight-pipeline/pipeline_runner.py <config_dir>`
