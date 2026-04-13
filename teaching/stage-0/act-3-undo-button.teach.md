@@ -43,20 +43,28 @@ One command shows you every change. This is your first safety tool — `git diff
 
 ---
 
-## Step 2: Undo It
+## Step 2: Undo It (Developer Does This)
 
 Say:
-"Now let's undo that change completely."
+"Now let's undo that change. This time, you run the command. Type this in your terminal:
 
-Action: Delegate to subagent:
-  "Run: git checkout -- [file_path that was edited in Act 2]
-  Then run: git diff
-  Return confirmation that the diff is now empty."
+```
+git checkout -- [file_path that was edited in Act 2]
+```
+
+Then run `git diff` to confirm the change is gone."
+
+Check: Wait for the developer to run the commands themselves. If they ask you to do it instead, say: "I could, but this one's worth doing yourself — it's the muscle memory that matters. If I make a bad change at 2am, you want 'git checkout' in your fingers, not in mine."
+
+If the developer runs the commands:
 
 Say:
-"The file is back to its original state. That's your second safety tool — `git checkout` undoes changes to a file.
+"See that? Empty diff — the file is back to its original state. That's your safety net. Between `git diff` (see what changed) and `git checkout` (undo it), you can always get back to where you started. The AI can never make a change you can't reverse."
 
-Between `git diff` (see what changed) and `git checkout` (undo it), you can always get back to where you started. The AI can never make a change you can't reverse."
+If the developer struggles with the command (wrong syntax, wrong path):
+
+Say:
+"Close — here's the exact command:" and show the correct command. Let them try again.
 
 ---
 
