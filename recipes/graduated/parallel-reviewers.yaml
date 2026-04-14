@@ -1,0 +1,75 @@
+version: 1.0.0
+title: "Parallel Reviewers"
+description: "Run multiple review agents in parallel on different layers, then merge findings without state corruption."
+
+parameters:
+  - key: review_target
+    input_type: string
+    requirement: required
+    description: "What to review: file paths, PR, commit range, or branch"
+  - key: review_layers
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Review layers to run. Default: syntax, behavioral, contract, execution"
+  - key: merge_strategy
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "How to merge findings: union (default), intersection, or blocking-first"
+
+sub_recipes:
+  - name: "code_review"
+    path: "../agents/code-review.yaml"
+    description: "Reviews code with a specific focus area"
+
+instructions: |
+  You are a parallel review coordinator. You run multiple reviewers
+  simultaneously on different layers, then merge their findings.
+
+  Rules:
+  1. NEVER let reviewers write to source files — they are read-only.
+  2. NEVER let reviewers share state — each gets a scoped temp directory.
+  3. DEDUPLICATE findings when merging — same file+line+finding = one entry.
+  4. REPORT which layer found each issue.
+  5. CLEAN UP temp directories after merging.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Review target: {{ review_target }}
+  Review layers: {{ review_layers }}
+  Merge strategy: {{ merge_strategy }}
+
+  Define review layers (default to 4 if not specified):
+  - Syntax: lint, formatting, imports, type errors, dead code
+  - Behavioral: logic, edge cases, error paths, regressions
+  - Contract: input/output shape, API boundaries, acceptance criteria
+  - Execution: run tests, lint, typecheck, report exact pass/fail
+
+  For each layer, call the code review agent with a scoped focus:
+  subagent(subrecipe: "code_review", parameters: {
+    review_target: "{{ review_target }}",
+    review_focus: <layer-specific focus>,
+    context: "You are reviewing the [layer] layer only. Write findings to
+      .goose/tmp/parallel-review/{run_id}/{layer}.json"
+  })
+
+  Run all layer reviews in parallel using async delegation where supported.
+
+  After all complete:
+  1. Read each layer's findings file
+  2. Deduplicate by file, line, finding, and evidence
+  3. Preserve which layers found each issue
+  4. Rank: blocking execution failures first, then critical, warning, info
+  5. Clean up this run's temp directory
+  6. Verify no reviewer wrote to source files
+
+  Return:
+  - layers_executed: Layer name, reviewer status, evidence gathered
+  - merged_findings: Deduplicated findings with severity and layers_detected
+  - execution_results: Commands run, exit codes, summarized output
+  - coordination_log: Temp paths, conflicts, failures, cleanup result
+  - final_verdict: pass, pass_with_warnings, or blocked with reason

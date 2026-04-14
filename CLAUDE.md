@@ -106,10 +106,13 @@ Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluati
 - **Recipe layer only** — don't touch Goose's Rust core
 - **LLM-based orchestration** — use Goose's native subagents, add code-based orchestration only if needed
 - **Hooks deferred** — Goose's ToolInspector trait makes adding them later ~200 lines
-- **Facilitator/CodeWork/Eval pattern** — main agent facilitates, code subagent does hands work, eval subagent rates quality
+- **Three recipe types** — agent primitives (non-interactive workers), training recipes (interactive facilitators), graduated recipes (daily-use, replace training on completion)
+- **Facilitator/CodeWork/Eval pattern** — training recipe facilitates, agent primitive does code work, eval subagent rates quality
 - **Quality ratings not binary** — eval subagent rates Strong/Adequate/Weak, not yes/no
 - **Stage 1 ordered by impact** — Bug Fix → Test Writer → Code Review → Refactor (not risk order)
-- **RIL Agents as execution layer** — recipes invoke existing agents from ~/ClaudeInfra/ril-agents/
+- **RIL Agents as execution layer** — agent primitives reference patterns from ~/ClaudeInfra/ril-agents/
+- **GooseForge** — recipe design system with Recipe Forge (single recipes) and Pipeline Forge (multi-step pipelines)
+- **Pipeline Forge** — replaced Team Forge; thinks in stages/patterns, not team roles; composes from known Stage 2-3 patterns
 
 ## Project Structure
 ```
@@ -149,13 +152,30 @@ RILGoose/
 │   └── runs/                           # Archived completed runs
 │       └── 2026-04-13-hardening/       # 20 cycles, 72 fixes, all regressions passed
 ├── recipes/                            # Working recipes (Goose YAML format)
-│   ├── TWO-MODE-PATTERN.md             # Two-mode pattern spec for recipe authors
-│   ├── shared/                         # 27 recipes deployed to all users
+│   ├── TWO-MODE-PATTERN.md             # SUPERSEDED — see three-recipe-type architecture
+│   ├── RECIPE-PREAMBLE.md              # Runtime isolation preamble for recipes
+│   ├── shared/                         # Training recipes — visible in Goose app
 │   │   ├── 00-start-here.yaml          # ★ START HERE — gateway/dashboard
 │   │   ├── 01-see-what-ai-can-do.yaml  # Stage 0: scripted demo
-│   │   ├── 02-bug-fix.yaml             # Stage 1: two-mode template example
+│   │   ├── 02-bug-fix.yaml             # Stage 1: training facilitator (calls agents/bug-fix)
 │   │   ├── 03-test-writer.yaml         # ...through 26-skill-evolution.yaml
 │   │   └── ...26 module recipes total
+│   ├── agents/                         # Agent primitives — non-interactive workers (NOT in GOOSE_RECIPE_PATH)
+│   │   ├── bug-fix.yaml                # Bug investigation + fix + test + diff
+│   │   ├── recipe-forge.yaml           # GooseForge: generates recipe YAML from structured inputs
+│   │   └── recipe-validate.yaml        # GooseForge: validates recipe against 37 checks
+│   ├── graduated/                      # Graduated recipes — replace training recipes on completion
+│   │   ├── recipe-forge.yaml           # Interactive recipe design (calls agents/recipe-forge)
+│   │   └── pipeline-forge.yaml         # Interactive pipeline design (calls agents/recipe-forge)
+│   │   # Note: Stage 1 modules don't need graduated recipes — the agent
+│   │   # primitive IS the graduated version. Graduated/ is for Stage 2+
+│   │   # multi-agent coordinators that differ from individual primitives.
+│   ├── forge-references/               # GooseForge reference library
+│   │   ├── design-principles.md        # 16 design principles
+│   │   ├── canonical-recipe-structure.md # 10-section template + YAML generation rules
+│   │   ├── archetype-*.md              # 5 archetype references (reviewer, builder, coordinator, evaluator, investigator)
+│   │   ├── anti-patterns.md            # 6 universal + 15 archetype-specific anti-patterns
+│   │   └── validation-checklist.md     # 37-item checklist + 6 quality detectors
 │   └── local/                          # 6 pipeline recipes (personal/testing only)
 │       ├── apply-fixes.yaml
 │       └── ...5 more pipeline recipes

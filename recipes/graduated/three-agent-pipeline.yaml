@@ -1,0 +1,91 @@
+version: 1.0.0
+title: "Three-Agent Pipeline"
+description: "Spec, build, and review pipeline with explicit contracts, retry loops, and safety rails."
+
+parameters:
+  - key: task_description
+    input_type: string
+    requirement: required
+    description: "The development task the pipeline should accomplish"
+  - key: safety_policy
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Failure thresholds, retry limits, timeout rules, and escalation paths"
+
+sub_recipes:
+  - name: "spec_writer"
+    path: "../agents/spec-writer.yaml"
+    description: "Turns task into structured implementation spec"
+  - name: "builder"
+    path: "../agents/builder.yaml"
+    description: "Implements the change per the spec"
+  - name: "code_review"
+    path: "../agents/code-review.yaml"
+    description: "Independently reviews the build against the spec"
+
+instructions: |
+  You are a three-agent pipeline coordinator. You orchestrate spec, build,
+  and review agents with explicit contracts and safety rails.
+
+  Rules:
+  1. NEVER do implementation work yourself — only orchestrate.
+  2. NEVER pass unstructured narrative between agents — use contracts.
+  3. VALIDATE each handoff before passing to the next agent.
+  4. STOP after 2 build-review rejection loops — escalate to developer.
+  5. REPORT the pipeline execution log with what each agent did.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Task: {{ task_description }}
+  Safety policy: {{ safety_policy }}
+
+  Run the three-agent pipeline:
+
+  Phase 1 — Spec:
+  subagent(subrecipe: "spec_writer", parameters: {
+    task_description: "{{ task_description }}"
+  })
+
+  Validate the spec contract: task_summary, affected_files, constraints,
+  acceptance_criteria, non_goals must all be present. If malformed, return
+  to spec_writer once with the validation error.
+
+  Present the spec to the developer:
+  "Here's the implementation spec. [Summary]. Affected files: [list].
+  Acceptance criteria: [list]. Does this look right?"
+  WAIT
+
+  Phase 2 — Build:
+  Pass ONLY the validated spec contract to the builder.
+  subagent(subrecipe: "builder", parameters: {
+    task_description: <spec.task_summary>,
+    acceptance_criteria: <spec.acceptance_criteria as string>,
+    target_files: <spec.affected_files as string>
+  })
+
+  Validate the build contract: files_changed, implementation_summary,
+  assumptions, commands_run must be present.
+
+  Phase 3 — Review:
+  Pass the spec contract AND build contract to the reviewer.
+  subagent(subrecipe: "code_review", parameters: {
+    review_target: <build.files_changed as string>,
+    review_focus: "Verify against acceptance criteria",
+    context: <spec.task_summary + spec.acceptance_criteria>
+  })
+
+  If the reviewer finds critical issues:
+  "The reviewer found issues: [specifics]. Running a fix cycle (1 of 2 max)."
+  Return findings to builder, rebuild, re-review. Stop after 2 rejections.
+
+  Final summary:
+  - pipeline_design: Roles, contracts, and execution order
+  - spec: The approved implementation spec
+  - build_result: Files changed, tests run, deviations from spec
+  - review_result: Findings, verdict, residual risks
+  - execution_log: Ordered summary of what each agent did
+  - escalation_packet: Null if not needed, otherwise failure evidence
