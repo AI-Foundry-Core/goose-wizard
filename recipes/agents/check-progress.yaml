@@ -35,7 +35,8 @@ instructions: |
   - total_modules: 26
   - current_stage: Stage number (0-7)
   - next_module: Number and title of the next incomplete module
-  - next_recipe: Filename of the next training recipe to run
+  - next_recipe: Filename of the next training recipe to run, WITHOUT directory prefix
+    (e.g., "02-bug-fix.yaml"). Always include the .yaml extension.
 
 extensions:
   - type: builtin

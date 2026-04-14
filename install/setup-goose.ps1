@@ -402,7 +402,8 @@ if (-not (Test-Path $gatewayPath)) {
 }
 
 # Verify progression state directory exists (or create it)
-$stateDir = Join-Path (Join-Path (Split-Path -Parent $RecipeRoot) ".goose") "state"
+$projectRoot = Split-Path -Parent $RecipeRoot
+$stateDir = Join-Path (Join-Path $projectRoot ".goose") "state"
 if (-not (Test-Path $stateDir)) {
     if ($DryRun) {
         Write-Host "  [DRY RUN] Would create .goose/state/ for progression tracking"
@@ -412,6 +413,29 @@ if (-not (Test-Path $stateDir)) {
     }
 } else {
     Write-Host "  .goose/state/ directory exists"
+}
+
+# Seed .goose/PROGRESS.md (the user-facing training checklist)
+$progressSource = Join-Path $projectRoot ".goose" "PROGRESS.md"
+$progressTarget = Join-Path (Join-Path $projectRoot ".goose") "PROGRESS.md"
+if (-not (Test-Path $progressTarget)) {
+    # In the RILGoose repo, PROGRESS.md is already there. For external projects,
+    # we need to copy from the template. Check if template exists.
+    $templateProgress = Join-Path $projectRoot "install" "project-template" ".goose" "PROGRESS.md"
+    $repoProgress = Join-Path $projectRoot ".goose" "PROGRESS.md"
+    if (Test-Path $templateProgress) {
+        if ($DryRun) {
+            Write-Host "  [DRY RUN] Would copy PROGRESS.md from template"
+        } else {
+            Copy-Item $templateProgress $progressTarget
+            Write-Host "  Seeded .goose/PROGRESS.md from template"
+        }
+    } else {
+        Write-Host "  WARNING: .goose/PROGRESS.md not found. Training flow depends on it." -ForegroundColor Yellow
+        Write-Host "  Copy it from the RILGoose repo: <repo>/.goose/PROGRESS.md -> <project>/.goose/PROGRESS.md"
+    }
+} else {
+    Write-Host "  .goose/PROGRESS.md exists"
 }
 
 $listOutput = & goose recipe list --format text 2>&1
