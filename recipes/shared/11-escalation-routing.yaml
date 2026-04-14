@@ -21,9 +21,12 @@ parameters:
     description: "Preferred escalation target: human owner, specialist agent, or team"
 
 sub_recipes:
-  - name: "escalation_analyzer"
-    path: "../agents/escalation-analyzer.yaml"
+  - name: "escalation_routing"
+    path: "../agents/escalation-routing.yaml"
     description: "Analyzes pipeline for failures, adds circuit breakers and escalation routing"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided escalation routing session.
@@ -77,7 +80,7 @@ prompt: |
   - Simulation: walk through a real failure path to see the system work
 
   Call the analyzer:
-  subagent(subrecipe: "escalation_analyzer", parameters: {
+  subagent(subrecipe: "escalation_routing", parameters: {
     pipeline_description: "{{ pipeline_description }}",
     failure_scenario: "{{ failure_scenario }}",
     escalation_target: "{{ escalation_target }}"
@@ -95,7 +98,7 @@ prompt: |
 
   Eval: spawn eval subagent per the teaching script. Coach naturally.
 
-  Recipe Reveal: show recipes/agents/escalation-analyzer.yaml — highlight:
+  Recipe Reveal: show recipes/agents/escalation-routing.yaml — highlight:
   - Failure classes: 6 distinct types, not just "it failed"
   - Circuit breaker states: CLOSED, OPEN, HALF_OPEN — borrowed from
     distributed systems
@@ -103,6 +106,21 @@ prompt: |
   - Graduation note
 
   State: update progression.json concept 3.3 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 11,
+    module_name: "escalation-routing"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Escalation Routing, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script. Default: "You've built teams of agents with
   contracts and safety rails. Now imagine going upstream — defining exactly
   what to build before any agent touches code. That's Stage 4."

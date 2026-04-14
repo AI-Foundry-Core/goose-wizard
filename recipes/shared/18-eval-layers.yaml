@@ -24,6 +24,9 @@ sub_recipes:
   - name: "eval_layers"
     path: "../agents/eval-layers.yaml"
     description: "Designs and implements a layered evaluation strategy for an AI-assisted pipeline"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided eval layers session.
@@ -94,4 +97,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 5.3 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 18,
+    module_name: "eval-layers"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Eval Layers, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

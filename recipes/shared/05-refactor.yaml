@@ -23,6 +23,9 @@ sub_recipes:
   - name: "refactor"
     path: "../agents/refactor.yaml"
     description: "Restructures code toward a goal, runs baseline and post tests, returns diff"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided refactoring session.
@@ -120,6 +123,20 @@ prompt: |
   - Record eval dimension ratings
   - Never overwrite a Strong rating with a lower one
   - Increment modules_completed, update current_module
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 5,
+    module_name: "refactor"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Refactor, it'll be the streamlined
+  tool — no walkthrough."
 
   ============================================================
   BRIDGE

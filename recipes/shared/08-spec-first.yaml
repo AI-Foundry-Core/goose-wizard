@@ -24,6 +24,9 @@ sub_recipes:
   - name: "spec_first"
     path: "../agents/spec-first.yaml"
     description: "Runs spec-first workflow: criteria, tests, build, verify"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided spec-first session.
@@ -114,6 +117,20 @@ prompt: |
   - Record completed_at timestamp, eval dimension ratings
   - Never overwrite a Strong rating with a lower one
   - Increment modules_completed, update current_module
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 8,
+    module_name: "spec-first"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Spec First, it'll be the streamlined
+  tool — no walkthrough."
 
   ============================================================
   BRIDGE

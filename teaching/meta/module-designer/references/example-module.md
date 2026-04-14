@@ -1,71 +1,29 @@
 # Example Module: Bug Fix (Recipe 1.1)
 
-This is the reference implementation. Every module should follow this structure. Use it as a template and adapt for your specific concept.
+This is the reference implementation. Every module has up to 3 artifacts: agent primitive (always), training recipe (always), and graduated recipe (multi-agent only). Bug Fix is single-agent, so it has 2.
 
 ---
 
-## Part 1: Working Recipe YAML
+## Part 1: Agent Primitive
 
-```yaml
-# recipes/stage-1/bug-fix.yaml
-version: 1.0.0
-title: "Bug Fix"
-description: "Give AI a bug description with context. It investigates, finds the root cause, and proposes a fix."
-# tier: reasoning
+See `recipes/agents/bug-fix.yaml` for the actual file. Key structure:
 
-parameters:
-  - key: bug_description
-    input_type: text
-    requirement: required
-    description: "Describe the bug: what's happening, what you expected, reproduction steps if known"
-  - key: suspected_location
-    input_type: text
-    requirement: optional
-    description: "Where you think the bug might be (file, function, module)"
-  - key: prior_attempts
-    input_type: text
-    requirement: optional
-    description: "What you've already tried"
+- Title ends with "Agent": `"Bug Fix Agent"`
+- `## Constraints` with IMPORTANT + 4 NEVER rules
+- `## Process` with numbered steps
+- `## Return` with structured output fields
+- No teaching content — this is a reusable tool
 
-instructions: |
-  You are a bug investigator. Your job is to find the root cause of the 
-  described bug and propose a fix.
-  
-  Read .goose/team_context.md for the project's stack, test commands, 
-  and conventions.
-  
-  Process:
-  1. Understand the bug from the developer's description
-  2. If they provided a suspected location, start there. If not, use the 
-     description to find relevant files.
-  3. Investigate: read code, trace the logic, identify the root cause
-  4. Propose a fix — explain what you're changing and why
-  5. Apply the fix
-  6. Run the project's test command to verify no regressions
-  7. Show the diff of what changed
-  
-  IMPORTANT: Fix the root cause, not the symptom. Do NOT:
-  - Wrap errors in try/catch to suppress them
-  - Add null checks that hide the real problem
-  - "Fix" by disabling the failing code path
-  
-  Return:
-  - root_cause: What was actually wrong (1-2 sentences)
-  - fix_description: What you changed and why
-  - diff: The full diff of changes
-  - test_results: Pass/fail summary after the fix
+**Why this recipe works standalone:** After graduation, this primitive replaces the training recipe in `shared/`. A developer running it gets a clean bug-fixing tool: describe the bug → AI investigates → fix → tests → diff.
 
-extensions:
-  - type: builtin
-    name: developer
+## Part 2: Training Recipe
 
-prompt: |
-  Bug report: {{ bug_description }}
-  {{ if suspected_location }}Suspected location: {{ suspected_location }}{{ endif }}
-  {{ if prior_attempts }}Already tried: {{ prior_attempts }}{{ endif }}
-```
+See `recipes/shared/02-bug-fix.yaml` for the actual file. Key structure:
 
-**Why this recipe works standalone:** A developer running `goose run bug-fix` after training gets a clean bug-fixing tool. No teaching language, no eval, no facilitator. Just: describe the bug → AI investigates → fix proposed → tests run → diff shown.
+- Title ends with "(Training)": `"1.1 Bug Fix (Training)"`
+- `sub_recipes:` references `../agents/bug-fix.yaml` and `../agents/graduate-module.yaml`
+- 6 rules in `instructions:` (interactive, narrate, never code, never mention eval, coach naturally, lead with strength)
+- `prompt:` contains the full teaching flow: runtime isolation, file reads, progression check, teaching script flow, eval, recipe reveal, state update, graduation, bridge
 
 ---
 

@@ -10,7 +10,7 @@ parameters:
   - key: module_name
     input_type: string
     requirement: required
-    description: "Module filename without number prefix (e.g., 'bug-fix')"
+    description: "Module slug matching the agent primitive filename (e.g., 'bug-fix', 'build-then-test')"
 
 instructions: |
   You are a module graduation specialist. You replace a training recipe
@@ -24,24 +24,27 @@ instructions: |
   - NEVER graduate module 00 (Start Here) or 01 (Stage 0 scripted)
 
   ## Process
-  1. Read `.goose/state/progression.json` and verify the module is complete
-  2. Determine the graduation source:
-     - If `recipes/graduated/<module_name>.yaml` exists, use that
+  1. Validate inputs: module_number must be 2-26. Reject 0 or 1.
+  2. Read `.goose/state/progression.json` and verify the module is complete.
+     Find the entry at sequence index (module_number - 1). If the entry's
+     recipe slug does not match module_name, STOP and report the mismatch.
+  3. Determine the graduation source:
+     - Check `recipes/graduated/{module_name}.yaml` first
        (multi-agent modules have dedicated coordinators)
-     - Otherwise use `recipes/agents/<module_name>.yaml`
+     - If not found, check `recipes/agents/{module_name}.yaml`
        (single-agent modules use the primitive directly)
-  3. Verify the source file exists
-  4. Copy the source to `recipes/shared/` with the correct numbered filename
-     (e.g., `02-bug-fix.yaml`), replacing the training version
-  5. Verify the copy succeeded by reading the new file
-  6. Report what was replaced
+     - If neither exists, STOP and report missing source
+  4. Build the target path: `recipes/shared/{NN}-{module_name}.yaml`
+     where NN is the zero-padded module_number
+  5. Copy the source file to the target path, replacing the training version
+  6. Read the new file to verify the copy succeeded
 
   ## Return
   Return:
   - module_graduated: Module number and name
   - source_file: Which file was used (graduated coordinator or agent primitive)
   - target_file: The file that was replaced in shared/
-  - verification: Confirmation the new file is valid
+  - verification: Confirmation the new file is valid and readable
 
 extensions:
   - type: builtin
@@ -50,4 +53,5 @@ extensions:
 prompt: |
   Graduate module {{ module_number }}: {{ module_name }}
 
-  Verify completion, find the working version, replace the training recipe.
+  Validate inputs, verify completion, find the working version, replace
+  the training recipe. Stop and report if anything doesn't match.

@@ -25,6 +25,9 @@ sub_recipes:
   - name: "code_review"
     path: "../agents/code-review.yaml"
     description: "Independently reviews the build against the spec"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided three-agent pipeline session.
@@ -119,8 +122,27 @@ prompt: |
     replaces the training version."
 
   ============================================================
-  STATE UPDATE + BRIDGE
+  STATE UPDATE
   ============================================================
 
   Update progression.json: concept 3.1 complete with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 9,
+    module_name: "three-agent-pipeline"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Three-Agent Pipeline, it'll be the streamlined
+  tool — no walkthrough."
+
+  ============================================================
+  BRIDGE
+  ============================================================
+
   Bridge per the teaching script.

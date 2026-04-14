@@ -1,5 +1,5 @@
 version: 1.0.0
-title: "Escalation Analyzer Agent"
+title: "Escalation Routing Agent"
 description: "Analyze a pipeline for failure modes, add circuit breakers, define escalation routing, simulate a failure path."
 
 parameters:

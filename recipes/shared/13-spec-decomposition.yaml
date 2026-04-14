@@ -19,6 +19,9 @@ sub_recipes:
   - name: "spec_decomposition"
     path: "../agents/spec-decomposition.yaml"
     description: "Decomposes spec into persona-driven use cases with testable criteria"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided spec decomposition session.
@@ -85,4 +88,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 4.2 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 13,
+    module_name: "spec-decomposition"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Spec Decomposition, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

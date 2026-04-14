@@ -24,6 +24,9 @@ sub_recipes:
   - name: "test_writer"
     path: "../agents/test-writer.yaml"
     description: "Writes tests for a target, runs them, returns pass/fail results"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided test writing session.
@@ -121,6 +124,20 @@ prompt: |
   - Record eval dimension ratings
   - Never overwrite a Strong rating with a lower one
   - Increment modules_completed, update current_module
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 3,
+    module_name: "test-writer"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Test Writer, it'll be the streamlined
+  tool — no walkthrough."
 
   ============================================================
   BRIDGE

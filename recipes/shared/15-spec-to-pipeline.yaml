@@ -19,6 +19,9 @@ sub_recipes:
   - name: "spec_to_pipeline"
     path: "../agents/spec-to-pipeline.yaml"
     description: "Converts spec criteria into test specs, pipeline plan, and skeleton tests"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided spec-to-pipeline session.
@@ -85,6 +88,21 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 4.4 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 15,
+    module_name: "spec-to-pipeline"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Spec to Pipeline, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script. Default: "You've gone from idea to buildable
   spec to pipeline-ready tests. Now the question is: how do you know the
   AI's work is actually correct? That's Stage 5 — trust but verify."

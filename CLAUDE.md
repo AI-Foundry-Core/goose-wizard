@@ -1,17 +1,16 @@
 # RILGoose — Agentic Development Harness for Reliance Teams
 
 ## Current Work
-**Syllabus is designed.** The full 8-stage concept map with adaptive teaching framework is at `ideas/syllabus.md`. All design decisions are recorded in the syllabus's Decision Log section.
+**Three-recipe-type architecture is complete.** All 26 modules converted:
+- 29 agent primitives in `recipes/agents/`
+- 27 training recipes in `recipes/shared/` (with graduation automation)
+- 5 graduated coordinators in `recipes/graduated/`
+- GooseForge: Recipe Forge + Pipeline Forge
+- Gateway (Start Here) with check-progress sub-recipe
+- Module designer skill updated for new architecture
 
-**Next steps:**
-1. Resolve the 4 gaps in `handoffs/stage1-detail.md` (delegate convention, dynamic content, pitfall strategy, teacher-instructions.md) — these need updating to reflect the new adaptive model
-2. Write `teaching/meta/teacher-instructions.md` incorporating the adaptive teaching framework
-3. Write Stage 1 teaching scripts (bug-fix, test-writer, code-review, refactor) using the quality-rating model from the syllabus
-4. Write Stage 1 working recipe YAMLs
-
-**Stage 0:** Design complete (full Say/Check/Action scripts in `ideas/plan.md` under "Act Scripts" — not yet extracted to individual act files).
-**Stage 1:** Syllabus complete with quality dimensions. Teaching scripts and working YAMLs not yet written.
-**Stages 2-7:** Concepts defined in syllabus. Detailed scripts and recipes not started.
+**Stage 0:** Scripted, inline in `01-see-what-ai-can-do.yaml`. No agent primitive needed.
+**Stages 1-7:** All training recipes, agent primitives, and teaching scripts exist. Graduation wired into every training recipe.
 
 ## Two Audiences — AIF vs RIL
 
@@ -160,16 +159,30 @@ RILGoose/
 │   │   ├── 02-bug-fix.yaml             # Stage 1: training facilitator (calls agents/bug-fix)
 │   │   ├── 03-test-writer.yaml         # ...through 26-skill-evolution.yaml
 │   │   └── ...26 module recipes total
-│   ├── agents/                         # Agent primitives — non-interactive workers (NOT in GOOSE_RECIPE_PATH)
-│   │   ├── bug-fix.yaml                # Bug investigation + fix + test + diff
+│   ├── agents/                         # 29 agent primitives — non-interactive workers (NOT in GOOSE_RECIPE_PATH)
+│   │   ├── bug-fix.yaml                # Stage 1: bug investigation + fix + test + diff
+│   │   ├── test-writer.yaml            # Stage 1: generate and run tests
+│   │   ├── code-review.yaml            # Stage 1: review code, return categorized findings
+│   │   ├── refactor.yaml               # Stage 1: restructure code with baseline tests
+│   │   ├── builder.yaml                # Stage 2: implement a change (used by build-then-test, three-agent-pipeline)
+│   │   ├── independent-tester.yaml     # Stage 2: verify changes independently (used by build-then-test)
+│   │   ├── review-gate.yaml            # Stage 2: pass/fail gate with execution evidence
+│   │   ├── spec-first.yaml             # Stage 2: spec → test → build → verify workflow
+│   │   ├── spec-writer.yaml            # Stage 3: turn task into implementation spec
+│   │   ├── escalation-routing.yaml     # Stage 3: add circuit breakers and escalation to pipelines
+│   │   ├── ...                         # Stages 4-7: 15 more domain-specific primitives
+│   │   ├── check-progress.yaml         # Progression: reads state, returns training status
+│   │   ├── graduate-module.yaml        # Progression: replaces training recipe with working version
 │   │   ├── recipe-forge.yaml           # GooseForge: generates recipe YAML from structured inputs
 │   │   └── recipe-validate.yaml        # GooseForge: validates recipe against 37 checks
-│   ├── graduated/                      # Graduated recipes — replace training recipes on completion
-│   │   ├── recipe-forge.yaml           # Interactive recipe design (calls agents/recipe-forge)
-│   │   └── pipeline-forge.yaml         # Interactive pipeline design (calls agents/recipe-forge)
-│   │   # Note: Stage 1 modules don't need graduated recipes — the agent
-│   │   # primitive IS the graduated version. Graduated/ is for Stage 2+
-│   │   # multi-agent coordinators that differ from individual primitives.
+│   ├── graduated/                      # 5 graduated recipes — multi-agent coordinators
+│   │   ├── build-then-test.yaml        # Stage 2: builder + independent-tester coordinator
+│   │   ├── three-agent-pipeline.yaml   # Stage 3: spec + build + review coordinator
+│   │   ├── parallel-reviewers.yaml     # Stage 3: multi-layer parallel review coordinator
+│   │   ├── recipe-forge.yaml           # GooseForge: interactive recipe design
+│   │   └── pipeline-forge.yaml         # GooseForge: interactive pipeline design
+│   │   # Single-agent modules don't need graduated recipes — the agent
+│   │   # primitive IS the graduated version and replaces the training recipe directly.
 │   ├── forge-references/               # GooseForge reference library
 │   │   ├── design-principles.md        # 16 design principles
 │   │   ├── canonical-recipe-structure.md # 10-section template + YAML generation rules
@@ -181,7 +194,7 @@ RILGoose/
 │       └── ...5 more pipeline recipes
 ├── teaching/                           # Teaching scripts and meta
 │   ├── meta/
-│   │   ├── teach-wrapper.yaml          # DEPRECATED — logic now inlined in each two-mode recipe
+│   │   ├── teach-wrapper.yaml          # DEPRECATED — replaced by training recipe pattern
 │   │   ├── teacher-instructions.md     # How the facilitator should behave
 │   │   └── module-designer/            # Skill for designing modules (load when building)
 │   │       ├── SKILL.md                # Main skill file (~300 lines)

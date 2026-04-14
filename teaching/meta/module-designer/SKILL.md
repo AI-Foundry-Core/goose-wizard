@@ -1,6 +1,6 @@
 ---
 name: rilgoose-module-designer
-description: Design RILGoose teaching modules — working recipes + adaptive teaching wrappers + quality-rated eval. Use this skill whenever designing, writing, or reviewing any Stage 0-7 module, recipe, teaching script, eval prompt, or facilitator instruction. Also use when someone asks to "build a module," "create a recipe," "write a teaching script," or "design Stage N content." Load it proactively at the start of any session focused on module creation.
+description: Design RILGoose teaching modules — agent primitives + training recipes + quality-rated eval. Use this skill whenever designing, writing, or reviewing any Stage 0-7 module, recipe, teaching script, eval prompt, or facilitator instruction. Also use when someone asks to "build a module," "create a recipe," "write a teaching script," or "design Stage N content." Load it proactively at the start of any session focused on module creation.
 ---
 
 # RILGoose Module Designer
@@ -9,8 +9,8 @@ This skill encodes everything needed to design complete teaching modules for the
 
 ## When to Use
 
-- Designing a new working recipe YAML for any stage
-- Writing a teaching wrapper (facilitator script + eval subagent prompt)
+- Designing a new agent primitive YAML for any stage
+- Writing a training recipe (facilitator + sub-recipe call + eval subagent prompt)
 - Creating or reviewing quality dimensions for any concept
 - Building the progression state tracking for a module
 - Reviewing an existing module for consistency with the framework
@@ -142,7 +142,7 @@ These rules apply to every module regardless of stage or mode.
 
 6. **Domain simplicity.** The "aha" is the tool capability, not the code complexity. Pick an ugly simple function for a refactoring demo, not a complex algorithm.
 
-7. **Watch then do (Stages 0-1).** Demonstrate first (code-work subagent does it while developer watches), then the developer tries. In later stages, the developer leads.
+7. **Watch then do (Stages 0-1).** Demonstrate first (agent primitive does it while developer watches), then the developer tries. In later stages, the developer leads.
 
 8. **Real code, real work.** Stage 0 excepted — everything else uses the developer's actual codebase. No toy projects, no synthetic exercises. The developer should be solving a real problem.
 
@@ -156,7 +156,7 @@ Goose has no built-in progression tracking, so every module reads/writes a state
 - A stage is **complete** when all concepts are complete
 - Conditional dimensions (like "redirect on struggle" — only triggered if AI struggles) don't block completion
 - The facilitator reads state at session start to skip already-demonstrated concepts
-- The teach-wrapper writes state after eval completes
+- The training recipe writes state after eval completes, then calls graduate-module
 
 ---
 

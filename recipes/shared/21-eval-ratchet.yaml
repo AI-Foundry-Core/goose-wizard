@@ -28,6 +28,9 @@ sub_recipes:
   - name: "eval_ratchet"
     path: "../agents/eval-ratchet.yaml"
     description: "Adds quality thresholds that prevent an evaluation baseline from silently regressing"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided eval ratchet session.
@@ -99,4 +102,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 5.6 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 21,
+    module_name: "eval-ratchet"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Eval Ratchet, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.
