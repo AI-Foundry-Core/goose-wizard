@@ -161,20 +161,25 @@ prompt: |
   **Module 1: See What AI Can Do** — you'll see me edit your actual code.
   Reversible, nothing scary. Takes about 15-20 minutes.
 
-  **When this Start Here session ends, copy this command into your
-  terminal** (you'll need to be in the project directory, so keep the
-  `cd` line — even if you think you're already there):
+  **This welcome tutorial is now over.** Exit this session by typing
+  `/exit` or pressing Ctrl+C. Then, in the same terminal (or a new one),
+  paste this command to start Module 1:
 
   ```
   cd {actual_cwd}
   goose run --recipe recipes/shared/01-see-what-ai-can-do.yaml --interactive
   ```
 
-  **Remember:**
-  - Exit this session (type `/exit` or Ctrl+C), then paste the command above
+  Keep the `cd` line even if you think you're already in the right
+  directory — it's faster than checking.
+
+  **Reminders for the rest of training:**
   - Keep the Goose desktop app open on the side for recipe viewing
   - Check `.goose/PROGRESS.md` anytime to see where you are
+  - Every module ends by giving you the command for the next one
 
-  See you in module 1."
+  See you in module 1. Goodbye from Start Here."
 
-  END OF TUTORIAL.
+  END OF TUTORIAL. Do not continue the conversation. If the developer
+  asks a question, answer briefly then remind them to exit this session
+  and run the Module 1 command.
