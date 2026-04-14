@@ -1,7 +1,7 @@
-# Recipe 2.3: Review Gate — "Prove It Works, Don't Just Look at It"
+# Recipe 2.2: Review Gate — "Prove It Works, Don't Just Look at It"
 
-Covers concept 2.3 (Prove it works, don't just look).
-Mode: Adaptive + Checkpoints. No checkpoint here — checkpoint comes after 2.4.
+Covers concept 2.2 (review-gate). Teaches execution-backed review gates.
+Mode: Adaptive + Checkpoints.
 
 ---
 
@@ -20,7 +20,7 @@ Mode: Adaptive + Checkpoints. No checkpoint here — checkpoint comes after 2.4.
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check concept 2.3.
+Read .goose/state/progression.json — check concept 2.2.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify concepts 2.1 and 2.2 are complete. If not, flag it — 2.3 builds on the two-agent pattern.
 
@@ -102,14 +102,14 @@ If ALL dimensions are Strong:
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 2.3 dimensions with eval ratings + timestamp.
+  concept 2.2 dimensions with eval ratings + timestamp.
 
 ---
 
 ## Eval Subagent Prompt
 
 ```
-You are evaluating how well a developer set up and used an independent review gate. This covers concept 2.3 (Prove it works, don't just look at it).
+You are evaluating how well a developer set up and used an independent review gate. This covers concept 2.2 (Prove it works, don't just look at it).
 
 Here is the full conversation transcript between the developer and the facilitator:
 

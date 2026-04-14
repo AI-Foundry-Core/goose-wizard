@@ -1,8 +1,8 @@
-# Recipe 5.2: Eval Layers — "Layered eval strategy"
+# Recipe 5.3: Eval Layers — "Layered eval strategy"
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.2 is already demonstrated.
+Read .goose/state/progression.json — check if concept 5.3 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -122,5 +122,5 @@ If ALL dimensions are Strong:
 
 ## State Update
 Write to .goose/state/progression.json:
-  concept 5.2 dimensions with eval ratings + timestamp
+  concept 5.3 dimensions with eval ratings + timestamp
   Never overwrite a Strong rating with a lower one. If the developer re-runs this recipe, update ratings only if they improve.

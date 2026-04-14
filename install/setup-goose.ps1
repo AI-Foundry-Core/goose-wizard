@@ -43,8 +43,30 @@ if (-not (Test-Path $sharedDir)) {
 }
 
 $sharedCount = (Get-ChildItem -Path $sharedDir -Filter "*.yaml").Count
-Write-Host "  shared/: $sharedCount recipes"
+Write-Host "  shared/: $sharedCount training recipes"
 
+# --- Verify agents/ directory exists (sub-recipes reference these) ---
+$agentsDir = Join-Path $RecipeRoot "agents"
+if (-not (Test-Path $agentsDir)) {
+    Write-Host "ERROR: recipes/agents/ not found at $agentsDir" -ForegroundColor Red
+    Write-Host "  Agent primitives are required - training recipes call them as sub-recipes."
+    exit 1
+}
+$agentsCount = (Get-ChildItem -Path $agentsDir -Filter "*.yaml").Count
+Write-Host "  agents/: $agentsCount agent primitives"
+
+# --- Verify graduated/ directory exists (graduation copies from here) ---
+$graduatedDir = Join-Path $RecipeRoot "graduated"
+if (-not (Test-Path $graduatedDir)) {
+    Write-Host "ERROR: recipes/graduated/ not found at $graduatedDir" -ForegroundColor Red
+    Write-Host "  Graduated recipes are required - graduation promotes these to shared/."
+    exit 1
+}
+$graduatedCount = (Get-ChildItem -Path $graduatedDir -Filter "*.yaml").Count
+Write-Host "  graduated/: $graduatedCount coordinator recipes"
+
+# Only shared/ goes on GOOSE_RECIPE_PATH (agents/ and graduated/ are
+# referenced via relative sub_recipe paths, not scanned by Goose)
 $recipeDirs = @($sharedDir)
 
 if ($IncludeLocal) {
@@ -94,17 +116,17 @@ if (-not $acpCmd) {
 # --- Set GOOSE_RECIPE_PATH ---
 Write-Host "`nSetting GOOSE_RECIPE_PATH..." -ForegroundColor Yellow
 
-$newRecipePath = ($recipeDirs | ForEach-Object { $_ }) -join ";"
+$newRecipePath = $recipeDirs -join ";"
 
 $existingPath = [System.Environment]::GetEnvironmentVariable("GOOSE_RECIPE_PATH", "User")
 if ($existingPath) {
     Write-Host "  Existing value: $existingPath"
     # Merge: keep any existing paths that aren't under our recipe root
     $existingParts = $existingPath -split ";"
-    $extraPaths = $existingParts | Where-Object {
+    $extraPaths = @($existingParts | Where-Object {
         $normalized = $_.TrimEnd('\', '/')
         -not $normalized.StartsWith($RecipeRoot.TrimEnd('\', '/'))
-    }
+    })
     if ($extraPaths.Count -gt 0) {
         $newRecipePath = ($newRecipePath, ($extraPaths -join ";")) -join ";"
         Write-Host "  Merged with external paths: $($extraPaths -join '; ')"
@@ -178,8 +200,8 @@ if (-not $SkipExtensions) {
         # them reliably. This uses the ACP adapter's alias resolution ("opus"
         # resolves to the full model ID like "claude-opus-4-6").
         $modelPattern = "(?m)^GOOSE_MODEL:\s*\S+"
-        if ($config -match $modelPattern) {
-            $currentModel = ($config | Select-String -Pattern "^GOOSE_MODEL:\s*(\S+)" -AllMatches).Matches[0].Groups[1].Value
+        if ($config -match "(?m)^GOOSE_MODEL:\s*(\S+)") {
+            $currentModel = $Matches[1]
             if ($currentModel -ne "opus") {
                 if ($DryRun) {
                     Write-Host "  [DRY RUN] Would set GOOSE_MODEL to opus (currently: $currentModel)"
@@ -363,6 +385,35 @@ Write-Host "`nVerifying setup..." -ForegroundColor Yellow
 # Set for current process so verification works
 $env:GOOSE_RECIPE_PATH = $newRecipePath
 
+# Sanity check: recipe counts match expected architecture
+if ($agentsCount -lt 28) {
+    Write-Host "  WARNING: Expected 29 agent primitives, found $agentsCount" -ForegroundColor Yellow
+}
+if ($graduatedCount -lt 5) {
+    Write-Host "  WARNING: Expected 5 graduated coordinators, found $graduatedCount" -ForegroundColor Yellow
+}
+if ($sharedCount -lt 26) {
+    Write-Host "  WARNING: Expected 27 training recipes, found $sharedCount" -ForegroundColor Yellow
+}
+
+# Verify gateway recipe exists (reuse $gatewayPath from touch section above)
+if (-not (Test-Path $gatewayPath)) {
+    Write-Host "  WARNING: Gateway recipe 00-start-here.yaml not found in shared/" -ForegroundColor Yellow
+}
+
+# Verify progression state directory exists (or create it)
+$stateDir = Join-Path (Join-Path (Split-Path -Parent $RecipeRoot) ".goose") "state"
+if (-not (Test-Path $stateDir)) {
+    if ($DryRun) {
+        Write-Host "  [DRY RUN] Would create .goose/state/ for progression tracking"
+    } else {
+        New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
+        Write-Host "  Created .goose/state/ directory for progression tracking"
+    }
+} else {
+    Write-Host "  .goose/state/ directory exists"
+}
+
 $listOutput = & goose recipe list --format text 2>&1
 if ($LASTEXITCODE -ne 0) {
     Write-Host "  WARNING: goose recipe list failed (exit code $LASTEXITCODE)" -ForegroundColor Yellow
@@ -376,15 +427,18 @@ if ($LASTEXITCODE -ne 0) {
 }
 
 # --- Summary ---
-$totalRecipes = $sharedCount
+$totalVisible = $sharedCount
 if ($IncludeLocal -and (Test-Path (Join-Path $RecipeRoot "local"))) {
-    $totalRecipes += (Get-ChildItem -Path (Join-Path $RecipeRoot "local") -Filter "*.yaml").Count
+    $totalVisible += (Get-ChildItem -Path (Join-Path $RecipeRoot "local") -Filter "*.yaml").Count
 }
 
 Write-Host "`n=== Setup Complete ===" -ForegroundColor Green
 Write-Host ""
 Write-Host "What was configured:"
-Write-Host "  1. GOOSE_RECIPE_PATH set to $($recipeDirs.Count) directories ($totalRecipes recipes)"
+Write-Host "  1. GOOSE_RECIPE_PATH set to $($recipeDirs.Count) directories ($totalVisible visible recipes)"
+Write-Host "     - $sharedCount training recipes in shared/ (visible in Goose app)"
+Write-Host "     - $agentsCount agent primitives in agents/ (called as sub-recipes)"
+Write-Host "     - $graduatedCount graduated coordinators in graduated/ (promoted on completion)"
 Write-Host "  2. Extensions: memory + orchestrator enabled, chatrecall disabled"
 Write-Host "  3. Provider: claude-acp, Model: opus (Claude Max subscription via ACP)"
 Write-Host "  4. ACP adapter patched (context isolation for clean recipe execution)"
@@ -393,7 +447,12 @@ Write-Host ""
 Write-Host "Next steps:"
 Write-Host "  1. Restart the Goose desktop app (close and reopen)"
 Write-Host "  2. Look for '* START HERE - Goose Training' at the top of the recipe list"
-Write-Host "  3. Or run from CLI: goose run --recipe see-what-ai-can-do"
+Write-Host "  3. Or run from CLI: goose run --recipe start-here"
+Write-Host ""
+Write-Host "Architecture:"
+Write-Host "  - Training recipes (shared/) are what developers see and interact with"
+Write-Host "  - Agent primitives (agents/) do the work, called via sub_recipes"
+Write-Host "  - Graduated recipes (graduated/) replace training after completion"
 Write-Host ""
 Write-Host "Note: New terminal windows will pick up GOOSE_RECIPE_PATH automatically."
 Write-Host "      Current terminal needs: `$env:GOOSE_RECIPE_PATH = '$newRecipePath'"

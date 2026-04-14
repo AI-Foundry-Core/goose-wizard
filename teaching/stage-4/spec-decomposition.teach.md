@@ -1,8 +1,6 @@
-# Recipe 4.3 + 4.4: Spec Decomposition — "Real people, not abstract features"
+# Recipe 4.2: Spec Decomposition — "Real people, not abstract features"
 
-Covers concepts:
-- 4.3 Decompose by persona, not feature
-- 4.4 Every requirement must be testable
+Covers concept 4.2 (spec-decomposition). Teaches persona-driven decomposition and testable requirements.
 
 Mode: Adaptive + Checkpoints
 
@@ -198,5 +196,9 @@ Read eval results. For each dimension:
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 4.3 dimensions (persona_grounding, persona_first_organization, cross_cutting_recognition) with eval ratings + timestamp
-  concept 4.4 dimensions (testability_assessment, rewrite_quality) with eval ratings + timestamp
+  Update concept 4.2 (module 13: spec-decomposition) with all dimension ratings
+  (persona_grounding, persona_first_organization, cross_cutting_recognition,
+  testability_assessment, rewrite_quality) as sub-fields of concept 4.2's eval_ratings,
+  plus timestamp.
+  Update concept 4.2 status to "complete" when all required dimensions are Adequate or Strong.
+  Never overwrite a Strong rating with a lower one.

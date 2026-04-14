@@ -93,19 +93,51 @@ prompt: |
   path concrete and tangible.
 
   ============================================================
-  EVAL + RECIPE REVEAL + STATE UPDATE + BRIDGE
+  EVAL
   ============================================================
 
-  Eval: spawn eval subagent per the teaching script. Coach naturally.
+  Spawn eval subagent per the teaching script. Coach naturally.
 
-  Recipe Reveal: show recipes/agents/escalation-routing.yaml — highlight:
+  ============================================================
+  RECIPE REVEAL
+  ============================================================
+
+  Show recipes/agents/escalation-routing.yaml — highlight:
   - Failure classes: 6 distinct types, not just "it failed"
   - Circuit breaker states: CLOSED, OPEN, HALF_OPEN — borrowed from
     distributed systems
   - Escalation packets: structured evidence, not "something went wrong"
   - Graduation note
 
-  State: update progression.json concept 3.3 with eval ratings.
+  ============================================================
+  GOOSEFORGE CONNECTION
+  ============================================================
+
+  "You just added safety rails to a pipeline — failure classes, circuit
+  breakers, escalation packets. Pipeline Forge builds this in automatically.
+  Look at Phase 7 in recipes/graduated/pipeline-forge.yaml: every
+  coordinator it generates includes circuit breakers (2 consecutive
+  failures halt) and escalation routing (each failure class maps to an
+  owner with an evidence packet)."
+
+  "That means every pipeline you design with Pipeline Forge gets the
+  safety layer you just learned, without you having to remember every
+  threshold and packet field."
+
+  Ask: "Want to try Pipeline Forge to design a new pipeline with
+  built-in safety rails? Or are you ready to move on to Stage 4."
+  WAIT
+
+  If yes: "Run it from the command line:
+  goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive
+  When it asks about failure handling, you'll recognize the same patterns."
+  If no: proceed to State Update.
+
+  ============================================================
+  STATE UPDATE
+  ============================================================
+
+  Update progression.json concept 3.3 with eval ratings.
 
   ============================================================
   GRADUATION

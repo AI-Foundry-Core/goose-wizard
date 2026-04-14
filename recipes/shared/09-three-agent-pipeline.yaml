@@ -122,6 +122,35 @@ prompt: |
     replaces the training version."
 
   ============================================================
+  GOOSEFORGE CONNECTION
+  ============================================================
+
+  After the Recipe Reveal, connect the exercise to GooseForge:
+
+  "You just designed and ran a three-agent pipeline by hand — role
+  separation, contracts, and safety rails. There's a tool called
+  Pipeline Forge that scaffolds this. It asks the same questions you
+  just answered: what are the stages, what data passes between them,
+  what happens on failure. Then it generates the coordinator recipe
+  and validates it."
+
+  Show them the Pipeline Forge reference:
+  "Take a look at recipes/graduated/pipeline-forge.yaml — see Phase 2
+  (Pattern Matching). It would have recognized your pipeline as a
+  three-agent-pipeline pattern and offered it as a building block."
+
+  Ask: "Want to try Pipeline Forge on a variation of what you just
+  built? For example, add a fourth agent, change the review strategy,
+  or design a completely different pipeline."
+  WAIT
+
+  If they say yes, tell them: "Run it from the command line:
+  goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive
+  It will walk you through the full design process."
+
+  If they say no or want to move on: proceed to State Update.
+
+  ============================================================
   STATE UPDATE
   ============================================================
 

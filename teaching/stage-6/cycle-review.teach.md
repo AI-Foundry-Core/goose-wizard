@@ -1,16 +1,12 @@
-# Recipe 6.1-6.3: Cycle Review - "Did the overnight run actually work?"
+# Recipe 6.2: Cycle Review - "Did the overnight run actually work?"
 
-## Concepts Covered
-
-- 6.1 Step back and evaluate the whole
-- 6.2 Close the feedback loop
-- 6.3 Success signals can lie
+Covers concept 6.2 (cycle-review). Teaches holistic review, feedback loops, and success signal skepticism.
 
 ## Setup
 
 Read `.goose/team_context.md` for project context.
-Read `.goose/state/progression.json` and check concepts 6.1, 6.2, and 6.3.
-If all three concepts are already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
+Read `.goose/state/progression.json` and check concept 6.2 (module 23: cycle-review).
+If concept 6.2 is already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
 
 This is Fully Adaptive mode. Act as a consulting partner. Do not drive a lesson. Help the developer review a real autonomous cycle and coach only where the transcript shows an operational gap.
 
@@ -181,48 +177,11 @@ If all dimensions are Strong:
 
 ## State Update
 
-Write to `.goose/state/progression.json` after eval completes:
-
-```json
-{
-  "stages": {
-    "6": {
-      "status": "in_progress",
-      "concepts": {
-        "6.1": {
-          "recipe": "cycle-review",
-          "status": "complete_when_required_dimensions_adequate_or_strong",
-          "dimensions": {
-            "holistic_cycle_review": {
-              "rating": "Strong|Adequate|Weak",
-              "assessed_at": "ISO-8601 timestamp"
-            }
-          }
-        },
-        "6.2": {
-          "recipe": "cycle-review",
-          "status": "complete_when_required_dimensions_adequate_or_strong",
-          "dimensions": {
-            "feedback_loop_closure": {
-              "rating": "Strong|Adequate|Weak",
-              "assessed_at": "ISO-8601 timestamp"
-            }
-          }
-        },
-        "6.3": {
-          "recipe": "cycle-review",
-          "status": "complete_when_required_dimensions_adequate_or_strong",
-          "dimensions": {
-            "success_signal_skepticism": {
-              "rating": "Strong|Adequate|Weak",
-              "assessed_at": "ISO-8601 timestamp"
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
+Update concept 6.2 (module 23: cycle-review) in `.goose/state/progression.json`:
+  Store all dimension ratings (holistic_cycle_review, feedback_loop_closure,
+  success_signal_skepticism) as sub-fields of concept 6.2's eval_ratings, plus timestamp.
+  Update concept 6.2 status to "complete" when all dimensions are Adequate or Strong.
+  If concepts 6.1 and 6.2 are both complete, mark Stage 6 complete.
+  Never overwrite a Strong rating with a lower one.
 
 Never overwrite a Strong rating with a lower one.

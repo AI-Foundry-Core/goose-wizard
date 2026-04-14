@@ -1,8 +1,8 @@
-# Recipe 5.3: Eval Ratchet — "Eval ratchets prevent regression"
+# Recipe 5.6: Eval Ratchet — "Eval ratchets prevent regression"
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.3 is already demonstrated.
+Read .goose/state/progression.json — check if concept 5.6 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -156,4 +156,4 @@ Optional follow-up (pick the most relevant):
 
 ## State Update
 Write to .goose/state/progression.json:
-  concept 5.3 dimensions with eval ratings + timestamp
+  concept 5.6 dimensions with eval ratings + timestamp

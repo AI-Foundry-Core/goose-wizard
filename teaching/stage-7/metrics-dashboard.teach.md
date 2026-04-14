@@ -1,7 +1,7 @@
-# Recipe 7.4: Metrics Dashboard - "Measure, don't guess"
+# Recipe 7.1: Metrics Dashboard - "Measure, don't guess"
 
 Covers:
-- 7.4 Measure, don't guess (metrics-dashboard)
+- 7.1 Measure, don't guess (metrics-dashboard)
 
 Mode: Fully Adaptive. Facilitator is pure consulting - available when the developer asks, not driving.
 
@@ -10,13 +10,13 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json - check concept 7.4.
+Read .goose/state/progression.json - check concept 7.1.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 Check prerequisites:
 - Developer should have made at least one recent pipeline change (instruction
   edit, rule consolidation, new agent, changed workflow) - they need something
-  to measure. Concepts 7.1-7.3 provide natural candidates.
+  to measure. Stage 6 pipeline work provides natural candidates.
 - If no recent change exists, the developer can use this recipe to establish
   a baseline for future comparisons.
 
@@ -264,13 +264,13 @@ The recipes are yours. Use them."
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 7.4 dimensions:
+  concept 7.1 dimensions:
     - metric_selection: {rating from eval}
     - baseline_discipline: {rating from eval}
     - data_skepticism: {rating from eval}
     - side_effect_awareness: {rating from eval, may be null}
   With timestamps.
 
-If all Stage 7 concepts (7.1-7.5) are now complete:
+If all Stage 7 concepts (7.1-7.3) are now complete:
   Set stage 7 status to "complete" with timestamp.
   This marks the full 8-stage progression as complete.

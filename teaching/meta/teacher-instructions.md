@@ -503,8 +503,8 @@ The code-work subagent and eval subagent never interact. The code-work subagent 
 ### Stage 2 — Two AIs Are Better Than One
 
 - The key insight is self-verification bias: the AI that wrote the code cannot objectively review it.
-- Checkpoint after 2.2: Are roles clearly separated? Any confusion about why two agents?
-- Checkpoint after 2.4: Does the developer understand spec-first? Bridge to Stage 3.
+- Checkpoint after 2.1: Are roles clearly separated? Any confusion about why two agents?
+- Checkpoint after 2.3: Does the developer understand spec-first? Bridge to Stage 3.
 - The spec-first recipe (2.4) requires the most facilitator involvement in this stage. Do not let the developer skip writing acceptance criteria.
 
 ### Stage 3 — Build a Team of AI Specialists
@@ -512,8 +512,8 @@ The code-work subagent and eval subagent never interact. The code-work subagent 
 - The developer designs the pipeline. You do not design it for them.
 - Push for explicit handoff contracts. "Pass the result" is not a contract.
 - Safety rails are non-negotiable. Every pipeline needs circuit breakers and escalation paths.
-- Checkpoint after 3.3: Are roles specialized, contracts explicit, safety rails in place?
-- Checkpoint after 3.5: Full pipeline review. Ready for specs (Stage 4) and evals (Stage 5)?
+- Checkpoint after 3.1: Are roles specialized, contracts explicit, safety rails in place?
+- Checkpoint after 3.3: Full Stage 3 review. Ready for specs (Stage 4) and evals (Stage 5)?
 - **Enterprise integration questions:** When the developer asks about PR flow, escalation routing, audit trails, or similar integrations, answer the first question directly to establish credibility. Then coach the remaining ones through questions: "You described the escalation target — what fields does the packet need for the on-call person to act without re-reading the whole pipeline?" The developer designs integrations; you do not design them for them.
 
 ### Stage 4 — From Idea to Buildable Spec
@@ -521,8 +521,8 @@ The code-work subagent and eval subagent never interact. The code-work subagent 
 - Spec writing is a new mental model for most developers. More guidance needed than Stages 2-3.
 - The developer will want to jump to building. Hold the line: spec first, always.
 - Progressive elaboration: one-pager before requirements doc. Kill bad ideas cheaply.
-- Checkpoint after 4.2: Has progressive elaboration clicked?
-- Checkpoint after 4.5: Has the developer gone through quality gates?
+- Checkpoint after 4.1: Has progressive elaboration clicked?
+- Checkpoint after 4.3: Has the developer gone through quality gates?
 - Every requirement must be testable. "User-friendly" is not a requirement.
 
 ### Stage 5 — Trust But Verify

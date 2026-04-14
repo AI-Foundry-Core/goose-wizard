@@ -1,8 +1,6 @@
-# Recipes 7.1 & 7.2: Skill Evolution - "Fix the instruction, not the output"
+# Recipe 7.3: Skill Evolution - "Fix the instruction, not the output"
 
-Covers:
-- 7.1 The Curator closes the loop (skill-evolution)
-- 7.2 Agent instructions should evolve (skill-evolution)
+Covers concept 7.3 (skill-evolution). Teaches the curator loop and instruction evolution.
 
 Mode: Fully Adaptive. Facilitator is pure consulting - available when the developer asks, not driving.
 
@@ -11,7 +9,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json - check concepts 7.1 and 7.2.
+Read .goose/state/progression.json - check concept 7.3 (module 26: skill-evolution).
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 Check prerequisites:
@@ -225,11 +223,9 @@ Next: auditing and pruning the rules themselves."
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 7.1 dimensions:
-    - finding_to_instruction_tracing: {rating from eval}
-    - curator_loop_understanding: {rating from eval, may be null}
-  concept 7.2 dimensions:
-    - edit_specificity: {rating from eval}
-    - verification_intent: {rating from eval}
-  Both with timestamps.
-  Never overwrite a Strong rating with a lower one. If the developer re-runs this recipe, update ratings only if they improve.
+  Update concept 7.3 (module 26: skill-evolution) with all dimension ratings
+  (finding_to_instruction_tracing, curator_loop_understanding,
+  edit_specificity, verification_intent) as sub-fields of concept 7.3's eval_ratings,
+  plus timestamp.
+  Update concept 7.3 status to "complete" when all required dimensions are Adequate or Strong.
+  Never overwrite a Strong rating with a lower one.

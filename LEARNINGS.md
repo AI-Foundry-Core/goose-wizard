@@ -1,5 +1,17 @@
 # RILGoose — Technical Learnings
 
+## 2026-04-14 (Progression Schema & Setup Script)
+
+- **[progression] Teaching scripts used skill-based sub-concepts while progression.json uses module-based concepts.** Overnight pipeline generated teaching scripts with finer-grained concept numbering (e.g., 3.1-3.5 across 3 Stage 3 modules) while progression.json assigns one concept per module (3.1, 3.2, 3.3). The State Update sections in teaching scripts would write eval ratings to wrong concept entries. Fixed by aligning all teaching script headers, setup checks, and state updates to progression.json's module-based numbering. Affected all stages 2-7 (~20 teaching scripts).
+
+- **[progression] All 25 graduation slugs validated end-to-end.** Verified: (1) every training recipe's module_number/module_name matches progression.json, (2) every graduation source exists (graduated/ for multi-agent, agents/ for single-agent), (3) every target file exists in shared/. The graduate-module agent indexes by array position (module_number - 1), not concept ID — so concept numbering bugs in teaching scripts wouldn't break graduation itself, only eval state tracking.
+
+- **[setup-ps1] PowerShell 5.1 Join-Path takes exactly 2 arguments.** `Join-Path a b c` works in PS 7+ but fails in PS 5.1 with "positional parameter cannot be found." Use nested calls: `Join-Path (Join-Path a b) c`.
+
+- **[setup-ps1] Select-String on raw multiline string ignores (?m) flag.** `$rawString | Select-String -Pattern "^GOOSE_MODEL"` only matches at string start, not line start. Use `-match` with `(?m)` and `$Matches[1]` instead.
+
+- **[setup-ps1] Em dashes in PowerShell cause mojibake on PS 5.1 without UTF-8 BOM.** Keep .ps1 files ASCII-only for Windows PowerShell compatibility.
+
 ## 2026-04-13 (Recipe Architecture & Model Selection)
 
 - **[goose-model] GOOSE_MODEL must be opus for recipe instruction-following.** `GOOSE_MODEL: default` resolves to Sonnet (first model in SDK list). Sonnet skips acts, invents content, dumps tables despite explicit rules against it. Opus follows detailed act scripts reliably. The ACP adapter resolves the alias "opus" to the full model ID via `resolveModelPreference()` at line ~1284 of acp-agent.js.

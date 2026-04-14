@@ -1,8 +1,6 @@
-﻿# Recipe 4.5 + 4.6: Spec Review - "Quality gates and kill criteria"
+﻿# Recipe 4.3: Spec Review - "Quality gates and kill criteria"
 
-Covers concepts:
-- 4.5 AI-assisted spec quality gates
-- 4.6 Kill criteria prevent zombie projects
+Covers concept 4.3 (spec-review). Teaches AI-assisted quality gates and kill criteria.
 
 Mode: Adaptive + Checkpoints
 Checkpoint after 4.5: Has the developer gone through a quality gate cycle and revised the spec?
@@ -219,9 +217,9 @@ Ask the developer to write one measurable kill criterion before completing the m
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 4.5 dimensions (review_iteration, finding_triage, review_skepticism) with eval ratings and timestamp
-  concept 4.6 dimensions (kill_criteria_quality, stopping_mindset) with eval ratings and timestamp
-  Mark concept 4.5 complete when all required dimensions are Adequate or Strong
-  Mark concept 4.6 complete when all required dimensions are Adequate or Strong
-  Mark Stage 4 complete when concepts 4.1 through 4.6 are complete
-  Never overwrite a Strong rating with a lower one
+  Update concept 4.3 (module 14: spec-review) with all dimension ratings
+  (review_iteration, finding_triage, review_skepticism, kill_criteria_quality,
+  stopping_mindset) as sub-fields of concept 4.3's eval_ratings, plus timestamp.
+  Mark concept 4.3 complete when all required dimensions are Adequate or Strong.
+  Mark Stage 4 complete when concepts 4.1 through 4.4 are complete.
+  Never overwrite a Strong rating with a lower one.

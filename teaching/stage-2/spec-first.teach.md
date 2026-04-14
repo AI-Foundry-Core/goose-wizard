@@ -1,7 +1,7 @@
-# Recipe 2.4: Spec First — "Define Success Before Building"
+# Recipe 2.3: Spec First — "Define Success Before Building"
 
-Covers concept 2.4 (Define success before building).
-Mode: Adaptive + Checkpoints. Checkpoint after 2.4 (Stage 2 completion checkpoint).
+Covers concept 2.3 (spec-first). Teaches defining success before building.
+Mode: Adaptive + Checkpoints. Stage 2 completion checkpoint.
 
 ---
 
@@ -22,7 +22,7 @@ Mode: Adaptive + Checkpoints. Checkpoint after 2.4 (Stage 2 completion checkpoin
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check concept 2.4.
+Read .goose/state/progression.json — check concept 2.3.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify concepts 2.1, 2.2, and 2.3 are complete. If not, flag it — 2.4 assumes the developer has the build-then-test and review gate patterns.
 
@@ -184,7 +184,7 @@ Deliver one insight per code operation wait. Use in order. Do not repeat.
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 2.4 dimensions with eval ratings + timestamp.
+  concept 2.3 dimensions with eval ratings + timestamp.
   If all Stage 2 concepts are complete, set stage 2 status to "complete".
   Never overwrite a Strong rating with a lower one. If the developer re-runs this recipe, update ratings only if they improve.
 
@@ -193,7 +193,7 @@ Write to .goose/state/progression.json:
 ## Eval Subagent Prompt
 
 ```
-You are evaluating how well a developer approached spec-first development with AI. This covers concept 2.4 (Define success before building).
+You are evaluating how well a developer approached spec-first development with AI. This covers concept 2.3 (Define success before building).
 
 Here is the full conversation transcript between the developer and the facilitator:
 
