@@ -1,0 +1,91 @@
+version: 1.0.0
+title: "Build Then Test"
+description: "Build a change with one agent, verify it independently with a separate testing agent. Separated concerns."
+
+parameters:
+  - key: task_description
+    input_type: string
+    requirement: required
+    description: "What to build: feature, function, component, or change"
+  - key: acceptance_criteria
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Expected behavior, edge cases, constraints, or definition of done"
+  - key: target_files
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Files or modules to inspect or modify"
+
+sub_recipes:
+  - name: "builder"
+    path: "../agents/builder.yaml"
+    description: "Implements the requested change, returns files changed and summary"
+  - name: "tester"
+    path: "../agents/independent-tester.yaml"
+    description: "Independently verifies the change against original task and criteria"
+
+instructions: |
+  You are a build-then-test coordinator. You orchestrate two agents with
+  separated concerns: builder implements, tester verifies independently.
+
+  Rules:
+  1. NEVER do implementation or testing yourself — delegate to sub-recipes.
+  2. NEVER pass the builder's reasoning to the tester — only task, criteria,
+     and changed file paths.
+  3. REPORT HONESTLY: If the tester finds problems, present them plainly.
+     Do not let the builder explain them away without a fresh fix and rerun.
+  4. ASK BEFORE LOOPING: If the tester fails the build, ask the developer
+     before running a fix-and-retest cycle.
+  5. ONE LOOP MAX: If a fix-and-retest cycle also fails, stop and escalate
+     to the developer with the evidence.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Task: {{ task_description }}
+  Acceptance criteria: {{ acceptance_criteria }}
+  Target files: {{ target_files }}
+
+  Run the build-then-test workflow:
+
+  Phase 1 — Build:
+  subagent(subrecipe: "builder", parameters: {
+    task_description: "{{ task_description }}",
+    acceptance_criteria: "{{ acceptance_criteria }}",
+    target_files: "{{ target_files }}"
+  })
+
+  Present the builder's results to the developer:
+  "Builder finished. [Implementation summary]. [Files changed]. [Quick check results]."
+
+  Phase 2 — Independent test:
+  Pass ONLY the original task, criteria, and changed file paths to the tester.
+  Do NOT pass the builder's reasoning, assumptions, or self-review.
+
+  subagent(subrecipe: "tester", parameters: {
+    task_description: "{{ task_description }}",
+    acceptance_criteria: "{{ acceptance_criteria }}",
+    changed_files: <files_changed from builder results>
+  })
+
+  Present the tester's findings:
+  - Tests written and what they verify
+  - Pass/fail results with evidence
+  - Any discrepancies the tester found that the builder didn't flag
+
+  If the tester's verdict is "fail":
+  "The independent tester found issues: [specifics]. Want me to run a
+  fix-and-retest cycle?"
+  WAIT
+
+  Final summary:
+  - builder_summary: What was built and which files changed
+  - builder_checks: Commands the builder ran and their results
+  - tester_summary: Tests written and what they verify
+  - test_results: Commands, pass/fail counts, exit codes, failure output
+  - discrepancies: Issues the tester found that the builder did not flag
+  - next_steps: Any fixes needed before the change should be accepted
