@@ -33,28 +33,36 @@ Before designing any module, read these files:
 
 ---
 
-## Core Architecture: Every Module Has Two Artifacts
+## Core Architecture: Three Recipe Types
 
-Design the working recipe FIRST. Teaching wraps around it — never the other way around.
+Design the agent primitive FIRST. Teaching wraps around it — never the other way around.
 
-### 1. Working Recipe (`recipes/stage-N/recipe-name.yaml`)
+### 1. Agent Primitive (`recipes/agents/recipe-name.yaml`)
 
-The clean tool the developer uses forever after training. No teaching, no eval, no facilitator. Developer provides input → agent does work → returns results. This must be genuinely useful as a standalone tool — if a developer wouldn't reuse it after training, the recipe is wrong.
+The non-interactive worker. Receives parameters, does the work, returns structured results. No teaching, no eval, no conversation. This must be genuinely useful as a standalone tool — if a developer wouldn't reuse it after training, the recipe is wrong. For single-agent modules (Stage 1, most of Stage 4-7), the agent primitive IS the graduated version — it replaces the training recipe when the developer completes training.
 
-### 2. Teaching Wrapper (`teaching/stage-N/recipe-name.teach.md`)
+### 2. Training Recipe (`recipes/shared/NN-recipe-name.yaml`)
 
-The adaptive teaching layer that activates on first run. Adds a facilitator (conversation guide), a code-work subagent (invokes the working recipe as sub-recipe), and an eval subagent (rates quality in background). The teaching wrapper has zero dependency on the working recipe's internals — it wraps it as a black box.
+The interactive facilitator visible in the Goose app. Calls the agent primitive via `sub_recipes:`, runs eval, coaches the developer. Title ends with "(Training)". Has 6 behavioral rules in `instructions:` and the full teaching flow in `prompt:`. References the teaching script at `teaching/stage-N/recipe-name.teach.md`.
 
-**Why this separation matters:** The working recipe is the product. The teaching wrapper is onboarding. If you can't cleanly separate them, the working recipe isn't well-designed. A developer running `goose run bug-fix` six months after training should get a fast, clean experience with no trace of the teaching system.
+### 3. Graduated Recipe (`recipes/graduated/recipe-name.yaml`) — multi-agent only
+
+For modules with multiple agents (build-then-test, three-agent-pipeline, parallel-reviewers), the graduated recipe is a coordinator that composes agent primitives via `sub_recipes:`. It's genuinely different from any single primitive. Single-agent modules don't need this — the primitive IS the graduated version.
+
+**Why this separation matters:** The agent primitive is the product. The training recipe is onboarding. The graduated recipe is the daily-use coordinator. If you can't cleanly separate them, the agent primitive isn't well-designed.
 
 ### How They Connect at Runtime
 
 ```
-First run:  teach-wrapper.yaml → loads teach script → invokes working recipe as sub-recipe
-                                                    → spawns eval subagent (async)
-                                                    → facilitator coaches based on eval
+First run:  training recipe (shared/) → reads teaching script → calls agent primitive (agents/)
+                                                               → spawns eval subagent (async)
+                                                               → facilitator coaches based on eval
 
-Later runs: recipes/stage-N/recipe-name.yaml → runs directly, no wrapper
+Graduation: graduate-module agent copies working version → replaces training in shared/
+            Single-agent: copies agents/primitive.yaml → shared/NN-name.yaml
+            Multi-agent:  copies graduated/coordinator.yaml → shared/NN-name.yaml
+
+After:      shared/NN-name.yaml → runs directly, no teaching, no eval
 ```
 
 ---
@@ -66,8 +74,8 @@ Every teaching session has exactly three agent roles. Understanding why each exi
 ### Facilitator (main agent)
 Guides the conversation. Never touches code. Receives eval results and decides what to say. Speaks as a knowledgeable colleague — not an instructor, not an AI, not a system following rules. The developer should feel like they're pair-programming with someone experienced, not sitting through a training module.
 
-### Code-Work Subagent
-Does all code operations by invoking the working recipe as a sub-recipe. Reading files, running tests, making edits, generating diffs. Reports results back to the facilitator. Uses RIL agents from `~/ClaudeInfra/ril-agents/` as the execution layer (see the RIL Agents table in `ideas/syllabus.md`).
+### Agent Primitive (sub-recipe)
+Does all code operations as a non-interactive sub-recipe. Reading files, running tests, making edits, generating diffs. Returns structured results to the facilitator. References RIL agent patterns from `~/ClaudeInfra/ril-agents/` in its instructions. Lives in `recipes/agents/`.
 
 ### Eval Subagent
 Runs async after the developer completes the task. Sees the full conversation transcript. Rates quality dimensions as Strong/Adequate/Weak with evidence and suggested coaching language. Returns structured JSON. The facilitator reads this and decides what to say — it never follows eval results blindly.
@@ -167,7 +175,7 @@ After designing a module, score it against these 10 criteria. All must score ≥
 | 7 | Tool is the aha | Is the impressive part the AI capability, not the code complexity? |
 | 8 | Real code | Does it use the developer's actual codebase? (Stage 0 excepted) |
 | 9 | Relatable task | Is this something the developer does (or should do) regularly? |
-| 10 | Reusable recipe | Would the developer use this working recipe in daily work after training? |
+| 10 | Reusable recipe | Would the developer use this agent primitive in daily work after training? |
 
 ---
 
@@ -177,8 +185,16 @@ These contain templates and detailed examples. Read the specific one you need, n
 
 | File | When to Read | Contents |
 |------|-------------|----------|
-| `references/goose-recipe-format.md` | Writing a working recipe YAML | Goose YAML template with all fields, parameter types, extension scoping, tier references |
+| `references/goose-recipe-format.md` | Writing an agent primitive YAML | Goose YAML template with all fields, parameter types, extension scoping |
 | `references/eval-prompt-template.md` | Writing an eval subagent prompt | Complete template with structured JSON output format |
-| `references/example-module.md` | First time designing a module, or reviewing your design against a known-good example | Complete Bug Fix module: working recipe YAML + teaching script + eval prompt + quality dimensions |
+| `references/example-module.md` | First time designing a module, or reviewing your design against a known-good example | Complete Bug Fix module: agent primitive + training recipe + teaching script + eval prompt |
 | `references/progression-format.md` | Implementing state tracking | JSON schema for progression.json with examples |
-| `references/ril-agents-map.md` | Choosing which RIL agents to invoke | Stage-to-agent mapping table from the syllabus |
+| `references/ril-agents-map.md` | Choosing which RIL agents to reference | Stage-to-agent mapping table from the syllabus |
+
+### Additional References (GooseForge)
+
+| File | When to Read | Contents |
+|------|-------------|----------|
+| `recipes/forge-references/canonical-recipe-structure.md` | Designing agent primitives | 10-section template + YAML generation rules |
+| `recipes/forge-references/validation-checklist.md` | Validating any recipe | 37-item checklist + 6 quality detectors |
+| `recipes/forge-references/archetype-*.md` | Choosing patterns for an agent | 5 archetype references (reviewer, builder, coordinator, evaluator, investigator) |

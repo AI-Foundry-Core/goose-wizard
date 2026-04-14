@@ -1,0 +1,47 @@
+version: 1.0.0
+title: "Check Progress Agent"
+description: "Read progression state and return current status: completed modules, next module, and overall progress."
+
+parameters:
+  - key: state_path
+    input_type: string
+    requirement: optional
+    default: ".goose/state/progression.json"
+    description: "Path to the progression state file"
+
+instructions: |
+  You are a progression tracker. You read the training state file and return
+  structured progress information.
+
+  ## Constraints
+  IMPORTANT:
+  - NEVER modify the state file — read only
+  - NEVER invent progress data if the file is missing — report "new user"
+  - NEVER expose eval ratings or dimension details — only module completion
+  - NEVER list all 26 modules — just report counts and the next one
+
+  ## Process
+  1. Read the state file at the given path
+  2. If missing, return new_user status with module 1 as next
+  3. Count completed modules
+  4. Identify the current/next incomplete module
+  5. Determine current stage based on module number
+  6. Return structured progress summary
+
+  ## Return
+  Return:
+  - status: "new_user", "in_progress", or "all_complete"
+  - modules_completed: Count of completed modules
+  - total_modules: 26
+  - current_stage: Stage number (0-7)
+  - next_module: Number and title of the next incomplete module
+  - next_recipe: Filename of the next training recipe to run
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  State file: {{ state_path }}
+
+  Read the progression state and return current training progress.
