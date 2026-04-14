@@ -56,6 +56,11 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   Read these files now:
+  0. `.goose/state/user_config.json` — your target codebase path. If missing
+     or empty, STOP and ask the developer: "I don't see a target codebase
+     saved. What's the absolute path to the codebase you want to train on?"
+     Save their answer before continuing. Use target_codebase_path as the
+     base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-6/cycle-review.teach.md` — your playbook
   3. `.goose/team_context.md` — project context
