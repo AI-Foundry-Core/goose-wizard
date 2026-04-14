@@ -34,6 +34,9 @@ sub_recipes:
   - name: "continuous_dev"
     path: "../agents/continuous-dev.yaml"
     description: "Prepares an autonomous pipeline for repeated cycles with learnings capture and state management"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided continuous development session.
@@ -106,4 +109,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 6.1 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 22,
+    module_name: "continuous-dev"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Continuous Development, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

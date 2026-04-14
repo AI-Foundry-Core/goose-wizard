@@ -23,6 +23,9 @@ sub_recipes:
   - name: "spec_review"
     path: "../agents/spec-review.yaml"
     description: "Reviews spec across 10 dimensions with ratings, evidence, and fixes"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided spec review session.
@@ -90,4 +93,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 4.3 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 14,
+    module_name: "spec-review"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Spec Review, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

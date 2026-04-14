@@ -29,6 +29,9 @@ sub_recipes:
   - name: "metrics_dashboard"
     path: "../agents/metrics-dashboard.yaml"
     description: "Collects before/after metrics for pipeline changes to measure impact"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided metrics dashboard session.
@@ -100,4 +103,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 7.1 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 24,
+    module_name: "metrics-dashboard"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Metrics Dashboard, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

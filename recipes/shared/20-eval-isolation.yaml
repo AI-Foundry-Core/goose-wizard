@@ -24,6 +24,9 @@ sub_recipes:
   - name: "eval_isolation"
     path: "../agents/eval-isolation.yaml"
     description: "Makes evaluation gates reliable by mocking or recording external dependencies"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided eval isolation session.
@@ -94,4 +97,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 5.5 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 20,
+    module_name: "eval-isolation"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Eval Isolation, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

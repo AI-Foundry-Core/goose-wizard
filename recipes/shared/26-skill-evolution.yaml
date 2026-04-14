@@ -23,6 +23,9 @@ sub_recipes:
   - name: "skill_evolution"
     path: "../agents/skill-evolution.yaml"
     description: "Analyzes agent performance findings and produces verified improvements to agent skill files"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided skill evolution session.
@@ -93,4 +96,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 7.3 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 26,
+    module_name: "skill-evolution"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Skill Evolution, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

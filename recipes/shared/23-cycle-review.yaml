@@ -29,6 +29,9 @@ sub_recipes:
   - name: "cycle_review"
     path: "../agents/cycle-review.yaml"
     description: "Reviews a multi-session autonomous pipeline cycle and determines whether it actually improved"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided cycle review session.
@@ -100,4 +103,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 6.2 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 23,
+    module_name: "cycle-review"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Cycle Review, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

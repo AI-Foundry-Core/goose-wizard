@@ -24,6 +24,9 @@ sub_recipes:
   - name: "idea_to_spec"
     path: "../agents/idea-to-spec.yaml"
     description: "Turns a feature idea into a structured one-pager and optional requirements doc"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided idea-to-spec session.
@@ -94,4 +97,19 @@ prompt: |
   - Graduation note.
 
   State: update progression.json concept 4.1 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 12,
+    module_name: "idea-to-spec"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Idea to Spec, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

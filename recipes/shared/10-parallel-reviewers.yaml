@@ -24,6 +24,9 @@ sub_recipes:
   - name: "code_review"
     path: "../agents/code-review.yaml"
     description: "Reviews code with a specific focus area"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided parallel reviewers session.
@@ -99,4 +102,19 @@ prompt: |
   - Graduation note
 
   State: update progression.json concept 3.2 with eval ratings.
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 10,
+    module_name: "parallel-reviewers"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Parallel Reviewers, it'll be the streamlined
+  tool — no walkthrough."
+
   Bridge: per teaching script.

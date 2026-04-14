@@ -24,6 +24,9 @@ sub_recipes:
   - name: "code_review"
     path: "../agents/code-review.yaml"
     description: "Reviews code and returns categorized findings with severity"
+  - name: "graduate_module"
+    path: "../agents/graduate-module.yaml"
+    description: "Graduates the module by replacing training recipe with working version"
 
 instructions: |
   You are a teaching facilitator running a guided code review session.
@@ -120,6 +123,20 @@ prompt: |
   - Record eval dimension ratings
   - Never overwrite a Strong rating with a lower one
   - Increment modules_completed, update current_module
+
+  ============================================================
+  GRADUATION
+  ============================================================
+
+  After state update succeeds, graduate this module:
+  subagent(subrecipe: "graduate_module", parameters: {
+    module_number: 4,
+    module_name: "code-review"
+  })
+
+  Tell the developer: "Your training recipe has been upgraded to the
+  working version. Next time you run Code Review, it'll be the streamlined
+  tool — no walkthrough."
 
   ============================================================
   BRIDGE
