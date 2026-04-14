@@ -1,4 +1,3 @@
-# recipes/stage-5/eval-layers.yaml
 version: 1.0.0
 title: "5.3 Eval Layers (Training)"
 description: "Guided walkthrough: design and implement a layered evaluation strategy for an AI-assisted pipeline. Teaches independent layers, deterministic gates, and diverse check types."

@@ -1,4 +1,3 @@
-# recipes/stage-4/idea-to-spec.yaml
 version: 1.0.0
 title: "4.1 Idea to Spec (Training)"
 description: "Guided walkthrough: turn a feature idea into a structured spec. Teaches one-pager discipline, measurable success criteria, and kill gates."

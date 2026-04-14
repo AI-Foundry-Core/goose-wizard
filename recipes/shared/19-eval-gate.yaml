@@ -1,4 +1,3 @@
-# recipes/stage-5/eval-gate.yaml
 version: 1.0.0
 title: "5.4 Eval Gate (Training)"
 description: "Guided walkthrough: wire a functioning eval system in front of autonomous pipeline execution. Teaches fail-closed gates, no self-grading, and side effects after gate."

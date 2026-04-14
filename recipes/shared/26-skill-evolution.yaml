@@ -1,4 +1,3 @@
-# recipes/stage-7/skill-evolution.yaml
 version: 1.0.0
 title: "7.3 Skill Evolution (Training)"
 description: "Guided walkthrough: analyze agent performance findings and produce verified improvements to agent skill files and instructions. Teaches finding classification, instruction-level fixes, and NOT_INSTRUCTION filtering."

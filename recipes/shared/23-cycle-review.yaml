@@ -1,4 +1,3 @@
-# recipes/stage-6/cycle-review.yaml
 version: 1.0.0
 title: "6.2 Cycle Review (Training)"
 description: "Guided walkthrough: review a multi-session autonomous pipeline cycle and determine whether it actually improved. Teaches holistic cycle review, feedback loop closure, and ceremonial success detection."

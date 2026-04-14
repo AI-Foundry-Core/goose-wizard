@@ -1,4 +1,3 @@
-# recipes/stage-5/eval-foundation.yaml
 version: 1.0.0
 title: "5.1 Eval Foundation (Training)"
 description: "Guided walkthrough: verify pipeline results independently instead of trusting agent-reported outcomes. Teaches independent verification, exit codes as evidence, and never trusting self-reports."

@@ -1,4 +1,3 @@
-# recipes/stage-6/continuous-dev.yaml
 version: 1.0.0
 title: "6.1 Continuous Development (Training)"
 description: "Guided walkthrough: prepare an autonomous pipeline for repeated cycles by capturing learnings, separating agent memory, and cleaning shared state. Teaches per-agent memory, shared state audit, and stale signal cleanup."

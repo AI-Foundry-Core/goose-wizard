@@ -1,4 +1,3 @@
-# recipes/stage-5/eval-isolation.yaml
 version: 1.0.0
 title: "5.5 Eval Isolation (Training)"
 description: "Guided walkthrough: make evaluation gates reliable by mocking or recording external dependencies. Teaches deterministic gates, mocking vs fixtures, and keeping live coverage."

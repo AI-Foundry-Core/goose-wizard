@@ -35,12 +35,17 @@ instructions: |
   - NEVER apply edits without showing the diff first
 
   ## Process
-  1. Read all findings and classify each as INSTRUCTION_FIX, NOT_INSTRUCTION, or UNCLEAR
-  2. For each INSTRUCTION_FIX finding, identify the specific skill file and rule
+  1. Read all findings and classify each as:
+     - INSTRUCTION_GAP: agent did something wrong because no rule covered it
+     - INSTRUCTION_VAGUE: agent misinterpreted ambiguous wording
+     - INSTRUCTION_MISSING: agent had no guidance for a situation
+     - INSTRUCTION_OUTDATED: agent followed a rule that no longer applies
+     - NOT_INSTRUCTION: environmental, model limitation, or one-off — no edit needed
+  2. For each INSTRUCTION_* finding, identify the specific skill file and rule
   3. Draft the edit — show the before/after diff
   4. Apply one edit at a time, verifying after each if a verification command exists
   5. For NOT_INSTRUCTION findings, explain why the skill file is not the root cause
-  6. For UNCLEAR findings, flag for human decision
+  6. Report classification breakdown and all diffs
 
   ## Return
   Return:
