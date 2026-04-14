@@ -28,9 +28,6 @@ instructions: |
       "captured_at": "<current ISO 8601 timestamp>"
     }
 
-  Also update `.goose/PROGRESS.md`: replace the `**Target codebase:**` line
-  with the new path.
-
   Use the target_codebase_path everywhere this module would otherwise default
   to the current directory: code exploration, diffs, git operations, etc.
 
