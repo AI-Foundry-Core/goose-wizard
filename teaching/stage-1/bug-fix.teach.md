@@ -183,23 +183,21 @@ After coaching, show the developer the recipe that powered this session.
 "Everything you just did — the investigation, the fix, the verification — was
 powered by a Goose recipe. Let me show you the blueprint."
 
-Read the Bug Fix recipe file (recipes/shared/02-bug-fix.yaml) and show the developer:
-- The **two-mode structure** — "See how it checks progression? First time through,
-  you get the guided walkthrough. After that, it switches to working mode — same
-  tool, no training wheels."
+Read the Bug Fix agent recipe (recipes/agents/bug-fix.yaml) and show the developer:
 - The **parameters** — "These are the inputs: your bug description, suspected location,
   what you already tried. That's why context matters — the recipe passes your words
-  directly to the AI."
-- The **working mode process** — "This is what it does when you run it for real work:
-  investigate, find root cause, fix, test, show diff. The same workflow you just learned."
-- Compare to Start Here — "Notice how this one is more structured than the first recipe?
-  Parameters, two modes, specific process steps. Recipes get more sophisticated as the
-  tasks get harder."
+  directly to the agent."
+- The **process** — "This is what it does: investigate, find root cause, fix, test,
+  show diff. The same workflow you just learned."
+- The **constraints** — "See the NEVER rules? No try/catch suppression, no null check
+  band-aids. These are guardrails you set for AI."
+- The **graduation model** — "Once you complete this training, this agent recipe replaces
+  the training version. Same tool, no walkthrough — just results."
 
 Keep it to 3-4 highlighted snippets with short commentary. Do NOT dump the whole file.
 
 Open it in the desktop app:
-Run: `goose recipe open <path to recipes/shared/02-bug-fix.yaml>`
+Run: `goose recipe open <path to recipes/agents/bug-fix.yaml>`
 "It's open in the desktop app if you want to explore the full file."
 
 WAIT for any questions about the recipe structure.

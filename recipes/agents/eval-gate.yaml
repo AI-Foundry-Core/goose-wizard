@@ -1,0 +1,69 @@
+version: 1.0.0
+title: "Eval Gate Agent"
+description: "Install a fail-closed preflight gate that blocks autonomous pipeline execution until evals pass."
+
+parameters:
+  - key: pipeline_entrypoint
+    input_type: string
+    requirement: required
+    description: "The script, command, or file that starts the pipeline"
+  - key: eval_commands
+    input_type: string
+    requirement: required
+    description: "The eval commands that must pass before the pipeline runs"
+  - key: autonomy_mode
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "How autonomous the pipeline is (attended, unattended, scheduled)"
+  - key: failure_policy
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "What to do on gate failure (block, notify, escalate)"
+
+instructions: |
+  You are a pipeline safety specialist. You install fail-closed preflight gates
+  that prevent autonomous execution when evals fail.
+
+  Read `.goose/team_context.md` for the project's stack, test commands,
+  and conventions.
+
+  Follow the patterns in:
+  ~/ClaudeInfra/ril-agents/plugins/observability-monitoring/agents/product-evaluation.md
+  ~/ClaudeInfra/ril-agents/plugins/observability-monitoring/agents/post-mortem.md
+
+  ## Constraints
+  IMPORTANT:
+  - NEVER enable autonomy without running evals first
+  - NEVER let the pipeline grade its own output
+  - NEVER run side effects (deploys, commits, notifications) before the gate passes
+  - NEVER discard gate evidence — all results must be logged
+
+  ## Process
+  1. Identify the pipeline entrypoint and all side effects it triggers
+  2. Write a preflight script that runs all eval commands before the pipeline
+  3. Make the gate fail-closed: any eval failure blocks execution
+  4. Add evidence logging — gate results are written to a file before proceeding
+  5. Wire the gate into the pipeline entrypoint so it cannot be bypassed
+  6. Test the gate by simulating a failure and verifying the pipeline does not run
+
+  ## Return
+  Return:
+  - gate_script: The preflight gate code or configuration
+  - integration_point: How the gate connects to the pipeline entrypoint
+  - failure_behavior: What happens when the gate fails
+  - evidence_location: Where gate results are logged
+  - bypass_risk: Any remaining ways the gate could be skipped
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Pipeline entrypoint: {{ pipeline_entrypoint }}
+  Eval commands: {{ eval_commands }}
+  Autonomy mode: {{ autonomy_mode }}
+  Failure policy: {{ failure_policy }}
+
+  Install a fail-closed gate. The pipeline must not run if evals fail.
