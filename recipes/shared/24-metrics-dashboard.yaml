@@ -1,4 +1,3 @@
-# recipes/stage-7/metrics-dashboard.yaml
 version: 1.0.0
 title: "7.1 Metrics Dashboard (Training)"
 description: "Guided walkthrough: collect before/after metrics for pipeline changes so you measure impact instead of guessing. Teaches raw numbers with percentages, sample size warnings, and unexpected direction flags."

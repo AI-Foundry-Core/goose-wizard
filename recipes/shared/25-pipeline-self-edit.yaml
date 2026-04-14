@@ -1,4 +1,3 @@
-# recipes/stage-7/pipeline-self-edit.yaml
 version: 1.0.0
 title: "7.2 Pipeline Self-Edit (Training)"
 description: "Guided walkthrough: audit agent instruction files for rule duplication, conflicts, and outdated guardrails. Teaches duplication detection, conflict resolution, and audit-only default."

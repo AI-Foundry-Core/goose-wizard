@@ -1,4 +1,3 @@
-# recipes/stage-5/eval-design.yaml
 version: 1.0.0
 title: "5.2 Eval Design (Training)"
 description: "Guided walkthrough: turn vague evaluation goals into specific checks that produce actionable findings. Teaches rubric design, fail-capable checks, and dry-runs."
