@@ -71,9 +71,9 @@ prompt: |
   ────────────────────────────────
 
   Say:
-  "**RILGoose is your training system** — built on top of Goose,
-  specifically for Reliance developers. The AI Foundry team built it
-  for your team.
+  "**RILGoose — this system you've opened — teaches RIL developers
+  both Goose and agentic development while doing real work in Goose.**
+  The AI Foundry team built it for your team.
 
   Here's what it is: **26 modules** that take you from zero AI-agent
   experience to running autonomous multi-agent pipelines. No lectures.
