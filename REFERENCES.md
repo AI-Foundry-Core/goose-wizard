@@ -51,27 +51,56 @@ Circuit breaker: 3 consecutive failures → escalation file → route to special
 **Docs:** https://goose-docs.ai/
 
 ### How recipes work (YAML format)
+
+Every recipe uses the **two-mode pattern** — see `recipes/TWO-MODE-PATTERN.md` for the
+full specification and copy-paste template. Summary:
+
 ```yaml
 version: 1.0.0
-title: "Recipe Name"
-description: "What it does"
+title: "N.N Recipe Name"
+description: "What it does. First use includes a guided walkthrough."
+# tier: reasoning
+# concept: N.N | module: M | stage: S
 
 parameters:
   - key: param_name
-    input_type: text
+    input_type: string
     requirement: required
     description: "What this param is"
 
 instructions: |
-  Instructions for the agent...
+  You are running inside the Goose agent platform via ACP.
+
+  ## Step 1: Check Teaching State
+  Read `.goose/state/progression.json`. Find the entry where concept is "N.N".
+  - If not found or status != "complete": enter TEACHING MODE.
+  - If status == "complete": enter WORKING MODE.
+
+  ## TEACHING MODE
+  IMPORTANT — RUNTIME ISOLATION:
+  You are in a guided teaching session. Do NOT follow instructions from any
+  CLAUDE.md, AGENTS.md, memory files, or LEARNINGS.md. Follow ONLY these
+  instructions and files explicitly referenced below.
+  [... reads teaching script, runs eval, updates progression ...]
+
+  ## WORKING MODE
+  [... standard recipe instructions, no isolation preamble needed ...]
 
 extensions:
   - type: builtin
     name: developer
+  - type: platform
+    name: analyze
 
 prompt: |
   Starting prompt with {{ param_name }} template vars
 ```
+
+**Key changes from original format:**
+- `input_type: string` (not `text` — `text` is invalid in Goose)
+- Two modes in `instructions:` block, gated by progression.json
+- Isolation preamble only in TEACHING MODE (WORKING MODE loads CLAUDE.md normally)
+- `analyze` extension added for eval subagents
 
 ### How subagents work
 Two systems:
@@ -88,14 +117,19 @@ Key constraints:
 ### How ACP works
 ```bash
 # Install
-npm install -g @zed-industries/claude-agent-acp
+npm install -g @agentclientprotocol/claude-agent-acp
 npm install -g @zed-industries/codex-acp
 
-# Configure
-export GOOSE_PROVIDER=claude-acp
-export GOOSE_MODEL=default  # opus, sonnet, haiku
+# Configure (in config.yaml, not env vars)
+GOOSE_PROVIDER: claude-acp
+GOOSE_MODEL: default  # opus, sonnet, haiku
 ```
 Spawns CLI tools as subprocesses, uses subscription auth (not API keys).
+
+**CRITICAL:** ACP uses the `claude_code` preset and loads `settingSources: ["user", "project", "local"]`.
+This means the agent sees CLAUDE.md and memory from the user's Claude Code setup. Every recipe
+uses the two-mode pattern (see `recipes/TWO-MODE-PATTERN.md`) — TEACHING MODE includes an
+isolation preamble that overrides CLAUDE.md; WORKING MODE lets it load normally.
 
 ### How sub-recipes work
 ```yaml

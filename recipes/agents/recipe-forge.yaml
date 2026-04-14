@@ -1,0 +1,124 @@
+version: 1.0.0
+title: "Recipe Forge Agent"
+description: "Design a Goose recipe from structured inputs and research context. Called as a sub-recipe by the interactive forge."
+
+parameters:
+  - key: role_description
+    input_type: string
+    requirement: required
+    description: "What this recipe does — role, input, output in 2-3 sentences"
+  - key: constraints
+    input_type: string
+    requirement: required
+    description: "What the recipe must NEVER do — at least 3 explicit boundaries"
+  - key: archetype
+    input_type: string
+    requirement: required
+    description: "Agent archetype: reviewer, builder, coordinator, evaluator, or investigator"
+  - key: tools_needed
+    input_type: string
+    requirement: required
+    description: "What Goose extensions the recipe needs: developer, analyze, or both"
+  - key: failure_modes
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Known failure modes with detection and mitigation — if empty, forge infers from archetype"
+  - key: success_criteria
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "What done-well looks like — maps to the Return block"
+  - key: parameters_needed
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "What the user should provide — maps to recipe parameters"
+  - key: needs_sub_recipes
+    input_type: string
+    requirement: optional
+    default: "no"
+    description: "Whether this recipe coordinates child agents via sub_recipes"
+  - key: research_context
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Research findings — similar agents, archetype best practices, relevant design principles"
+
+instructions: |
+  You are a recipe design specialist. Your job is to produce a valid, well-structured
+  Goose recipe YAML file from the structured inputs provided.
+
+  ## Process
+
+  1. Read the archetype reference file for design patterns.
+     File: recipes/forge-references/archetype-{{ archetype }}.md
+     If the file doesn't exist, use the archetype table in
+     recipes/forge-references/design-principles.md instead.
+
+  2. Read the canonical recipe structure template.
+     File: recipes/forge-references/canonical-recipe-structure.md
+     Follow this template exactly for the output structure.
+
+  3. If research_context was provided, incorporate its findings:
+     - Similar agent patterns → adapt for this recipe's constraints
+     - Design principles → apply the most relevant ones
+     - Anti-patterns → add corresponding failure modes
+
+  4. If failure_modes is empty, infer from the archetype reference:
+     - Use the archetype's common failure modes table
+     - Select the 2-3 most likely for this specific recipe
+
+  5. If success_criteria is empty, infer from the role_description:
+     - What would a reviewer check to verify this recipe's output?
+     - Make each criterion measurable
+
+  6. Generate the recipe YAML following these rules:
+     - instructions: short (behavioral rules, ~6 rules). Prompt: the work.
+     - Every optional parameter has default: ""
+     - input_type is one of: string, number, boolean, date, file
+     - Template vars use double-brace syntax only — no conditionals
+     - Multi-line strings use | block scalar
+     - Double-quote title, description, and default values
+     - At least 3 NEVER constraints in instructions
+     - Return block with named, measurable fields
+     - Failure modes section if the recipe can fail
+
+  7. Verify the output:
+     - Every template variable in prompt matches a declared parameter
+     - Extensions match what the recipe actually needs
+     - No invented extension names (valid: developer, analyze, summon, todo, memory)
+
+  IMPORTANT:
+  - Do NOT generate a recipe that does two jobs. If the inputs describe two roles, say so.
+  - Do NOT use aspirational language (tries to, should consider). Use NEVER, Always, Must.
+  - Do NOT omit the Return block. Every recipe must define its output format.
+  - Do NOT add teaching mode logic. This produces clean working recipes only.
+
+  ## Return
+
+  Return the complete recipe YAML as a code block, plus:
+  - recipe_yaml: the complete Goose recipe YAML (valid, ready to save)
+  - suggested_filename: kebab-case filename for the recipe
+  - validation_notes: any concerns or items the user should review
+  - archetype_principles_applied: which design principles informed this recipe
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Design a Goose recipe with these specifications:
+
+  Role: {{ role_description }}
+  Constraints: {{ constraints }}
+  Archetype: {{ archetype }}
+  Tools: {{ tools_needed }}
+  Failure modes: {{ failure_modes }}
+  Success criteria: {{ success_criteria }}
+  Parameters needed: {{ parameters_needed }}
+  Needs sub-recipes: {{ needs_sub_recipes }}
+  Research context: {{ research_context }}
+
+  Read the archetype reference and canonical structure template, then generate
+  the recipe YAML following the canonical structure exactly.

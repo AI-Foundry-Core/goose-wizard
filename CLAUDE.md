@@ -149,17 +149,19 @@ RILGoose/
 │   └── runs/                           # Archived completed runs
 │       └── 2026-04-13-hardening/       # 20 cycles, 72 fixes, all regressions passed
 ├── recipes/                            # Working recipes (Goose YAML format)
-│   ├── stage-0/                        # "See What AI Can Do"
-│   ├── stage-1/                        # "Get Real Work Done" (bug-fix, test-writer, code-review, refactor)
-│   ├── stage-2/                        # "Two AIs Are Better Than One"
-│   ├── stage-3/                        # "Build a Team of AI Specialists"
-│   ├── stage-4/                        # "From Idea to Buildable Spec"
-│   ├── stage-5/                        # "Trust But Verify"
-│   ├── stage-6/                        # "Let It Run While You Sleep"
-│   └── stage-7/                        # "The System Gets Smarter"
+│   ├── TWO-MODE-PATTERN.md             # Two-mode pattern spec for recipe authors
+│   ├── shared/                         # 27 recipes deployed to all users
+│   │   ├── 00-start-here.yaml          # ★ START HERE — gateway/dashboard
+│   │   ├── 01-see-what-ai-can-do.yaml  # Stage 0: scripted demo
+│   │   ├── 02-bug-fix.yaml             # Stage 1: two-mode template example
+│   │   ├── 03-test-writer.yaml         # ...through 26-skill-evolution.yaml
+│   │   └── ...26 module recipes total
+│   └── local/                          # 6 pipeline recipes (personal/testing only)
+│       ├── apply-fixes.yaml
+│       └── ...5 more pipeline recipes
 ├── teaching/                           # Teaching scripts and meta
 │   ├── meta/
-│   │   ├── teach-wrapper.yaml          # Meta-recipe that wraps any recipe in teaching
+│   │   ├── teach-wrapper.yaml          # DEPRECATED — logic now inlined in each two-mode recipe
 │   │   ├── teacher-instructions.md     # How the facilitator should behave
 │   │   └── module-designer/            # Skill for designing modules (load when building)
 │   │       ├── SKILL.md                # Main skill file (~300 lines)
@@ -179,6 +181,7 @@ RILGoose/
 ├── onboarding/                         # Project onboarding recipe
 │   └── onboard.yaml
 └── install/                            # Setup scripts
+    ├── setup-goose.ps1                 # Windows setup (recipes, extensions, env vars)
     └── install.sh
 ```
 

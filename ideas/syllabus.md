@@ -19,30 +19,38 @@ The system watches what the developer does, evaluates it against a concept check
 ### Architecture
 
 ```
-Developer does real work
+Developer interacts with Training Recipe
         │
         ▼
 ┌─────────────────┐     ┌──��───────────────────┐
-│  Facilitator     │────▶│  Code-Work Subagent   │
-│  (main agent)    │     │  (does the hands work)│
-│                  │     └──────────────────────┘
-│  Stays in the    │
-│  conversation.   │     ┌──────────────────────┐
-│  Guides the task.│────▶│  Eval Subagent        │
-│  Teaches gaps.   │     │  (background check)   │
-│                  │◀────│  Returns: which        │
-└─────────────────┘     │  concepts demonstrated,│
-        │               │  which missing + what  │
-        ▼               │  to teach              │
-  Targeted coaching     └──────────────────────┘
+│  Training Recipe │────▶│  Agent Primitive       │
+│  (facilitator)   │     │  (sub-recipe worker)   │
+│                  │     │  Non-interactive.       │
+│  Interactive.    │     │  Does the code work.    │
+│  Narrates what   │     │  Returns results.       │
+│  it's doing.     │     └──────────────────────┘
+│  Teaches gaps.   │
+│                  │     ┌──────────────────────┐
+│                  │────▶│  Eval Subagent        │
+│                  │◀────│  (background check)   │
+└─────────────────┘     │  Returns: ratings +    │
+        │               │  evidence + coaching   │
+        ▼               └──────────────────────┘
+  Targeted coaching
   ONLY for gaps
+        │
+        ▼
+  On completion: graduate-module sub-recipe
+  replaces Training Recipe with Graduated Recipe
 ```
 
-**Facilitator (main agent):** Guides the conversation and the task. Never touches code. Receives eval results and decides what to teach. Speaks as a knowledgeable colleague, not an instructor reading a script.
+**Training Recipe (interactive facilitator):** The recipe the developer sees and interacts with. Lives in `recipes/shared/`, labeled "(Training)." Guides the conversation and the task. Narrates what it's doing: "I'm calling our bug-hunting specialist with your description." Receives results from agent primitives and eval, decides what to teach. Speaks as a knowledgeable colleague, not an instructor.
 
-**Code-Work Subagent:** Does all code operations — reading files, running tests, making edits, generating diffs. Reports results back to the facilitator.
+**Agent Primitive (sub-recipe worker):** A clean, non-interactive recipe optimized for one task — bug fixing, test writing, code review, refactoring. Lives in `recipes/agents/` (not visible to developers). Called by the training recipe via `subagent(subrecipe: ...)`. Does the code work, returns structured results. This is the sub-recipe pattern developers will learn to recognize and build.
 
 **Eval Subagent:** Runs after the developer completes a task (batch, not real-time). Sees the full conversation transcript. Rates the developer's work on quality dimensions — not "did they do it" (of course they did, the recipe guided them) but "how well did they do it." Returns structured ratings with specific evidence and suggested coaching.
+
+**Graduated Recipe:** The daily-use version of the recipe, unlocked when the developer completes the training module. Lives in `recipes/graduated/` until promoted. On graduation, it **replaces** the training recipe in `recipes/shared/` — the "(Training)" label disappears, replaced by a clean tool recipe. For single-agent modules (Stages 0-1), this is essentially the agent primitive promoted to a user-facing recipe. For multi-agent modules (Stages 2+), this is a purpose-built production workflow.
 
 ### Four Teaching Modes (progressive by stage)
 
@@ -71,6 +79,8 @@ The eval subagent returns for each dimension: the rating, what specifically the 
 
 Progress is concept-based, not exercise-based. Each concept tracks the developer's best rating across attempts. Managers see: "Team X: Stage 0 complete. Stage 1: 2 strong, 1 adequate, 1 weak." A team that's all strong/adequate advances. A team with weak ratings gets another pass at those recipes with coaching.
 
+**Graduation side-effect:** When a module is marked complete, the training recipe calls a `graduate-module` sub-recipe that promotes the graduated recipe into `recipes/shared/` and removes the training version. The developer's visible recipe list changes — the "(Training)" label disappears, replaced by the clean daily-use recipe. This makes progression tangible: your tools get better as you level up.
+
 ### Practical Mechanisms
 
 **Skip mechanism:** A developer who believes they already know a stage's concepts can request a challenge assessment — they do the task once with no guidance, the eval subagent rates them, and if all dimensions are adequate or strong they skip ahead. This respects experienced developers' time without letting people skip foundations they haven't earned.
@@ -80,7 +90,37 @@ Progress is concept-based, not exercise-based. Each concept tracks the developer
 - For infrastructure issues (build failures, missing dependencies), the facilitator delegates to a diagnostic subagent before continuing.
 - If the AI loops on a task after 3 attempts, the facilitator stops and teaches the "redirect" concept live: "This is actually a teaching moment — when AI loops, change the approach."
 
-**Inter-stage gates:** Self-directed with guardrails. The system offers advancement when all concepts in a stage are adequate or strong. The developer can accept or stay longer. They cannot skip ahead without demonstrating competence (via the skip mechanism above). No manager approval required — the system is the gate.
+**Inter-stage gates:** Self-directed with guardrails. The system offers advancement when all concepts in a stage are adequate or strong. The developer can accept or stay longer. They cannot skip ahead without demonstrating competence (via the skip mechanism above). No manager approval required — the system is the gate. Advancing to the next stage also means the current stage's training recipes have been replaced by graduated daily-use recipes — the developer's recipe list gets cleaner as they progress.
+
+---
+
+## Recipe Architecture
+
+Each module has three recipe files, stored in separate directories:
+
+```
+recipes/
+  shared/              # In GOOSE_RECIPE_PATH — visible in Goose app
+    00-start-here.yaml              # Gateway: reads progress, directs to next module
+    01-see-what-ai-can-do.yaml      # Training recipe (interactive facilitator)
+    02-bug-fix.yaml                 # Training recipe — calls agents/bug-fix.yaml
+    ...through 26
+  agents/              # NOT in GOOSE_RECIPE_PATH — invisible to developers
+    bug-fix.yaml                    # Agent primitive (non-interactive sub-recipe)
+    test-writer.yaml
+    check-progress.yaml             # Utility: read/write progression.json
+    ...
+  graduated/           # NOT in GOOSE_RECIPE_PATH — promoted on module completion
+    bug-fix.yaml                    # Daily-use recipe (replaces training version)
+    test-writer.yaml
+    ...
+```
+
+**Gateway pattern:** START HERE uses a `check-progress` sub-recipe to read progression state, shows the developer their progress, and tells them which training recipe to open next from their recipe list.
+
+**Training pattern:** Each training recipe lists its agent primitive in `sub_recipes:` and calls it via `subagent(subrecipe: ...)` when code work is needed. The training recipe handles all developer interaction and narrates the delegation.
+
+**Graduation pattern:** On module completion, the training recipe calls `graduate-module` which copies the graduated recipe into `shared/` and removes the training version. For single-agent modules (Stages 0-1), the graduated recipe is the clean tool. For multi-agent modules (Stages 2+), it's a purpose-built production workflow.
 
 ---
 
@@ -125,7 +165,7 @@ Progress is concept-based, not exercise-based. Each concept tracks the developer
 *Goal: Developer uses AI daily and sees measurable productivity gains.*
 *Duration: \~20-30 minutes per recipe. Four independent recipes, ordered by impact.*
 
-**How it works:** The facilitator says "Got a bug you've been stuck on? Tell me about it." The developer describes the bug. The code-work subagent investigates and fixes it. The eval subagent rates the quality of how the developer approached it — context quality, verification thoroughness, iteration. The facilitator praises what was strong and coaches what was weak.
+**How it works:** The training recipe says "Got a bug you've been stuck on? Tell me about it." The developer describes the bug. The training recipe narrates what it's doing — "I'm calling our bug-hunting specialist with your description" — then calls the bug-fix agent primitive as a sub-recipe. The primitive investigates and fixes it, returning results. The training recipe presents the results, then the eval subagent rates the quality of how the developer approached it — context quality, verification thoroughness, iteration. The training recipe praises what was strong and coaches what was weak. On completion, the training recipe calls `graduate-module` to replace itself with the graduated daily-use "Bug Fix" recipe.
 
 ### Recipe 1.1: Bug Fix — "AI as investigator"
 
@@ -180,7 +220,7 @@ Progress is concept-based, not exercise-based. Each concept tracks the developer
 
 ### Bridge to Stage 2
 
-> "You've been the one catching everything — verifying fixes, evaluating tests, triaging reviews, checking diffs. Imagine if a second AI did that for you. That's Stage 2."
+> "You've been the one catching everything — verifying fixes, evaluating tests, triaging reviews, checking diffs. Notice your recipe list — Bug Fix, Test Writer, Code Review, and Refactor are now clean tools without the (Training) label. Those are yours to keep. Now imagine if a second AI did your catching for you. That's Stage 2."
 
 ### Reference Guide Material (lives in a tips document, not taught live)
 
@@ -216,19 +256,34 @@ Progress is concept-based, not exercise-based. Each concept tracks the developer
 *Mode: Adaptive + Checkpoints. Developer designs real multi-agent pipelines. Facilitator checks in after concepts 3.3 and 3.5.*
 *Goal: Developer designs multi-agent pipelines where specialized AIs handle different parts of the workflow.*
 
+**Design tool: GooseForge.** Stage 3 uses GooseForge — an agent/recipe design system adapted from SubagentForge (`~/ClaudeProjects/SubagentForge/`) for the Goose platform. Instead of giving developers pre-built agent definitions, Stage 3 teaches them to design their own recipes through a rigorous process: Discovery → Research → Design → Validate. The output is working Goose recipe YAML files.
+
+**GooseForge process (used during Stage 3 exercises):**
+1. **Discovery:** "What problem does this agent solve? What inputs? What constraints? How can it fail?"
+2. **Research:** Classify the agent archetype (reviewer, builder, coordinator, evaluator, investigator). Search existing agents in `~/ClaudeInfra/ril-agents/` for similar patterns. Load archetype-specific best practices from `recipes/forge-references/`. Surface relevant design principles and anti-patterns.
+3. **Design:** Map discovery + research onto the canonical recipe structure (Role → Constraints → Process → Failure Modes → Verification → Return Format). Output a working Goose recipe YAML.
+4. **Validate:** Run quality checks — recipe validates, parameters typed correctly, extensions exist, every constraint has a corresponding failure mode, return format is parseable.
+
+**GooseForge recipes:**
+- `agents/recipe-forge.yaml` — Primitive: takes structured inputs + research context, produces recipe YAML
+- `agents/recipe-validate.yaml` — Primitive: runs quality gate on any recipe
+- `graduated/recipe-forge.yaml` — Daily-use: interactive discovery → research → design → validate
+- `graduated/team-forge.yaml` — Daily-use: design coordinated recipe teams
+- `recipes/forge-references/` — Archetype best practices, design principles, anti-patterns, canonical recipe template
+
 | # | Concept | Recipe | Core Requirement | Observable Signals | Teaching Trigger | Source |
 | --- | --- | --- | --- | --- | --- | --- |
-| 3.1 | **Agent roles and specialization** | three-agent-pipeline | Developer creates a pipeline with 3+ agents, each with a defined role and scoped knowledge | Each agent has a clear, distinct responsibility; no agent does "everything" | "Each AI should have one job and deep knowledge of that job. A spec analyst, a builder, a tester — each sees only what it needs." | [pipeline] 5 specialized agents, each loading one skill file |
-| 3.2 | **Agents need clear contracts** | three-agent-pipeline | Developer defines the data format between agents (what Agent A outputs, what Agent B expects) | Agent handoffs have explicit structure; not just "pass the result along" | "When Agent A writes data for Agent B, the format is a hidden contract. You just saw what happens when nobody validates it — [specific issue]. Define the contract explicitly." | [pipeline] test_progression.json format drift |
-| 3.3 | **Safety rails for autonomous operation** | three-agent-pipeline, escalation-routing | Developer configures failure thresholds and escalation paths | Pipeline has circuit breakers (stop after N failures) and escalation (route to specialist or human) | "Without safety rails, a failing agent loops forever burning resources. Circuit breakers say 'stop after 3 failures.' Escalation says 'route to someone who can help.' This is how you let it run without babysitting." | [pipeline] 3 breakers stuck OPEN permanently |
-| 3.4 | **Layered testing catches what single-pass misses** | parallel-reviewers | Developer sets up multi-layer testing (at least 2 tiers) | Tests cover different levels (e.g., syntax + behavioral, or contract + execution) | "One layer of testing catches one class of error. Parse → Structure → Contract → Execution — each layer catches what the others miss." | [pipeline] Four-tier testing strategy |
+| 3.1 | **Agent roles and specialization** | three-agent-pipeline | Developer designs a pipeline with 3+ agents using GooseForge's discovery + research process, each with a defined role and scoped knowledge | Each agent has a clear, distinct responsibility; developer used the forge to research best practices for each archetype before designing | "Each AI should have one job and deep knowledge of that job. Before designing, we looked at what works for this type of agent — that research step is what separates a good agent from a guess." | [pipeline] 5 specialized agents; [forge] Single Responsibility principle, archetype research |
+| 3.2 | **Agents need clear contracts** | three-agent-pipeline | Developer defines the data format between agents (what Agent A outputs, what Agent B expects) as recipe parameter/return schemas | Agent handoffs have explicit structure matching Goose's sub-recipe parameter patterns | "When Agent A writes data for Agent B, the format is a hidden contract. In Goose, that's the parameters and return schema of the sub-recipe. You just saw what happens when nobody validates it — define the contract explicitly." | [pipeline] test_progression.json format drift; [forge] Communication Contracts |
+| 3.3 | **Safety rails for autonomous operation** | three-agent-pipeline, escalation-routing | Developer configures failure thresholds and escalation paths, designed from GooseForge's failure mode mapping | Pipeline has circuit breakers (stop after N failures) and escalation (route to specialist or human); failure modes were identified during the design phase, not bolted on after | "You mapped failure modes BEFORE building. That's the key — without safety rails, a failing agent loops forever. Circuit breakers say 'stop after 3 failures.' Escalation says 'route to someone who can help.'" | [pipeline] 3 breakers stuck OPEN permanently; [forge] Principle 16: Map Failure Modes Before Design |
+| 3.4 | **Layered testing catches what single-pass misses** | parallel-reviewers | Developer designs reviewer agents with distinct cognitive modes using GooseForge, sets up multi-layer testing (at least 2 tiers) | Tests cover different levels; reviewer agents differentiated by cognitive mode (retrieve/reason/verify), not topic | "One layer of testing catches one class of error. You designed each reviewer with a different cognitive mode — that's why they find different things." | [pipeline] Four-tier testing strategy; [forge] Role Differentiation by cognitive mode |
 | 3.5 | **Parallel agents need coordination** | parallel-reviewers | Developer runs agents in parallel and handles shared-state correctly | No file corruption, temp files scoped, results properly merged | "Multiple AIs working simultaneously is powerful but shared files need locking and temp files need unique names. Concurrent writes corrupt state." | [pipeline] Shared temp files break under parallel agents |
 
-**Checkpoint after 3.3:** Are safety rails in place? Bridge from "team of agents" to "how do we feed this team good specs?"
+**Checkpoint after 3.3:** Are safety rails in place? Were failure modes identified during design (not after)? Bridge from "team of agents" to "how do we feed this team good specs?"
 
-**Checkpoint after 3.5:** Full review — is the pipeline robust? Ready for Stage 4 (specs) and Stage 5 (evals).
+**Checkpoint after 3.5:** Full review — is the pipeline robust? Are the forged recipes well-designed? Ready for Stage 4 (specs) and Stage 5 (evals). After graduating Stage 3, the developer gets GooseForge as a daily-use tool (recipe-forge, team-forge, recipe-validate).
 
-**Stage 3 arc:** "You have a team of AI specialists — each with a defined role, clear contracts between them, and safety rails that let them work autonomously."
+**Stage 3 arc:** "You have a team of AI specialists — each designed with research-backed best practices, clear contracts between them, and safety rails you mapped before building. And now you have the tool to design more."
 
 ---
 
@@ -320,14 +375,14 @@ Progress is concept-based, not exercise-based. Each concept tracks the developer
 
 ## RIL Agents Integration
 
-Agents from `~/ClaudeInfra/ril-agents/` that map to each stage.
+Agents from `~/ClaudeInfra/ril-agents/` that map to each stage. During training, RIL agents power the **agent primitives** (sub-recipe workers called by training recipes). After graduation, the same agents power the **graduated recipes** that replace the training versions.
 
-| Stage | RIL Agent(s) | Plugin | Role in Stage |
+| Stage | RIL Agent(s) | Plugin | Role in Agent Primitive |
 | --- | --- | --- | --- |
-| 1 | `debugger`, `error-detective` | error-debugging | Bug Fix recipe — investigation and root cause analysis |
-| 1 | `test-automator`, `tdd-orchestrator` | unit-testing, tdd-workflows | Test Writer recipe — test generation and TDD discipline |
-| 1 | `code-reviewer`, `architect-review` | comprehensive-review | Code Review recipe — quality analysis and architectural review |
-| 1 | `legacy-modernizer` | code-refactoring | Refactor recipe — safe incremental restructuring |
+| 1 | `debugger`, `error-detective` | error-debugging | `agents/bug-fix.yaml` — investigation and root cause analysis |
+| 1 | `test-automator`, `tdd-orchestrator` | unit-testing, tdd-workflows | `agents/test-writer.yaml` — test generation and TDD discipline |
+| 1 | `code-reviewer`, `architect-review` | comprehensive-review | `agents/code-review.yaml` — quality analysis and architectural review |
+| 1 | `legacy-modernizer` | code-refactoring | `agents/refactor.yaml` — safe incremental restructuring |
 | 2 | `test-automator` (separated from builder) | unit-testing | Build-then-test — independent testing agent |
 | 2 | `code-reviewer` (as gate) | comprehensive-review | Review-gate — separate review agent checks builder output |
 | 3 | `team-lead` | agent-teams | Decomposes work into parallel tasks with ownership |
@@ -348,6 +403,26 @@ Agents from `~/ClaudeInfra/ril-agents/` that map to each stage.
 | **Revert functions must not destroy untracked work** | LEARNINGS.md | Stage 3 operational safety. |
 | **Declarative pipeline graph** | Synthesis | Stage 7 — self-modifying pipeline architecture. |
 | **Incident response workflow** | ril-agents incident-response plugin | What happens when the autonomous pipeline breaks in production. Stage 6 operational concern. |
+
+---
+
+## What Developers See in the Goose App
+
+The developer's recipe list is dynamic — it changes as they progress through training. This makes advancement tangible.
+
+| Progress | Recipe List |
+| --- | --- |
+| Fresh install | START HERE + 26 training recipes (all labeled "(Training)") |
+| After completing Bug Fix | START HERE + "Bug Fix" (graduated) + 25 training recipes |
+| After all Stage 1 | START HERE + 4 graduated recipes (Bug Fix, Test Writer, Code Review, Refactor) + 22 training recipes |
+| After all stages | START HERE + 26 graduated recipes (no training recipes remain) |
+
+**Naming convention:**
+- Training recipes: `"1.1 Bug Fix (Training)"` — numbered for sequencing, labeled for clarity
+- Graduated recipes: `"Bug Fix"` — clean tool name, no number, no label
+- The gateway: `"START HERE — Goose Training"` — always present, tracks progress
+
+**How graduation works:** Each training recipe's last step calls a `graduate-module` sub-recipe that copies the graduated version from `recipes/graduated/` into `recipes/shared/` and removes the training version. The developer's recipe list updates on next session.
 
 ---
 
@@ -385,9 +460,9 @@ Decisions made during syllabus design, recorded for context when building teachi
 **What:** Teaching mode progressively loosens as the developer builds mental models.
 **Why:** Key design rule: "Never go adaptive on a concept the developer has no mental model for." Stage 0 developers don't know what AI can do — scripted moments of surprise are necessary. Stage 1 developers know the basics but need guidance on real work. Stage 2-3 developers are building real systems. Stage 4+ developers have the mental models and need consulting, not teaching.
 
-### Decision: Eval subagent checks binary signals, not qualitative judgments
-**What:** Observable signals are designed to be binary (did they/didn't they) rather than qualitative (was it good enough?).
-**Why:** Eval subagents reliably detect "did the developer run the tests" but unreliably judge "was the context the developer provided good enough." Binary signals are consistent at scale. Qualitative judgments are where the facilitator (main agent) adds value — it interprets the results, not the eval subagent.
+### Decision: ~~Eval subagent checks binary signals~~ → Superseded by quality ratings
+**What:** Originally, observable signals were designed to be binary (did they/didn't they). **Superseded** by the "Quality ratings (Strong/Adequate/Weak)" decision below — the eval subagent now rates quality dimensions on a 3-point scale with specific evidence and coaching language. Binary checks alone don't distinguish a developer who said "the login is broken" from one who gave full reproduction steps.
+**Why kept as record:** Documents the evolution from binary to qualitative. The original concern (consistency at scale) is mitigated by the coarse 3-point scale and by having the facilitator interpret ratings rather than blindly following them.
 
 ### Decision: Lead with impact, not safety (Stage 1 reordering)
 **What:** Stage 1 recipes reordered from risk-based (Code Review → Test Writer → Bug Fix → Refactor) to impact-based (Bug Fix → Test Writer → Code Review → Refactor).
@@ -453,10 +528,23 @@ Decisions made during syllabus design, recorded for context when building teachi
 **What:** Added three mechanisms to the teaching framework: skip/challenge assessment for experienced devs, stuck path handling (no bug, tests won't run, AI loops), and self-directed inter-stage gates with guardrails.
 **Why:** Evaluators flagged these as missing. Without skip mechanisms, experienced devs are forced through basics. Without stuck paths, the first infrastructure issue kills the teaching session. Without clear gates, progression is ambiguous.
 
-### Decision: Dual-mode recipes — working recipe is standalone, teaching wraps it
-**What:** Each stage has clean working recipe YAMLs (no teaching code) that run independently. The teach-wrapper meta-recipe loads the working recipe as a Goose sub-recipe and adds the facilitator + eval subagent around it. Developers reuse working recipes forever after teaching is complete.
-**Why:** Verified against Goose mechanics — sub-recipes are reusable YAML components invoked by name, `delegate(async: true)` supports background eval, and recipes run standalone with no dependency on the wrapper. This means `goose run bug-fix` is a clean tool experience post-training.
-**Implication:** Working recipes must be designed FIRST as clean, reusable tools. Teaching is a layer on top, not mixed in.
+### Decision: Three recipe types — primitives, training recipes, graduated recipes
+**What:** Each module has three recipe files: (1) an **agent primitive** in `recipes/agents/` — a clean, non-interactive worker optimized for one task, called as a sub-recipe; (2) a **training recipe** in `recipes/shared/` — an interactive facilitator labeled "(Training)" that talks to the developer, narrates delegation, and calls the primitive for code work; (3) a **graduated recipe** in `recipes/graduated/` — the daily-use version that replaces the training recipe when the developer completes the module.
+**Why:** Goose sub-recipes are non-interactive (they spawn a fresh agent, run autonomously, return results). This means the code-work agent SHOULD be non-interactive — it's a worker, not a conversationalist. The training recipe handles all developer interaction. This separation also teaches sub-recipe composition by example: developers see the training recipe calling `subagent(subrecipe: "bug_fix_agent")` and learn the pattern they'll use in Stages 2+.
+**Replaces:** The earlier "dual-mode" decision (teaching + working in one file with a teach-wrapper). That pattern fought Goose's constraint that sub-recipes can't interact with users. The new pattern works WITH the constraint.
+**Implication:** Agent primitives must be designed FIRST as clean, focused tools. Training is a layer on top. Graduated recipes may differ from primitives (especially in multi-agent stages where the graduated recipe is a full workflow).
+
+### Decision: Graduation replaces, not augments
+**What:** When a developer completes a training module, the graduated recipe **replaces** the training recipe in `recipes/shared/`. The "(Training)" label disappears. The developer's recipe list gets cleaner as they progress.
+**Why:** Keeping both (training + graduated) clutters the recipe list and gives no reward signal. Replacement makes progression tangible — your tools visibly improve. The training content is still available in `recipes/agents/` and teaching scripts if needed for review.
+
+### Decision: Training recipes labeled "(Training)", graduated recipes drop the label
+**What:** Training recipes use numbered titles: "1.1 Bug Fix (Training)". Graduated recipes use clean tool names: "Bug Fix".
+**Why:** Numbers aid sequencing during training. Post-training, the developer just wants the tool. The label change is a visible marker of graduation — you've earned the real thing.
+
+### Decision: Agent primitives are invisible to developers
+**What:** `recipes/agents/` is NOT in `GOOSE_RECIPE_PATH`. Developers never see primitives in their recipe list — only training and graduated recipes.
+**Why:** Primitives are implementation details. Showing them alongside training recipes would confuse developers ("which Bug Fix do I use?"). The training recipe narrates the delegation transparently ("I'm calling our bug-hunting specialist") but the primitive itself stays behind the curtain until developers learn to build their own in Stage 2+.
 
 ### Decision: Progression tracking is custom (Goose has none)
 **What:** We build our own concept progression tracking — a JSON state file per developer recording which concepts are demonstrated and at what quality rating.
@@ -466,6 +554,16 @@ Decisions made during syllabus design, recorded for context when building teachi
 **What:** Build a skill file that any session loads when designing modules — encodes recipe structure, teaching patterns, quality dimensions, and CourseForge rules. Not a standalone agent.
 **Why:** A skill file is loaded into context on demand. A standalone agent would need to be invoked separately. The module design task is done BY the session's main agent with the skill file's knowledge, not delegated to a separate agent.
 
+### Decision: Gateway dispatches by directing, not by embedding
+**What:** The START HERE gateway reads progression via a `check-progress` sub-recipe, shows the developer their status, and tells them which training recipe to open from their Recipes list. It does NOT try to run the training session itself.
+**Why:** Goose sub-recipes are non-interactive — they can't take over the conversation. A gateway that tried to embed all 26 teaching flows would become a monolith. Instead, each training recipe is a standalone interactive session. The gateway's job is routing, not teaching. "Open Bug Fix (Training) from your Recipes list" is simple, direct, and works with Goose's mechanics.
+
+### Decision: GooseForge — recipe design system adapted from SubagentForge
+**What:** SubagentForge (`~/ClaudeProjects/SubagentForge/`) is forked and adapted into GooseForge, a Goose-native recipe design system. Output is working Goose recipe YAML (not SubagentForge's `.agent.yaml`). The forge process is Discovery → Research → Design → Validate. The Research phase is key: classify the agent archetype, search existing agents (RIL agents library) and recipes for similar patterns, load archetype-specific best practices, surface relevant design principles and anti-patterns.
+**Why:** Stage 3 teaches developers to build multi-agent pipelines. Without a design tool, they'd either get pre-built agents (no learning) or design from scratch (reinventing the wheel). GooseForge gives them a rigorous process that produces real, working recipes. The research phase prevents "just ask the LLM to write a system prompt" — it grounds design in existing patterns and known best practices.
+**Source:** `~/ClaudeProjects/SubagentForge/` — 18 design principles, 10-section canonical directive, 60+ item validation checklist, team design patterns, 6 quality detectors.
+**Integration:** Used as a tool during Stage 3 exercises. Graduated as daily-use recipes (recipe-forge, team-forge, recipe-validate) after Stage 3 completion.
+
 ### Decision: CourseForge rules that survived into adaptive model
 **What:** Kept: never break fourth wall, module previews (bridges), few turns, clear I/O, one skill per exercise, watch-then-do, domain simplicity. Dropped: verbatim scripts, rigid check gates, pipeline orchestration mechanics.
-**Why:** The pedagogical principles are universal. The delivery mechanism (scripted vs adaptive) changed, but "keep it simple," "show before asking them to do," and "never reveal the machinery" apply regardless of teaching mode.
+**Why:** The pedagogical principles are universal. The delivery mechanism changed (training recipes calling agent primitives as sub-recipes, replacing the earlier dual-mode approach), but "keep it simple," "show before asking them to do," and "never reveal the machinery" apply regardless of teaching mode.

@@ -1,5 +1,109 @@
 # RILGoose — Technical Learnings
 
+## 2026-04-13 (Recipe Architecture & Model Selection)
+
+- **[goose-model] GOOSE_MODEL must be opus for recipe instruction-following.** `GOOSE_MODEL: default` resolves to Sonnet (first model in SDK list). Sonnet skips acts, invents content, dumps tables despite explicit rules against it. Opus follows detailed act scripts reliably. The ACP adapter resolves the alias "opus" to the full model ID via `resolveModelPreference()` at line ~1284 of acp-agent.js.
+
+- **[recipe-architecture] Put the script in `prompt:`, not `instructions:`.** The `instructions:` field is system-level context that gets buried under Goose's system.md (~200 lines of instructions were skimmed by the agent). The `prompt:` field is the user's first message — the last thing the agent reads before responding. Moving the act-by-act script to `prompt:` made the agent follow it precisely.
+
+- **[recipe-architecture] Keep `instructions:` short — behavioral rules only.** 6 rules max: INTERACTIVE, SHOW YOUR WORK, NO TABLE, BE DIRECTIVE, FOLLOW THE SCRIPT, TONE. The script/flow/content goes in `prompt:`.
+
+- **[recipe-ux] Agent fabricates file content unless told to use Read tool.** Saying "show the recipe file" causes the agent to reconstruct from memory with wrong details (fabricated extension names, wrong field descriptions). Must explicitly say "Use the Read tool to read the actual YAML file from disk."
+
+- **[recipe-ux] Tone rules must be explicit and specific.** Without "Never say 'Good eye,' 'Great job,' 'This is the point'" the agent defaults to patronizing instructor voice. Generic "be a colleague" isn't enough — name the specific phrases to avoid.
+
+- **[recipe-ux] `goose recipe open` from CLI may crash desktop app.** Error: "The backend server failed to start" on port 127.0.0.1:XXXXX. Possibly caused by having desktop already open on the same project. Needs more testing — two desktop sessions on different projects work fine, so this may be a same-project conflict, not a CLI vs desktop conflict.
+
+- **[recipe-ux] Act 3 "Everything is reversible" must explain git.** Developers need to know the mechanism — "All code changes go through git, so everything is reversible" — not just the abstract promise. This connects AI edits to the tools they already know.
+
+- **[test-codebase] docunator used as test codebase.** Switched from GooseTestProject (toy app) to `C:\Users\donid\ClaudeInfra\docunator` (real FastMCP server). More realistic for testing recipe behavior on real codebases. Requires `.goose/state/progression.json`, `.goose/team_context.md`, and `.claude/CLAUDE.md` (Goose override) to be set up.
+
+## 2026-04-13 (CLI Training Flow & Recipe UX)
+
+- **[acp-critical] Custom systemPrompt in acp-agent.js is overridden by Goose.** Lines 1008-1017: `params._meta.systemPrompt` (sent by Goose from its `system.md` template) replaces whatever default we set. Our custom prompt is just a fallback. In practice, Goose always sends its system prompt, so recipe `instructions:` are the primary way to control agent behavior.
+
+- **[acp-critical] Goose's system.md says "Use Markdown formatting for all responses."** This overrides recipe instructions that say "no tables." The Goose system prompt is baked into the compiled Rust binary — cannot be changed via config. For CLI this is acceptable (markdown renders fine). For desktop app, this is why tables look terrible during streaming.
+
+- **[acp-fix] autoMemoryEnabled: false is a separate patch from settingSources.** The claude_code preset loads auto-memory independently of settingSources. Even with settingSources: ["local"], memory files loaded until we added autoMemoryEnabled: false. These are two separate systems in the Claude SDK.
+
+- **[acp-fix] AskUserQuestion was explicitly disallowed.** Line 1028 of acp-agent.js: `disallowedTools = ["AskUserQuestion"]`. This is the ONLY tool that lets the agent pause for user input. Without it, WAIT instructions in recipes have no mechanism. Patching to `[]` enables it.
+
+- **[acp-discarded] Override clauses that mention the rule they're trying to suppress TEACH the rule.** Our `.claude/CLAUDE.md` said "Ignore memory rules about never simulate recipes" — the agent read this, learned about the "never simulate" concept, and followed it. Never mention what you want the agent to ignore.
+
+- **[acp-discarded] Tom extension cannot override CLAUDE.md or system prompt.** Tested with GOOSE_MOIM_MESSAGE_FILE. The per-turn injection is too weak against system-level instructions. Same failure mode as the recipe preamble.
+
+- **[goose-cli] `goose run --interactive` enables multi-turn chat after recipe.** Without `--interactive`, `goose run --recipe` processes the prompt and exits. With it, the session stays open for developer replies. This is required for all training recipes.
+
+- **[goose-cli] `goose recipe open <path>` opens the desktop app with a recipe.** Confirmed working. Can be used at the end of a CLI training session to show the developer the recipe YAML in the desktop app — "see the blueprint behind what you just did."
+
+- **[goose-cli] CLI streaming is chunky but better than desktop.** Known issue, PR #7233 (Feb 2026) added markdown entity buffering for CLI. Desktop app still has no dedicated fix. Tables are "a killer" per issue #7223. Major streaming refactor PR #8011 is in progress but not merged.
+
+- **[goose-vscode] VS Code extension does NOT support recipes.** `block.vscode-goose` is chat-only, experimental, ~4,600 installs. No recipe launch, no recipe management. Also hardcodes gpt-4o-mini (issue #8264) and has Windows path bugs. Not viable for recipe-based training.
+
+- **[goose-config] GOOSE_MODE: smart_approve improves interactivity.** Switching from autonomous to smart_approve forces tool approval prompts, which creates natural interaction points. Not a substitute for proper WAIT behavior but helps.
+
+- **[recipe-ux] "Never narrate reasoning" is wrong for CLI.** In CLI, narration IS the experience. The user needs to SEE code snippets, buggy lines, and diffs. Without narration, the agent says "I found bugs and fixed them" — invisible magic. The correct rule is "SHOW YOUR WORK" not "don't narrate."
+
+- **[recipe-ux] Agent ignores formatting rules that conflict with Goose system prompt.** "Do not show tables" in recipe loses to "Use Markdown formatting" in system.md. Possible mitigation: put formatting rules in the `prompt:` field (last thing agent reads) instead of `instructions:`.
+
+- **[design-pivot] Training should teach Goose recipes, not just AI.** Doni's insight: each module should end by showing the recipe that powered it. `goose recipe open <path>` opens it in the desktop app. By Stage 2-3, developers understand recipe structure and can modify them. The curriculum teaches recipe literacy alongside AI skills.
+
+## 2026-04-13 (ACP Context Pollution & Project Template)
+
+- **[acp-critical] ACP adapter hardcodes `settingSources: ["user", "project", "local"]` at line 1038 of `acp-agent.js`.** This loads `~/.claude/CLAUDE.md`, `<cwd>/CLAUDE.md`, and `<cwd>/.claude/CLAUDE.md` into every Goose session. The `preset: "claude_code"` system prompt makes the agent identify as Claude Code. No config, env var, or recipe-level override can disable this — only patching the file or upstream changes.
+
+- **[acp-critical] Recipe-level isolation preambles cannot override CLAUDE.md.** Tested three approaches: (1) recipe preamble saying "ignore CLAUDE.md", (2) `.claude/CLAUDE.md` with override clause, (3) Tom extension injecting per-turn context. All failed. The agent absorbs CLAUDE.md/memory at system level before reading recipe instructions, and specific actionable rules ("never simulate") beat generic overrides ("follow the recipe").
+
+- **[acp-fix] Patching `settingSources` to `["local"]` solves context pollution.** Only `<cwd>/.claude/CLAUDE.md` loads, which we control via the project template. Setup script applies this patch automatically. Reinstalling the adapter (`npm install -g @agentclientprotocol/claude-agent-acp`) reverts the patch — useful for graduation.
+
+- **[acp-override] `_meta.claudeCode.options.settingSources` can theoretically override the hardcoded array** (spread after the default at line 1040). But Goose doesn't expose `_meta` in recipe YAML, so this isn't usable from the recipe layer. Future upstream fix could use this mechanism.
+
+- **[acp-override] `CLAUDE_CONFIG_DIR` env var redirects `~/.claude/` resolution** but is process-wide. Setting it persistently breaks normal Claude Code usage. Setting it per-process only works for CLI, not the desktop app.
+
+- **[goose-app] Goose desktop app prompts for project directory at session start.** Selection stored in `%APPDATA%\Block\goose\data\projects.json`. Pre-populating this file with a single project entry auto-selects it on next launch. Format: `{ "projects": { "<path>": { "path": "<path>", "last_accessed": "<ISO>", "last_instruction": null, "last_session_id": null } } }`.
+
+- **[goose-app] `GOOSE_WORKING_DIR` is process-wide, shared across sessions.** Known bug (Goose #6909): changing directory in one session affects all sessions. The developer extension reads from a global env var, not per-session context.
+
+- **[goose-config] Per-provider env vars are NOT supported in config.yaml.** Extensions get an `env:` field for subprocess env vars, but providers don't. Provider subprocesses inherit the parent process's full environment.
+
+- **[goose-config] Tom (Top Of Mind) extension injects context via `GOOSE_MOIM_MESSAGE_TEXT` / `GOOSE_MOIM_MESSAGE_FILE` env vars.** Injected every turn. Already enabled in config. Could theoretically override CLAUDE.md but in practice the agent still prioritizes CLAUDE.md rules.
+
+- **[goose-memory] Goose's `chatrecall` extension loads past session summaries into new sessions.** Even after patching ACP to block CLAUDE.md, old sessions where the agent learned "never simulate" were recalled into new sessions. The `chatrecall` extension must be disabled during training. The `memory` extension (user preferences) is safe to keep. Sessions stored in `%APPDATA%\Block\goose\data\sessions\sessions.db` (SQLite, locked while Goose runs).
+
+- **[project-template] Standard test project created at `install/project-template/`.** Contains sample Python task tracker app, `.claude/CLAUDE.md` override, `.goose/` state, `team_context.md`. Setup script deploys this to the user's project directory. Sample code has intentional bugs/gaps for training material (off-by-one in truncate, duplicate formatting logic, incomplete tests).
+
+## 2026-04-13 (Goose Desktop App Setup)
+
+- **[goose-recipe-discovery] `GOOSE_RECIPE_PATH` does NOT recurse subdirectories.** Each directory must be listed explicitly, semicolon-separated on Windows. Setting `GOOSE_RECIPE_PATH=recipes/` finds nothing; `GOOSE_RECIPE_PATH=recipes/stage-0;recipes/stage-1;...` finds everything. This is a PATH-style env var, not a glob.
+
+- **[goose-recipe-discovery] `goose recipe list` only searches `GOOSE_RECIPE_PATH` and `GOOSE_RECIPE_GITHUB_REPO`.** Without these env vars, `goose recipe list` returns "No recipes found" even if recipes exist in the current directory or `.goose/recipes/`. The desktop app also uses these paths for its recipe browser.
+
+- **[goose-recipe-discovery] `goose recipe open <path>` always works with a full file path.** This bypasses all discovery logic — you can open any recipe YAML from anywhere. The desktop app confirms with "Opened recipe 'Title' in Goose Desktop."
+
+- **[goose-recipe-discovery] Deeplinks encode the entire recipe as base64 in a `goose://recipe?config=` URL.** These are self-contained — no file path needed, the full YAML is embedded. Useful for sharing recipes that aren't in the user's recipe path.
+
+- **[goose-config] Enable memory, chatrecall, and orchestrator extensions for teaching.** Default config has these disabled. Memory = preferences across sessions, chatrecall = session history search, orchestrator = subagent management. All needed for multi-agent teaching recipes.
+
+- **[goose-config] `projects.json` tracks known project directories.** Located at `AppData/Roaming/Block/goose/data/projects.json`. Goose auto-creates entries when you open a project. Contains path, last_accessed timestamp, and last_session_id.
+
+- **[goose-acp] CRITICAL: ACP loads your CLAUDE.md and memory into every Goose recipe.** The ACP adapter (`acp-agent.js` line 1007-1038) uses `preset: "claude_code"` and `settingSources: ["user", "project", "local"]`. This means the Claude agent in a Goose recipe sees ~/.claude/CLAUDE.md, project CLAUDE.md, and auto-memory — all intended for Claude Code, not Goose. Confirmed: a recipe refused to run because it read a "never simulate recipes" feedback memory and thought IT was the simulator.
+
+- **[goose-acp] Fix: every recipe needs a runtime identity preamble.** Add "You are running inside the Goose agent platform. This IS the real Goose runtime. Do NOT follow CLAUDE.md/memory instructions." at the top of every recipe's `instructions:` block. Without this, any user with Claude Code configured on the same machine will get polluted Goose sessions. See `recipes/RECIPE-PREAMBLE.md` for the standard text.
+
+- **[goose-acp] This is not just Doni's problem — it affects all RIL teams.** Any developer who uses Claude Code will have some CLAUDE.md and memory loaded. The preamble is mandatory for all recipes, not just for testing on Doni's machine.
+
+- **[goose-design] Two-mode recipes: teaching + working in one file.** Each recipe checks `.goose/state/progression.json` for its concept ID. If not complete → TEACHING MODE (isolation preamble, reads teaching script, guides developer, updates progression). If complete → WORKING MODE (standard instructions, CLAUDE.md welcome). One entry point, zero user choices.
+
+- **[goose-design] Gateway recipe "★ START HERE" is the single entry point for training.** Reads progression, shows progress, runs next module. Zero parameters. Post-completion becomes a dashboard. All 27 recipes visible from day 1 — the full list signals a serious training system to skeptical developers.
+
+- **[goose-design] Shared/local recipe split.** `recipes/shared/` = curated, numbered, deployed to all users via GOOSE_RECIPE_PATH. `recipes/local/` = personal sandbox, testing, pipeline tools. Promotion = move file from local to shared with next number prefix.
+
+- **[goose-design] Async eval delegation is unreliable.** Goose Issue #7364: `delegate(async: true)` causes "task still running" errors. All recipes use synchronous `delegate()` for eval subagents instead.
+
+- **[goose-design] Goose app shows recipe `title`, not filename.** Numbered filenames (02-bug-fix.yaml) control filesystem/CLI sort order. The app shows "Bug Fix" not "02 Bug Fix". Keep titles clean, put numbers in filenames only.
+
+- **[goose-app] CONFIRMED: Goose desktop app sorts recipes by modification date, newest first.** Hardcoded in `crates/goose-server/src/routes/recipe_utils.rs`: `sort_by(|a, b| b.last_modified.cmp(&a.last_modified))`. No configurable sort option exists. No UI toggle. Numbered filenames only affect CLI `goose recipe list` order. To keep "★ START HERE" at the top of the app, `touch` it after any batch recipe update. The setup script should touch the gateway as its final step.
+
 ## 2026-04-13 (Overnight Pipeline Results — 20 Cycles)
 
 - **[pipeline] Planner agents over-increment cycle counters.** The Haiku planner subagent repeatedly advanced `current_cycle` in state.json before the cycle actually ran (cycles 12-14). Root cause: the planner was told to "update state.json" without being told that current_cycle should stay at N until the decision-maker finishes. Fix: planner should ONLY set `next_planned`, never touch `current_cycle` or `completed_cycles`.

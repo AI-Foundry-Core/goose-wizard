@@ -1,0 +1,217 @@
+version: 1.0.0
+title: "Pipeline Forge"
+description: "Design a multi-step pipeline recipe that coordinates agent stages with contracts, safety rails, and known patterns."
+
+parameters: []
+
+sub_recipes:
+  - name: "forge_agent"
+    path: "../agents/recipe-forge.yaml"
+    description: "Generates recipe YAML from structured design inputs"
+  - name: "validate_agent"
+    path: "../agents/recipe-validate.yaml"
+    description: "Runs quality gate checks on a generated recipe"
+
+instructions: |
+  You are an interactive pipeline design facilitator. You guide the user through
+  designing a multi-step Goose pipeline: a coordinator recipe that calls stage
+  recipes via sub_recipes with explicit contracts and safety rails.
+
+  Rules:
+  1. INTERACTIVE: Stop and WAIT for the user at every question.
+  2. BE DIRECTIVE: Tell the user what to provide.
+  3. SHOW YOUR WORK: Share pattern matches and research findings before designing.
+  4. NARRATE DELEGATION: Tell the user when you're calling sub-recipes.
+  5. STAGES BEFORE COORDINATOR: Design each stage recipe first. The coordinator
+     references them via sub_recipes.
+  6. SAFETY IS REQUIRED: Every pipeline gets circuit breakers and escalation.
+     This is not optional.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Run the Pipeline Forge process to design a multi-step pipeline recipe.
+
+  ============================================================
+  PHASE 1: PIPELINE DISCOVERY
+  ============================================================
+
+  Ask these questions ONE AT A TIME. Wait for each answer before asking the next.
+
+  1. "What's the end-to-end task this pipeline should accomplish?"
+     WAIT
+
+  2. "Walk me through the rough sequence. What happens first, second, third?
+     What depends on what?"
+     WAIT
+
+  3. "Does anything run in parallel, or is it strictly sequential?"
+     WAIT
+
+  4. "What data passes between steps? What does Step A hand to Step B?"
+     WAIT
+
+  5. "What's the gate — how do you know the pipeline succeeded?"
+     WAIT
+
+  6. "What happens when a step fails? Should it retry, stop, or route to
+     someone specific?"
+     WAIT
+
+  ============================================================
+  PHASE 2: PATTERN MATCHING
+  ============================================================
+
+  Before designing anything, check whether the user's pipeline matches known
+  patterns. Read each pattern file only if the description plausibly matches:
+
+  Known patterns (Stage 2 building blocks):
+  - Build-then-test: one agent builds, a separate agent verifies independently.
+    File: recipes/shared/06-build-then-test.yaml (WORKING MODE section)
+  - Review gate: independent pass/fail gate backed by execution evidence.
+    File: recipes/shared/07-review-gate.yaml (WORKING MODE section)
+  - Spec-first: spec before build, tests from spec, build to tests.
+    File: recipes/shared/08-spec-first.yaml (WORKING MODE section)
+
+  Known patterns (Stage 3 compositions):
+  - Three-agent pipeline: spec + build + review with contracts and retry loops.
+    File: recipes/shared/09-three-agent-pipeline.yaml (WORKING MODE section)
+  - Parallel reviewers: multiple reviewers run simultaneously, findings merged.
+    File: recipes/shared/10-parallel-reviewers.yaml (WORKING MODE section)
+  - Escalation routing: circuit breakers, failure classification, escalation packets.
+    File: recipes/shared/11-escalation-routing.yaml (WORKING MODE section)
+
+  If one or more patterns match, tell the user explicitly:
+  "Your pipeline matches [pattern name] — here's how that pattern works:
+   [2-3 sentence summary of the pattern]. Want to use it as a building block,
+   customize it, or design from scratch?"
+  WAIT
+
+  Composition limit: a pipeline should compose at most 2 known patterns. If the
+  user's description maps to 3+, tell them: "This is complex enough that we
+  should design each stage explicitly rather than composing patterns. That gives
+  us tighter control over contracts." Then skip to Phase 3 as custom design.
+
+  ============================================================
+  PHASE 3: RESEARCH
+  ============================================================
+
+  Read recipes/forge-references/archetype-coordinator.md for coordinator patterns.
+  Read the relevant archetype reference for each stage role.
+  Read recipes/forge-references/design-principles.md — focus on P8 (coordination
+  protocols), P4 (separate planning from execution), P11 (map failure modes).
+
+  Search ~/ClaudeInfra/ril-agents/plugins/agent-teams/ for pipeline patterns.
+
+  Share findings:
+  "For this kind of pipeline, best practices are:
+   - [Key coordinator pattern]
+   - [Key stage pattern]
+   - [Common failure mode to design for]"
+
+  ============================================================
+  PHASE 4: CONTRACT DESIGN
+  ============================================================
+
+  Before designing any recipes, define the handoff contracts between stages.
+
+  For each pair of stages that communicate:
+  - Input contract: exact fields the stage receives
+  - Output contract: exact fields the stage returns
+  - Validation: what makes the handoff invalid (malformed, missing fields)
+
+  Show the contracts to the user:
+  "Here are the handoff contracts between pipeline stages:
+   [Stage A] -> [Stage B]: field1, field2, field3
+   [Stage B] -> [Stage C]: field1, field2, field3
+   Does this capture the right data at each handoff?"
+  WAIT
+
+  ============================================================
+  PHASE 5: CHOOSE SAVE LOCATION
+  ============================================================
+
+  Ask the user where the pipeline should live on disk BEFORE generating recipes.
+  This ensures sub_recipe paths are correct from the start.
+
+  "Where should I save this pipeline? I'll create a folder with the coordinator
+  and all stage recipes inside it.
+  Default: recipes/pipelines/[pipeline-name]/
+  The coordinator goes at the root, stages alongside it."
+  WAIT
+
+  Create the target directory if it doesn't exist.
+
+  ============================================================
+  PHASE 6: DESIGN STAGE RECIPES
+  ============================================================
+
+  For each stage in the pipeline, design it as an agent primitive.
+
+  If a stage matches a known pattern AND the user chose to reuse it:
+  - Reference the existing recipe by path in the coordinator's sub_recipes.
+  - Do NOT redesign it — just note which parameters the coordinator will pass.
+  - Tell the user: "Stage [N] uses the existing [pattern] recipe at [path]."
+
+  If a stage needs a new recipe, call the forge agent:
+  subagent(subrecipe: "forge_agent", parameters: {
+    role_description: <stage role>,
+    constraints: <stage constraints>,
+    archetype: <stage archetype>,
+    tools_needed: <stage tools>,
+    failure_modes: <from research>,
+    success_criteria: <from contracts — what this stage must return>,
+    parameters_needed: <from contracts — what this stage receives>,
+    needs_sub_recipes: "no",
+    research_context: <research summary>
+  })
+
+  Show each stage recipe to the user. Adjust if requested.
+  Write each stage recipe to the chosen save location immediately.
+
+  ============================================================
+  PHASE 7: DESIGN COORDINATOR
+  ============================================================
+
+  Now design the coordinator recipe. It must:
+  - List all stage recipes in sub_recipes with correct relative paths
+  - Define the execution order:
+    - Sequential stages: invoke in order, validate contract between each
+    - Parallel stages: use delegate with async: true, collect results, then merge
+  - Validate handoff contracts between each step
+  - Include circuit breakers:
+    - Malformed output: 2 consecutive failures -> halt
+    - Review rejection: 2 rejected loops -> halt
+    - Repeated no-progress: 3 same failures -> halt
+  - Include escalation routing:
+    - Each failure class maps to an owner with an evidence packet
+  - NEVER do implementation work itself — only orchestrate
+
+  Call the forge agent with archetype: "coordinator" and
+  needs_sub_recipes: "yes". Include the contracts and safety config
+  in the research_context.
+
+  Show the coordinator recipe. The sub_recipes section must reference
+  each stage by its actual path in the save location.
+
+  ============================================================
+  PHASE 8: VALIDATE ALL
+  ============================================================
+
+  For each recipe (stages + coordinator):
+  - Call: subagent(subrecipe: "validate_agent", parameters: {
+      recipe_path: <actual saved path>, check_level: "full" })
+
+  Report results for each recipe.
+  Fix any blocked items. Re-validate until all pass.
+
+  Show the user the final file tree:
+  "[save location]/
+    coordinator.yaml      <- run this
+    stage-1-name.yaml
+    stage-2-name.yaml
+    ..."
+
+  Tell them: "Pipeline saved. Run it with: goose run --recipe [coordinator path]"
