@@ -1,7 +1,7 @@
-# Recipes 2.1 & 2.2: Build-Then-Test — "Two AIs Are Better Than One"
+# Recipe 2.1: Build-Then-Test — "Two AIs Are Better Than One"
 
-Covers concepts 2.1 (Why one AI isn't enough) and 2.2 (Specialists beat generalists).
-Mode: Adaptive + Checkpoints. Checkpoint after 2.2.
+Covers concept 2.1 (build-then-test). Teaches why one AI isn't enough and why specialists beat generalists.
+Mode: Adaptive + Checkpoints.
 
 ---
 
@@ -126,14 +126,18 @@ Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
 ## State Update
 
 Write to .goose/state/progression.json:
-  concepts 2.1 and 2.2 dimensions with eval ratings + timestamp.
+  Update concept 2.1 (module 6: build-then-test) with all four dimension ratings
+  (separation_awareness, result_inspection, role_separation, information_boundary)
+  as sub-fields of concept 2.1's eval_ratings, plus timestamp.
+  Update concept 2.1 status to "complete" when all four are Adequate or Strong.
+  Never overwrite a Strong rating with a lower one.
 
 ---
 
 ## Eval Subagent Prompt
 
 ```
-You are evaluating how well a developer approached a two-agent build-then-test workflow. This covers concepts 2.1 (Why one AI isn't enough) and 2.2 (Specialists beat generalists).
+You are evaluating how well a developer approached a two-agent build-then-test workflow. This covers concept 2.1 (build-then-test).
 
 Here is the full conversation transcript between the developer and the facilitator:
 
@@ -148,22 +152,22 @@ Rate each quality dimension below. For each dimension:
 
 Quality dimensions:
 
-1. SEPARATION AWARENESS (concept 2.1)
+1. SEPARATION AWARENESS
    Strong: Developer recognized why the tester being independent matters — mentioned the builder's blind spots, fresh perspective, or "grading your own work" dynamic. Articulated that shared context reduces the tester's effectiveness.
    Adequate: Developer acknowledged the tester caught something the builder missed but did not articulate why independence (no shared context) is the mechanism that makes it work.
    Weak: Developer treated both agents as interchangeable, didn't notice the tester caught something new, or didn't engage with why two agents are different from one.
 
-2. RESULT INSPECTION (concept 2.1)
+2. RESULT INSPECTION
    Strong: Developer examined the specific discrepancies between builder and tester — read the tester's findings in detail, asked about specific issues caught, or discussed what the builder's blind spot was.
    Adequate: Developer looked at the pass/fail summary but did not dig into the specific discrepancies or what exactly the tester found that the builder missed.
    Weak: Developer ignored the tester's findings, accepted the result without reading it, or showed no interest in what the second agent caught.
 
-3. ROLE SEPARATION (concept 2.2)
+3. ROLE SEPARATION
    Strong: Developer understood or articulated that builder and tester have different scopes and jobs — builder implements, tester challenges. Did not suggest merging them or having one agent do both.
    Adequate: Developer understood there are two agents but was unclear on why they need different scopes, or initially suggested one agent could do both but accepted the separation after discussion.
    Weak: Developer actively suggested merging the agents, having the builder write its own tests, or showed no understanding of why role separation matters.
 
-4. INFORMATION BOUNDARY (concept 2.2)
+4. INFORMATION BOUNDARY
    Strong: Developer understood or respected that the tester should not see the builder's reasoning or assumptions — recognized that the information wall is deliberate and makes the review honest.
    Adequate: Developer understood the agents are separate but questioned why the tester can't see the builder's notes, or didn't proactively think about what information the tester receives.
    Weak: Developer tried to pass builder context to the tester, suggested the tester should know the builder's intent, or did not understand that shared information undermines the independence.
@@ -171,10 +175,10 @@ Quality dimensions:
 Return as JSON:
 {
   "dimensions": [
-    {"name": "separation_awareness", "concept": "2.1", "rating": "...", "evidence": "...", "coaching": "..."},
-    {"name": "result_inspection", "concept": "2.1", "rating": "...", "evidence": "...", "coaching": "..."},
-    {"name": "role_separation", "concept": "2.2", "rating": "...", "evidence": "...", "coaching": "..."},
-    {"name": "information_boundary", "concept": "2.2", "rating": "...", "evidence": "...", "coaching": "..."}
+    {"name": "separation_awareness", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "result_inspection", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "role_separation", "rating": "...", "evidence": "...", "coaching": "..."},
+    {"name": "information_boundary", "rating": "...", "evidence": "...", "coaching": "..."}
   ],
   "overall_note": "Any cross-cutting observation about how the developer is internalizing the two-agent pattern"
 }

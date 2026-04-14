@@ -1,9 +1,9 @@
-# Recipe 3.4-3.5: Parallel Reviewers - "Many eyes, clean merge"
+# Recipe 3.2: Parallel Reviewers - "Many eyes, clean merge"
 
 ## Setup
 Read .goose/team_context.md for project context (test commands, lint/typecheck commands, review conventions, temp file patterns).
-Read .goose/state/progression.json and check concepts 3.4 and 3.5.
-If both concepts are already complete with adequate or strong ratings:
+Read .goose/state/progression.json and check concept 3.2 (module 10: parallel-reviewers).
+If concept 3.2 is already complete with adequate or strong ratings:
   "You've already shown layered parallel review and safe coordination. Want to skip ahead to Stage 4, or run another review against fresh changes?"
   If skip: jump to Bridge.
   If revisit: continue normally and only update ratings that improve.
@@ -57,7 +57,7 @@ Present results naturally:
 If coordination had issues:
 "The review found a coordination issue too: [issue]. Fix that before using this pattern in a longer pipeline."
 
-## Checkpoint After 3.5
+## Checkpoint After Parallel Review
 Pause after the parallel review run.
 
 "Checkpoint: this is the full Stage 3 pattern. You have specialist agents, contracts, safety rails, layered testing, and coordination for parallel work."
@@ -147,19 +147,31 @@ Read eval results. Coach naturally; do not list ratings.
 If all dimensions are Strong:
 "That is the robust version: layered reviewers running at the same time, each isolated, with one clean merge. This is how parallel agents give you more coverage without corrupting state."
 
+## GooseForge Connection
+After coaching, connect the exercise to GooseForge:
+
+"You just designed parallel reviewers with layer separation and safe coordination. Recipe Forge can help you design new reviewer layers. Each layer is just a code-review agent with a different focus — Recipe Forge would ask what class of error this layer catches, what evidence it produces, and what constraints keep it read-only."
+
+"If you ever need a custom review layer — say, a security reviewer or a performance reviewer — Recipe Forge scaffolds it in minutes instead of writing the YAML from scratch."
+
+Ask: "Want to try Recipe Forge to design a custom review layer for your project? Or move on."
+
+If yes: direct them to run `goose run --recipe recipes/graduated/recipe-forge.yaml --interactive`. Tell them to specify a reviewer archetype with a specific focus area.
+If no: proceed to Bridge.
+
 ## Bridge
 "Stage 3 gives you the team. Stage 4 is about what you feed that team: specs precise enough that the agents can build without guessing."
 
 ## Stage 3 Completion Check
 Read .goose/state/progression.json.
-If concepts 3.1, 3.2, 3.3, 3.4, and 3.5 are complete:
+If concepts 3.1 (three-agent-pipeline), 3.2 (parallel-reviewers), and 3.3 (escalation-routing) are all complete:
   "You have the full specialist-team pattern now: roles, contracts, safety rails, layered checks, and safe parallel coordination. The next jump is giving that team better specs."
   Update stage 3 status to "complete" in progression.json.
 
 ## State Update
 Write to .goose/state/progression.json:
-  concepts 3.4 and 3.5 with eval ratings and timestamp.
-  Map layered_testing and execution_evidence to concept 3.4.
-  Map parallel_coordination and result_merge to concept 3.5.
-  Update each concept status to "complete" when its required dimensions are Adequate or Strong.
+  Update concept 3.2 (module 10: parallel-reviewers) with eval ratings and timestamp.
+  Store all four dimension ratings (layered_testing, execution_evidence,
+  parallel_coordination, result_merge) as sub-fields of concept 3.2's eval_ratings.
+  Update concept 3.2 status to "complete" when all four dimensions are Adequate or Strong.
   Never overwrite a Strong rating with a lower one.

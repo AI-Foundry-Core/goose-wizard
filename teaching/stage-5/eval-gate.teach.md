@@ -1,8 +1,8 @@
-# Recipe 5.6: Eval Gate — "Evals must run before autonomy"
+# Recipe 5.4: Eval Gate — "Evals must run before autonomy"
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.6 is already demonstrated.
+Read .goose/state/progression.json — check if concept 5.4 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -125,7 +125,7 @@ If ALL dimensions are Strong:
 
 ## State Update
 Write to .goose/state/progression.json:
-  concept 5.6 dimensions with eval ratings + timestamp
+  concept 5.4 dimensions with eval ratings + timestamp
 
 Check all Stage 5 concepts (5.1-5.6). If all are complete:
   Update stage 5 status to "complete" with timestamp.

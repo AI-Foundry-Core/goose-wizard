@@ -1,9 +1,9 @@
-# Recipe 3.1-3.3: Three-Agent Pipeline - "Build a team of specialists"
+# Recipe 3.1: Three-Agent Pipeline - "Build a team of specialists"
 
 ## Setup
 Read .goose/team_context.md for project context (stack, test commands, conventions, ownership model).
-Read .goose/state/progression.json and check concepts 3.1, 3.2, and 3.3.
-If all three concepts are already complete with adequate or strong ratings:
+Read .goose/state/progression.json and check concept 3.1 (module 9: three-agent-pipeline).
+If concept 3.1 is already complete with adequate or strong ratings:
   "You've already shown this workflow: specialist roles, explicit handoffs, and safety rails. Want to skip to parallel reviewers, or run another pipeline design against a real task?"
   If skip: jump to Bridge.
   If revisit: continue normally and only update ratings that improve.
@@ -59,7 +59,7 @@ Present results naturally:
 If the pipeline halted:
 "This is a useful halt, not a failure. The breaker stopped the loop at [threshold], and the escalation packet says [owner] needs [specific next action]."
 
-## Checkpoint After 3.3
+## Checkpoint After Pipeline Exercise
 Pause after the three-agent pipeline and escalation routing work.
 
 "Checkpoint: does this pipeline have a real team shape? I am looking for three things: each AI has one job, each handoff has a data shape, and the loop knows when to stop."
@@ -168,14 +168,25 @@ Read eval results. Coach naturally; do not list ratings.
 If all dimensions are Strong:
 "That is a real AI team: specialist roles, contracts between them, scoped context, and a breaker that knows when to stop. This is the point where the system can do more than a single prompt."
 
+## GooseForge Connection
+After coaching, connect the exercise to GooseForge:
+
+"You just designed and ran a three-agent pipeline by hand — role separation, contracts, and safety rails. There's a tool called Pipeline Forge that scaffolds this. It asks the same questions you just answered: what are the stages, what data passes between them, what happens on failure. Then it generates the coordinator recipe and validates it."
+
+Show the developer Pipeline Forge: "Take a look at recipes/graduated/pipeline-forge.yaml — see Phase 2 (Pattern Matching). It would have recognized your pipeline as a three-agent-pipeline pattern and offered it as a building block."
+
+Ask: "Want to try Pipeline Forge on a variation of what you just built? For example, add a fourth agent, change the review strategy, or design a completely different pipeline."
+
+If yes: direct them to run `goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive`.
+If no: proceed to Bridge.
+
 ## Bridge
 "Now that you have a team pipeline, the next problem is coordination under parallel work. Multiple reviewers can catch different classes of issues at the same time, but shared files and temp state need discipline."
 
 ## State Update
 Write to .goose/state/progression.json:
-  concepts 3.1, 3.2, and 3.3 with eval ratings and timestamp.
-  Map role_specialization and scoped_context to concept 3.1.
-  Map handoff_contracts to concept 3.2.
-  Map safety_rails to concept 3.3.
-  Update each concept status to "complete" when its required dimensions are Adequate or Strong.
+  Update concept 3.1 (module 9: three-agent-pipeline) with eval ratings and timestamp.
+  Store all four dimension ratings (role_specialization, handoff_contracts, safety_rails,
+  scoped_context) as sub-fields of concept 3.1's eval_ratings.
+  Update concept 3.1 status to "complete" when all four dimensions are Adequate or Strong.
   Never overwrite a Strong rating with a lower one.

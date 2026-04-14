@@ -2,9 +2,10 @@
 
 ## Setup
 Read .goose/team_context.md for project context (stack, test commands, ownership model, external systems, temp file patterns).
-Read .goose/state/progression.json and check concepts 3.1, 3.2, and 3.3.
+Read .goose/state/progression.json and check concept 3.3 (module 11: escalation-routing).
+Also check concept 3.1 (module 9: three-agent-pipeline) as a prerequisite.
 
-If concepts 3.1 and 3.2 are not complete:
+If concept 3.1 is not complete:
   "Before we add escalation, the pipeline needs a team shape and handoff contracts. Let's run the three-agent pipeline first, then put safety rails around it."
   Route back to `three-agent-pipeline`.
 
@@ -172,6 +173,18 @@ If the developer engages, follow up with one more: "When the pipeline opens a br
 
 Do not ask more than two questions. The goal is to connect the exercise to enterprise reality (design review, audit trails), not to design the full integration.
 
+## GooseForge Connection
+After coaching, connect the exercise to GooseForge:
+
+"You just added safety rails to a pipeline — failure classes, circuit breakers, escalation packets. Pipeline Forge builds this in automatically. Look at Phase 7 in recipes/graduated/pipeline-forge.yaml: every coordinator it generates includes circuit breakers (2 consecutive failures halt) and escalation routing (each failure class maps to an owner with an evidence packet)."
+
+"That means every pipeline you design with Pipeline Forge gets the safety layer you just learned, without you having to remember every threshold and packet field."
+
+Ask: "Want to try Pipeline Forge to design a new pipeline with built-in safety rails? Or are you ready to move on."
+
+If yes: direct them to run `goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive`. When it asks about failure handling, they'll recognize the same patterns.
+If no: proceed to Bridge.
+
 ## Bridge
 "Safety rails answer what the team does when it gets stuck. The next big jump is what you feed that team: specs precise enough that agents can build without guessing."
 
@@ -195,4 +208,4 @@ Write to .goose/state/progression.json:
   Record cleanup_awareness when triggered. If not triggered, store rating null with the note from eval and do not block completion.
   Update concept 3.3 status to "complete" when failure_classification, threshold_specificity, and escalation_evidence are Adequate or Strong, and cleanup_awareness is either null or Adequate/Strong when triggered.
   Never overwrite a Strong rating with a lower one.
-  Do not mark Stage 3 complete from this module unless concepts 3.4 and 3.5 are already complete.
+  Do not mark Stage 3 complete from this module unless concepts 3.1 and 3.2 are already complete.

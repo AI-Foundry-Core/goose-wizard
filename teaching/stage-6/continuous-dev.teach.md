@@ -1,16 +1,12 @@
-# Recipe 6.4-6.6: Continuous Development - "Give the pipeline a memory"
+# Recipe 6.1: Continuous Development - "Give the pipeline a memory"
 
-## Concepts Covered
-
-- 6.4 Capture what you learn
-- 6.5 Agents need their own memory
-- 6.6 Shared state requires discipline
+Covers concept 6.1 (continuous-dev). Teaches learning capture, agent memory, and shared state discipline.
 
 ## Setup
 
 Read `.goose/team_context.md` for project context.
-Read `.goose/state/progression.json` and check concepts 6.4, 6.5, and 6.6.
-If all three concepts are already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
+Read `.goose/state/progression.json` and check concept 6.1 (module 22: continuous-dev).
+If concept 6.1 is already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
 
 This is Fully Adaptive mode. Act as a consulting partner. The developer is operating a real autonomous pipeline; your role is to help harden the operational loop, not to run a scripted lesson.
 
@@ -188,48 +184,11 @@ Ordered list. Deliver one per subagent operation that takes 30+ seconds. See tea
 
 ## State Update
 
-Write to `.goose/state/progression.json` after eval completes:
-
-```json
-{
-  "stages": {
-    "6": {
-      "status": "in_progress",
-      "concepts": {
-        "6.4": {
-          "recipe": "continuous-dev",
-          "status": "complete_when_required_dimensions_adequate_or_strong",
-          "dimensions": {
-            "structured_learning_capture": {
-              "rating": "Strong|Adequate|Weak",
-              "assessed_at": "ISO-8601 timestamp"
-            }
-          }
-        },
-        "6.5": {
-          "recipe": "continuous-dev",
-          "status": "complete_when_required_dimensions_adequate_or_strong",
-          "dimensions": {
-            "per_agent_memory_design": {
-              "rating": "Strong|Adequate|Weak",
-              "assessed_at": "ISO-8601 timestamp"
-            }
-          }
-        },
-        "6.6": {
-          "recipe": "continuous-dev",
-          "status": "complete_when_required_dimensions_adequate_or_strong",
-          "dimensions": {
-            "shared_state_hygiene": {
-              "rating": "Strong|Adequate|Weak",
-              "assessed_at": "ISO-8601 timestamp"
-            }
-          }
-        }
-      }
-    }
-  }
-}
-```
+Update concept 6.1 (module 22: continuous-dev) in `.goose/state/progression.json`:
+  Store all dimension ratings (structured_learning_capture, per_agent_memory_design,
+  shared_state_hygiene) as sub-fields of concept 6.1's eval_ratings, plus timestamp.
+  Update concept 6.1 status to "complete" when all dimensions are Adequate or Strong.
+  If concepts 6.1 and 6.2 are both complete, mark Stage 6 complete.
+  Never overwrite a Strong rating with a lower one.
 
 Never overwrite a Strong rating with a lower one.

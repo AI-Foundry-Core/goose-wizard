@@ -1,8 +1,6 @@
-# Recipe 4.1 + 4.2: Idea to Spec — "From napkin to blueprint"
+# Recipe 4.1: Idea to Spec — "From napkin to blueprint"
 
-Covers concepts:
-- 4.1 Vague specs produce vague output
-- 4.2 Progressive elaboration
+Covers concept 4.1 (idea-to-spec). Teaches concrete specs and progressive elaboration.
 
 Mode: Adaptive + Checkpoints
 Checkpoint after 4.2: Has the developer internalized progressive elaboration?
@@ -228,5 +226,8 @@ Coach on the weak dimensions (using coaching language above), then offer:
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 4.1 dimensions (spec_concreteness, spec_completeness) with eval ratings + timestamp
-  concept 4.2 dimensions (progressive_discipline, kill_gate_recognition) with eval ratings + timestamp
+  Update concept 4.1 (module 12: idea-to-spec) with all dimension ratings
+  (spec_concreteness, spec_completeness, progressive_discipline, kill_gate_recognition)
+  as sub-fields of concept 4.1's eval_ratings, plus timestamp.
+  Update concept 4.1 status to "complete" when all required dimensions are Adequate or Strong.
+  Never overwrite a Strong rating with a lower one.

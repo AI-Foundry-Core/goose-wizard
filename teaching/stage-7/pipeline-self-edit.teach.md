@@ -1,8 +1,6 @@
-# Recipes 7.3 & 7.5: Pipeline Self-Edit - "One source of truth per rule"
+# Recipe 7.2: Pipeline Self-Edit - "One source of truth per rule"
 
-Covers:
-- 7.3 Rules accumulate and conflict (pipeline-self-edit)
-- 7.5 Audit your guardrails (pipeline-self-edit)
+Covers concept 7.2 (pipeline-self-edit). Teaches rule deduplication and guardrail auditing.
 
 Mode: Fully Adaptive. Facilitator is pure consulting - available when the developer asks, not driving.
 
@@ -11,7 +9,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json - check concepts 7.3 and 7.5.
+Read .goose/state/progression.json - check concept 7.2 (module 25: pipeline-self-edit).
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 Check prerequisites:
@@ -54,7 +52,7 @@ The developer drives. The facilitator is available for questions.
 1. Gather all agent instruction/skill files across their pipeline
 2. Run the pipeline-self-edit recipe to audit for duplication and conflicts
 3. Review the safe edits it applied and the items it flagged for judgment
-4. For concept 7.5 specifically: identify at least one guardrail that exists
+4. For the guardrail audit specifically: identify at least one guardrail that exists
    because of a model limitation that may no longer apply
 
 Delegate to code-work subagent when the developer is ready:
@@ -80,7 +78,7 @@ If the developer asks for the facilitator's opinion on a specific rule:
   Give it. Consulting mode means being genuinely helpful when asked, not
   withholding useful perspective.
 
-**For concept 7.5 (guardrail audit):**
+**For the guardrail audit dimension:**
 If the audit didn't surface any POTENTIALLY_OUTDATED rules, prompt:
   "Look at your oldest rules - the ones you added in the first few weeks. Are
   any of them working around a model behavior that's since been fixed? Models
@@ -200,10 +198,9 @@ Next: measuring the impact of pipeline changes with real data."
 ## State Update
 
 Write to .goose/state/progression.json:
-  concept 7.3 dimensions:
-    - duplication_awareness: {rating from eval}
-    - conflict_resolution_quality: {rating from eval}
-  concept 7.5 dimensions:
-    - guardrail_skepticism: {rating from eval}
-    - consolidation_follow_through: {rating from eval, may be null}
-  Both with timestamps.
+  Update concept 7.2 (module 25: pipeline-self-edit) with all dimension ratings
+  (duplication_awareness, conflict_resolution_quality, guardrail_skepticism,
+  consolidation_follow_through) as sub-fields of concept 7.2's eval_ratings,
+  plus timestamp.
+  Update concept 7.2 status to "complete" when all required dimensions are Adequate or Strong.
+  Never overwrite a Strong rating with a lower one.

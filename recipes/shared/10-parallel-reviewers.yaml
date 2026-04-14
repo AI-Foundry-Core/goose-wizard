@@ -90,18 +90,49 @@ prompt: |
   and highlight any duplicates that were collapsed.
 
   ============================================================
-  EVAL + RECIPE REVEAL + STATE UPDATE + BRIDGE
+  EVAL
   ============================================================
 
-  Eval: spawn eval subagent per the teaching script. Coach naturally.
+  Spawn eval subagent per the teaching script. Coach naturally.
 
-  Recipe Reveal: show recipes/graduated/parallel-reviewers.yaml — highlight:
+  ============================================================
+  RECIPE REVEAL
+  ============================================================
+
+  Show recipes/graduated/parallel-reviewers.yaml — highlight:
   - One sub-recipe called multiple times with different focus areas
   - Temp directory isolation per reviewer
   - Merge and deduplication logic
   - Graduation note
 
-  State: update progression.json concept 3.2 with eval ratings.
+  ============================================================
+  GOOSEFORGE CONNECTION
+  ============================================================
+
+  "You just designed parallel reviewers with layer separation and safe
+  coordination. Recipe Forge can help you design new reviewer layers.
+  Each layer is just a code-review agent with a different focus — Recipe
+  Forge would ask what class of error this layer catches, what evidence
+  it produces, and what constraints keep it read-only."
+
+  "If you ever need a custom review layer — say, a security reviewer
+  or a performance reviewer — Recipe Forge scaffolds it in minutes
+  instead of writing the YAML from scratch."
+
+  Ask: "Want to try Recipe Forge to design a custom review layer for
+  your project? Or move on to the next module."
+  WAIT
+
+  If yes: "Run it from the command line:
+  goose run --recipe recipes/graduated/recipe-forge.yaml --interactive
+  Tell it you want a reviewer archetype with a specific focus area."
+  If no: proceed to State Update.
+
+  ============================================================
+  STATE UPDATE
+  ============================================================
+
+  Update progression.json concept 3.2 with eval ratings.
 
   ============================================================
   GRADUATION

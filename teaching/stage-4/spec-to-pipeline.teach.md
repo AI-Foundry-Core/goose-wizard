@@ -15,7 +15,7 @@ This wrapper can run in two positions:
 
 Read .goose/team_context.md for project context, including stack, test framework, test commands, and conventions.
 
-Read .goose/state/progression.json and check concepts 4.1 through 4.6.
+Read .goose/state/progression.json and check concepts 4.1 through 4.4.
 
 Before starting, confirm concepts 4.1, 4.2, and 4.3 are complete or that the developer has an equivalent decomposed spec with persona-driven acceptance criteria. If those prerequisites are missing, bridge back to idea-to-spec or spec-decomposition before running this wrapper.
 
@@ -23,8 +23,8 @@ If concept 4.4 is already complete with all required dimensions adequate or stro
 "You've already shown the core testability move: requirements tracing to tests. Want to run this as a capstone on the latest spec, or skip ahead?"
 
 If the developer skips:
-- If concepts 4.5 and 4.6 are not complete, bridge to spec review.
-- If concepts 4.1 through 4.6 are complete, bridge to Stage 5.
+- If concepts 4.1-4.3 are not all complete, bridge to the next incomplete module.
+- If concepts 4.1 through 4.4 are all complete, bridge to Stage 5.
 
 Prerequisite: The developer should have a decomposed spec with acceptance criteria, ideally from spec-decomposition. If they do not, either run spec-decomposition first or use an existing project spec with clear requirements.
 
@@ -284,7 +284,7 @@ Ordered list of insights to share during subagent operations. Use one per code o
 
 ## Checkpoint
 
-This is the concept 4.4 checkpoint and can also serve as a Stage 4 completion checkpoint if concepts 4.1 through 4.6 are already complete.
+This is the concept 4.4 checkpoint and can also serve as a Stage 4 completion checkpoint if concepts 4.1 through 4.4 are all complete.
 
 If all required 4.4 dimensions are Adequate or Strong:
 "You have the requirement-to-test move now. The spec is no longer just a document; it is a pipeline input with traceability, executable tests, and a build plan."
@@ -293,8 +293,8 @@ If any required 4.4 dimension is Weak:
 Coach the weak dimensions, then ask the developer to fix one requirement-to-test trace before closing:
 "Let's tighten one trace before we move on. Pick the weakest requirement, rewrite the test spec until it has setup, action, expected result, and a clear pass/fail condition."
 
-If 4.5 and 4.6 are not complete:
-"The next step is the spec quality gate: review the spec before build and define when the project should stop. That catches expensive mistakes while they are still cheap."
+If Stage 4 is not yet complete (concepts 4.1-4.3 still incomplete):
+"There are earlier spec modules to complete. Check your progress with Start Here."
 
 If all Stage 4 concepts are complete:
 "That closes the spec stage. You can now turn an idea into a spec an AI team can build from: concrete, persona-driven, testable, reviewed, and honest about when to stop."
@@ -322,6 +322,6 @@ Write to .goose/state/progression.json:
 
 Mark concept 4.4 complete when traceability_discipline, test_specificity, and non_automatable_handling are all Adequate or Strong. If pipeline_readiness is triggered, record it, but do not block concept completion on a null rating.
 
-If concepts 4.1 through 4.6 are complete, mark Stage 4 complete with completed_at timestamp.
+If concepts 4.1 through 4.4 are complete, mark Stage 4 complete with completed_at timestamp.
 
 Never overwrite a Strong rating with a lower one. If the developer re-runs this module, update ratings only if they improve.
