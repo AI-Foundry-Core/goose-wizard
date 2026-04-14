@@ -38,6 +38,24 @@ instructions: |
      where NN is the zero-padded module_number
   5. Copy the source file to the target path, replacing the training version
   6. Read the new file to verify the copy succeeded
+  7. Update `.goose/PROGRESS.md`: find the EXACT line
+     `- [ ] **{module_number}. ` (with the trailing space after the period —
+     this is critical to avoid matching `- [ ] **20.` when module_number is 2)
+     and replace `- [ ]` with `- [x]` on that line only.
+  8. Find the next incomplete module in progression.json:
+     scan the ENTIRE sequence array (from index 0) for the first entry
+     with status != "complete". This handles the case where the developer
+     skipped ahead and has earlier incomplete modules to return to.
+     If NO incomplete entry exists anywhere in the sequence (all 26 done),
+     set next_module to null and stop.
+     Otherwise, get the current working directory and build the full
+     command as a fenced code block:
+       ```
+       cd {cwd}
+       goose run --recipe recipes/shared/{NN}-{slug}.yaml --interactive
+       ```
+     Return the fenced block as next_module.command so the calling recipe
+     can display it exactly.
 
   ## Return
   Return:
@@ -45,6 +63,8 @@ instructions: |
   - source_file: Which file was used (graduated coordinator or agent primitive)
   - target_file: The file that was replaced in shared/
   - verification: Confirmation the new file is valid and readable
+  - progress_updated: Whether .goose/PROGRESS.md was updated
+  - next_module: The next incomplete module (number, title, command) or null if all complete
 
 extensions:
   - type: builtin
@@ -54,4 +74,5 @@ prompt: |
   Graduate module {{ module_number }}: {{ module_name }}
 
   Validate inputs, verify completion, find the working version, replace
-  the training recipe. Stop and report if anything doesn't match.
+  the training recipe. Then update .goose/PROGRESS.md to mark the module
+  complete and find the next module. Stop and report if anything doesn't match.

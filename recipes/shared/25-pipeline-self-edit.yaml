@@ -120,8 +120,30 @@ prompt: |
     module_name: "pipeline-self-edit"
   })
 
-  Tell the developer: "Your training recipe has been upgraded to the
-  working version. Next time you run Pipeline Self-Edit, it'll be the streamlined
-  tool — no walkthrough."
+  Show the developer the graduation results.
+
+  First, check for errors:
+  If graduate_module reported an error OR progress_updated is false:
+  "Graduation had an issue — your training progress is saved, but the
+  tool upgrade or progress file may not have completed. Error details:
+  [report the specific error]. You can continue to the next module,
+  but please report this issue."
+  Then still show the next-module message below.
+
+  Then show:
+  "Module complete! Your training recipe has been upgraded to the working version."
+
+  If graduate_module returned a next_module, display the command exactly as returned
+  (it is already a fenced code block):
+  "Ready for the next one? Open .goose/PROGRESS.md for the full list, or copy this
+  command into your terminal:
+
+  <next_module.command>
+
+  Your progress has been saved in .goose/PROGRESS.md"
+
+  If graduate_module returned next_module as null (all complete):
+  "All 26 modules complete! Your training recipes are now working tools.
+  Full progress saved in .goose/PROGRESS.md"
 
   Bridge: per teaching script.

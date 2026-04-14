@@ -53,6 +53,18 @@ instructions: |
   - Update `.goose/state/progression.json`: set this entry's status to "complete",
     completed_at to current ISO timestamp, increment modules_completed,
     update current_module.
+  - Update `.goose/PROGRESS.md`: find the EXACT line `- [ ] **1. ` (with
+    trailing space after the period — critical to avoid matching 10, 11, etc.)
+    and replace `- [ ]` with `- [x]` on that line only.
+  - After updating progress, get the current working directory and tell the developer
+    (substitute the actual path):
+    "Module complete! Ready for the next one? Open .goose/PROGRESS.md for the full list,
+    or copy this command into your terminal:
+
+      cd {actual_cwd}
+      goose run --recipe recipes/shared/02-bug-fix.yaml --interactive
+
+    Your progress has been saved in .goose/PROGRESS.md"
   - Bridge to the next module per the teaching script.
 
   ---
@@ -98,6 +110,10 @@ instructions: |
   Progress state:
   - After Act 3, write .goose/state/.stage-0-progress.json with acts_completed [1, 2, 3], files_touched, and branch.
   - After Act 5, update .goose/state/.stage-0-progress.json with acts_completed [1, 2, 3, 4, 5], files_touched, branch, and completed true.
+  - After Act 5, also update .goose/state/progression.json: set the module 1
+    entry's status to "complete" and set completed_at to current ISO timestamp.
+  - After Act 5, update .goose/PROGRESS.md: find the EXACT line `- [ ] **1. `
+    (with trailing space after the period) and replace `- [ ]` with `- [x]`.
 
   Cleanup:
   - At the end, show the final git status and summarize files touched.
