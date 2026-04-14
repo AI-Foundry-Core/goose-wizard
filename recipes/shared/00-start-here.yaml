@@ -39,18 +39,42 @@ prompt: |
   Based on the check_progress results:
 
   If status is "new_user" (0 completed):
-  "Welcome! 26 modules ahead, starting with See What AI Can Do.
-  Open the recipe '01-see-what-ai-can-do' in the Recipes tab to begin.
+  "Welcome! 26 modules ahead, starting with **See What AI Can Do**.
+
+  Here's how to start:
+
+  **If you're using the Goose desktop app:**
+  1. Close this session (click the X or start a new session)
+  2. Click the **Recipes** tab in the left sidebar (it looks like a list icon)
+  3. Find **See What AI Can Do (Training)** in the recipe list
+  4. Click it, then click **Run**
+  5. Follow the instructions — it will guide you step by step
+
+  **If you're using the command line:**
+  Run this command:
+  `goose run --recipe recipes/shared/01-see-what-ai-can-do.yaml --interactive`
+
   I'll show you what AI can do with your actual code."
 
   If status is "in_progress" (some completed):
-  "Welcome back — [X] of 26 done. Next up: [next module title].
-  Open the recipe '[next recipe filename]' in the Recipes tab to continue."
+  "Welcome back — [X] of 26 done. Next up: **[next module title]**.
+
+  **If you're using the Goose desktop app:**
+  1. Close this session
+  2. Click the **Recipes** tab in the left sidebar
+  3. Find **[next module title] (Training)** in the recipe list
+  4. Click it, then click **Run**
+
+  **If you're using the command line:**
+  `goose run --recipe recipes/shared/[next recipe filename].yaml --interactive`"
 
   If status is "all_complete" (26 completed):
   "All 26 modules complete. Your training recipes have been replaced with
   working versions — use them for daily work. Need the Recipe Forge or
-  Pipeline Forge? They're in your recipe list."
+  Pipeline Forge? Run them from the command line:
+  `goose run --recipe recipes/graduated/recipe-forge.yaml --interactive`
+  `goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive`"
 
   WAIT for questions. If the developer asks about a specific module or
-  wants to revisit something, tell them which recipe file to open.
+  wants to revisit something, give them both the desktop app steps and
+  the CLI command to open it.
