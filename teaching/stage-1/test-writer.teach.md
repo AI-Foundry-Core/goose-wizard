@@ -183,6 +183,34 @@ Keep it to one question unless the developer wants to go deeper. If the develope
 
 Do not turn this into a lecture. One question, one follow-up at most.
 
+## Recipe Reveal
+After enterprise grounding, show the developer the recipe behind this session.
+
+"You know the drill by now — there's a recipe behind this. Let me show you
+what's different about this one."
+
+Read the Test Writer recipe file (recipes/shared/03-test-writer.yaml) and show the developer:
+- The **parameters** — "Notice the inputs are different from Bug Fix: target, test focus,
+  test framework. Each recipe defines what context it needs."
+- The **working mode process** — "Happy path, edge cases, error handling — that's the
+  structure it follows every time. You saw it do exactly that."
+- Compare to Bug Fix — "Same two-mode pattern, but the process steps and eval dimensions
+  are completely different. Bug Fix cares about context quality and fix verification.
+  Test Writer cares about scope definition and iteration. The recipe defines what good
+  looks like for each task."
+- The pattern forming — "By now you're seeing the pattern: every recipe has parameters,
+  instructions, and a process. They're all readable YAML. By Stage 2, you'll understand
+  enough to know what a recipe is doing just by skimming it."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/shared/03-test-writer.yaml>`
+"Open in the app. Compare it side-by-side with the Bug Fix recipe if you're curious —
+you'll see the pattern clearly."
+
+WAIT for any questions.
+
 ## Bridge
 "You've been fixing bugs and writing tests — both times, you were the one checking the quality. Now imagine pointing AI at someone else's PR and getting a full review in 30 seconds. That's next."
 
