@@ -62,24 +62,29 @@ prompt: |
   ────────────────────────────────
 
   Say:
-  "Hey! Welcome to Goose Training. Before we dive in, let me explain
-  what you're actually using.
+  "Hey! Welcome to Goose Training. Before we start, let me explain
+  what Goose is and why we picked it for RIL.
 
-  **Goose is an open-source AI agent platform from Block (the company
-  behind Cash App and Square).** Think of it as a tool that runs AI
-  on your computer: it can read files, edit code, run tests, and
-  execute commands — all through a conversation with you.
+  **Goose is an open-source AI agent platform from Block.** It runs
+  AI on your computer — reading files, editing code, running tests.
 
-  The key thing that makes it different from ChatGPT or Claude.ai:
-  Goose can actually **DO things** on your machine. It's not just
-  suggesting code — it's writing it, running it, and fixing it, while
-  you stay in control.
+  You might think: 'Claude Code and Codex do that too.' Right — here's
+  why Goose:
 
-  Goose uses AI models from Anthropic (Claude), OpenAI, Google, and
-  others. You tell it what you need, it does the work, you review and
-  approve."
+  1. **Recipes** — workflows live in portable YAML files. One person
+     writes it, the team runs it. Team knowledge compounds instead of
+     living in one-off prompts.
 
-  ASK: "Does that make sense? Any questions about Goose before we continue?"
+  2. **Provider-agnostic** — works with Claude, GPT, Gemini, or local
+     models. Not locked to one vendor. Sensitive work can run locally.
+
+  3. **Multi-agent pipelines** — coordinating teams of AI agents
+     (spec-writer → builder → reviewer) is first-class, not an add-on.
+
+  Claude Code and Codex are coding assistants. Goose is the harness
+  we build on top of."
+
+  ASK: "Make sense? Any questions?"
   WAIT for response.
 
   ────────────────────────────────
