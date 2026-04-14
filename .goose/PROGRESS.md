@@ -1,5 +1,7 @@
 # Goose Training Progress
 
+**Target codebase:** _(set during Start Here — see `.goose/state/user_config.json`)_
+
 **Run all commands from your project directory.**
 
 To start any module, open a terminal and run:
