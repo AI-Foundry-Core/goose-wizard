@@ -58,7 +58,9 @@ return to the installer. A **Claude Max** subscription is required.
 - Sets `GOOSE_RECIPE_PATH` so the `shared/` recipes show up in Goose
 - Writes a minimal `config.yaml` if none exists
 - In `config.yaml`: enables `memory` + `orchestrator`, disables `chatrecall`,
-  sets provider to `claude-acp` and model to `opus`
+  sets provider to `claude-acp`, model to `opus`, and mode to `smart_approve`
+  (auto-approves low-risk tool calls, prompts for destructive ones — default
+  `auto` is too aggressive for developers learning to trust the AI)
 - Patches the ACP adapter with 5 edits for clean recipe execution
   (settingSources, autoMemoryEnabled, AskUserQuestion, thinking tokens, system prompt).
   Thinking tokens are **kept enabled** so developers see the model's reasoning

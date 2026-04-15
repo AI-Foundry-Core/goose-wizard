@@ -456,6 +456,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         $minimalConfig = @"
 GOOSE_PROVIDER: claude-acp
 GOOSE_MODEL: opus
+GOOSE_MODE: smart_approve
 extensions:
   developer:
     enabled: true
@@ -712,6 +713,34 @@ if (-not $SkipExtensions) {
             }
         } else {
             Write-Host "  WARNING: GOOSE_MODEL not found in config" -ForegroundColor Yellow
+        }
+
+        # Set GOOSE_MODE to smart_approve. Goose's default is "auto"
+        # (autonomous) which approves every tool call without asking — too
+        # aggressive for developers learning to trust the AI. smart_approve
+        # auto-approves low-risk operations (reads, small writes) and prompts
+        # for destructive ones (shell commands, large edits, deletions).
+        if ($config -match "(?m)^GOOSE_MODE:\s*(\S+)") {
+            $currentMode = $Matches[1]
+            if ($currentMode -ne "smart_approve") {
+                if ($DryRun) {
+                    Write-Host "  [DRY RUN] Would set GOOSE_MODE to smart_approve (currently: $currentMode)"
+                } else {
+                    $config = $config -replace "(?m)^GOOSE_MODE:\s*\S+", "GOOSE_MODE: smart_approve"
+                    Write-Host "  Set GOOSE_MODE: smart_approve (was: $currentMode)" -ForegroundColor Green
+                }
+            } else {
+                Write-Host "  Mode: smart_approve (OK)"
+            }
+        } else {
+            # GOOSE_MODE not in config — append it
+            if (-not $DryRun) {
+                if (-not $config.EndsWith("`n")) { $config += "`n" }
+                $config += "GOOSE_MODE: smart_approve`n"
+                Write-Host "  Added GOOSE_MODE: smart_approve (not previously set)" -ForegroundColor Green
+            } else {
+                Write-Host "  [DRY RUN] Would add GOOSE_MODE: smart_approve"
+            }
         }
 
         if (-not $DryRun) {

@@ -279,6 +279,7 @@ if [ ! -f "$CONFIG_PATH" ]; then
     cat > "$CONFIG_PATH" <<'YAML_EOF'
 GOOSE_PROVIDER: claude-acp
 GOOSE_MODEL: opus
+GOOSE_MODE: smart_approve
 extensions:
   developer:
     enabled: true
@@ -479,6 +480,24 @@ if model_match:
         print("  Model: opus (OK)")
 else:
     print("  WARNING: GOOSE_MODEL not found in config")
+
+# Set GOOSE_MODE to smart_approve. Default "auto" is too aggressive for
+# developers learning to trust the AI; smart_approve auto-approves reads
+# and small writes but prompts for destructive actions.
+mode_match = re.search(r"^GOOSE_MODE:\s*(\S+)", content, re.M)
+if mode_match:
+    current = mode_match.group(1)
+    if current != "smart_approve":
+        content = re.sub(r"^GOOSE_MODE:\s*\S+", "GOOSE_MODE: smart_approve", content, count=1, flags=re.M)
+        print(f"  Set GOOSE_MODE: smart_approve (was: {current})")
+    else:
+        print("  Mode: smart_approve (OK)")
+else:
+    # Append GOOSE_MODE if missing
+    if not content.endswith("\n"):
+        content += "\n"
+    content += "GOOSE_MODE: smart_approve\n"
+    print("  Added GOOSE_MODE: smart_approve (not previously set)")
 
 config_path.write_text(content)
 print("  Config saved.")
