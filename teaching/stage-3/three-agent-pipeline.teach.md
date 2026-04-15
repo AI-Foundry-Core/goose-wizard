@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context (stack, test commands, conventions, ownership model).
-Read .goose/state/progression.json and check concept 3.1 (module 9: three-agent-pipeline).
+Read ~/.rilgoose/progression.json and check concept 3.1 (module 9: three-agent-pipeline).
 If concept 3.1 is already complete with adequate or strong ratings:
   "You've already shown this workflow: specialist roles, explicit handoffs, and safety rails. Want to skip to parallel reviewers, or run another pipeline design against a real task?"
   If skip: jump to Bridge.
@@ -184,7 +184,7 @@ If no: proceed to Bridge.
 "Now that you have a team pipeline, the next problem is coordination under parallel work. Multiple reviewers can catch different classes of issues at the same time, but shared files and temp state need discipline."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   Update concept 3.1 (module 9: three-agent-pipeline) with eval ratings and timestamp.
   Store all four dimension ratings (role_specialization, handoff_contracts, safety_rails,
   scoped_context) as sub-fields of concept 3.1's eval_ratings.

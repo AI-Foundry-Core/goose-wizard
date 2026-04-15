@@ -20,7 +20,7 @@ Mode: Adaptive + Checkpoints.
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check concept 2.2.
+Read ~/.rilgoose/progression.json — check concept 2.2.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify concepts 2.1 and 2.2 are complete. If not, flag it — 2.3 builds on the two-agent pattern.
 
@@ -101,7 +101,7 @@ If ALL dimensions are Strong:
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 2.2 dimensions with eval ratings + timestamp.
 
 ---

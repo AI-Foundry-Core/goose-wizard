@@ -10,7 +10,7 @@ Checkpoint after 4.5: Has the developer gone through a quality gate cycle and re
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json and check if concepts 4.5 and 4.6 are already demonstrated.
+Read ~/.rilgoose/progression.json and check if concepts 4.5 and 4.6 are already demonstrated.
 If both are already demonstrated with all dimensions adequate or strong, offer to skip or revisit.
 If 4.5 is demonstrated but 4.6 is not, skip directly to the kill criteria pass.
 
@@ -216,7 +216,7 @@ Ask the developer to write one measurable kill criterion before completing the m
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   Update concept 4.3 (module 14: spec-review) with all dimension ratings
   (review_iteration, finding_triage, review_skepticism, kill_criteria_quality,
   stopping_mindset) as sub-fields of concept 4.3's eval_ratings, plus timestamp.

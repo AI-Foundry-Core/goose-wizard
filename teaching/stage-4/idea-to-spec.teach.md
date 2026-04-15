@@ -10,7 +10,7 @@ Checkpoint after 4.2: Has the developer internalized progressive elaboration?
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concepts 4.1 and 4.2 are already demonstrated.
+Read ~/.rilgoose/progression.json — check if concepts 4.1 and 4.2 are already demonstrated.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 If 4.1 demonstrated but not 4.2: skip to the elaboration phase.
 
@@ -225,7 +225,7 @@ Coach on the weak dimensions (using coaching language above), then offer:
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   Update concept 4.1 (module 12: idea-to-spec) with all dimension ratings
   (spec_concreteness, spec_completeness, progressive_discipline, kill_gate_recognition)
   as sub-fields of concept 4.1's eval_ratings, plus timestamp.

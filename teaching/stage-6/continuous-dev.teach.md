@@ -5,7 +5,7 @@ Covers concept 6.1 (continuous-dev). Teaches learning capture, agent memory, and
 ## Setup
 
 Read `.goose/team_context.md` for project context.
-Read `.goose/state/progression.json` and check concept 6.1 (module 22: continuous-dev).
+Read `~/.rilgoose/progression.json` and check concept 6.1 (module 22: continuous-dev).
 If concept 6.1 is already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
 
 This is Fully Adaptive mode. Act as a consulting partner. The developer is operating a real autonomous pipeline; your role is to help harden the operational loop, not to run a scripted lesson.
@@ -184,7 +184,7 @@ Ordered list. Deliver one per subagent operation that takes 30+ seconds. See tea
 
 ## State Update
 
-Update concept 6.1 (module 22: continuous-dev) in `.goose/state/progression.json`:
+Update concept 6.1 (module 22: continuous-dev) in `~/.rilgoose/progression.json`:
   Store all dimension ratings (structured_learning_capture, per_agent_memory_design,
   shared_state_hygiene) as sub-fields of concept 6.1's eval_ratings, plus timestamp.
   Update concept 6.1 status to "complete" when all dimensions are Adequate or Strong.

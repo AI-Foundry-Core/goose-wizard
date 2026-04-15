@@ -9,7 +9,7 @@ Mode: Adaptive + Checkpoints
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concepts 4.3 and 4.4 are already demonstrated.
+Read ~/.rilgoose/progression.json — check if concepts 4.3 and 4.4 are already demonstrated.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 If 4.3 demonstrated but not 4.4: skip to the testability phase.
 
@@ -195,7 +195,7 @@ Read eval results. For each dimension:
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   Update concept 4.2 (module 13: spec-decomposition) with all dimension ratings
   (persona_grounding, persona_first_organization, cross_cutting_recognition,
   testability_assessment, rewrite_quality) as sub-fields of concept 4.2's eval_ratings,

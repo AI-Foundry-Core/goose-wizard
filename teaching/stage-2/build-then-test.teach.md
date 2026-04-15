@@ -26,7 +26,7 @@ Mode: Adaptive + Checkpoints.
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check concepts 2.1 and 2.2.
+Read ~/.rilgoose/progression.json — check concepts 2.1 and 2.2.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify Stage 1 is complete. If not, flag it — Stage 2 assumes the developer already knows single-agent workflows.
 
@@ -125,7 +125,7 @@ Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   Update concept 2.1 (module 6: build-then-test) with all four dimension ratings
   (separation_awareness, result_inspection, role_separation, information_boundary)
   as sub-fields of concept 2.1's eval_ratings, plus timestamp.

@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.3 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 5.3 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -121,6 +121,6 @@ If ALL dimensions are Strong:
 "You've got layers that catch problems. But what prevents quality from slowly sliding backward between checks? That's ratchets — quality thresholds that only go up. Once you have 200 passing tests, the number should never drop below 200."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 5.3 dimensions with eval ratings + timestamp
   Never overwrite a Strong rating with a lower one. If the developer re-runs this recipe, update ratings only if they improve.

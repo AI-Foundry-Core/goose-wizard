@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.4 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 5.4 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -124,7 +124,7 @@ If ALL dimensions are Strong:
 "You've built the system that proves a pipeline works. Independent verification, layered checks, ratchets, specific criteria, isolated dependencies, and a blocking gate. That's the safety net. Now it's time to use it — let the pipeline run while you sleep, review what it did in the morning, and tune the feedback loops. That's Stage 6: autonomous operation with human oversight at the cycle boundary, not the execution boundary."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 5.4 dimensions with eval ratings + timestamp
 
 Check all Stage 5 concepts (5.1-5.6). If all are complete:

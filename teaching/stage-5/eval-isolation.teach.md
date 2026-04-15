@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.5 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 5.5 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -123,5 +123,5 @@ If ALL dimensions are Strong:
 "You've got independent verification, layered checks, ratchets to prevent regression, specific criteria, and isolated dependencies. There's one piece left: putting it all together into a gate that must pass before anything runs autonomously. That's the final checkpoint before you let the pipeline run on its own."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 5.5 dimensions with eval ratings + timestamp
