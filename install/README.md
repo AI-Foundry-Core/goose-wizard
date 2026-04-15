@@ -60,7 +60,10 @@ return to the installer. A **Claude Max** subscription is required.
 - In `config.yaml`: enables `memory` + `orchestrator`, disables `chatrecall`,
   sets provider to `claude-acp` and model to `opus`
 - Patches the ACP adapter with 5 edits for clean recipe execution
-  (settingSources, autoMemoryEnabled, AskUserQuestion, thinking tokens, system prompt)
+  (settingSources, autoMemoryEnabled, AskUserQuestion, thinking tokens, system prompt).
+  Thinking tokens are **kept enabled** so developers see the model's reasoning
+  during training — an earlier version disabled them, and the installer now
+  reverts that patch on re-run.
 - Touches `00-start-here.yaml` so the gateway recipe sorts first
 - Creates `.goose/state/` and `~/.rilgoose/` directories
 - Seeds `.goose/PROGRESS.md` from the project template
