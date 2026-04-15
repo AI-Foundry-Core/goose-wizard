@@ -36,7 +36,8 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/conductor/
+  overnight-pipeline/README.md
+  overnight-pipeline/pipeline-kit.md
 
   ## Constraints
   IMPORTANT:

@@ -25,7 +25,7 @@ instructions: |
   Read `.goose/team_context.md` for the project's domain and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/product-planning/agents/prd-development.md
+  recipes/ported-agents/product-planning/prd-development.yaml
 
   ## Constraints
   IMPORTANT:

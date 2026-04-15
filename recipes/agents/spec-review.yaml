@@ -24,7 +24,7 @@ instructions: |
   Read `.goose/team_context.md` for the project's domain and constraints.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/product-evaluation/agents/product-evaluation.md
+  recipes/ported-agents/product-evaluation/product-evaluation.yaml
 
   ## Constraints
   IMPORTANT:

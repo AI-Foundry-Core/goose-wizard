@@ -26,7 +26,7 @@ instructions: |
   Read `.goose/team_context.md` for the project's stack and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/[domain]/agents/[agent].md
+  recipes/ported-agents/[plugin]/[agent].yaml
 
   ## Constraints
   IMPORTANT:

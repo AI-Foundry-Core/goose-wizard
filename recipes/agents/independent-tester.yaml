@@ -25,7 +25,7 @@ instructions: |
   and test framework.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/unit-testing/agents/test-automator.md
+  recipes/ported-agents/unit-testing/test-automator.yaml
 
   ## Constraints
   IMPORTANT:

@@ -51,7 +51,7 @@
 
 - [ ] **Project context read:** Recipe reads `.goose/team_context.md` for project-specific context.
 - [ ] **Sub-recipe paths valid:** All `sub_recipes:` paths resolve to existing YAML files.
-- [ ] **RIL agent paths valid:** Any `~/ClaudeInfra/ril-agents/` references point to agents that exist.
+- [ ] **Ported agent paths valid:** Any `recipes/ported-agents/` references point to YAML files that exist in the local ported-agents library.
 
 ## Success Criteria (REQUIRED)
 

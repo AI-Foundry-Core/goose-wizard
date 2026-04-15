@@ -30,8 +30,8 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/observability-monitoring/agents/product-evaluation.md
-  ~/ClaudeInfra/ril-agents/plugins/observability-monitoring/agents/post-mortem.md
+  recipes/ported-agents/product-evaluation/product-evaluation.yaml
+  recipes/ported-agents/product-evaluation/post-mortem.yaml
 
   ## Constraints
   IMPORTANT:

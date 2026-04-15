@@ -21,8 +21,8 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/product-planning/agents/prd-development.md
-  ~/ClaudeInfra/ril-agents/plugins/product-specification/agents/feature-spec.md
+  recipes/ported-agents/product-planning/prd-development.yaml
+  recipes/ported-agents/product-specification/feature-spec.yaml
 
   ## Constraints
   IMPORTANT:

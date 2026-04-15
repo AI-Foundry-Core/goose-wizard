@@ -26,8 +26,8 @@ instructions: |
   and architectural patterns.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/comprehensive-review/agents/code-reviewer.md
-  ~/ClaudeInfra/ril-agents/plugins/comprehensive-review/agents/architect-review.md
+  recipes/ported-agents/comprehensive-review/code-reviewer.yaml
+  recipes/ported-agents/comprehensive-review/architect-review.yaml
 
   ## Constraints
   IMPORTANT:
