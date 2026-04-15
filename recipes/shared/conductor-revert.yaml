@@ -82,7 +82,12 @@ prompt: |
   | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config`." Stop.                                                           |
   | `duplicate_projects`   | List duplicate IDs; instruct `setup-config`. Stop.                                                                     |
 
-  ## Step 0a — Determine live_confirmed_bool
+  ## Step 0a — Kind gate
+
+  If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+  tell the user: "Run `setup-config` to pick sandbox/live for this
+  project, then rerun conductor-revert." Stop — revert-by-unit will
+  refuse execution on an unconfirmed project anyway.
 
   If `project.kind == "live"`, the revert_by_unit sub-recipe refuses
   `execute: true` unless `live_confirmed: true` is passed. Planning

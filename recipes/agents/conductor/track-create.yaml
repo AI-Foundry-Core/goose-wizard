@@ -77,6 +77,9 @@ instructions: |
     not in the registry is worse than not creating it at all.
   - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
+  - If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+    REFUSE unconditionally. Return `status: kind_unconfirmed` — user
+    must resolve via setup-config before any track can be authored.
 
   ## Failure Modes
   - Config resolution via ensure_config returned non-ok →
@@ -95,6 +98,8 @@ instructions: |
   ## Process
   1. Call `ensure_config`. If status != `ok`, return
      `status: config_unresolved` with `config_status` set. If resolved
+     project.kind == "unknown" OR `needs_kind_confirmation: true`,
+     return `status: kind_unconfirmed` immediately. If resolved
      project.kind == "live" and `live_confirmed` is false, return
      `status: live_confirmation_required` immediately.
   2. Verify conductor directory exists. If not, return `not_initialized`.
@@ -176,9 +181,9 @@ instructions: |
   registry" state.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "not_initialized" |
-    "live_confirmation_required" | "brief_too_vague" | "id_collision" |
-    "write_failed"
+  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+    "not_initialized" | "live_confirmation_required" |
+    "brief_too_vague" | "id_collision" | "write_failed"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - track_id: Final track ID used

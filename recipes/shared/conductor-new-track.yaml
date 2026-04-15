@@ -75,11 +75,17 @@ prompt: |
      goose run --recipe recipes/shared/conductor-setup.yaml --interactive"
   Stop.
 
-  ## Step 0a — Live-project confirmation gate
+  ## Step 0a — Kind gate
 
-  If `project.kind == "live"`, obtain typed confirmation BEFORE any
-  `track_create` call. The primitive refuses live projects without
-  `live_confirmed: true`.
+  BEFORE any `track_create` call:
+
+  - If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+    tell the user: "Run `setup-config` to pick sandbox/live for this
+    project, then rerun conductor-new-track." Stop.
+
+  - If `project.kind == "live"`, obtain typed confirmation BEFORE any
+    `track_create` call. The primitive refuses live projects without
+    `live_confirmed: true`.
 
   Tell the user:
     "This project is marked `kind: live`. Authoring a track will write

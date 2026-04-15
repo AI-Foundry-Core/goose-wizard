@@ -95,12 +95,17 @@ Rules:
   "id": "slug-kebab-case",
   "name": "display name",
   "path": "canonical-absolute-path",
-  "kind": "sandbox | live",
+  "kind": "sandbox | live | unknown",
   "language": "python | typescript | go | java | ...",
   "test_command": "string or null",
   "conductor_initialized": false,
   "created": "ISO 8601 UTC",
-  "last_used": "ISO 8601 UTC"
+  "last_used": "ISO 8601 UTC",
+
+  "// Optional migration breadcrumbs (present only on auto-created stubs)": "",
+  "needs_kind_confirmation": true,
+  "created_via": "legacy_user_config_migration | project_json_repair",
+  "created_at": "ISO 8601 UTC"
 }
 ```
 
@@ -110,6 +115,21 @@ Rules:
 - `path` must be the canonical absolute path. The recipe that writes this
   field is responsible for canonicalization (resolve symlinks, normalize
   slashes, lowercase drive letters on Windows).
+- `kind: "unknown"` + `needs_kind_confirmation: true` is the transient
+  state ensure-config emits when auto-migrating a Stage 0 legacy
+  `user_config.json`. setup-config's PENDING KIND CONFIRMATION branch
+  resolves it to `sandbox` or `live` and REMOVES both `kind: "unknown"`
+  and `needs_kind_confirmation` from the file.
+- `created_via` is an optional breadcrumb documenting how the file came
+  into existence. Values: `"legacy_user_config_migration"` (written by
+  ensure-config during auto-migration) or `"project_json_repair"`
+  (written by setup-config when rebuilding a missing project.json for
+  an existing index entry). Absent on first-run writes.
+- All mutating conductor primitives (track-task-execute, revert-by-unit,
+  context-write-*, track-create) REFUSE to write when `kind ==
+  "unknown"` or `needs_kind_confirmation: true`. They return
+  `status: kind_unconfirmed` and the facilitator routes the user to
+  `setup-config`.
 
 ## Recipe topology
 

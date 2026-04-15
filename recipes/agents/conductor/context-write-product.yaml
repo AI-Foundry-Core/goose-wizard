@@ -88,6 +88,8 @@ instructions: |
     .bak; the timestamp guarantees uniqueness.
   - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
+  - If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+    REFUSE unconditionally. Return `status: kind_unconfirmed`.
 
   ## Failure Modes
   - Config resolution via ensure_config returned non-ok →
@@ -95,6 +97,8 @@ instructions: |
     underlying ensure_config status.
   - `project.kind == "live"` without `live_confirmed: true` →
     `status: live_confirmation_required`.
+  - `project.kind == "unknown"` or `needs_kind_confirmation: true` →
+    `status: kind_unconfirmed`.
   - `create` mode, file exists → return `status: already_exists`.
   - `update` mode, file missing → return `status: not_found`.
   - Required inputs missing in `create` mode → return
@@ -105,6 +109,8 @@ instructions: |
   ## Process
   1. Call `ensure_config` to resolve the project path. If status != `ok`,
      return `status: config_unresolved` with `config_status` set.
+     If resolved project.kind == "unknown" OR `needs_kind_confirmation`
+     is true, return `status: kind_unconfirmed` immediately.
      If resolved project.kind == "live" and `live_confirmed` is false,
      return `status: live_confirmation_required` immediately.
   2. Resolve target path: `<project.path>/.goose/conductor/product.md`.
@@ -116,8 +122,9 @@ instructions: |
   7. Return a diff summary.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
-    "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+    "live_confirmation_required" | "already_exists" | "not_found" |
+    "missing_inputs" | "bad_input"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - path: absolute path of product.md (or attempted)

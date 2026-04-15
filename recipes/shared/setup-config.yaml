@@ -80,15 +80,91 @@ prompt: |
   - status == "no_user_config" → FIRST RUN branch
   - status == "user_config_corrupt" → tell the user; offer to back up the
     corrupt file and rerun first-run. Do NOT overwrite silently.
+  - Any project in `projects[]` has `needs_kind_confirmation: true` OR
+    `kind == "unknown"` → PENDING KIND CONFIRMATION branch (must run
+    BEFORE MAIN MENU — the flagged projects are blocking conductor work
+    until resolved).
+  - Any project has `project.json` missing (index entry exists but file
+    absent on disk — check via ensure_config's per-project read) →
+    PROJECT.JSON REPAIR branch.
   - Otherwise → MAIN MENU branch (unless `mode` parameter forces a branch)
 
   If the sub-recipe reports `duplicate_projects`, surface that list to the
   user at the start of the MAIN MENU branch before any other action — ask
   which one they want to keep.
 
-  If the sub-recipe reports `needs_kind_confirmation` on any project (from
-  legacy migration), surface that before the main menu and ask the user to
-  confirm `sandbox` or `live` for each flagged project.
+  ============================================================
+  PENDING KIND CONFIRMATION BRANCH
+  ============================================================
+
+  This branch runs when ensure_config returned one or more projects with
+  `needs_kind_confirmation: true` or `kind == "unknown"`. Typically these
+  were auto-created by ensure_config's legacy migration from a Stage 0
+  `user_config.json` — the user picked a codebase but never picked the
+  sandbox/live distinction conductor recipes need.
+
+  For EACH flagged project:
+
+  1. Read `<canonical_project_path>/.goose/conductor/project.json`.
+     If missing, route to PROJECT.JSON REPAIR branch instead (the project
+     has a bigger problem than just the kind flag).
+
+  2. Tell the user:
+     "Project `<id>` at <path> was set up during Stage 0 but its
+      sandbox/live designation hasn't been confirmed. conductor recipes
+      can't run on it until you pick.
+      - `sandbox`: safe to experiment in (training / scratch projects)
+      - `live`: production code that needs extra care. conductor will
+        require typed confirmation before any write.
+      Type exactly `sandbox` or `live` (no punctuation, no quotes)."
+     Byte-for-byte match on the response.
+
+  3. If user picks `live`, ask: "Confirm you want to train / run conductor
+     on a LIVE codebase. Type exactly `yes, live` to proceed." Require
+     the full string. If they don't, stop and don't write anything.
+
+  4. Write the resolved project.json atomically per RECIPE-PREAMBLE.md's
+     Backup Rotation Convention:
+     - Set `kind: "sandbox"` or `kind: "live"`.
+     - REMOVE the `needs_kind_confirmation` field (don't set it to false
+       — delete the key entirely so stale code can't re-read a leftover
+       truthy string).
+     - Preserve `id`, `path`, `name`, `conductor_initialized`,
+       `created_via`, `created_at`, and any other existing fields.
+     - Set `last_used: <current ISO 8601 UTC>`.
+
+  5. Also update `~/.rilgoose/user.json`'s matching `projects[]` entry:
+     set `kind` to the same resolved value and REMOVE any
+     `needs_kind_confirmation` field from that entry. Atomic write.
+
+  6. Confirm: "`<id>` is now marked `<kind>`. You can now run
+     conductor-setup on this project."
+
+  After every flagged project is resolved, proceed to MAIN MENU (or END
+  if nothing else is pending and the user wasn't asking for the menu).
+
+  ============================================================
+  PROJECT.JSON REPAIR BRANCH
+  ============================================================
+
+  Runs when a `projects[]` index entry exists in user.json but the
+  corresponding `<path>/.goose/conductor/project.json` is missing.
+  Typically this is a user who migrated from Stage 0 under an older
+  version of ensure_config that didn't stub project.json, or a user
+  who accidentally deleted the file.
+
+  For each affected entry:
+
+  1. Show the user the index entry (id, path, any existing `kind`).
+  2. Ask: "Project.json for `<id>` at <path> is missing. Repair it now?
+     (yes to repair, no to skip)"
+  3. On yes: collect the same fields as FIRST RUN branch (kind,
+     language, test_command) for this project, then write a full
+     project.json with the user's choices, `conductor_initialized:
+     false`, and `created_via: "project_json_repair"`. Atomic write.
+  4. Update the user.json index entry to match (kind, canonicalized
+     path) and remove any stale `needs_kind_confirmation`.
+  5. Confirm and move to the next affected entry.
 
   ============================================================
   FIRST RUN BRANCH

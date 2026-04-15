@@ -70,6 +70,11 @@ instructions: |
     reverted tasks go from `[x]` back to `[ ]` and lose their SHAs.
   - If `execute: true` AND `project.kind == "live"`, REFUSE unless
     `live_confirmed` is true. Return `status: live_confirmation_required`.
+  - If `execute: true` AND `project.kind == "unknown"` OR
+    `needs_kind_confirmation: true`, REFUSE unconditionally. Return
+    `status: kind_unconfirmed`. Planning (`execute: false`) is still
+    allowed — reading git history and producing a plan doesn't mutate
+    the project.
 
   ## Failure Modes
   - Config resolution via ensure_config returned non-ok →
@@ -77,6 +82,8 @@ instructions: |
     underlying ensure_config status.
   - `execute: true` + live project without `live_confirmed: true` →
     `status: live_confirmation_required` (no write, no plan mutation).
+  - `execute: true` + `project.kind == "unknown"` or
+    `needs_kind_confirmation: true` → `status: kind_unconfirmed`.
   - Unit not found (track/phase/task doesn't exist in plan.md) → `unit_not_found`.
   - Commits referenced in plan.md are missing from git history → `history_drift`.
   - Working tree is dirty → `dirty_working_tree`.
@@ -87,9 +94,12 @@ instructions: |
   ## Process
   1. Call `ensure_config`. If status != `ok`, return
      `status: config_unresolved` with `config_status` carrying the
-     returned status. If `execute: true` AND resolved project.kind ==
-     "live" AND `live_confirmed` is false, return
-     `status: live_confirmation_required` immediately.
+     returned status. If `execute: true` AND
+     (resolved project.kind == "unknown" OR
+      `needs_kind_confirmation: true`), return
+     `status: kind_unconfirmed` immediately. If `execute: true` AND
+     resolved project.kind == "live" AND `live_confirmed` is false,
+     return `status: live_confirmation_required` immediately.
   2. Load plan.md. Extract SHAs for the requested unit:
      - task: single implementation_sha + its plan-update commit
      - phase: all task commits in the phase + the phase checkpoint commit
@@ -114,8 +124,9 @@ instructions: |
 
   ## Return
   - status: "plan_only" | "reverted" | "config_unresolved" |
-    "live_confirmation_required" | "unit_not_found" | "history_drift" |
-    "dirty_working_tree" | "conflicts_present" | "write_failed"
+    "kind_unconfirmed" | "live_confirmation_required" |
+    "unit_not_found" | "history_drift" | "dirty_working_tree" |
+    "conflicts_present" | "write_failed"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - unit: "track" | "phase" | "task"
