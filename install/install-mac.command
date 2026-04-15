@@ -17,6 +17,13 @@
 
 set -e
 
+# Pinned ACP adapter version. The ACP patches (settingSources,
+# autoMemoryEnabled, maxThinkingTokens) depend on the exact source of
+# acp-agent.js. Pinning keeps installs reproducible. When bumping this
+# version, re-test the 3 patches against the new source and adjust the
+# patch regexes if needed.
+ACP_PINNED_VERSION="0.28.0"
+
 # ------------------------------------------------------------
 # Setup: move into the install/ directory (where this script lives)
 # ------------------------------------------------------------
@@ -237,15 +244,31 @@ else
     fi
 fi
 
-# --- ACP adapter ---
-say_step "Checking Claude ACP adapter..."
-if command -v claude-agent-acp >/dev/null 2>&1; then
-    echo "  ACP adapter: found (already installed)"
-else
-    echo "  ACP adapter not found. Installing via npm..."
-    npm install -g "@agentclientprotocol/claude-agent-acp"
+# --- ACP adapter (pinned version) ---
+# Pinned because our ACP patches depend on the exact source of acp-agent.js.
+# If a pre-existing install has a different version, reinstall at the pin.
+say_step "Checking Claude ACP adapter (target version $ACP_PINNED_VERSION)..."
+ACP_INSTALLED_VERSION=""
+ACP_PKG_JSON=""
+NPM_GLOBAL_ROOT="$(npm root -g 2>/dev/null || true)"
+if [ -n "$NPM_GLOBAL_ROOT" ] && [ -f "$NPM_GLOBAL_ROOT/@agentclientprotocol/claude-agent-acp/package.json" ]; then
+    ACP_PKG_JSON="$NPM_GLOBAL_ROOT/@agentclientprotocol/claude-agent-acp/package.json"
+fi
+if [ -n "$ACP_PKG_JSON" ]; then
+    ACP_INSTALLED_VERSION="$(node -e "console.log(require('$ACP_PKG_JSON').version)" 2>/dev/null || true)"
+fi
+if [ "$ACP_INSTALLED_VERSION" = "$ACP_PINNED_VERSION" ]; then
+    echo "  ACP adapter: $ACP_INSTALLED_VERSION (matches pin, OK)"
+elif [ -n "$ACP_INSTALLED_VERSION" ]; then
+    echo "  ACP adapter: $ACP_INSTALLED_VERSION (reinstalling at pinned $ACP_PINNED_VERSION for patch compatibility)"
+    npm install -g "@agentclientprotocol/claude-agent-acp@$ACP_PINNED_VERSION"
     hash -r
-    say_ok "  ACP adapter installed."
+    say_ok "  ACP adapter installed at $ACP_PINNED_VERSION."
+else
+    echo "  ACP adapter not found. Installing pinned version $ACP_PINNED_VERSION..."
+    npm install -g "@agentclientprotocol/claude-agent-acp@$ACP_PINNED_VERSION"
+    hash -r
+    say_ok "  ACP adapter installed at $ACP_PINNED_VERSION."
 fi
 
 # --- Claude auth ---
