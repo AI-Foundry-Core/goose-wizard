@@ -29,7 +29,7 @@ $ErrorActionPreference = "Stop"
 Write-Host "=== RILGoose Setup ===" -ForegroundColor Cyan
 
 # ================================================================
-# PHASE 1: Bootstrap — install prerequisites if missing
+# PHASE 1: Bootstrap - install prerequisites if missing
 # ================================================================
 # This block auto-installs Node.js, Goose, Claude CLI, and the ACP
 # adapter. Skippable with -SkipBootstrap for users who've already
@@ -78,7 +78,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
     $ghOk  = Test-Reachable "https://github.com" "GitHub"
     $npmOk = Test-Reachable "https://registry.npmjs.org" "npm registry"
     if (-not ($ghOk -and $npmOk)) {
-        Write-Host "  Continuing anyway — some downloads may fail. Check with IT if you hit download errors." -ForegroundColor Yellow
+        Write-Host "  Continuing anyway - some downloads may fail. Check with IT if you hit download errors." -ForegroundColor Yellow
     }
 
     # --- OS version check ---
@@ -89,9 +89,9 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "       Claude Code will not run. Update Windows and re-run." -ForegroundColor Red
         exit 1
     }
-    Write-Host "  OS: Windows build $osBuild (OK — 17763+ required)"
+    Write-Host "  OS: Windows build $osBuild (OK - 17763+ required)"
 
-    # --- Git for Windows (required by Claude Code — runs bash internally) ---
+    # --- Git for Windows (required by Claude Code - runs bash internally) ---
     Write-Host "`nChecking Git for Windows..." -ForegroundColor Yellow
     if (Test-Command "git") {
         $gitVer = & git --version 2>&1
@@ -125,7 +125,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Node.js not found. Installing via winget..."
         if (-not (Test-Command "winget")) {
             Write-Host "ERROR: winget not available. Install Node.js LTS manually from https://nodejs.org" -ForegroundColor Red
-            Write-Host "       Older Windows 11 builds lack winget — update Windows or install the Node LTS .msi yourself, then re-run." -ForegroundColor Red
+            Write-Host "       Older Windows 11 builds lack winget - update Windows or install the Node LTS .msi yourself, then re-run." -ForegroundColor Red
             exit 1
         }
         & winget install --id OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
@@ -142,7 +142,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Node.js installed: $(& node --version)"
     }
 
-    # Explicitly add %APPDATA%\npm to this session's PATH — it's where npm puts
+    # Explicitly add %APPDATA%\npm to this session's PATH - it's where npm puts
     # global shims but only gets added to user PATH on first npm invocation,
     # which may not be reflected in our cached Refresh-Path result yet.
     $npmShimDir = Join-Path $env:APPDATA "npm"
@@ -161,7 +161,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
             Write-Host "  Goose: $($gooseVer.Trim()) (already installed)"
         } catch {
             Write-Host "  WARNING: 'goose' is on PATH but --version failed. The existing install may be broken." -ForegroundColor Yellow
-            Write-Host "           Continuing — if recipe execution fails later, reinstall Goose manually." -ForegroundColor Yellow
+            Write-Host "           Continuing - if recipe execution fails later, reinstall Goose manually." -ForegroundColor Yellow
         }
     } else {
         Write-Host "  Goose CLI not found. Downloading latest stable release..."
@@ -247,7 +247,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
             New-Item -ItemType Directory -Path $tempDesktopExtract -Force | Out-Null
             Expand-Archive -Path $tempDesktopZip -DestinationPath $tempDesktopExtract -Force
 
-            # The zip may contain an NSIS installer .exe or a Setup .msi — find and run it.
+            # The zip may contain an NSIS installer .exe or a Setup .msi - find and run it.
             $installer = Get-ChildItem -Path $tempDesktopExtract -Include "*.exe","*.msi" -Recurse -File |
                          Where-Object { $_.Name -match "(?i)goose|setup|install" } |
                          Select-Object -First 1
@@ -260,11 +260,11 @@ if (-not $SkipBootstrap -and -not $DryRun) {
             }
 
             Write-Host "  Running desktop installer: $($installer.Name)"
-            Write-Host "  (a Windows install dialog may appear — click through it)"
+            Write-Host "  (a Windows install dialog may appear - click through it)"
             if ($installer.Extension -eq ".msi") {
                 Start-Process msiexec.exe -ArgumentList "/i `"$($installer.FullName)`" /qb" -Wait
             } else {
-                # NSIS/Electron installers usually support /S for silent — try that but fall back to visible
+                # NSIS/Electron installers usually support /S for silent - try that but fall back to visible
                 Start-Process -FilePath $installer.FullName -ArgumentList "/S" -Wait -ErrorAction SilentlyContinue
             }
 
@@ -280,7 +280,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
 
     # --- Claude CLI (native installer; auto-updating, no Node required) ---
     # Anthropic's official PowerShell installer places the binary at
-    # %USERPROFILE%\.local\bin\claude.exe — the same dir as goose.exe. Falls
+    # %USERPROFILE%\.local\bin\claude.exe - the same dir as goose.exe. Falls
     # back to npm if the native install fails (common on corporate machines
     # where iex-from-web is blocked by policy).
     Write-Host "`nChecking Claude CLI..." -ForegroundColor Yellow
@@ -300,7 +300,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
             # Official installer: irm https://claude.ai/install.ps1 | iex
             $installScript = Invoke-WebRequest -Uri "https://claude.ai/install.ps1" -UseBasicParsing -TimeoutSec 30
             Invoke-Expression $installScript.Content
-            # Binary lands at %USERPROFILE%\.local\bin\claude.exe — same dir as goose.exe.
+            # Binary lands at %USERPROFILE%\.local\bin\claude.exe - same dir as goose.exe.
             $claudeLocalBin = Join-Path $env:USERPROFILE ".local\bin"
             if ($env:Path -notlike "*$claudeLocalBin*") {
                 $env:Path = "$env:Path;$claudeLocalBin"
@@ -339,7 +339,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
     # --- Configure CLAUDE_CODE_GIT_BASH_PATH ---
     # Claude Code uses Git Bash internally to execute commands on Windows,
     # regardless of which shell you launched it from. It normally auto-detects
-    # bash.exe at the default install path — but if Git is installed
+    # bash.exe at the default install path - but if Git is installed
     # elsewhere, we must write the path into ~/.claude/settings.json.
     # Do this proactively so corporate Git installs (e.g. PortableGit, Scoop)
     # don't break Claude Code silently.
@@ -426,10 +426,10 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Assuming you are logged in. If recipes later fail with auth errors, run 'claude' and re-login."
     } else {
         Write-Host "  No existing Claude credentials found."
-        Write-Host "  We'll now launch 'claude' — it will open a browser for you to log in with your Claude Max account."
+        Write-Host "  We'll now launch 'claude' - it will open a browser for you to log in with your Claude Max account."
         Write-Host "  After login, type '/exit' or press Ctrl+D to leave the Claude session and return here."
         Read-Host "  Press Enter to launch Claude login"
-        # Run 'claude' with no args — this triggers the OAuth browser flow on first run.
+        # Run 'claude' with no args - this triggers the OAuth browser flow on first run.
         # Start-Process -Wait so the script pauses until the user exits the Claude session.
         try {
             Start-Process -FilePath "claude" -NoNewWindow -Wait
@@ -692,7 +692,7 @@ if (-not $SkipExtensions) {
             Write-Host "  Provider: claude-acp (OK)"
         }
 
-        # Set model to Opus — required for instruction-following in recipes.
+        # Set model to Opus - required for instruction-following in recipes.
         # The default model (Sonnet) ignores detailed recipe instructions like
         # act sequences, formatting rules, and interaction gates. Opus follows
         # them reliably. This uses the ACP adapter's alias resolution ("opus"
@@ -729,10 +729,10 @@ if (-not $SkipExtensions) {
 # The Claude ACP adapter (acp-agent.js) hardcodes settingSources: ["user", "project", "local"]
 # which loads ~/.claude/CLAUDE.md, <cwd>/CLAUDE.md, and <cwd>/.claude/CLAUDE.md into every
 # Goose session. The "user" and "project" sources bring in the user's personal Claude Code
-# config, memory files, and project instructions — which cause the agent to identify as
+# config, memory files, and project instructions - which cause the agent to identify as
 # Claude Code, refuse to run recipes, and break the teaching flow.
 #
-# By patching to ["local"], only <cwd>/.claude/CLAUDE.md loads — which we control via the
+# By patching to ["local"], only <cwd>/.claude/CLAUDE.md loads - which we control via the
 # project template. This is safe because:
 # - RIL users have nothing in ~/.claude/ anyway (new to AI tools)
 # - Our .claude/CLAUDE.md in the project template has the Goose override
@@ -765,7 +765,7 @@ if (-not $acpAgentFile) {
 if (Test-Path $acpAgentFile) {
     $acpContent = Get-Content $acpAgentFile -Raw
 
-    # Patch 1: settingSources — only load .claude/CLAUDE.md from project dir
+    # Patch 1: settingSources - only load .claude/CLAUDE.md from project dir
     $originalLine = 'settingSources: ["user", "project", "local"]'
     $patchedLine  = 'settingSources: ["local"]'
 
@@ -783,7 +783,7 @@ if (Test-Path $acpAgentFile) {
         Write-Host "  The ACP adapter may have been updated. Check line ~1038 manually."
     }
 
-    # Patch 2: autoMemoryEnabled — disable Claude Code's auto-memory system
+    # Patch 2: autoMemoryEnabled - disable Claude Code's auto-memory system
     # The claude_code preset enables auto-memory by default, which reads from
     # ~/.claude/projects/<hash>/memory/ independently of settingSources. This
     # brings in user-specific rules that override recipe instructions.
@@ -804,7 +804,7 @@ if (Test-Path $acpAgentFile) {
         }
     }
 
-    # Patch 3: Enable AskUserQuestion tool — required for interactive recipes
+    # Patch 3: Enable AskUserQuestion tool - required for interactive recipes
     # The ACP adapter disallows AskUserQuestion by default. Without it, the agent
     # cannot stop and wait for user input during multi-step teaching sessions.
     $askOriginal = 'const disallowedTools = ["AskUserQuestion"];'
@@ -850,7 +850,7 @@ if (Test-Path $acpAgentFile) {
     # Patch 5: Replace claude_code system prompt with recipe-focused prompt
     # The claude_code preset is massive and drowns out recipe instructions; it
     # also references memory and CLAUDE.md, causing hallucinated memories.
-    # The prompt MUST instruct pre-tool-call announcement — Goose's approval
+    # The prompt MUST instruct pre-tool-call announcement - Goose's approval
     # dialog renders the model's natural-language preface before "approve?".
     # Without this line, users see a generic prompt with no context.
     # Use a tolerant regex so we can re-apply the patch over any previous
@@ -858,7 +858,7 @@ if (Test-Path $acpAgentFile) {
     $promptRegex = '(?s)let\s+systemPrompt\s*=\s*(\{[^}]*\}|"(?:[^"\\]|\\.)*")\s*;'
     $promptPatched = 'let systemPrompt = "You are an AI assistant running in the Goose agent platform. Your task comes from a recipe \u2014 follow its instructions exactly. Use the available tools (file read/write/edit, shell commands, code analysis) to do the work. Before running any tool, write one short sentence (under 20 words) naming the tool and what you are about to do with it, so the user knows what they are approving when the permission dialog appears. When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. Write complete paragraphs, not fragments.";'
 
-    # Marker text that only exists in the CURRENT prompt — used to distinguish
+    # Marker text that only exists in the CURRENT prompt - used to distinguish
     # "already up-to-date" from "patched with an older version that needs upgrade".
     $currentPromptMarker = "user knows what they are approving"
 
@@ -907,7 +907,7 @@ $env:GOOSE_RECIPE_PATH = $newRecipePath
 
 # Sanity check: recipe counts match expected architecture
 # Count now includes nested primitives under recipes/agents/<subdir>/ too
-# (progression/, config/, conductor/). Keep the floor conservative — it's a
+# (progression/, config/, conductor/). Keep the floor conservative - it's a
 # smoke check, not a gate.
 if ($agentsCount -lt 28) {
     Write-Host "  WARNING: Expected 29+ agent primitives (including nested subdirs), found $agentsCount" -ForegroundColor Yellow
@@ -943,7 +943,7 @@ if (-not (Test-Path $stateDir)) {
 
 # Per-user RILGoose directory (progression.json, user.json live here).
 # Progression is per-USER, so it sits in $HOME and follows the developer across
-# every codebase they train on — not tied to this project.
+# every codebase they train on - not tied to this project.
 $rilgooseHome = Join-Path $env:USERPROFILE ".rilgoose"
 if (-not (Test-Path $rilgooseHome)) {
     if ($DryRun) {

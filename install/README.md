@@ -1,6 +1,6 @@
 # RILGoose Installer
 
-Click-to-run installers for Windows and Mac. One file per platform — you only need your own.
+Click-to-run installers for Windows and Mac. One file per platform - you only need your own.
 
 ## Windows
 
@@ -24,7 +24,7 @@ Click-to-run installers for Windows and Mac. One file per platform — you only 
 
 Both installers run the same two phases.
 
-### Phase 1 — Bootstrap prerequisites (if missing)
+### Phase 1 - Bootstrap prerequisites (if missing)
 
 | Tool | Windows | Mac |
 |---|---|---|
@@ -35,7 +35,7 @@ Both installers run the same two phases.
 | Goose desktop app | download + run `Goose.zip` installer | installed with `--cask block-goose` |
 | Claude CLI | `irm https://claude.ai/install.ps1 \| iex` (native; npm fallback) | `curl -fsSL https://claude.ai/install.sh \| bash` (native; npm fallback) |
 | ACP adapter | `npm install -g @agentclientprotocol/claude-agent-acp` | same |
-| Homebrew | — | installed if missing |
+| Homebrew | - | installed if missing |
 | python3 | assumed present (PowerShell native) | validated, prompts to install Xcode CLT if missing |
 | `claude doctor` | run post-install to verify Claude Code health | same |
 
@@ -45,15 +45,15 @@ If a tool is already installed, the installer skips that step.
 
 **Connectivity preflight:** the installer checks GitHub and the npm registry are
 reachable before running anything. If a corporate proxy blocks them you get a
-warning — you can still proceed but expect download failures.
+warning - you can still proceed but expect download failures.
 
 **Claude login:** the installer checks for `~/.claude/.credentials.json` (Mac) or
 `%USERPROFILE%\.claude\.credentials.json` (Windows). If absent, it launches
-`claude` (no subcommand — `claude auth login` does not exist). The browser
+`claude` (no subcommand - `claude auth login` does not exist). The browser
 opens, you log in, then type `/exit` or Ctrl+D to leave the Claude session and
 return to the installer. A **Claude Max** subscription is required.
 
-### Phase 2 — Configure for RILGoose
+### Phase 2 - Configure for RILGoose
 
 - Sets `GOOSE_RECIPE_PATH` so the `shared/` recipes show up in Goose
 - Writes a minimal `config.yaml` if none exists
@@ -67,7 +67,7 @@ return to the installer. A **Claude Max** subscription is required.
 
 ## Advanced usage
 
-### Windows — skip the bootstrap (legacy behavior)
+### Windows - skip the bootstrap (legacy behavior)
 
 If you've already installed everything manually and just want the configuration
 phase:
@@ -106,7 +106,7 @@ after upgrading (`npm install -g @agentclientprotocol/claude-agent-acp`) and
 check the warnings in the output.
 
 ### "Homebrew install needs sudo password" (Mac)
-This is normal on a fresh Mac — Homebrew needs permission to create its
+This is normal on a fresh Mac - Homebrew needs permission to create its
 `/opt/homebrew` or `/usr/local` directories. Enter your Mac login password.
 
 ### "The script file is blocked" (Windows)
