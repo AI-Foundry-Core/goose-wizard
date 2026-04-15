@@ -159,8 +159,8 @@ instructions: |
   5. teaching/stage-0/act-5-say-it-better.teach.md
 
   Before beginning:
-  - Read `<TARGET>/.goose/team_context.md` for the project's stack, conventions, and source directories (substitute <TARGET> with target_codebase_path).
-  - Confirm the working tree state at <TARGET>: `git -C <TARGET> status`.
+  - Read `<TARGET>/.goose/team_context.md` for the project's stack, conventions, and source directories (substitute <TARGET> with target_codebase_path). If the file is missing, scan <TARGET>/ for README.md, pyproject.toml, package.json, or similar manifests to infer the stack. Tell the developer: "No team_context.md here — I'll infer your stack from the manifests I can see." Do not block on the missing file.
+  - Confirm the working tree state at <TARGET>: `git -C <TARGET> status`. If that command fails because the target is NOT a git repo, tell the developer: "This directory isn't a git repo. The safety rails in Stage 0 assume git (so every edit is reversible). Options: (a) run `git init` in this directory to enable the safety rails, or (b) point at a different target codebase that is already a git repo. Which would you like?" WAIT for their answer and proceed accordingly before any edits.
   - Create a practice branch in the target repo before making any code changes: `git -C <TARGET> checkout -b practice/stage-0`. If that branch already exists, create a unique branch name using a short timestamp suffix.
   - Keep all Stage 0 edits on the practice branch in <TARGET>.
 

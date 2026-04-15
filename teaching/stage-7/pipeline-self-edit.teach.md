@@ -236,9 +236,12 @@ WAIT for any questions about the recipe structure.
 
 ## Bridge
 
-"Your instructions evolve. Your rules are clean. But how do you know any of
-this is actually making things better? Right now you're going on intuition.
-Next: measuring the impact of pipeline changes with real data. Ready to move on?"
+"Your rules are clean and your guardrails are audited. But the rules
+themselves aren't the only thing that needs to evolve — the instructions
+driving your agents have to evolve from findings too. A finding from last
+week's cycle should become a rule for next week's cycle automatically.
+Next: the Curator pattern — turning findings into durable instruction
+changes. That's the final module. Ready to close this out?"
 
 Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 

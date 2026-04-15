@@ -1105,6 +1105,27 @@ if (-not (Test-Path $rilgooseHome)) {
     Write-Host "  ~/.rilgoose/ directory exists"
 }
 
+# Seed ~/.rilgoose/progression.json from the template if missing.
+# graduate-module.yaml refuses to update progression if the file doesn't
+# exist (step 1c returns `no_progression_state`), which would block module
+# graduation on first run. Seeding it here unblocks the flow.
+$progressionTarget = Join-Path $rilgooseHome "progression.json"
+if (-not (Test-Path $progressionTarget)) {
+    $progressionTemplate = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $projectRoot "install") "project-template") ".goose") "state") "progression.json"
+    if (Test-Path $progressionTemplate) {
+        if ($DryRun) {
+            Write-Host "  [DRY RUN] Would seed ~/.rilgoose/progression.json from template"
+        } else {
+            Copy-Item $progressionTemplate $progressionTarget
+            Write-Host "  Seeded ~/.rilgoose/progression.json from template" -ForegroundColor Green
+        }
+    } else {
+        Write-Host "  WARNING: progression.json template not found at $progressionTemplate" -ForegroundColor Yellow
+    }
+} else {
+    Write-Host "  ~/.rilgoose/progression.json exists"
+}
+
 # Seed .goose/PROGRESS.md (the user-facing training checklist)
 # Note: Windows PowerShell 5.1 Join-Path only accepts 2 positional args;
 # nest calls to build deeper paths.

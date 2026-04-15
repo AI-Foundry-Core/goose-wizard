@@ -227,7 +227,7 @@ WAIT for any questions about the recipe structure.
 
 ## Bridge
 
-"Your pipeline now runs autonomously with durable memory and clean state management. The next step is closing the improvement loop: when the workflow itself keeps getting smarter, you start packaging what works into reusable skills that evolve on their own. Ready to move on?"
+"Your pipeline now runs autonomously with durable memory and clean state management. But how do you know it's actually getting better over time? Right now you're going on intuition. Stage 7 starts with measuring pipeline impact using real data — cycle counts, fix rates, regressions prevented — so you can tell when a change actually helped. Ready to move on?"
 
 Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 

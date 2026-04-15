@@ -708,6 +708,23 @@ else
     echo "  .goose/PROGRESS.md exists"
 fi
 
+# --- Seed ~/.rilgoose/progression.json if missing ---
+# graduate-module.yaml refuses to update progression if the file doesn't
+# exist (returns `no_progression_state`), which would block first-run
+# module graduation. Seeding it here unblocks the flow.
+PROGRESSION_TARGET="$RILGOOSE_HOME/progression.json"
+PROGRESSION_TEMPLATE="$PROJECT_ROOT/install/project-template/.goose/state/progression.json"
+if [ ! -f "$PROGRESSION_TARGET" ]; then
+    if [ -f "$PROGRESSION_TEMPLATE" ]; then
+        cp "$PROGRESSION_TEMPLATE" "$PROGRESSION_TARGET"
+        say_ok "  Seeded ~/.rilgoose/progression.json from template"
+    else
+        echo "  WARNING: progression.json template not found at $PROGRESSION_TEMPLATE"
+    fi
+else
+    echo "  ~/.rilgoose/progression.json exists"
+fi
+
 # --- Verify recipe list ---
 say_step "Verifying recipes are visible to Goose..."
 RECIPE_CHECK_TMP="/tmp/rilgoose-recipe-check-$$"

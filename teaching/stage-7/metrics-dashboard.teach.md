@@ -291,23 +291,14 @@ WAIT for any questions about the recipe structure.
 
 ## Bridge
 
-This is the final recipe in the final stage. The bridge connects to the
-ongoing practice, not to another recipe.
+"You can now measure whether a pipeline change actually improved things. But
+the measurement will only stay useful if the rules driving the pipeline stay
+clean. Right now, after a few cycles of adding constraints, your rules are
+probably duplicated, contradictory, or accumulating dead weight. Next: auditing
+and pruning the rules themselves — deduplication, conflict resolution, and
+explicit guardrail review. Ready to move on?"
 
-"Your pipeline builds. It tests. It reviews. It runs cycles while you sleep.
-It captures learnings. And now - it measures its own improvement and evolves
-its own instructions.
-
-That's the full arc. You started by watching AI fix a bug. Now you're running
-a self-improving development system.
-
-The system doesn't need another stage. It needs you to keep doing what you've
-been doing - running cycles, reviewing findings, evolving instructions, pruning
-rules, and measuring the results. Every cycle makes it a little smarter.
-
-The recipes are yours. Use them. Make sense — or want to hold here and let it soak before you go run a cycle?"
-
-Check: Wait for the developer to respond. If they want to reflect or ask questions, engage. If they're ready to close, acknowledge and let them go. There's no next module — this is the end of the curriculum.
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 
