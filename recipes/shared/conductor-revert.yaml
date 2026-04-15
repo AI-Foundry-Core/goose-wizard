@@ -77,7 +77,7 @@ prompt: |
   | `user_config_corrupt`  | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
   | `legacy_ambiguous`     | Instruct user to complete migration via `setup-config`. Stop.                                                          |
   | `project_missing`      | Show `projects[]`; ask user to pick or run `setup-config`. Stop.                                                       |
-  | `project_json_missing` | "Run `conductor-setup` to initialize this project." Stop.                                                              |
+  | `project_json_missing` | "Index entry exists but `project.json` is missing. Run `setup-config` (repair)." Stop.                                  |
   | `project_corrupt`      | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
   | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config`." Stop.                                                           |
   | `duplicate_projects`   | List duplicate IDs; instruct `setup-config`. Stop.                                                                     |

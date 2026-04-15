@@ -65,7 +65,7 @@ prompt: |
   | `user_config_corrupt`  | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
   | `legacy_ambiguous`     | Instruct user to complete migration via `setup-config`. Stop.                                                          |
   | `project_missing`      | Show `projects[]`; ask user to pick or run `setup-config`. Stop.                                                       |
-  | `project_json_missing` | "Run `conductor-setup` to initialize this project's conductor config." Stop.                                            |
+  | `project_json_missing` | "This project's index entry exists but `project.json` is missing. Run `setup-config` to repair it (repair path per design contract)." Stop. |
   | `project_corrupt`      | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
   | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config` to set `last_active`." Stop.                                       |
   | `duplicate_projects`   | List duplicate IDs + canonical path; tell user to run `setup-config`. Stop.                                            |
@@ -162,6 +162,12 @@ prompt: |
              criteria are looser
          Stop for now." Stop.
       - Surface the specific gaps to the user; ask them to refine.
+      - If the user replies with an empty string, whitespace-only, or
+        text byte-identical to the previous brief, DO NOT consume a
+        retry slot and DO NOT re-call the primitive. Instead: "Your
+        reply was empty / unchanged. A refined brief must be different
+        from the previous attempt. Type a refined brief or `cancel`
+        to stop." Accept `cancel` / `quit` / `stop` as exit words.
       - REPLACE `<current refined brief>` with the user's refined text
         (do NOT concatenate — the primitive gets a full replacement
         each retry; avoid the refined version being buried under the
