@@ -823,28 +823,34 @@ if (Test-Path $acpAgentFile) {
         Write-Host "  WARNING: Could not find disallowedTools line" -ForegroundColor Yellow
     }
 
-    # Patch 4: Disable extended thinking output
-    # Claude's extended thinking streams visible "thinking" blocks in the Goose UI,
-    # which looks confusing to users. Setting maxThinkingTokens to 0 disables this.
-    # Use a regex that tolerates whitespace/line-ending variations across upstream
-    # reformatting (prettier, indentation changes, etc.) instead of an exact match.
-    $alreadyThinkPatched = ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*0\b')
-    if ($alreadyThinkPatched) {
-        Write-Host "  Already patched (thinking disabled)"
-    } else {
-        # Match `const maxThinkingTokens = <anything up to and including undefined>;`
-        # across multiple lines of any whitespace. [\s\S] = any char including newline.
-        $thinkPattern = '(?s)const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?;'
-        if ($acpContent -match $thinkPattern) {
-            if ($DryRun) {
-                Write-Host "  [DRY RUN] Would disable extended thinking"
-            } else {
-                $acpContent = [regex]::Replace($acpContent, $thinkPattern, 'const maxThinkingTokens = 0; // thinking disabled for clean recipe output')
-                Write-Host "  Patched: extended thinking disabled (no visible thinking blocks)" -ForegroundColor Green
-            }
+    # Patch 4: Ensure extended thinking is ENABLED.
+    # Earlier RILGoose versions disabled thinking (set maxThinkingTokens to 0)
+    # to hide "thinking" blocks from the Goose UI. We've reversed that: for a
+    # teaching audience, visible thinking IS the pitch ("look how much the AI
+    # reasons through this"). This patch now:
+    #   - If an earlier RILGoose install set it to 0, restore the upstream expression
+    #   - Otherwise, leave the upstream default (env-var gated) alone
+    if ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS') {
+        Write-Host "  Thinking: already at upstream default (enabled / env-var gated)"
+    } elseif ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*0\b') {
+        if ($DryRun) {
+            Write-Host "  [DRY RUN] Would re-enable extended thinking"
         } else {
-            Write-Host "  WARNING: Could not find maxThinkingTokens block" -ForegroundColor Yellow
+            $restoredExpr = @'
+        const maxThinkingTokens = process.env.MAX_THINKING_TOKENS
+            ? parseInt(process.env.MAX_THINKING_TOKENS, 10)
+            : undefined;
+'@
+            $acpContent = [regex]::Replace(
+                $acpContent,
+                '(?m)^[ \t]*const\s+maxThinkingTokens\s*=\s*0[^;]*;\s*(?://[^\n]*)?',
+                $restoredExpr,
+                1
+            )
+            Write-Host "  Patched: re-enabled extended thinking (reverted prior RILGoose patch)" -ForegroundColor Green
         }
+    } else {
+        Write-Host "  Thinking: maxThinkingTokens block not found; leaving upstream behavior untouched"
     }
 
     # Patch 5: Replace claude_code system prompt with recipe-focused prompt

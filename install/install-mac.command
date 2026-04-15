@@ -554,25 +554,30 @@ elif 'const disallowedTools = [];' in content:
 else:
     print("  WARNING: Could not find disallowedTools line")
 
-# Patch 4: disable extended thinking output - use a tolerant regex so
-# upstream reformatting (prettier, indentation changes, semicolon
-# reflow) doesn't silently break the patch.
-if re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
-    print("  Already patched (thinking disabled)")
-else:
-    think_re = re.compile(
-        r"const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?;",
-        re.DOTALL,
+# Patch 4: Ensure extended thinking is ENABLED.
+# Earlier RILGoose versions disabled thinking (maxThinkingTokens = 0) to hide
+# "thinking" blocks. For a teaching audience, visible thinking IS the pitch
+# ("look how much the AI reasons through this"), so we re-enable it.
+#   - If the upstream env-var expression is still in place, leave it alone
+#   - If an earlier RILGoose install set it to 0, restore the upstream
+#   - Otherwise, warn but don't fail
+if re.search(r"const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS", content):
+    print("  Thinking: already at upstream default (enabled / env-var gated)")
+elif re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
+    restored = (
+        "        const maxThinkingTokens = process.env.MAX_THINKING_TOKENS\n"
+        "            ? parseInt(process.env.MAX_THINKING_TOKENS, 10)\n"
+        "            : undefined;"
     )
-    if think_re.search(content):
-        content = think_re.sub(
-            "const maxThinkingTokens = 0; // thinking disabled for clean recipe output",
-            content,
-            count=1,
-        )
-        print("  Patched: extended thinking disabled (no visible thinking blocks)")
-    else:
-        print("  WARNING: Could not find maxThinkingTokens block")
+    content = re.sub(
+        r"(?m)^[ \t]*const\s+maxThinkingTokens\s*=\s*0[^;]*;\s*(?://[^\n]*)?",
+        restored,
+        content,
+        count=1,
+    )
+    print("  Patched: re-enabled extended thinking (reverted prior RILGoose patch)")
+else:
+    print("  Thinking: maxThinkingTokens block not found; leaving upstream behavior untouched")
 
 # Patch 5: replace claude_code preset system prompt with recipe-focused prompt.
 # MUST include the pre-tool-call announcement line - Goose's approval dialog
