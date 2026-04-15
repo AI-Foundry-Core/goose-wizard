@@ -463,11 +463,23 @@ if n:
 else:
     print("  Already disabled or not found: chatrecall")
 
-# Provider check
-if "GOOSE_PROVIDER: claude-acp" not in content:
-    print("  WARNING: GOOSE_PROVIDER is not claude-acp")
+# Set GOOSE_PROVIDER to claude-acp. Must be written unconditionally - if the
+# user had a pre-existing config.yaml where `goose configure` was never run,
+# GOOSE_PROVIDER will be missing, and `goose run` fails with "No provider
+# configured". Writing it here unblocks the flow.
+provider_match = re.search(r"^GOOSE_PROVIDER:\s*(\S+)", content, re.M)
+if provider_match:
+    current = provider_match.group(1)
+    if current != "claude-acp":
+        content = re.sub(r"^GOOSE_PROVIDER:\s*\S+", "GOOSE_PROVIDER: claude-acp", content, count=1, flags=re.M)
+        print(f"  Set GOOSE_PROVIDER: claude-acp (was: {current})")
+    else:
+        print("  Provider: claude-acp (OK)")
 else:
-    print("  Provider: claude-acp (OK)")
+    if not content.endswith("\n"):
+        content += "\n"
+    content += "GOOSE_PROVIDER: claude-acp\n"
+    print("  Added GOOSE_PROVIDER: claude-acp (not previously set)")
 
 # Set GOOSE_MODEL to opus
 model_match = re.search(r"^GOOSE_MODEL:\s*(\S+)", content, re.M)
@@ -479,7 +491,10 @@ if model_match:
     else:
         print("  Model: opus (OK)")
 else:
-    print("  WARNING: GOOSE_MODEL not found in config")
+    if not content.endswith("\n"):
+        content += "\n"
+    content += "GOOSE_MODEL: opus\n"
+    print("  Added GOOSE_MODEL: opus (not previously set)")
 
 # Set GOOSE_MODE to smart_approve. Default "auto" is too aggressive for
 # developers learning to trust the AI; smart_approve auto-approves reads
@@ -709,7 +724,7 @@ Next steps:
   1. Open a NEW terminal window (so GOOSE_RECIPE_PATH loads)
   2. Open the Goose desktop app
   3. Look for "START HERE - Goose Training" at the top of the recipe list
-  4. Or from the new terminal:  goose run --recipe start-here
+  4. Or from the new terminal:  goose run --recipe 00-start-here
 
 Architecture:
   - Training recipes (shared/) are what developers interact with
