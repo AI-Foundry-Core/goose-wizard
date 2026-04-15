@@ -32,6 +32,11 @@ parameters:
     requirement: optional
     default: ""
     description: "JSON array of ordered deployment step strings."
+  - key: live_confirmed
+    input_type: boolean
+    requirement: optional
+    default: false
+    description: "Required to be true when project.kind == 'live'. Caller must obtain typed user confirmation before setting true."
 
 sub_recipes:
   - name: "ensure_config"
@@ -58,15 +63,25 @@ instructions: |
   - NEVER overwrite in `create` mode.
   - NEVER lose existing sections in `update` mode.
   - ALL writes atomic: tmp + rename with backup.
+  - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
+    Return `status: live_confirmation_required` without any write.
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
+  - `project.kind == "live"` without `live_confirmed: true` →
+    `status: live_confirmation_required`.
   - Mode conflict with file state → `already_exists` or `not_found`.
   - JSON parse failure → `bad_input` with the offending field.
   - Required structural sections completely empty → `missing_inputs` and
     list the required fields.
 
   ## Process
-  1. Call `ensure_config`. Stop if not `ok`.
+  1. Call `ensure_config`. If status != `ok`, return
+     `status: config_unresolved` with `config_status` set. If resolved
+     project.kind == "live" and `live_confirmed` is false, return
+     `status: live_confirmation_required` immediately.
   2. Target path: `<project.path>/.goose/conductor/workflow.md`.
   3. Build sections from inputs using the template in
      `recipes/ported-agents/conductor/references/artifact-templates.md`.
@@ -74,7 +89,10 @@ instructions: |
   5. Atomic write with backup.
 
   ## Return
-  - status: "ok" | "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
+    "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - path: absolute path of workflow.md
   - sections_written: list of section names updated
   - sections_preserved: list of section names left untouched
@@ -86,5 +104,7 @@ extensions:
     name: developer
 
 prompt: |
-  Write workflow.md for project_id: {{ project_id }}, mode: {{ mode }}.
-  Follow the Process exactly and return the structured result.
+  Write workflow.md for project_id: {{ project_id }}, mode: {{ mode }},
+  live_confirmed: {{ live_confirmed }}.
+  Refuse live projects without live_confirmed. Follow the Process
+  exactly and return the structured result.

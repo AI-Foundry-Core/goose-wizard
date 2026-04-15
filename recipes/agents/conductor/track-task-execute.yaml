@@ -22,6 +22,11 @@ parameters:
     requirement: optional
     default: ""
     description: "Override the project's default test command (from project.json)."
+  - key: live_confirmed
+    input_type: boolean
+    requirement: optional
+    default: false
+    description: "Required to be true when project.kind == 'live'. The caller must have obtained an explicit typed confirmation from the user before setting this true. Headless callers must refuse to set it true unprompted."
 
 sub_recipes:
   - name: "ensure_config"
@@ -56,9 +61,17 @@ instructions: |
     semantic reverts.
   - ALL commits use the canonical format:
       `<type>(<scope>): <subject>\n\n<body>\n\nTask: <id>\nTrack: <track_id>`
+  - If `project.kind == "live"`, REFUSE to execute unless `live_confirmed`
+    is true. Return `status: live_confirmation_required`. This is a hard
+    gate; do NOT do any work (including marking [~]) without the flag.
 
   ## Failure Modes
   - project.json or track files missing/corrupt → structured error; stop.
+  - `project.kind == "live"` without `live_confirmed: true` →
+    `status: live_confirmation_required`.
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with the underlying ensure_config status
+    in `config_status`.
   - Task not in pending state → `status: task_not_pending`.
   - Test suite fails to run at all (environment problem) → `env_broken`.
   - RED doesn't fail (tests pass without implementation) → `red_not_red`;
@@ -72,7 +85,11 @@ instructions: |
   Follow the 11-step lifecycle. Every step runs in sequence; commit only
   when the preceding step's gate passes.
 
-  1. Call `ensure_config`. Resolve project + project.json.
+  1. Call `ensure_config` with the supplied `project_id` and
+     `require_project: true`. If the returned status is not `ok`, return
+     `status: config_unresolved` with `config_status: <returned_status>`.
+     If resolved project.kind == "live" and `live_confirmed` is false,
+     return `status: live_confirmation_required` without any further work.
   2. Load `<project.path>/.goose/conductor/tracks/<track_id>/plan.md`.
      Select the next pending `[ ]` task (or the supplied `task_id`).
      Verify it's not already `[~]`, `[x]`, `[-]`, or `[!]`.
@@ -89,19 +106,27 @@ instructions: |
      via `context-write-tech-stack` (caller is responsible for invoking
      that recipe; this one just records the intent in the task notes).
   9. Commit implementation with the canonical message format.
-  10. Attach a git note with a rich task summary (files changed,
-      decisions, coverage).
+  10. Best-effort: attach a git note with a rich task summary (files
+      changed, decisions, coverage). If `git notes add` fails (notes ref
+      permissions, missing notes config, etc.), do NOT fail the task —
+      record `notes_attached: false` and add `notes_attach_failed` to
+      the status list. The commit itself still stands.
   11. Update plan.md: mark the task `[x]` with the commit SHA. Commit
       the plan update as `docs: update plan — task <task_id> complete`.
 
   ## Return
-  - status: "ok" | "dirty_working_tree" | "task_not_pending" |
-    "not_tdd_task" | "env_broken" | "red_not_red" | "green_unreachable" |
-    "refactor_broke_green" | "coverage_gap" | "write_failed"
+  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
+    "dirty_working_tree" | "task_not_pending" | "not_tdd_task" |
+    "env_broken" | "red_not_red" | "green_unreachable" |
+    "refactor_broke_green" | "coverage_gap" | "notes_attach_failed" |
+    "write_failed"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - task_id: The task executed (or attempted)
   - implementation_sha: Commit SHA of the implementation commit
   - plan_update_sha: Commit SHA of the plan update commit
   - files_changed: List of files modified in the implementation commit
+  - notes_attached: true if git notes attached successfully, else false
   - tests_before: { passed: N, failed: N }
   - tests_after: { passed: N, failed: N }
   - coverage_before: Percentage (or null if not measured)
@@ -114,7 +139,8 @@ extensions:
 
 prompt: |
   Execute one task for project_id: {{ project_id }}, track: {{ track_id }},
-  task_id: {{ task_id }}, test_command: {{ test_command }}.
+  task_id: {{ task_id }}, test_command: {{ test_command }},
+  live_confirmed: {{ live_confirmed }}.
 
-  Follow the 11-step TDD lifecycle exactly. Commit cleanly. Return the
-  structured result.
+  Follow the 11-step TDD lifecycle exactly. Refuse live projects without
+  live_confirmed. Commit cleanly. Return the structured result.

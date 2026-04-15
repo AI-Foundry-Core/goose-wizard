@@ -31,6 +31,11 @@ parameters:
     requirement: optional
     default: false
     description: "If true, execute the planned reverts. If false (default), return the plan only."
+  - key: live_confirmed
+    input_type: boolean
+    requirement: optional
+    default: false
+    description: "Required to be true when `execute: true` AND project.kind == 'live'. Planning (`execute: false`) never requires this flag. Caller must obtain typed user confirmation before setting."
 
 sub_recipes:
   - name: "ensure_config"
@@ -63,8 +68,15 @@ instructions: |
     the phase it checkpoints.
   - DO update plan.md status markers after a successful revert: the
     reverted tasks go from `[x]` back to `[ ]` and lose their SHAs.
+  - If `execute: true` AND `project.kind == "live"`, REFUSE unless
+    `live_confirmed` is true. Return `status: live_confirmation_required`.
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
+  - `execute: true` + live project without `live_confirmed: true` →
+    `status: live_confirmation_required` (no write, no plan mutation).
   - Unit not found (track/phase/task doesn't exist in plan.md) → `unit_not_found`.
   - Commits referenced in plan.md are missing from git history → `history_drift`.
   - Working tree is dirty → `dirty_working_tree`.
@@ -73,11 +85,20 @@ instructions: |
   - `execute: true` but any precondition failure above → do not execute.
 
   ## Process
-  1. Call `ensure_config`. Stop if not `ok`.
+  1. Call `ensure_config`. If status != `ok`, return
+     `status: config_unresolved` with `config_status` carrying the
+     returned status. If `execute: true` AND resolved project.kind ==
+     "live" AND `live_confirmed` is false, return
+     `status: live_confirmation_required` immediately.
   2. Load plan.md. Extract SHAs for the requested unit:
      - task: single implementation_sha + its plan-update commit
      - phase: all task commits in the phase + the phase checkpoint commit
      - track: all phase checkpoint commits + the track's setup commits
+     Baseline fallback for `track` when the track has no setup commit
+     recorded: use the oldest commit reachable from HEAD whose subject
+     matches `^docs: start task` AND whose body references `Track: <track_id>`.
+     If no such commit exists, the track has produced zero task work;
+     return `status: unit_not_found`.
   3. Verify every SHA exists in git history. If not, `history_drift`.
   4. Compute the revert order (reverse-chronological).
   5. If `execute: false`, return the plan.
@@ -91,9 +112,11 @@ instructions: |
      f. Record the revert in metadata.json.
 
   ## Return
-  - status: "plan_only" | "reverted" | "unit_not_found" |
-    "history_drift" | "dirty_working_tree" | "conflicts_present" |
-    "write_failed"
+  - status: "plan_only" | "reverted" | "config_unresolved" |
+    "live_confirmation_required" | "unit_not_found" | "history_drift" |
+    "dirty_working_tree" | "conflicts_present" | "write_failed"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - unit: "track" | "phase" | "task"
   - commits_to_revert: ordered array of { sha, subject, belongs_to }
   - revert_commit_sha: SHA of the revert commit (if execute=true succeeded)
@@ -108,5 +131,7 @@ extensions:
 prompt: |
   Plan {{ unit }} revert for track {{ track_id }} in project {{ project_id }}.
   Phase: {{ phase }}. Task: {{ task_id }}. Execute: {{ execute }}.
+  Live confirmed: {{ live_confirmed }}.
 
-  Follow the Process. Return the plan OR the revert result.
+  Follow the Process. Refuse live projects executing without live_confirmed.
+  Return the plan OR the revert result.

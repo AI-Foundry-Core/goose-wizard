@@ -43,6 +43,9 @@ instructions: |
   - NEVER stop at the first issue. Collect them all and return a batch.
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
   - `project.json` missing or corrupt → return `status: project_unusable`
     and stop; the caller must rerun `setup-config`.
   - Conductor directory missing → return `status: not_initialized`; the
@@ -53,7 +56,8 @@ instructions: |
   ## Process
   1. Call the `ensure_config` sub-recipe with the provided `project_id`
      and `require_project: true`.
-  2. If status != "ok", return with that status propagated.
+  2. If status != "ok", return `status: config_unresolved` with
+     `config_status` carrying the underlying ensure_config status.
   3. Resolve the conductor directory: `<project.path>/.goose/conductor/`.
      If missing, return `status: not_initialized`.
   4. For each artifact in the `focus` set (or all if focus is empty):
@@ -71,8 +75,13 @@ instructions: |
 
   ### Freshness signals
 
+  All freshness checks are based on concrete signals — file contents and
+  git history — never on file mtime or elapsed time. Time alone is not
+  evidence that an artifact has drifted.
+
   - **product.md stale** if the most recent completed track isn't reflected
-    in the feature list OR success metrics haven't been updated in >90 days.
+    in the feature list. (Do NOT flag based on time since last edit;
+    a stable product doesn't need edits to stay accurate.)
   - **tech-stack.md stale** if dependency versions lag the manifest by
     more than a patch release, or a listed dependency is absent from the
     manifest.
@@ -82,7 +91,10 @@ instructions: |
     any listed track has no directory.
 
   ## Return
-  - status: "ok" | "project_unusable" | "not_initialized" | "has_findings"
+  - status: "ok" | "config_unresolved" | "project_unusable" |
+    "not_initialized" | "has_findings"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - project: { id, path, kind }
   - artifacts: array of { name, path, present, parseable, size_bytes, mtime, headings? }
   - findings: array of { severity: "blocker"|"warning"|"info",

@@ -47,6 +47,11 @@ parameters:
     requirement: optional
     default: ""
     description: "JSON array of { phase, scope }."
+  - key: live_confirmed
+    input_type: boolean
+    requirement: optional
+    default: false
+    description: "Required to be true when project.kind == 'live'. Caller must obtain typed user confirmation before setting true."
 
 sub_recipes:
   - name: "ensure_config"
@@ -77,8 +82,15 @@ instructions: |
     so the author sees the gap.
   - ALL writes atomic: write to `product.md.tmp` then rename; back up the
     existing file as `product.md.bak` first (rotate if needed).
+  - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
+    Return `status: live_confirmation_required` without any write.
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
+  - `project.kind == "live"` without `live_confirmed: true` →
+    `status: live_confirmation_required`.
   - `create` mode, file exists → return `status: already_exists`.
   - `update` mode, file missing → return `status: not_found`.
   - Required inputs missing in `create` mode → return
@@ -87,7 +99,10 @@ instructions: |
     the exact field.
 
   ## Process
-  1. Call `ensure_config` to resolve the project path. Stop if not `ok`.
+  1. Call `ensure_config` to resolve the project path. If status != `ok`,
+     return `status: config_unresolved` with `config_status` set.
+     If resolved project.kind == "live" and `live_confirmed` is false,
+     return `status: live_confirmation_required` immediately.
   2. Resolve target path: `<project.path>/.goose/conductor/product.md`.
   3. Validate mode vs. file existence.
   4. If `update`, read existing file and parse sections using the template
@@ -97,7 +112,10 @@ instructions: |
   7. Return a diff summary.
 
   ## Return
-  - status: "ok" | "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
+    "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - path: absolute path of product.md (or attempted)
   - mode_used: "create" | "update" | "replace"
   - sections_written: list of section names updated
@@ -109,6 +127,8 @@ extensions:
     name: developer
 
 prompt: |
-  Write product.md for project_id: {{ project_id }}, mode: {{ mode }}.
-  Resolve the project via ensure_config, then follow the Process exactly.
-  Return the structured result.
+  Write product.md for project_id: {{ project_id }}, mode: {{ mode }},
+  live_confirmed: {{ live_confirmed }}.
+  Resolve the project via ensure_config. Refuse live projects without
+  live_confirmed. Then follow the Process exactly. Return the structured
+  result.
