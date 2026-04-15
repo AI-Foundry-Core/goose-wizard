@@ -92,11 +92,14 @@ trust the recovery semantics across the whole system.
 
 **Canonical scheme:**
 
-- Filename: `<original>.bak.<ISO 8601 UTC timestamp>` — e.g.
-  `tracks.md.bak.2026-04-15T173042Z`.
-- Timestamp: `YYYYMMDDTHHMMSSZ` (UTC, no colons so it's path-safe on
-  Windows, no microseconds). Generate via the platform's local time
-  converted to UTC at the moment of the backup rename.
+- Filename: `<original>.bak.<UTC compact timestamp>` — e.g.
+  `tracks.md.bak.20260415T173042Z`.
+- Timestamp: `YYYYMMDDTHHMMSSZ` — compact form, no hyphens/colons
+  (path-safe on Windows, sorts lexicographically in UTC). Generate
+  from the shell: `python -c "import datetime;
+  print(datetime.datetime.utcnow().strftime('%Y%m%dT%H%M%SZ'))"`
+  or the platform equivalent. Do NOT use agent wall-clock reasoning
+  for the timestamp — invoke the shell.
 - Location: the SAME directory as the original file (not a shared
   `.bak/` dir — keeps the recovery action trivially obvious).
 - Scope: ANY write that modifies an existing file. Creating a new

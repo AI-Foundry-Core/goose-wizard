@@ -80,8 +80,12 @@ instructions: |
   - NEVER generate Lorem-ipsum filler. If a required section has no input
     and no existing content in update mode, leave a `<!-- TODO -->` marker
     so the author sees the gap.
-  - ALL writes atomic: write to `product.md.tmp` then rename; back up the
-    existing file as `product.md.bak` first (rotate if needed).
+  - ALL writes atomic per `recipes/RECIPE-PREAMBLE.md`'s Backup Rotation
+    Convention: write to `product.md.tmp`, rename existing `product.md`
+    to `product.md.bak.<UTC compact timestamp>` (format
+    `YYYYMMDDTHHMMSSZ` — e.g. `product.md.bak.20260415T173042Z`), then
+    rename `product.md.tmp` to `product.md`. Never overwrite an existing
+    .bak; the timestamp guarantees uniqueness.
   - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
 

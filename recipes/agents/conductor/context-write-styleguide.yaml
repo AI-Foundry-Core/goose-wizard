@@ -55,7 +55,10 @@ instructions: |
   - NEVER overwrite in `create` mode.
   - NEVER produce more than 200 lines. Style guides that no one reads are
     worse than no style guide.
-  - ALL writes atomic: tmp + rename with backup.
+  - ALL writes atomic per `recipes/RECIPE-PREAMBLE.md`'s Backup Rotation
+    Convention: write `<lang>.md.tmp`, rename existing `<lang>.md` to
+    `<lang>.md.bak.<UTC compact timestamp>` (format `YYYYMMDDTHHMMSSZ`),
+    then rename tmp → canonical. Never overwrite an existing .bak.
   - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
 

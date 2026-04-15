@@ -62,7 +62,11 @@ instructions: |
     threshold that wasn't supplied.
   - NEVER overwrite in `create` mode.
   - NEVER lose existing sections in `update` mode.
-  - ALL writes atomic: tmp + rename with backup.
+  - ALL writes atomic per `recipes/RECIPE-PREAMBLE.md`'s Backup Rotation
+    Convention: write `workflow.md.tmp`, rename existing `workflow.md`
+    to `workflow.md.bak.<UTC compact timestamp>` (format
+    `YYYYMMDDTHHMMSSZ`), then rename tmp → canonical. Never overwrite
+    an existing .bak.
   - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
 
