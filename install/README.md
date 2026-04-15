@@ -28,6 +28,7 @@ Both installers run the same two phases.
 
 | Tool | Windows | Mac |
 |---|---|---|
+| Git | `winget install Git.Git` | `brew install git` (usually via Xcode CLT) |
 | Node.js LTS | `winget install OpenJS.NodeJS.LTS` | `brew install node` |
 | Goose CLI | download + extract Windows CLI zip | installed with `--cask block-goose` |
 | Goose desktop app | download + run `Goose.zip` installer | installed with `--cask block-goose` |

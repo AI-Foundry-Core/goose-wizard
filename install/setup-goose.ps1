@@ -81,6 +81,31 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Continuing anyway — some downloads may fail. Check with IT if you hit download errors." -ForegroundColor Yellow
     }
 
+    # --- Git (required by Claude Code for repo operations) ---
+    Write-Host "`nChecking Git..." -ForegroundColor Yellow
+    if (Test-Command "git") {
+        $gitVer = & git --version 2>&1
+        Write-Host "  Git: $gitVer (already installed)"
+    } else {
+        Write-Host "  Git not found. Installing via winget..."
+        if (-not (Test-Command "winget")) {
+            Write-Host "ERROR: winget not available. Install Git for Windows manually from https://git-scm.com/download/win" -ForegroundColor Red
+            exit 1
+        }
+        & winget install --id Git.Git -e --source winget --silent --accept-source-agreements --accept-package-agreements
+        if (-not (Test-WingetResult $LASTEXITCODE "git")) {
+            Write-Host "ERROR: Git install failed (winget exit $LASTEXITCODE)" -ForegroundColor Red
+            Write-Host "       Install manually from https://git-scm.com/download/win and re-run." -ForegroundColor Red
+            exit 1
+        }
+        Refresh-Path
+        if (-not (Test-Command "git")) {
+            Write-Host "ERROR: Git installed but not on PATH. Close this window and re-run from a new terminal." -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "  Git installed: $(& git --version)"
+    }
+
     # --- Node.js ---
     Write-Host "`nChecking Node.js..." -ForegroundColor Yellow
     if (Test-Command "node") {
