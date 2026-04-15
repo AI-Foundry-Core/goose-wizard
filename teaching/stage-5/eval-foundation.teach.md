@@ -196,10 +196,12 @@ Read the Eval Foundation agent recipe (recipes/agents/eval-foundation.yaml) and 
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/eval-foundation.yaml>`
 "Read the constraints block carefully — every Stage 5 recipe has one, and they're where the
 eval philosophy is encoded."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

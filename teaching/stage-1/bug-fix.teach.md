@@ -201,9 +201,11 @@ Read the Bug Fix agent recipe (recipes/agents/bug-fix.yaml) and show the develop
 
 Keep it to 3-4 highlighted snippets with short commentary. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/bug-fix.yaml>`
 "It's open in the desktop app if you want to explore the full file."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 
