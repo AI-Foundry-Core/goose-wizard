@@ -753,22 +753,28 @@ if (-not $SkipExtensions) {
     }
 }
 
-# --- Patch ACP adapter to prevent CLAUDE.md context pollution ---
+# --- Patch ACP adapter (context isolation + thinking cap, 3-patch set) ---
 # WHY THIS EXISTS (do not remove without understanding):
-# The Claude ACP adapter (acp-agent.js) hardcodes settingSources: ["user", "project", "local"]
-# which loads ~/.claude/CLAUDE.md, <cwd>/CLAUDE.md, and <cwd>/.claude/CLAUDE.md into every
-# Goose session. The "user" and "project" sources bring in the user's personal Claude Code
-# config, memory files, and project instructions - which cause the agent to identify as
-# Claude Code, refuse to run recipes, and break the teaching flow.
+# The Claude ACP adapter (acp-agent.js) loads settings from three scopes by
+# default: "user" (~/.claude/), "project" (<cwd>/CLAUDE.md), and "local"
+# (<cwd>/.claude/CLAUDE.md). The "project" scope pulls in the RILGoose design-doc
+# CLAUDE.md meant for recipe authors, which confuses the agent inside recipes.
+# Patching to ["user", "local"] keeps the user's permissions allowlist from
+# ~/.claude/settings.json (which we WANT imported) while dropping the project-
+# level design doc. The project's .claude/CLAUDE.md (local scope) still loads
+# and contains the "you ARE Goose, ignore personal memory" override.
 #
-# By patching to ["local"], only <cwd>/.claude/CLAUDE.md loads - which we control via the
-# project template. This is safe because:
-# - RIL users have nothing in ~/.claude/ anyway (new to AI tools)
-# - Our .claude/CLAUDE.md in the project template has the Goose override
-# - After training graduation, users reinstall the standard adapter to restore full loading
+# Separately, we disable auto-memory so the user's ~/.claude/projects/<hash>/
+# memory files don't leak into recipe sessions - memory is a separate import
+# path from settingSources, so it needs its own flag.
 #
-# Upstream fix: file issue/PR on @agentclientprotocol/claude-agent-acp for a config option
-# to control settingSources. Until then, this patch is the only way.
+# History: Earlier versions had 5 patches (settingSources=["local"],
+# autoMemoryEnabled=false, disallowedTools=[], thinking-enable, and a custom
+# systemPrompt). Bisecting on 2026-04-15 showed only the two below are needed.
+# disallowedTools=[] caused every tool call to require approval and clobbered
+# the approval dialog rendering. systemPrompt replacement was unnecessary - the
+# claude_code preset does not actually override recipe instructions. The
+# thinking patch was a no-op on fresh installs.
 Write-Host "`nPatching ACP adapter (context isolation)..." -ForegroundColor Yellow
 
 # Locate the ACP adapter via `npm root -g` so we work with any npm prefix
@@ -794,38 +800,52 @@ if (-not $acpAgentFile) {
 if (Test-Path $acpAgentFile) {
     $acpContent = Get-Content $acpAgentFile -Raw
 
-    # Patch 1: settingSources - only load .claude/CLAUDE.md from project dir
+    # Patch 1: settingSources - drop "project" scope
+    # Keep "user" so ~/.claude/settings.json permissions allowlist imports (we
+    # WANT that). Keep "local" so the project's .claude/CLAUDE.md override loads.
+    # Drop "project" so the RILGoose design-doc CLAUDE.md doesn't confuse the
+    # agent inside recipes.
     $originalLine = 'settingSources: ["user", "project", "local"]'
-    $patchedLine  = 'settingSources: ["local"]'
+    $patchedLine  = 'settingSources: ["user", "local"]'
+    $oldLocalOnly = 'settingSources: ["local"]'
 
     if ($acpContent.Contains($originalLine)) {
         if ($DryRun) {
-            Write-Host "  [DRY RUN] Would patch settingSources to [""local""] only"
+            Write-Host "  [DRY RUN] Would patch settingSources to [""user"", ""local""]"
         } else {
             $acpContent = $acpContent.Replace($originalLine, $patchedLine)
-            Write-Host "  Patched: settingSources now [""local""] (prevents CLAUDE.md interference)" -ForegroundColor Green
+            Write-Host "  Patched: settingSources now [""user"", ""local""] (drops project scope)" -ForegroundColor Green
+        }
+    } elseif ($acpContent.Contains($oldLocalOnly)) {
+        # Upgrade path: prior RILGoose installs patched to ["local"] only, which
+        # also stripped the user allowlist. Restore "user" scope.
+        if ($DryRun) {
+            Write-Host "  [DRY RUN] Would upgrade settingSources from [""local""] to [""user"", ""local""]"
+        } else {
+            $acpContent = $acpContent.Replace($oldLocalOnly, $patchedLine)
+            Write-Host "  Upgraded: settingSources now [""user"", ""local""] (was [""local""])" -ForegroundColor Green
         }
     } elseif ($acpContent.Contains($patchedLine)) {
-        Write-Host "  Already patched (settingSources = [""local""])"
+        Write-Host "  Already patched (settingSources = [""user"", ""local""])"
     } else {
         Write-Host "  WARNING: Could not find settingSources line in acp-agent.js" -ForegroundColor Yellow
-        Write-Host "  The ACP adapter may have been updated. Check line ~1038 manually."
+        Write-Host "  The ACP adapter may have been updated. Check manually."
     }
 
     # Patch 2: autoMemoryEnabled - disable Claude Code's auto-memory system
     # The claude_code preset enables auto-memory by default, which reads from
     # ~/.claude/projects/<hash>/memory/ independently of settingSources. This
     # brings in user-specific rules that override recipe instructions.
-    # Tolerant match: settingSources: ["local"] with optional trailing comma.
+    # Tolerant match: settingSources line with user+local or legacy local-only.
     if ($acpContent.Contains("autoMemoryEnabled: false")) {
         Write-Host "  Already patched (autoMemoryEnabled = false)"
     } else {
-        $memoryPattern = '(settingSources:\s*\[\s*"local"\s*\],?)'
+        $memoryPattern = '(settingSources:\s*\[[^\]]*\],?)'
         if ($acpContent -match $memoryPattern) {
             if ($DryRun) {
                 Write-Host "  [DRY RUN] Would disable autoMemoryEnabled"
             } else {
-                $acpContent = [regex]::Replace($acpContent, $memoryPattern, '$1' + "`n            autoMemoryEnabled: false,")
+                $acpContent = [regex]::Replace($acpContent, $memoryPattern, '$1' + "`n            autoMemoryEnabled: false,", 1)
                 Write-Host "  Patched: autoMemoryEnabled = false (prevents memory interference)" -ForegroundColor Green
             }
         } else {
@@ -833,42 +853,63 @@ if (Test-Path $acpAgentFile) {
         }
     }
 
-    # Patch 3: Enable AskUserQuestion tool - required for interactive recipes
-    # The ACP adapter disallows AskUserQuestion by default. Without it, the agent
-    # cannot stop and wait for user input during multi-step teaching sessions.
-    $askOriginal = 'const disallowedTools = ["AskUserQuestion"];'
-    $askPatched  = 'const disallowedTools = [];'
-
-    if ($acpContent.Contains($askOriginal)) {
+    # Patch 3: cap extended thinking budget at 4096 tokens ("medium" level).
+    # Upstream default is `undefined` (no cap), which lets Opus spend 30-60+
+    # seconds reasoning per turn - too slow for interactive teaching. Cap keeps
+    # visible reasoning for the teaching moment without multi-minute latency.
+    # The MAX_THINKING_TOKENS env var still overrides the default (e.g. set to
+    # 0 to disable, or 16000 for deep reasoning on specific runs).
+    $thinkingCapPattern = '(?m)^(?<indent>[ \t]*)const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS\s*\r?\n\s*\?\s*parseInt\(process\.env\.MAX_THINKING_TOKENS,\s*10\)\s*\r?\n\s*:\s*undefined\s*;'
+    $thinkingCapReplace = @'
+${indent}const maxThinkingTokens = process.env.MAX_THINKING_TOKENS
+${indent}    ? parseInt(process.env.MAX_THINKING_TOKENS, 10)
+${indent}    : 4096;
+'@
+    if ($acpContent -match $thinkingCapPattern) {
         if ($DryRun) {
-            Write-Host "  [DRY RUN] Would enable AskUserQuestion tool"
+            Write-Host "  [DRY RUN] Would cap thinking budget at 4096"
         } else {
-            $acpContent = $acpContent.Replace($askOriginal, $askPatched)
-            Write-Host "  Patched: AskUserQuestion enabled (allows interactive recipes)" -ForegroundColor Green
+            $acpContent = [regex]::Replace($acpContent, $thinkingCapPattern, $thinkingCapReplace, 1)
+            Write-Host "  Patched: maxThinkingTokens default = 4096 (medium; env var overrides)" -ForegroundColor Green
         }
-    } elseif ($acpContent.Contains($askPatched)) {
-        Write-Host "  Already patched (AskUserQuestion enabled)"
-    } else {
-        Write-Host "  WARNING: Could not find disallowedTools line" -ForegroundColor Yellow
+    } elseif ($acpContent -match 'maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?:\s*4096\s*;') {
+        Write-Host "  Already patched (maxThinkingTokens capped at 4096)"
     }
 
-    # Patch 4: Ensure extended thinking is ENABLED.
-    # Earlier RILGoose versions disabled thinking (set maxThinkingTokens to 0)
-    # to hide "thinking" blocks from the Goose UI. We've reversed that: for a
-    # teaching audience, visible thinking IS the pitch ("look how much the AI
-    # reasons through this"). This patch now:
-    #   - If an earlier RILGoose install set it to 0, restore the upstream expression
-    #   - Otherwise, leave the upstream default (env-var gated) alone
-    if ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS') {
-        Write-Host "  Thinking: already at upstream default (enabled / env-var gated)"
-    } elseif ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*0\b') {
+    # Revert legacy patches if a prior RILGoose install applied them.
+    # - disallowedTools=[] caused every tool call to require approval.
+    # - custom systemPrompt was unnecessary.
+    # - maxThinkingTokens=0 hid thinking blocks.
+    $legacyAskPatched = 'const disallowedTools = [];'
+    $upstreamAsk      = 'const disallowedTools = ["AskUserQuestion"];'
+    if ($acpContent.Contains($legacyAskPatched)) {
         if ($DryRun) {
-            Write-Host "  [DRY RUN] Would re-enable extended thinking"
+            Write-Host "  [DRY RUN] Would revert disallowedTools to upstream default"
+        } else {
+            $acpContent = $acpContent.Replace($legacyAskPatched, $upstreamAsk)
+            Write-Host "  Reverted: disallowedTools back to upstream default" -ForegroundColor Green
+        }
+    }
+
+    if ($acpContent.Contains("user knows what they are approving")) {
+        if ($DryRun) {
+            Write-Host "  [DRY RUN] Would revert legacy systemPrompt replacement"
+        } else {
+            $restorePreset = '(?s)let\s+systemPrompt\s*=\s*"You are an AI assistant running in the Goose agent platform[^"]*"\s*;'
+            $upstreamPrompt = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
+            $acpContent = [regex]::Replace($acpContent, $restorePreset, $upstreamPrompt, 1)
+            Write-Host "  Reverted: systemPrompt back to upstream claude_code preset" -ForegroundColor Green
+        }
+    }
+
+    if ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*0\b') {
+        if ($DryRun) {
+            Write-Host "  [DRY RUN] Would re-enable extended thinking (was disabled)"
         } else {
             $restoredExpr = @'
         const maxThinkingTokens = process.env.MAX_THINKING_TOKENS
             ? parseInt(process.env.MAX_THINKING_TOKENS, 10)
-            : undefined;
+            : 4096;
 '@
             $acpContent = [regex]::Replace(
                 $acpContent,
@@ -876,38 +917,8 @@ if (Test-Path $acpAgentFile) {
                 $restoredExpr,
                 1
             )
-            Write-Host "  Patched: re-enabled extended thinking (reverted prior RILGoose patch)" -ForegroundColor Green
+            Write-Host "  Reverted: re-enabled extended thinking with 4096 cap" -ForegroundColor Green
         }
-    } else {
-        Write-Host "  Thinking: maxThinkingTokens block not found; leaving upstream behavior untouched"
-    }
-
-    # Patch 5: Replace claude_code system prompt with recipe-focused prompt
-    # The claude_code preset is massive and drowns out recipe instructions; it
-    # also references memory and CLAUDE.md, causing hallucinated memories.
-    # The prompt MUST instruct pre-tool-call announcement - Goose's approval
-    # dialog renders the model's natural-language preface before "approve?".
-    # Without this line, users see a generic prompt with no context.
-    # Use a tolerant regex so we can re-apply the patch over any previous
-    # RILGoose-installed version of the prompt (not just the original preset).
-    $promptRegex = '(?s)let\s+systemPrompt\s*=\s*(\{[^}]*\}|"(?:[^"\\]|\\.)*")\s*;'
-    $promptPatched = 'let systemPrompt = "You are an AI assistant running in the Goose agent platform. Your task comes from a recipe \u2014 follow its instructions exactly. Use the available tools (file read/write/edit, shell commands, code analysis) to do the work. Before running any tool, write one short sentence (under 20 words) naming the tool and what you are about to do with it, so the user knows what they are approving when the permission dialog appears. When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. Write complete paragraphs, not fragments.";'
-
-    # Marker text that only exists in the CURRENT prompt - used to distinguish
-    # "already up-to-date" from "patched with an older version that needs upgrade".
-    $currentPromptMarker = "user knows what they are approving"
-
-    if ($acpContent.Contains($currentPromptMarker)) {
-        Write-Host "  Already patched (current prompt with pre-tool announcement)"
-    } elseif ($acpContent -match $promptRegex) {
-        if ($DryRun) {
-            Write-Host "  [DRY RUN] Would replace system prompt"
-        } else {
-            $acpContent = [regex]::Replace($acpContent, $promptRegex, $promptPatched, 1)
-            Write-Host "  Patched: system prompt replaced (recipe-focused, with pre-tool announcement)" -ForegroundColor Green
-        }
-    } else {
-        Write-Host "  WARNING: Could not find systemPrompt line" -ForegroundColor Yellow
     }
 
     # Write all patches at once
