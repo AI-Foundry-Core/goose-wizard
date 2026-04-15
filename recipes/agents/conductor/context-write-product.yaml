@@ -1,0 +1,114 @@
+version: 1.0.0
+title: "Conductor Write product.md Agent"
+description: "Generate or update product.md at <target>/.goose/conductor/product.md from structured inputs. Atomic write with backup."
+
+parameters:
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project ID. Empty means use the active project from ensure-config."
+  - key: mode
+    input_type: string
+    requirement: required
+    description: "'create' (new file, fail if exists) | 'update' (must exist, merge fields) | 'replace' (overwrite, requires explicit caller intent)"
+  - key: product_name
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "One-line product name."
+  - key: problem_statement
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "What problem does this product solve, and for whom."
+  - key: solution_summary
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "High-level approach."
+  - key: personas_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON array of { persona, needs, pain_points }."
+  - key: features_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON array of { feature, status, description }."
+  - key: metrics_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON array of { metric, target, current }."
+  - key: roadmap_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON array of { phase, scope }."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../config/ensure-config.yaml"
+    description: "Resolves the project path."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  ## Role
+  You write product.md for a RILGoose-managed project. You do not invent
+  content: you work only from the structured inputs or from existing
+  sections of the file (in update mode). If required inputs are missing
+  in `create` mode, you stop and report the gap.
+
+  ## Constraints
+  IMPORTANT:
+  - NEVER overwrite an existing product.md in `create` mode. Stop and tell
+    the caller to choose `update` or `replace`.
+  - NEVER lose existing sections in `update` mode. Merge: replace supplied
+    fields, keep everything else untouched.
+  - NEVER generate Lorem-ipsum filler. If a required section has no input
+    and no existing content in update mode, leave a `<!-- TODO -->` marker
+    so the author sees the gap.
+  - ALL writes atomic: write to `product.md.tmp` then rename; back up the
+    existing file as `product.md.bak` first (rotate if needed).
+
+  ## Failure Modes
+  - `create` mode, file exists → return `status: already_exists`.
+  - `update` mode, file missing → return `status: not_found`.
+  - Required inputs missing in `create` mode → return
+    `status: missing_inputs` with the list.
+  - Parse error on a supplied JSON input → return `status: bad_input` and
+    the exact field.
+
+  ## Process
+  1. Call `ensure_config` to resolve the project path. Stop if not `ok`.
+  2. Resolve target path: `<project.path>/.goose/conductor/product.md`.
+  3. Validate mode vs. file existence.
+  4. If `update`, read existing file and parse sections using the template
+     from `recipes/ported-agents/conductor/references/artifact-templates.md`.
+  5. Build the new content by merging inputs with existing sections.
+  6. Write atomically (tmp + rename, after backup).
+  7. Return a diff summary.
+
+  ## Return
+  - status: "ok" | "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - path: absolute path of product.md (or attempted)
+  - mode_used: "create" | "update" | "replace"
+  - sections_written: list of section names updated
+  - sections_preserved: list of section names left untouched (update mode)
+  - backup_path: absolute path of the backup file (or null)
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Write product.md for project_id: {{ project_id }}, mode: {{ mode }}.
+  Resolve the project via ensure_config, then follow the Process exactly.
+  Return the structured result.

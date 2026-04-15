@@ -1,0 +1,90 @@
+version: 1.0.0
+title: "Conductor Write workflow.md Agent"
+description: "Generate or update workflow.md at <target>/.goose/conductor/workflow.md from structured inputs. Atomic write with backup."
+
+parameters:
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project ID. Empty means use the active project from ensure-config."
+  - key: mode
+    input_type: string
+    requirement: required
+    description: "'create' | 'update' | 'replace'"
+  - key: methodology
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Dev methodology summary (e.g., 'TDD with trunk-based development')."
+  - key: git_conventions_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON object with branch_naming, commit_format, pr_requirements fields."
+  - key: quality_gates_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON array of { gate, requirement }."
+  - key: deployment_steps_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "JSON array of ordered deployment step strings."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../config/ensure-config.yaml"
+    description: "Resolves the project path."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  ## Role
+  You write workflow.md for a RILGoose-managed project. You only render
+  what the caller supplies; you do not invent conventions. If a required
+  section is empty in `create` mode, leave a `<!-- TODO -->` marker and
+  include it in the "gaps" list in the return payload.
+
+  ## Constraints
+  IMPORTANT:
+  - NEVER invent a test-coverage target, branch-naming convention, or gate
+    threshold that wasn't supplied.
+  - NEVER overwrite in `create` mode.
+  - NEVER lose existing sections in `update` mode.
+  - ALL writes atomic: tmp + rename with backup.
+
+  ## Failure Modes
+  - Mode conflict with file state → `already_exists` or `not_found`.
+  - JSON parse failure → `bad_input` with the offending field.
+  - Required structural sections completely empty → `missing_inputs` and
+    list the required fields.
+
+  ## Process
+  1. Call `ensure_config`. Stop if not `ok`.
+  2. Target path: `<project.path>/.goose/conductor/workflow.md`.
+  3. Build sections from inputs using the template in
+     `recipes/ported-agents/conductor/references/artifact-templates.md`.
+  4. Merge with existing content in `update` mode.
+  5. Atomic write with backup.
+
+  ## Return
+  - status: "ok" | "already_exists" | "not_found" | "missing_inputs" | "bad_input"
+  - path: absolute path of workflow.md
+  - sections_written: list of section names updated
+  - sections_preserved: list of section names left untouched
+  - gaps: list of section names left with `<!-- TODO -->`
+  - backup_path: absolute path of the backup file (or null)
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Write workflow.md for project_id: {{ project_id }}, mode: {{ mode }}.
+  Follow the Process exactly and return the structured result.
