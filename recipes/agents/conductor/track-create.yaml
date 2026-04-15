@@ -103,10 +103,15 @@ instructions: |
   5. Derive acceptance criteria from the requirements brief. If you can't
      produce at least 2 testable criteria, stop with `brief_too_vague`.
   6. Compose spec.md, plan.md, metadata.json, index.md (each from the
-     canonical templates). Also compute the new tracks.md content by
-     reading the existing tracks.md in memory and appending the new
-     track row to the "Active Tracks" table (do NOT touch the file
-     yet).
+     canonical templates). metadata.json MUST carry its final
+     `created` and `updated` timestamps at this step — there is no
+     post-commit mutation pass. Generate both via the shell (UTC ISO
+     8601 extended form, e.g. `2026-04-15T17:30:42Z`, since these
+     are JSON field values, not filenames); use the same invocation
+     moment for both so they match.
+     Also compute the new tracks.md content by reading the existing
+     tracks.md in memory and appending the new track row to the
+     "Active Tracks" table (do NOT touch the file yet).
   7. Stage all files in `<conductor_dir>/.track-create.<track_id>.tmp/`
      (a sibling of tracks/, chosen so the staging dir is on the same
      filesystem as the destinations — rename-into-place must be atomic).
@@ -120,10 +125,17 @@ instructions: |
      `write_failed`. No destination file has been touched yet.
   8. Back up tracks.md per RECIPE-PREAMBLE.md's Backup Rotation
      Convention: if `<conductor_dir>/tracks.md` exists, rename it to
-     `<conductor_dir>/tracks.md.bak.<ISO 8601 UTC timestamp>` (e.g.
-     `tracks.md.bak.2026-04-15T173042Z`).
-     If this rename fails, delete the staging dir and return
-     `write_failed` — tracks.md has not been modified.
+     `<conductor_dir>/tracks.md.bak.<UTC compact timestamp>` (e.g.
+     `tracks.md.bak.20260415T173042Z`; format `YYYYMMDDTHHMMSSZ`).
+     Re-read `<conductor_dir>/tracks.md` BEFORE the rename and compare
+     byte-equality to the in-memory copy captured in step 6. If they
+     differ, another process wrote tracks.md between step 6 and now;
+     delete the staging dir and return `write_failed` with a
+     structured reason `tracks_md_changed_under_us`. This is the
+     concurrent-writer guard — without it, one track row can be
+     silently overwritten.
+     If this rename fails (after the equality check passed),
+     delete the staging dir and return `write_failed`.
   9. Create the destination `tracks/<track_id>/` directory (empty).
      If it already exists (should have been caught in step 4, but may
      race), delete the staging dir, restore tracks.md from the .bak
@@ -140,18 +152,26 @@ instructions: |
       If this rename fails, unwind steps 9-10 as above AND restore the
       tracks.md backup. Return `write_failed`.
   12. Delete the now-empty staging directory.
-  13. Update metadata.json with the final timestamp (created, updated).
-  14. Return `ok` with `registry_updated: true`.
+  13. Return `ok` with `registry_updated: true`. Do NOT mutate
+      metadata.json after step 11 — its final timestamps were
+      computed in step 6 and written into the staged file, so they
+      ship atomically with the rest of the track.
 
   **Rollback guarantee:** a `write_failed` return from any step leaves
   the filesystem in exactly one of two states:
-    A. The pre-call state (no track directory, no tracks.md row added,
-       original tracks.md intact — the .bak backup is the guarantee of
-       recovery; if restoring the .bak ALSO fails, the recipe returns
-       `write_failed` with a structured `rollback_incomplete` flag so
-       the user knows to manually check the .bak file).
-    B. The fully committed state (track directory populated, tracks.md
-       updated, .bak file preserved for auditability).
+    A. The pre-call state: no track directory, no tracks.md row added,
+       original tracks.md intact. Any backup created in step 8 has
+       been RENAMED BACK to tracks.md as part of rollback, so there
+       is no .bak file in state A. Return `tracks_md_backup_path:
+       null`. If the rename-back in rollback ALSO fails (rare — the
+       .bak still exists on disk but `tracks.md` was not restored),
+       return `rollback_incomplete: true` AND
+       `tracks_md_backup_path: <bak path>` so the user can manually
+       rename.
+    B. The fully committed state: track directory populated,
+       tracks.md updated, .bak file preserved in-place for
+       auditability. Return `tracks_md_backup_path: <bak path>` and
+       `rollback_incomplete: false`.
   There is no valid intermediate "half a track on disk, half in
   registry" state.
 

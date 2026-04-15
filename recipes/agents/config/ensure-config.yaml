@@ -83,8 +83,12 @@ instructions: |
           * kind: unknown (caller must reconcile — set a top-level
             `needs_kind_confirmation: true` flag on the project entry)
           * last_active: legacy file's captured_at or current ISO time
-        - Write USER_DIR/user.json atomically (tmp + rename; back up the
-          target if present as .bak).
+        - Write USER_DIR/user.json atomically per RECIPE-PREAMBLE.md's
+          Backup Rotation Convention (tmp + rename; if target already
+          exists, back it up as
+          `user.json.bak.<UTC compact timestamp>` — format
+          `YYYYMMDDTHHMMSSZ`, e.g. `user.json.bak.20260415T173042Z`;
+          never overwrite an existing .bak).
         - Rename legacy file to `{legacy_user_config_path}.migrated`.
         - Parse the newly written USER_DIR/user.json.
      c. Else → status "no_user_config". Return with project fields null.

@@ -37,8 +37,13 @@ instructions: |
      Never assume the current directory is the target.
   2. INTERACTIVE: Ask questions in plain language, one at a time. Wait for
      answers. Do not narrate internal state.
-  3. ATOMIC WRITES: Every config write uses tmp + rename + backup. If a
-     backup already exists, rotate it (.bak → .bak.N).
+  3. ATOMIC WRITES: Every config write uses tmp + rename + backup per
+     `recipes/RECIPE-PREAMBLE.md`'s Backup Rotation Convention:
+     `<file>.bak.<UTC compact timestamp>` (format `YYYYMMDDTHHMMSSZ`,
+     e.g. `user.json.bak.20260415T173042Z`) in the same directory as
+     the original. Never rotate numerically (no `.bak.1`, `.bak.2`),
+     never overwrite an existing .bak — the timestamp guarantees
+     uniqueness.
   4. CANONICAL PATHS: Resolve symlinks, normalize slashes, lowercase drive
      letters on Windows. Store canonical paths in both `user.json` and
      `project.json`. Dedup by canonical path.

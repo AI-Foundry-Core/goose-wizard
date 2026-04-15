@@ -200,13 +200,15 @@ prompt: |
   ## Step 5 — tracks.md
 
   Create an empty tracks.md with the canonical structure (Active /
-  Completed / Archived sections, empty tables). This doesn't need its own
-  sub-recipe, but it MUST be written atomically:
+  Completed / Archived sections, empty tables). This doesn't need its
+  own sub-recipe, but it MUST be written atomically per
+  `recipes/RECIPE-PREAMBLE.md`'s Backup Rotation Convention:
     1. Write the file contents to
        `<project.path>/.goose/conductor/tracks.md.tmp`.
     2. If the canonical `tracks.md` already exists, rename it to
-       `<project.path>/.goose/conductor/tracks.md.bak.<ISO 8601 timestamp>`
-       (timestamped backup — never overwrite a previous .bak).
+       `<project.path>/.goose/conductor/tracks.md.bak.<UTC compact timestamp>`
+       (format `YYYYMMDDTHHMMSSZ` — e.g. `tracks.md.bak.20260415T173042Z`;
+       never overwrite a previous .bak).
     3. Rename `tracks.md.tmp` to `tracks.md`.
   If the rename in step 3 fails, leave the .tmp in place and report the
   failure — do NOT proceed to Step 6. tracks.md is the registry every

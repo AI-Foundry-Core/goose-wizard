@@ -147,7 +147,9 @@ prompt: |
       live_confirmed: <live_confirmed_bool>
     })
 
-    Break on any status other than `brief_too_vague`.
+    Break on any status other than `brief_too_vague`. (After the loop,
+    Step 6 below handles `ok`, `id_collision`, `write_failed`, and the
+    `rollback_incomplete` escalation path explicitly.)
 
     On `brief_too_vague`:
       - Increment `brief_retries`.
@@ -175,6 +177,27 @@ prompt: |
       - Continue the loop.
 
   If final status is "id_collision", offer disambiguation.
+
+  If final status is "write_failed":
+    - If the Return's `rollback_incomplete` is true, this is a
+      recovery-required situation. Tell the user loudly:
+        "Track creation failed AND the rollback could not fully
+         restore the previous state. The tracks.md backup is at:
+           <tracks_md_backup_path>
+         To restore manually:
+           1. Check the current state of
+              `<project.path>/.goose/conductor/tracks.md`.
+           2. If it's missing or wrong, rename the .bak file back
+              to `tracks.md`.
+           3. Also delete any partial track directory at
+              `<project.path>/.goose/conductor/tracks/<track_id>/`.
+         Do NOT retry conductor-new-track until you've verified
+         the state manually."
+      Stop. Do not retry.
+    - Else (`rollback_incomplete: false`, which is the normal
+      `write_failed` case): state is already pre-call. Surface the
+      underlying error to the user (permissions, disk full, etc.)
+      and offer to retry or abort. No manual recovery needed.
 
   If status is "ok":
     - Show the track path.
