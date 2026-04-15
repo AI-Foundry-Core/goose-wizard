@@ -108,9 +108,12 @@ instructions: |
   9. Commit implementation with the canonical message format.
   10. Best-effort: attach a git note with a rich task summary (files
       changed, decisions, coverage). If `git notes add` fails (notes ref
-      permissions, missing notes config, etc.), do NOT fail the task —
-      record `notes_attached: false` and add `notes_attach_failed` to
-      the status list. The commit itself still stands.
+      permissions, missing notes config, etc.), do NOT fail the task.
+      Set `notes_attached: false` and populate `notes_error` with the
+      underlying error message. Continue to step 11. The task still
+      completes with `status: "ok"` — callers inspect `notes_attached`
+      (and `notes_error`) if they care about notes. There is no
+      separate non-ok status for this case.
   11. Update plan.md: mark the task `[x]` with the commit SHA. Commit
       the plan update as `docs: update plan — task <task_id> complete`.
 
@@ -118,8 +121,7 @@ instructions: |
   - status: "ok" | "config_unresolved" | "live_confirmation_required" |
     "dirty_working_tree" | "task_not_pending" | "not_tdd_task" |
     "env_broken" | "red_not_red" | "green_unreachable" |
-    "refactor_broke_green" | "coverage_gap" | "notes_attach_failed" |
-    "write_failed"
+    "refactor_broke_green" | "coverage_gap" | "write_failed"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - task_id: The task executed (or attempted)
@@ -127,6 +129,8 @@ instructions: |
   - plan_update_sha: Commit SHA of the plan update commit
   - files_changed: List of files modified in the implementation commit
   - notes_attached: true if git notes attached successfully, else false
+  - notes_error: Underlying error string when notes_attached is false,
+    else null
   - tests_before: { passed: N, failed: N }
   - tests_after: { passed: N, failed: N }
   - coverage_before: Percentage (or null if not measured)

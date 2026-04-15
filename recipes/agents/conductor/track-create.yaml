@@ -34,6 +34,11 @@ parameters:
     requirement: optional
     default: ""
     description: "Optional JSON array of dependencies (internal tracks, external systems)."
+  - key: live_confirmed
+    input_type: boolean
+    requirement: optional
+    default: false
+    description: "Required to be true when project.kind == 'live'. Authoring a track writes files into the project's conductor dir — treat as a live-project mutation. Caller obtains typed user confirmation before setting true."
 
 sub_recipes:
   - name: "ensure_config"
@@ -70,14 +75,17 @@ instructions: |
     only after all files are prepared; roll back partial state on failure.
   - DO register the track in tracks.md. A track that exists on disk but
     not in the registry is worse than not creating it at all.
+  - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
+    Return `status: live_confirmation_required` without any write.
 
   ## Failure Modes
   - Config resolution via ensure_config returned non-ok →
     `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status.
-  - `project.json` missing → `project_unusable` (caller runs setup-config).
-  - Conductor directory missing → `not_initialized` (caller runs
-    conductor-setup).
+    underlying ensure_config status. (project.json missing/corrupt
+    surfaces here as `config_status: project_json_missing` or
+    `project_corrupt`; caller routes to `setup-config`.)
+  - Conductor directory missing (ensure_config `ok`) → `not_initialized`
+    (caller runs conductor-setup).
   - Requirements brief too vague to produce testable acceptance criteria →
     `brief_too_vague` with the gaps.
   - Track ID collision → `id_collision` with the existing path.
@@ -86,7 +94,9 @@ instructions: |
 
   ## Process
   1. Call `ensure_config`. If status != `ok`, return
-     `status: config_unresolved` with `config_status` set.
+     `status: config_unresolved` with `config_status` set. If resolved
+     project.kind == "live" and `live_confirmed` is false, return
+     `status: live_confirmation_required` immediately.
   2. Verify conductor directory exists. If not, return `not_initialized`.
   3. Build track_id: `{shortname}_{YYYYMMDD}` (UTC).
   4. Check for ID collision; apply disambiguation if needed.
@@ -100,8 +110,9 @@ instructions: |
   10. Update metadata.json with any final timestamps (created, updated).
 
   ## Return
-  - status: "ok" | "config_unresolved" | "project_unusable" |
-    "not_initialized" | "brief_too_vague" | "id_collision" | "write_failed"
+  - status: "ok" | "config_unresolved" | "not_initialized" |
+    "live_confirmation_required" | "brief_too_vague" | "id_collision" |
+    "write_failed"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - track_id: Final track ID used
@@ -119,5 +130,7 @@ extensions:
 prompt: |
   Create a new track for project_id: {{ project_id }}.
   Type: {{ track_type }}. Shortname: {{ shortname }}. Title: {{ title }}.
-  Follow the Process exactly. Do not execute any tasks; just author the
-  track. Return the structured result.
+  Live confirmed: {{ live_confirmed }}.
+  Refuse live projects without live_confirmed. Follow the Process
+  exactly. Do not execute any tasks; just author the track. Return the
+  structured result.
