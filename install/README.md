@@ -7,7 +7,10 @@ Click-to-run installers for Windows and Mac. One file per platform - you only ne
 1. Double-click **`install-windows.bat`**.
 2. Click "Yes" if Windows asks for permission.
 3. Follow the prompts. Log in to Claude when the browser opens.
-4. When it finishes, open the Goose desktop app and look for "START HERE" at the top.
+4. When it finishes, open a fresh terminal in the RILGoose folder and run
+   `goose run --recipe 00-start-here --interactive` to launch the gateway.
+   Training runs from the CLI — the desktop app is for browsing recipe
+   YAML files, not for running recipes.
 
 > The `.bat` is a thin wrapper. It runs `setup-goose.ps1` with the right
 > execution policy so PowerShell lets the script run by double-click.
@@ -18,7 +21,10 @@ Click-to-run installers for Windows and Mac. One file per platform - you only ne
 2. If macOS blocks it the first time ("cannot be opened because it is from an
    unidentified developer"), right-click the file → **Open** → confirm.
 3. Follow the prompts. Log in to Claude when the browser opens.
-4. When it finishes, open the Goose desktop app and look for "START HERE" at the top.
+4. When it finishes, open a fresh terminal in the RILGoose folder and run
+   `goose run --recipe 00-start-here --interactive` to launch the gateway.
+   Training runs from the CLI — the desktop app is for browsing recipe
+   YAML files, not for running recipes.
 
 ## What the installers do
 
