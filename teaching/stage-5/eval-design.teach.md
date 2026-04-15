@@ -156,7 +156,7 @@ Run: `goose recipe open <path to recipes/agents/eval-design.yaml>`
 "Compare to `eval-foundation.yaml` — they both enforce 'don't trust, verify,' but this one
 applies it at design time, not runtime."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/eval-design.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

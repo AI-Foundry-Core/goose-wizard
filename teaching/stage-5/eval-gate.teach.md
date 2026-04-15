@@ -162,7 +162,7 @@ Run: `goose recipe open <path to recipes/agents/eval-gate.yaml>`
 "This recipe is the one you'll actually run before switching on autonomy in Stage 6 — read
 the constraints carefully. Each one is a failure mode someone found the hard way."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/eval-gate.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

@@ -193,7 +193,7 @@ Run: `goose recipe open <path to recipes/agents/eval-ratchet.yaml>`
 "The ratchet pattern is tiny — maybe 40 lines of check script. The recipe around it is mostly
 guardrails to stop the obvious failure modes."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/eval-ratchet.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

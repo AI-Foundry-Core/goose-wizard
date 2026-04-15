@@ -285,7 +285,7 @@ Run: `goose recipe open <path to recipes/agents/metrics-dashboard.yaml>`
 repeats: structured output, required fields, hard-coded honesty. Now you know how to read
 any recipe YAML and predict what it will do."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/metrics-dashboard.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 
