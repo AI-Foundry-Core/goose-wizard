@@ -26,6 +26,15 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+# Pin the ACP adapter version. The ACP patches (settingSources,
+# autoMemoryEnabled, maxThinkingTokens) depend on the exact source of
+# acp-agent.js. When upstream ships a new version, the patches may stop
+# applying (string/regex matches fail), causing silent regressions to
+# upstream defaults. Pinning keeps installs reproducible. When bumping this
+# version, re-test the 3 patches against the new source and adjust the
+# installer patch regexes if needed.
+$ACP_PINNED_VERSION = "0.28.0"
+
 Write-Host "=== RILGoose Setup ===" -ForegroundColor Cyan
 
 # ================================================================
@@ -429,13 +438,40 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host '           { "env": { "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe" } }' -ForegroundColor Yellow
     }
 
-    # --- ACP adapter ---
-    Write-Host "`nChecking Claude ACP adapter..." -ForegroundColor Yellow
-    if (Test-Command "claude-agent-acp") {
-        Write-Host "  ACP adapter: found (already installed)"
+    # --- ACP adapter (pinned version) ---
+    # Pinned to $ACP_PINNED_VERSION because our ACP patches depend on exact
+    # source lines in acp-agent.js. If a pre-existing install has a different
+    # version, reinstall at the pin.
+    Write-Host "`nChecking Claude ACP adapter (target version $ACP_PINNED_VERSION)..." -ForegroundColor Yellow
+    $acpNeedsInstall = $true
+    $acpInstalledVersion = $null
+    try {
+        $acpPkgJson = Join-Path $env:APPDATA "npm\node_modules\@agentclientprotocol\claude-agent-acp\package.json"
+        # Fall back to `npm root -g` if the default path isn't the real one
+        if (-not (Test-Path $acpPkgJson)) {
+            $globalRoot = (& npm root -g 2>$null).Trim()
+            if ($globalRoot) {
+                $acpPkgJson = Join-Path $globalRoot "@agentclientprotocol\claude-agent-acp\package.json"
+            }
+        }
+        if (Test-Path $acpPkgJson) {
+            $acpInstalledVersion = (Get-Content $acpPkgJson -Raw | ConvertFrom-Json).version
+        }
+    } catch {
+        $acpInstalledVersion = $null
+    }
+
+    if ($acpInstalledVersion -eq $ACP_PINNED_VERSION) {
+        Write-Host "  ACP adapter: $acpInstalledVersion (matches pin, OK)"
+        $acpNeedsInstall = $false
+    } elseif ($acpInstalledVersion) {
+        Write-Host "  ACP adapter: $acpInstalledVersion (reinstalling at pinned $ACP_PINNED_VERSION for patch compatibility)" -ForegroundColor Yellow
     } else {
-        Write-Host "  ACP adapter not found. Installing via npm..."
-        & npm install -g "@agentclientprotocol/claude-agent-acp"
+        Write-Host "  ACP adapter not found. Installing pinned version $ACP_PINNED_VERSION..."
+    }
+
+    if ($acpNeedsInstall) {
+        & npm install -g "@agentclientprotocol/claude-agent-acp@$ACP_PINNED_VERSION"
         if ($LASTEXITCODE -ne 0) {
             Write-Host "ERROR: ACP adapter install failed (exit $LASTEXITCODE)" -ForegroundColor Red
             exit 1
@@ -444,7 +480,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         if ($env:Path -notlike "*$npmShimDir*") {
             $env:Path = "$env:Path;$npmShimDir"
         }
-        Write-Host "  ACP adapter installed."
+        Write-Host "  ACP adapter installed at $ACP_PINNED_VERSION."
     }
 
     # --- Claude authentication ---
@@ -995,7 +1031,7 @@ ${indent}    : 4096;
     }
 } else {
     Write-Host "  WARNING: acp-agent.js not found at $acpAgentFile" -ForegroundColor Yellow
-    Write-Host "  Install the ACP adapter first: npm install -g @agentclientprotocol/claude-agent-acp"
+    Write-Host "  Install the ACP adapter first: npm install -g @agentclientprotocol/claude-agent-acp@$ACP_PINNED_VERSION"
 }
 
 # --- Touch gateway recipe so it sorts first in the app ---

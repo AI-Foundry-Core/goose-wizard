@@ -34,7 +34,7 @@ Both installers run the same two phases.
 | Goose CLI | download + extract Windows CLI zip | installed with `--cask block-goose` |
 | Goose desktop app | download + run `Goose.zip` installer | installed with `--cask block-goose` |
 | Claude CLI | `irm https://claude.ai/install.ps1 \| iex` (native; npm fallback) | `curl -fsSL https://claude.ai/install.sh \| bash` (native; npm fallback) |
-| ACP adapter | `npm install -g @agentclientprotocol/claude-agent-acp` | same |
+| ACP adapter | `npm install -g @agentclientprotocol/claude-agent-acp@<pinned>` | same |
 | Homebrew | - | installed if missing |
 | python3 | assumed present (PowerShell native) | validated, prompts to install Xcode CLT if missing |
 | `claude doctor` | run post-install to verify Claude Code health | same |
@@ -113,9 +113,14 @@ Close and re-open your terminal. The installer sets `GOOSE_RECIPE_PATH` at the
 user/shell-rc level, which only applies to **new** shell sessions.
 
 ### "ACP adapter patches failed"
-The adapter's source may have changed in a newer version. Re-run the installer
-after upgrading (`npm install -g @agentclientprotocol/claude-agent-acp`) and
-check the warnings in the output.
+The ACP adapter version is **pinned** in both installers (`ACP_PINNED_VERSION`
+at the top of `setup-goose.ps1` and `install-mac.command`) so patches stay
+reproducible. If the warnings appear, the installer detected a source change
+in that pinned version - either the pin was bumped without re-testing the
+patches, or npm served a different build. Re-run the installer to reinstall
+at the pinned version. To move to a newer ACP: bump `ACP_PINNED_VERSION`,
+re-test the 3 patches against the new source, and adjust the patch regexes
+in the installers if the target strings moved.
 
 ### "Homebrew install needs sudo password" (Mac)
 This is normal on a fresh Mac - Homebrew needs permission to create its
