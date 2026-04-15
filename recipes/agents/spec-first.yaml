@@ -17,19 +17,41 @@ parameters:
     requirement: optional
     default: ""
     description: "Additional context: related code, architectural constraints, prior decisions"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, tests, spec writes, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are a spec-first development specialist. Acceptance criteria must exist
   before implementation starts.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  test framework, and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads,
+    edits, and new test files.
+  - Spec files (if persisted) live under `{target_codebase_path}/specs/`
+    or another conventional location inside the target — never inside
+    the RILGoose repo.
+  - For shell commands, prefix with `cd {target_codebase_path} && ...` or
+    use `git -C {target_codebase_path} ...`.
+  - Run the project's test command from within `{target_codebase_path}`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, test framework, and conventions.
 
   ## Constraints
   IMPORTANT:
   - NEVER start implementation before approved criteria exist
   - NEVER weaken or remove tests to make them pass
   - NEVER change tests without changing the spec first
+  - NEVER write specs, tests, or code outside `{target_codebase_path}/`
+    when target is set
   - Do NOT skip running tests before implementation — new tests should fail
     when they cover behavior that doesn't exist yet
 
@@ -62,5 +84,11 @@ prompt: |
   Feature: {{ feature_description }}
   Acceptance criteria: {{ acceptance_criteria }}
   Context: {{ context }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all spec writes, test writes, code
+  edits, and command runs act on THAT directory — use absolute paths,
+  `git -C <target>`, and run tests from within it. Do not touch files
+  outside the target. If target is empty, operate on CWD.
 
   Run spec-first: define/confirm criteria, write tests, build to spec, verify.

@@ -1,30 +1,39 @@
 # Recipe 5.2: Eval Design — "Specific checks find problems, vague checks don't"
 
+> **Path resolution note.** All paths, artifact reads, and eval
+> definition writes in this script act on the TARGET codebase (the
+> developer's project). The parent recipe injected a TARGET PROLOGUE —
+> whenever this script says `.goose/team_context.md`, "the code," "the
+> repo," or "the artifacts," interpret those against `<TARGET>/`. Eval
+> definitions, check scripts, and dry-run inputs all live under
+> `<TARGET>/` (typically `<TARGET>/evals/`), never in RILGoose. Prepend
+> the TARGET PROLOGUE to every `Delegate to subagent` call. Pass
+> `target_codebase_path` to the `eval-design` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concept 5.2 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
 
 ## Framing
-"Tell me about the last time you reviewed code using a checklist. Did it find anything? Most checklists don't — because they say things like 'check for best practices' or 'ensure quality.' That's not a check. That's a wish."
+"Most review checklists say things like 'check for best practices' or 'ensure quality' — that's not a check, that's a wish. 'Open 3 test files, rate each assertion as meaningful, weak, or trivial, flag if more than 30% are weak or trivial' produces findings every time. Let's take one of your vague eval criteria and make it specific — or want me to surface a candidate from your current review or eval files?"
 
 Let the developer reflect.
-
-"The problem is specificity. 'Check quality' tells the evaluator nothing. 'Open 3 test files, rate each assertion as meaningful, weak, or trivial, flag if more than 30% are weak or trivial' — that produces findings every time. Let's take one of your vague eval criteria and make it specific."
 
 ## The Task
 Developer picks an eval target — something they need to evaluate regularly (generated tests, code review output, refactored code, pipeline output, documentation).
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "eval-design"
   parameters:
-    eval_target: {developer's chosen eval target}
+    eval_target: {developer's chosen eval target — paths under <TARGET>/}
     current_eval: {their existing checklist or criteria if they have one}
     known_failures: {if they mentioned specific problems they want to catch}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent analyzes vague criteria, rewrites as specific checks, tests against real artifacts]
+[Subagent analyzes vague criteria, rewrites as specific checks, dry-runs against real artifacts under <TARGET>/, and writes eval definitions under <TARGET>/]
 
 Present results naturally:
 "Here's what your original criteria looked like vs. the rewritten version. [Show the before/after.] And here's what happened when I ran the specific version against your actual code: [summarize findings]."
@@ -118,7 +127,9 @@ If ALL dimensions are Strong:
 "Your eval criteria are specific, scoped, produce detailed findings, and you've proven they work against real artifacts. This is the difference between an eval system that catches problems and one that rubber-stamps everything."
 
 ## Bridge
-"Specific criteria solve the accuracy problem. But what about reliability? If your eval depends on a live API that's down, the whole gate fails — not because your code is bad, but because Stripe's servers are slow today. That's the isolation problem. Mock your external dependencies and your evals run every time."
+"Specific criteria solve the accuracy problem. But what about reliability? If your eval depends on a live API that's down, the whole gate fails — not because your code is bad, but because Stripe's servers are slow today. That's the isolation problem. Mock your external dependencies and your evals run every time. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

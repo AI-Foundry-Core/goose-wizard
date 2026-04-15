@@ -1,18 +1,26 @@
 # Recipe 5.1: Eval Foundation — "Never trust self-reported results"
 
+> **Path resolution note.** All verification in this script acts on the
+> TARGET codebase (the developer's project). The parent recipe injected
+> a TARGET PROLOGUE — whenever this script says `.goose/team_context.md`,
+> "the pipeline," "the codebase," or "your repo," interpret those against
+> `<TARGET>/`. Re-run test and build commands from within `<TARGET>/`;
+> read pipeline artifacts under `<TARGET>/`. Prepend the TARGET PROLOGUE
+> to every `Delegate to subagent` call. Pass `target_codebase_path` to
+> the `eval-foundation` sub-recipe, and default `project_path` to the
+> TARGET when the developer doesn't specify one.
+
 ## Setup
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concept 5.1 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. You are a consulting resource — available when needed, not driving. The developer at this stage has built pipelines, managed agent teams, and written specs. They know how to work with AI. Your role is to spot gaps in their eval strategy that they haven't thought of.
 
 ## Framing
-"You've been building pipelines that produce results — tests pass, builds succeed, code looks good. But how do you know the pipeline is telling the truth? Have you ever had a pipeline claim success when something was actually broken?"
+"Have you ever had a pipeline claim success when something was actually broken? Let's take one of your pipeline outputs and verify it independently."
 
-Let the developer reflect. If they have a story, build on it. If not:
-
-"It happens more than people expect. An agent says 'all 47 tests pass' but it only ran 30 of them. A build reports success but silently skipped a step. Let's take one of your pipeline outputs and verify it independently."
+Let the developer reflect. If they have a story, build on it.
 
 ## The Task
 The developer chooses a pipeline output to verify — or you suggest one from their current project.
@@ -31,15 +39,16 @@ Ask: "You've got [N] claims there. If you were going to verify each one independ
 
 Only after the developer has articulated a verification approach:
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "eval-foundation"
   parameters:
     pipeline_output: {developer's chosen output or recent pipeline result}
     verification_plan: {developer's proposed verification commands/approach}
     verification_scope: {if developer specified a focus area}
-    project_path: {if needed}
+    project_path: {absolute path under <TARGET>/, or <TARGET> itself when unspecified}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent executes the developer's verification plan, returns comparison]
+[Subagent re-runs the developer's verification plan inside <TARGET>/, returns comparison]
 
 ### Presenting Results (Socratic, not declarative)
 
@@ -163,7 +172,9 @@ If ALL dimensions are Strong:
 "You've got the core instinct — verify independently, decompose claims, flag what you can't check, and automate it. That's the foundation everything else in this stage builds on."
 
 ## Bridge
-"Now you have independent verification for one pipeline output. But one layer of checking isn't enough — different types of checks catch different types of problems. That's eval layers, and it's where we go next."
+"Now you have independent verification for one pipeline output. But one layer of checking isn't enough — different types of checks catch different types of problems. That's eval layers, and it's where we go next. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## Wait-Time Insights
 

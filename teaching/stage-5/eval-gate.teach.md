@@ -1,30 +1,39 @@
 # Recipe 5.4: Eval Gate — "Evals must run before autonomy"
 
+> **Path resolution note.** All paths, pipeline reads, gate writes, and
+> defect simulations in this script act on the TARGET codebase (the
+> developer's project). The parent recipe injected a TARGET PROLOGUE —
+> whenever this script says `.goose/team_context.md`, "the pipeline,"
+> "your repo," or "the gate," interpret those against `<TARGET>/`.
+> Preflight gate scripts, wiring, and evidence logs all live under
+> `<TARGET>/` (typically `<TARGET>/scripts/preflight/`), never in
+> RILGoose. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `eval-gate` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concept 5.4 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
 
 ## Framing
-"You've built verification, layers, ratchets, specific criteria, and isolated dependencies. Now the question: would you let your pipeline run overnight unattended? Right now?"
+"Would you let your pipeline run overnight unattended right now? Only if every check you've built runs as a gate that blocks the pipeline on failure — not a report you read in the morning. Let's wire everything together — pick a pipeline you want to run autonomously, or want me to look at your repo and suggest the closest candidate?"
 
 Let the developer think about what's stopping them.
-
-"The answer should be: only if every check you've built runs automatically as a gate between pipeline stages. Not as a report you read in the morning — as a gate that blocks the pipeline if something fails. An autonomous pipeline without evals is a pipeline you can't trust. Let's wire everything together."
 
 ## The Task
 Developer identifies a pipeline they want to run autonomously — or the closest thing to an autonomous workflow in their current project.
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "eval-gate"
   parameters:
-    pipeline_description: {developer's chosen pipeline or workflow}
-    existing_evals: {what they've built in 5.1-5.5}
+    pipeline_description: {developer's chosen pipeline or workflow — absolute entrypoint path under <TARGET>/}
+    existing_evals: {what they've built in 5.1-5.5 — paths under <TARGET>/}
     autonomy_level: {what they're targeting — overnight, continuous, event-triggered}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent maps pipeline outputs, builds independent eval checks, creates gate runner, tests with a deliberate defect]
+[Subagent maps pipeline outputs under <TARGET>/, builds independent eval checks, creates gate runner under <TARGET>/, tests with a deliberate defect inside <TARGET>/]
 
 Present results naturally:
 "Here's your eval gate. It runs independently after each pipeline stage, checks [list what it verifies], and blocks the next stage if anything fails. Every run produces a report — what passed, what failed, timestamps, and the artifacts it checked."
@@ -121,7 +130,9 @@ If ALL dimensions are Strong:
 "Your eval gate is independent, blocking, documented, and proven. You have mechanical proof that the pipeline works — not agent claims, not rubber stamps, but independent verification at every layer. This is the foundation for autonomous operation."
 
 ## Bridge (Stage 5 → Stage 6)
-"You've built the system that proves a pipeline works. Independent verification, layered checks, ratchets, specific criteria, isolated dependencies, and a blocking gate. That's the safety net. Now it's time to use it — let the pipeline run while you sleep, review what it did in the morning, and tune the feedback loops. That's Stage 6: autonomous operation with human oversight at the cycle boundary, not the execution boundary."
+"You've built the system that proves a pipeline works. Independent verification, layered checks, ratchets, specific criteria, isolated dependencies, and a blocking gate. That's the safety net. Now it's time to use it — let the pipeline run while you sleep, review what it did in the morning, and tune the feedback loops. That's Stage 6: autonomous operation with human oversight at the cycle boundary, not the execution boundary. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

@@ -21,17 +21,42 @@ parameters:
     requirement: optional
     default: ""
     description: "What to do on gate failure (block, notify, escalate)"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, `pipeline_entrypoint` must resolve under this directory, and all gate wiring/scripts must land inside it."
 
 instructions: |
   You are a pipeline safety specialist. You install fail-closed preflight gates
   that prevent autonomous execution when evals fail.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - `pipeline_entrypoint` MUST resolve to an absolute path under
+    `{target_codebase_path}/`.
+  - Write the preflight gate script, wiring changes, and
+    evidence-logging paths under `{target_codebase_path}/` — typically
+    `{target_codebase_path}/scripts/preflight/` or the project's
+    existing gate directory.
+  - Run gate simulations (deliberate-defect tests) from within
+    `{target_codebase_path}` — use `cd {target_codebase_path}` or
+    `git -C {target_codebase_path} ...`.
+  - Do NOT install gates into RILGoose.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
   recipes/ported-agents/product-evaluation/post-mortem.yaml
+
+  (Those ported-agent references live in the RILGoose repo, not the
+  target. Read them by relative path from CWD; they're pattern sources,
+  not files to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -65,5 +90,11 @@ prompt: |
   Eval commands: {{ eval_commands }}
   Autonomy mode: {{ autonomy_mode }}
   Failure policy: {{ failure_policy }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, pipeline_entrypoint must resolve
+  under THAT directory, gate scripts and wiring must be written under
+  it, and simulations run from within it. Do not install gates into
+  RILGoose. If target is empty, operate on CWD.
 
   Install a fail-closed gate. The pipeline must not run if evals fail.

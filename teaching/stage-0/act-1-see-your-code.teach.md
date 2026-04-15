@@ -1,75 +1,81 @@
 # Act 1: See Your Code
 
 *Concept 0.1 — AI reads your actual code*
-*Duration: ~10 minutes*
+*Duration: ~5 minutes*
 *Prerequisites: None*
 
 ---
 
+> **Path resolution note.** Every path referenced in this script is relative
+> to the TARGET codebase (the developer's project), NOT RILGoose. The parent
+> recipe injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the source code" or "the project," interpret
+> it against `<TARGET>/` (the resolved target_codebase_path). Shell commands
+> shown to the developer must include `cd <TARGET>` first or use `git -C
+> <TARGET>`.
+
 ## Setup
 
-Action: Read `.goose/team_context.md` to learn the project's stack and source directories.
+Action: Read `<TARGET>/.goose/team_context.md` to learn the project's stack and source directories.
 
-If `.goose/team_context.md` does not exist:
-  Delegate to subagent:
-    "No team_context.md found. Scan the project root for README.md,
-    pyproject.toml, setup.cfg, package.json, Cargo.toml, or go.mod
-    to infer the project's language, framework, and source directory
-    structure. Return a brief project summary in the same format
-    team_context.md would provide."
+If `<TARGET>/.goose/team_context.md` does not exist:
+  Delegate to subagent (prepend the TARGET PROLOGUE from the parent recipe):
+    "No team_context.md found at <TARGET>/.goose/team_context.md. Scan
+    <TARGET>/ for README.md, pyproject.toml, setup.cfg, package.json,
+    Cargo.toml, or go.mod to infer the project's language, framework,
+    and source directory structure. Return a brief project summary in
+    the same format team_context.md would provide."
 
 ---
 
 ## Step 1: Facilitator Demonstrates
 
 Say:
-"Right now, you're used to AI that works like a search engine — you describe something, it gives you text back. What we're about to do is different. I can actually see your project files, read your code, and understand how your codebase works. Let me show you.
+"I'm going to pick a file from your project and tell you what it does. One sec."
 
-I'm going to send a helper to go browse through your project and pick an interesting file to look at. You might see some activity in your terminal — that's just my helper reading your files. Give me a moment."
-
-Action: Delegate to subagent:
-  "Read .goose/team_context.md for project context (if missing, use
-  the project summary from Setup).
-  Find a file in the main source directory that has meaningful logic
-  (not a config file, not a test). Pick something a developer on this
-  team would recognize — an API endpoint, a data model, a utility
-  function, a component.
+Action: Delegate to subagent (prepend the TARGET PROLOGUE from the parent recipe):
+  "Read <TARGET>/.goose/team_context.md for project context (if missing,
+  use the project summary from Setup).
+  Find a file under <TARGET>/ in the main source directory that has
+  meaningful logic (not a config file, not a test). Pick something a
+  developer on this team would recognize — an API endpoint, a data
+  model, a utility function, a component.
 
   Read the file. Return:
   - file_path: which file you chose
-  - why: why you picked this one (1 sentence)
-  - explanation: 2-3 paragraph explanation of what this file does,
-    written for a developer who works on this project (not a beginner
-    tutorial — speak to them as a peer)
-  - interesting_detail: one specific thing about the implementation
-    worth calling out"
-
-While waiting (insight 0.1): "While it's working — one thing you'll notice is that the first result is rarely the final one. AI is fast, but the real workflow is iterative. First pass, review, adjust, second pass. That cycle is where the quality comes from."
+  - why: why you picked this one (≤12 words)
+  - summary: 2-3 sentences max. What it does. No preamble, no
+    section-by-section walkthrough. Peer-level.
+  - interesting_detail: one specific thing worth calling out (1 sentence)"
 
 Say:
-"I picked [file_path] because [why].
+"[file_path] — [why].
 
-[explanation]
+[summary]
 
-One thing worth noting: [interesting_detail]."
+One thing: [interesting_detail]."
 
 ---
 
 ## Step 2: Developer Tries
 
 Say:
-"Now it's your turn. Pick any file in your project — something you work with regularly — and ask me a question about it. Could be 'what does this function do?' or 'why is this structured this way?' or anything else."
+"Your turn. Ask me anything about your project — a file, a function, a design decision, a pattern, how a piece fits together, whatever's on your mind. Or want me to pick something interesting and talk about that?"
 
-Check: Wait for the developer to name a file and ask a question.
+Check: Wait for the developer to ask ANY substantive question about their project. Interpret engagement broadly — if they ask about a concept, a file, a decision, an architecture piece, a library, or how something works, THAT is the engagement. Do not redirect them back to "pick a file" if they asked a different kind of question. The only reason to re-ask is silence or a clearly off-topic response.
 
 Action: Delegate to subagent:
-  "Read {user_specified_file}. Answer this question from the developer
-  who works on this code: {user_question}.
+  "Answer this question from the developer about their project:
+  {user_question}.
+
+  Read whatever files, configs, docs, or code are needed to answer it
+  well. If the question is abstract (a concept, a pattern, a decision),
+  ground your answer in specific files or code from this repo.
+  Peer-level, terse. No beginner framing.
 
   Return:
-  - answer: clear, peer-level answer to their question
-  - follow_up: one follow-up observation about the file they might
-    find interesting"
+  - answer: 2-4 sentences, concrete, grounded in the actual codebase
+  - follow_up: one observation they might find interesting (1 sentence)"
 
 Say:
 "[answer]
@@ -83,4 +89,6 @@ Say:
 Say:
 "So that's the first big difference from ChatGPT — I'm not guessing about your code from a description. I'm reading the actual files.
 
-But reading is just the start. Next, I'm going to make a change to your code. Don't worry — you'll approve everything first, and we'll learn how to undo it right after."
+Reading is just the start though. Next, I'll make a change to your code. You'll approve everything first, and we'll learn how to undo it right after. Ready?"
+
+Check: Wait for the developer to confirm (any affirmative — "yes", "sure", "go", "ready", a thumbs-up). If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer it briefly and re-offer.

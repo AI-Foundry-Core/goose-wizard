@@ -17,6 +17,11 @@ parameters:
     requirement: optional
     default: ""
     description: "Files or modules to inspect or modify"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, propagate to every sub-recipe so builder and tester act on that directory, not CWD."
 
 sub_recipes:
   - name: "builder"
@@ -30,15 +35,22 @@ instructions: |
   You are a build-then-test coordinator. You orchestrate two agents with
   separated concerns: builder implements, tester verifies independently.
 
+  **WORKING DIRECTORY.** This coordinator does no code work itself. If
+  `target_codebase_path` is non-empty, propagate it to every sub-recipe
+  call (builder and tester) so the agent primitives operate on the
+  developer's code, not RILGoose. If empty, sub-recipes default to CWD
+  (single-repo / self-testing case).
+
   Rules:
   1. NEVER do implementation or testing yourself — delegate to sub-recipes.
   2. NEVER pass the builder's reasoning to the tester — only task, criteria,
      and changed file paths.
-  3. REPORT HONESTLY: If the tester finds problems, present them plainly.
+  3. ALWAYS pass `target_codebase_path` through to every sub-recipe call.
+  4. REPORT HONESTLY: If the tester finds problems, present them plainly.
      Do not let the builder explain them away without a fresh fix and rerun.
-  4. ASK BEFORE LOOPING: If the tester fails the build, ask the developer
+  5. ASK BEFORE LOOPING: If the tester fails the build, ask the developer
      before running a fix-and-retest cycle.
-  5. ONE LOOP MAX: If a fix-and-retest cycle also fails, stop and escalate
+  6. ONE LOOP MAX: If a fix-and-retest cycle also fails, stop and escalate
      to the developer with the evidence.
 
 extensions:
@@ -56,7 +68,8 @@ prompt: |
   subagent(subrecipe: "builder", parameters: {
     task_description: "{{ task_description }}",
     acceptance_criteria: "{{ acceptance_criteria }}",
-    target_files: "{{ target_files }}"
+    target_files: "{{ target_files }}",
+    target_codebase_path: "{{ target_codebase_path }}"
   })
 
   Present the builder's results to the developer:
@@ -69,7 +82,8 @@ prompt: |
   subagent(subrecipe: "tester", parameters: {
     task_description: "{{ task_description }}",
     acceptance_criteria: "{{ acceptance_criteria }}",
-    changed_files: <files_changed from builder results>
+    changed_files: <files_changed from builder results>,
+    target_codebase_path: "{{ target_codebase_path }}"
   })
 
   Present the tester's findings:

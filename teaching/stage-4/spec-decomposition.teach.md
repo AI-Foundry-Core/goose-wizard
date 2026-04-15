@@ -4,11 +4,21 @@ Covers concept 4.2 (spec-decomposition). Teaches persona-driven decomposition an
 
 Mode: Adaptive + Checkpoints
 
+> **Path resolution note.** All paths, spec reads, and artifact writes in
+> this script act on the TARGET codebase (the developer's project). The
+> parent recipe injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, "the codebase," "the repo," or "your spec,"
+> interpret those against `<TARGET>/`. The `spec_path` passed to any
+> sub-recipe must be an absolute path under `<TARGET>/`. Prepend the
+> TARGET PROLOGUE to every `Delegate to subagent` call. Pass
+> `target_codebase_path` to the `spec-decomposition` and `spec-to-pipeline`
+> sub-recipes.
+
 ---
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concepts 4.3 and 4.4 are already demonstrated.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 If 4.3 demonstrated but not 4.4: skip to the testability phase.
@@ -27,18 +37,21 @@ Prerequisite: The developer should have a spec from Recipe 4.1/4.2 (the idea-to-
 
 Ask the developer to identify their personas BEFORE invoking the recipe:
 
-"Give me 2-3 real people who would use this feature. Not 'the user' or 'admin' — give me a name, what they do, and what their day looks like. Priya the working mother in Pune checking her portfolio on the train. Raj the warehouse supervisor who can't leave the floor to file a report. Real people."
+"Give me 2-3 real people who would use this feature. Not 'the user' or 'admin' — give me a name, what they do, and what their day looks like. Priya the working mother in Pune checking her portfolio on the train. Raj the warehouse supervisor who can't leave the floor to file a report. Real people. Or want me to draft 2-3 personas from the spec and let you refine them?"
 
 Listen to the developer's personas. Note:
 - Are they named real people or abstractions ("User Type A")?
 - Do they have context (role, situation, pain points)?
 - Are they meaningfully different from each other?
 
-Then delegate to code-work subagent:
+Resolve the spec path before delegating: if the developer already named a spec file, use it (resolve relative paths against `<TARGET>/`). Otherwise ask "Point me at your spec, or want me to use the latest Stage 4 output in your repo?" and scan `<TARGET>/` if they pick the latter. Do not block on missing spec_path — produce a candidate under `<TARGET>/` and confirm. Every spec_path must be an absolute path under `<TARGET>/`.
+
+Then delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "spec-decomposition"
   parameters:
-    spec_path: {path to their spec from 4.1/4.2}
+    spec_path: {absolute path under <TARGET>/ to their spec from 4.1/4.2, or the resolved candidate}
     personas: {developer's persona descriptions}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent produces persona-organized decomposition with use cases and acceptance criteria]
 
@@ -67,13 +80,14 @@ Let the developer assess. If they identify untestable criteria correctly — ack
 If the developer has their own spec with vague requirements:
 "Let's rewrite three of your vaguest requirements right now. Give me one that uses words like 'easy,' 'fast,' 'intuitive,' or 'user-friendly,' and let's make it testable."
 
-Delegate to code-work subagent (if rewriting requirements):
+Delegate to code-work subagent (if rewriting requirements — prepend the TARGET PROLOGUE):
   sub-recipe: "spec-to-pipeline"
   parameters:
-    spec_path: {path to decomposed spec}
-    test_framework: {from team_context.md or developer's preference}
+    spec_path: {absolute path under <TARGET>/ to decomposed spec}
+    test_framework: {from <TARGET>/.goose/team_context.md or developer's preference}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent converts acceptance criteria to test specs]
+[Subagent converts acceptance criteria to test specs under <TARGET>/]
 
 "Every requirement now traces to a test. If a requirement doesn't have a test, either the requirement is untestable — rewrite it — or a test is missing — add it. This traceability is what makes an AI pipeline reliable. No test means no verification means no trust."
 
@@ -189,7 +203,9 @@ Read eval results. For each dimension:
 
 ## Bridge to Spec Review
 
-"You've got a spec that's organized around real people with testable requirements. But how do you know it's actually good? Your own judgment is necessary but not sufficient — you'll miss things because you wrote it. That's where AI-assisted quality gates come in. Let's run your spec through a multi-dimension review and see what it catches."
+"You've got a spec that's organized around real people with testable requirements. But how do you know it's actually good? Your own judgment is necessary but not sufficient — you'll miss things because you wrote it. That's where AI-assisted quality gates come in. Let's run your spec through a multi-dimension review and see what it catches. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 

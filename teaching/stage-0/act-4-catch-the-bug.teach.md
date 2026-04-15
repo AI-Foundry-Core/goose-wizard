@@ -1,7 +1,7 @@
 # Act 4: Catch the Bug
 
 *Concept 0.4 — AI is confident, not correct*
-*Duration: ~10 minutes*
+*Duration: ~5 minutes*
 *Prerequisites: Acts 2 and 3 (First Edit, Undo Button)*
 
 ---
@@ -9,13 +9,16 @@
 ## Step 1: Introduce the Bug (Privately)
 
 Say:
-"Let me add a small feature to your code. I'm sending a helper to find a good spot and make a change — you'll see some activity while it works."
+"Let me add a small feature to your code. One sec."
 
-Action: Delegate to subagent:
-  "Read .goose/team_context.md for the stack (if missing, scan
-  README.md, pyproject.toml, setup.cfg, package.json, Cargo.toml,
-  or go.mod to infer language and framework).
-  Find a function in the source code that does some logic —
+> **Path resolution note.** All paths act on the TARGET codebase. Prepend
+> the parent recipe's TARGET PROLOGUE to every `Delegate to subagent` call.
+
+Action: Delegate to subagent (prepend the TARGET PROLOGUE):
+  "Read <TARGET>/.goose/team_context.md for the stack (if missing, scan
+  <TARGET>/ for README.md, pyproject.toml, setup.cfg, package.json,
+  Cargo.toml, or go.mod to infer language and framework).
+  Find a function under <TARGET>/ that does some logic —
   data processing, validation, calculation, string handling.
   Something with at least a few lines of logic.
 
@@ -41,8 +44,6 @@ Action: Delegate to subagent:
   - hint_1: a gentle nudge without giving it away
   - hint_2: a more specific hint pointing at the line
   - fix: what the correct code should be"
-
-While waiting (insight 0.3): "While it's looking — one habit worth building early: after any change, run the tests. AI writes confident code, but confident and correct aren't the same thing."
 
 ---
 
@@ -122,4 +123,6 @@ Say:
 ## Bridge to Act 5
 
 Say:
-"One more thing before we wrap up — I want to show you the single biggest lever you have when working with AI."
+"One more thing before we wrap up — I want to show you the single biggest lever you have when working with AI. Ready?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.

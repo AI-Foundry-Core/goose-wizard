@@ -1,7 +1,17 @@
 # Recipe 5.6: Eval Ratchet — "Eval ratchets prevent regression"
 
+> **Path resolution note.** All paths, eval command runs, baseline
+> writes, and ratchet-check scripts in this script act on the TARGET
+> codebase (the developer's project). The parent recipe injected a
+> TARGET PROLOGUE — whenever this script says `.goose/team_context.md`,
+> "your eval," "the codebase," or "the repo," interpret those against
+> `<TARGET>/`. Baseline files, ratchet check scripts, and CI wiring all
+> live under `<TARGET>/` (typically `<TARGET>/evals/`), never in
+> RILGoose. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `eval-ratchet` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concept 5.6 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
@@ -12,21 +22,22 @@ This is **Fully Adaptive** mode. Consulting role — the developer leads, you sp
 
 Let the developer connect this to their own experience.
 
-"A ratchet is simple: record the high-water mark, and block any change that drops below it. The bar only goes up. Once you have 200 passing tests, 199 is a failure. Let's set one up."
+"A ratchet is simple: record the high-water mark, and block any change that drops below it. The bar only goes up. Once you have 200 passing tests, 199 is a failure. Let's set one up — pick a metric (test count, coverage, lint score, something else meaningful), or want me to suggest one from your repo?"
 
 ## The Task
 Developer picks a metric to ratchet — test count, coverage percentage, lint score, or something else meaningful in their project.
 
 **Let the developer set the threshold.** If the developer guesses or rounds (e.g., "three hundred something"), do NOT correct them. Let them build the ratchet with their guessed value. Run the check. If the real value is far above the threshold, the gap will be visible — ask: "The ratchet says OK. But [actual] tests pass and your floor is [guess]. How many tests can disappear before this catches it?" The developer discovers the problem through execution, not instruction. This is Fully Adaptive — the consequence teaches, not the facilitator.
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "eval-ratchet"
   parameters:
     metric_to_ratchet: {developer's chosen metric}
     current_value: {developer's stated value — even if it's a guess}
-    ratchet_file: {if one exists}
+    ratchet_file: {if one exists — absolute path under <TARGET>/}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent measures current value, creates ratchet config, builds check script]
+[Subagent measures current value by running the eval command inside <TARGET>/, creates ratchet config under <TARGET>/, builds check script under <TARGET>/]
 
 If developer used a guess as the threshold:
   Run the check script. It will pass (real value exceeds guess). Show the output.
@@ -152,7 +163,9 @@ Optional follow-up (pick the most relevant):
 - "You're working on three projects. If ratchets work here, would you set them up the same way in the other two — or does each project need different metrics?"
 
 ## Bridge
-"The ratchet prevents regression on metrics you can count. But what about evaluation criteria that aren't numbers? 'Check quality' produces rubber stamps. 'Rate each assertion as meaningful, weak, or trivial' produces findings. That's eval design — making your criteria specific enough to actually catch problems."
+"The ratchet prevents regression on metrics you can count. But what about evaluation criteria that aren't numbers? 'Check quality' produces rubber stamps. 'Rate each assertion as meaningful, weak, or trivial' produces findings. That's eval design — making your criteria specific enough to actually catch problems. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

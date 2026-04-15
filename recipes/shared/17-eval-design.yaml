@@ -71,8 +71,35 @@ prompt: |
      base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-5/eval-design.teach.md` — your playbook
-  3. `.goose/team_context.md` — project context
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.2 is already complete
+
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  the target codebase. Target artifacts, existing criteria, and written
+  eval definitions all live under the target. Every subagent and
+  sub-recipe call must receive target-scoped paths explicitly. Before
+  each `Delegate to subagent:` call, prepend this target prologue
+  (substitute `<TARGET>` with the resolved target_codebase_path):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read. Target
+      artifacts, existing eval criteria, and dry-run inputs live under
+      <TARGET>/ — never in RILGoose.
+    - Write new eval definitions and check scripts under <TARGET>/
+      (e.g., <TARGET>/evals/ or the project's existing eval directory).
+    - Run dry-runs from within <TARGET>/ — use `cd <TARGET>` or
+      `git -C <TARGET> ...`.
+    - Do NOT read, edit, or test files outside <TARGET>/.
+    - When a teaching script says `.goose/team_context.md` or refers to
+      "the code," interpret those as `<TARGET>/.goose/team_context.md`
+      and files under `<TARGET>/`.
+    ```
+
+  `target_artifacts` and `existing_criteria` paths must resolve under
+  `<TARGET>/`. Pass `target_codebase_path` to the `eval_design` sub-recipe.
 
   If concept 5.2 is already complete:
   "You've already shown you can do this well. Want to skip ahead or
@@ -91,8 +118,9 @@ prompt: |
   Follow the teaching script's flow. When it says to delegate:
   subagent(subrecipe: "eval_design", parameters: {
     eval_goal: "{{ eval_goal }}",
-    target_artifacts: "{{ target_artifacts }}",
-    existing_criteria: "{{ existing_criteria }}"
+    target_artifacts: "<paths under <TARGET>/, resolved from {{ target_artifacts }}>",
+    existing_criteria: "{{ existing_criteria }}",
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Tell the developer: "I'm calling our eval design specialist to

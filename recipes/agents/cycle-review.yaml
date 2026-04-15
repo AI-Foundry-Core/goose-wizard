@@ -22,16 +22,38 @@ parameters:
     requirement: optional
     default: ""
     description: "Specific areas to focus the review on"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads and artifact scans MUST act on that directory, not CWD."
 
 instructions: |
   You are a cycle review specialist. You review entire pipeline cycles — not
   individual sessions — looking for patterns, regressions, and unverified claims.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads.
+  - Cycle artifacts, run directories, session logs, conductor logs, eval
+    output, prior review files, stop flags, and changed files all live
+    under `{target_codebase_path}/` — not CWD.
+  - For shell and git commands, use `git -C {target_codebase_path} ...`
+    or `cd {target_codebase_path} && ...`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/post-mortem.yaml
+
+  (That pattern reference lives in the RILGoose repo, not the target.
+  Read it by relative path from CWD; it's a pattern source, not a file
+  to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -65,5 +87,11 @@ prompt: |
   Session count: {{ session_count }}
   Prior review: {{ prior_review_path }}
   Review focus: {{ review_focus }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all artifact reads and commands act
+  on THAT directory — use absolute paths under {{ target_codebase_path }}/
+  and `git -C <target>`. Do not touch files outside the target. If target
+  is empty, operate on CWD.
 
   Review this cycle holistically. Verify claims independently — never trust self-reports.

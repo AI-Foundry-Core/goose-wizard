@@ -1,5 +1,15 @@
 # Recipe 7.3: Skill Evolution - "Fix the instruction, not the output"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, refers to findings files, `LEARNINGS.md`,
+> cycle review logs, skill/instruction files, or "the pipeline,"
+> interpret those against `<TARGET>/` (e.g., `<TARGET>/LEARNINGS.md`,
+> `<TARGET>/.goose/`, `<TARGET>/agents/`). Prepend the TARGET PROLOGUE
+> to every `Delegate to subagent` call. Pass `target_codebase_path` to
+> the `skill-evolution` sub-recipe.
+
 Covers concept 7.3 (skill-evolution). Teaches the curator loop and instruction evolution.
 
 Mode: Fully Adaptive. Facilitator is pure consulting - available when the developer asks, not driving.
@@ -8,7 +18,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read <TARGET>/.goose/team_context.md for project context.
 Read ~/.rilgoose/progression.json - check concept 7.3 (module 26: skill-evolution).
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
@@ -55,12 +65,13 @@ direct the work step by step.
 3. Use the skill-evolution recipe to turn those findings into instruction edits
 4. Verify the edits actually improve behavior
 
-Delegate to code-work subagent when the developer is ready:
+Delegate to code-work subagent when the developer is ready (prepend the TARGET PROLOGUE):
   sub-recipe: "skill-evolution"
   parameters:
-    findings_source: {developer's chosen findings file}
-    skill_files: {developer's chosen skill files}
-    verification_command: {if developer provides one}
+    findings_source: {developer's chosen findings file — absolute path under <TARGET>/}
+    skill_files: {developer's chosen skill files — absolute paths under <TARGET>/}
+    verification_command: {if developer provides one — should run from within <TARGET>/}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent analyzes findings, classifies them, drafts edits, applies them]
 
@@ -216,7 +227,9 @@ Maximum two questions unless the developer wants to go deeper.
 "Your instructions evolve now. But instructions aren't the only thing that
 accumulates - rules do too. And when you have rules in 5 different files
 saying slightly different things, agents start making arbitrary choices.
-Next: auditing and pruning the rules themselves."
+Next: auditing and pruning the rules themselves. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 

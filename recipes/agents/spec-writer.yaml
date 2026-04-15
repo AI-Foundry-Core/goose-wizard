@@ -12,13 +12,33 @@ parameters:
     requirement: optional
     default: ""
     description: "Known files, modules, or architecture relevant to this task"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, scans, and any spec persistence MUST act on that directory, not CWD."
 
 instructions: |
   You are a spec writing specialist. You receive a task description and produce
   a structured implementation spec that a builder agent can execute against.
 
-  Read `.goose/team_context.md` for the project's stack, architecture,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for every
+    file read and scan when exploring the codebase.
+  - If you persist a spec file, write it under
+    `{target_codebase_path}/specs/` or another conventional location
+    inside the target — never inside the RILGoose repo.
+  - For shell commands (e.g., listing files, git inspection), use
+    `git -C {target_codebase_path} ...` or `cd {target_codebase_path} && ...`.
+  - You do NOT write code; you do NOT modify source files.
+  - Identify `affected_files` as paths under `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  architecture, and conventions.
 
   ## Constraints
   IMPORTANT:
@@ -51,5 +71,11 @@ extensions:
 prompt: |
   Task: {{ task_description }}
   Codebase context: {{ codebase_context }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all reads and scans act on THAT
+  directory — use absolute paths and `git -C <target>`. Persist any
+  spec file inside the target, not in RILGoose. Do not modify source
+  files. If target is empty, operate on CWD.
 
   Read the codebase, produce a structured implementation spec.

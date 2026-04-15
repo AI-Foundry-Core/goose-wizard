@@ -1,5 +1,13 @@
 # Recipe 2.1: Build-Then-Test — "Two AIs Are Better Than One"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `build-then-test` (builder
+> and tester) sub-recipes.
+
 Covers concept 2.1 (build-then-test). Teaches why one AI isn't enough and why specialists beat generalists.
 Mode: Adaptive + Checkpoints.
 
@@ -25,34 +33,36 @@ Mode: Adaptive + Checkpoints.
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check concepts 2.1 and 2.2.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify Stage 1 is complete. If not, flag it — Stage 2 assumes the developer already knows single-agent workflows.
 
 ## Framing
 
-"You've been running single-agent workflows — one AI does the work, you review the result. That works, but you're the only quality check. Let's try something different: one AI builds, and a completely separate AI tests the result. The tester doesn't know what the builder was thinking — it just reads the code cold."
+"This time, one AI builds and a separate AI tests — the tester reads the code cold, with no idea what the builder was thinking."
 
-"What's a feature or change you need to make? Something small enough to build in a few minutes — a new function, a small module, an endpoint, a utility."
+"What's a small feature or change you need to make — something build-able in a few minutes? Or want me to find a small TODO in your codebase we can use?"
 
 If developer has no current task:
   "No problem. Let me look at your codebase for something we can work with."
-  Delegate to code-work subagent:
-    "Read .goose/team_context.md. Find a TODO, a missing utility function,
-    or a small feature gap that would take 10-20 minutes to build manually.
-    Describe it as a task the developer would recognize as real work."
+  Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+    "Read `<TARGET>/.goose/team_context.md`. Scan source code under
+    `<TARGET>/` for a TODO, a missing utility function, or a small feature
+    gap that would take 10-20 minutes to build manually. Describe it as a
+    task the developer would recognize as real work."
 
 ## The Task — Concept 2.1
 
 Developer describes the task (or accepts the found task).
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "build-then-test"
   parameters:
     task_description: {developer's description}
     acceptance_criteria: {if provided}
     target_files: {if provided}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent runs the two-phase workflow, returns builder summary + tester findings]
 
@@ -121,7 +131,9 @@ Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
 
 ## Bridge
 
-"You've got two agents that don't trust each other's work. Next up: turning that tester into a gate that actually blocks bad code — and making sure it checks by running things, not just looking at them."
+"You've got two agents that don't trust each other's work. Next up: turning that tester into a gate that actually blocks bad code — and making sure it checks by running things, not just looking at them. Ready to keep going?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 

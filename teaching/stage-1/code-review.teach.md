@@ -1,7 +1,14 @@
 # Recipe 1.3: Code Review — "AI as tireless reviewer"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `code-review` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context (stack, conventions, architectural patterns).
+Read `<TARGET>/.goose/team_context.md` for project context (stack, conventions, architectural patterns).
 Read ~/.rilgoose/progression.json — check if concept 1.3 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to [next incomplete recipe], or run through another review to sharpen the skill?"
@@ -9,18 +16,17 @@ If already demonstrated (all dimensions adequate+):
   If revisit: continue normally — update ratings only if they improve.
 
 ## Framing
-"Got a PR that needs review? Or some code you recently changed that you'd like a second set of eyes on? Could be a PR number, a branch, specific files, or a recent commit. Point me at it."
+"Got a PR that needs review? Or some code you recently changed that you'd like a second set of eyes on? Could be a PR number, a branch, specific files, or a recent commit. Point me at it — or want me to grab your most recent meaningful change?"
 
 **Stuck path — developer has no code to review:**
 "No problem. Let me find something worth reviewing in your recent changes."
-Delegate to code-work subagent:
-  "Read .goose/team_context.md. Check recent git history for the most recent
-  meaningful commit or branch with changes — something with logic changes, not
-  just config or formatting. Ideally 50-200 lines of diff. Report: what the
-  changes are, which files were touched, and a one-line summary of the commit
-  intent."
-
-While waiting (insight 1.3b): "One thing that makes AI review powerful — you can run it multiple times with different focus areas. Security pass, logic pass, performance pass. Each one finds things the others missed. That's how review scales without adding people."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read <TARGET>/.goose/team_context.md. Check recent git history in
+  <TARGET>/ (use `git -C <TARGET> log`) for the most recent meaningful
+  commit or branch with changes — something with logic changes, not
+  just config or formatting. Ideally 50-200 lines of diff. Report: what
+  the changes are, which files were touched (absolute paths under
+  <TARGET>/), and a one-line summary of the commit intent."
 
 Present the found target naturally:
 "Your most recent meaningful change looks like [commit/branch description] — [files touched]. Want to review that?"
@@ -32,14 +38,13 @@ Note what the developer provides — this is what the eval will assess for scope
 - Did they point at specific files, a PR, or a commit range?
 - Or did they ask for a general review of a broad area?
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "code-review"
   parameters:
     review_target: {developer's chosen target}
     review_focus: {if provided}
     context: {if provided}
-
-While waiting (insight 1.3a): "While it reviews — AI defaults to polite. A review that says 'looks good' isn't necessarily a green light. It might just mean you didn't ask the right question. Specific focus gets specific findings."
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent reviews, returns findings]
 
@@ -177,7 +182,9 @@ When the developer mentions team workflows, PR processes, CI/CD integration, or 
 Keep it to one question unless the developer wants to go deeper. Do not volunteer enterprise context unprompted unless the developer raises a team or process concern.
 
 ## Bridge
-"You've been fixing bugs, writing tests, and reviewing code. One more skill — AI handles the restructuring you've been putting off. Got some ugly code that works but makes you cringe? That's next."
+"You've been fixing bugs, writing tests, and reviewing code. One more skill — AI handles the restructuring you've been putting off. Got some ugly code that works but makes you cringe? That's next. Ready to keep going?"
+
+Check: Wait for acknowledgement — they may want to stop for the day or keep going. If they have a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

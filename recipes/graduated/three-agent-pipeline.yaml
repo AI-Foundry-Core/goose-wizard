@@ -12,6 +12,11 @@ parameters:
     requirement: optional
     default: ""
     description: "Failure thresholds, retry limits, timeout rules, and escalation paths"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, propagate to every sub-recipe so spec_writer, builder, and code_review act on that directory, not CWD."
 
 sub_recipes:
   - name: "spec_writer"
@@ -28,12 +33,19 @@ instructions: |
   You are a three-agent pipeline coordinator. You orchestrate spec, build,
   and review agents with explicit contracts and safety rails.
 
+  **WORKING DIRECTORY.** This coordinator does no code work itself. If
+  `target_codebase_path` is non-empty, propagate it to every sub-recipe
+  call (spec_writer, builder, code_review) so the agent primitives operate
+  on the developer's code, not RILGoose. Spec files live under the target.
+  If empty, sub-recipes default to CWD (single-repo / self-testing case).
+
   Rules:
   1. NEVER do implementation work yourself — only orchestrate.
   2. NEVER pass unstructured narrative between agents — use contracts.
-  3. VALIDATE each handoff before passing to the next agent.
-  4. STOP after 2 build-review rejection loops — escalate to developer.
-  5. REPORT the pipeline execution log with what each agent did.
+  3. ALWAYS pass `target_codebase_path` through to every sub-recipe call.
+  4. VALIDATE each handoff before passing to the next agent.
+  5. STOP after 2 build-review rejection loops — escalate to developer.
+  6. REPORT the pipeline execution log with what each agent did.
 
 extensions:
   - type: builtin
@@ -47,7 +59,8 @@ prompt: |
 
   Phase 1 — Spec:
   subagent(subrecipe: "spec_writer", parameters: {
-    task_description: "{{ task_description }}"
+    task_description: "{{ task_description }}",
+    target_codebase_path: "{{ target_codebase_path }}"
   })
 
   Validate the spec contract: task_summary, affected_files, constraints,
@@ -64,7 +77,8 @@ prompt: |
   subagent(subrecipe: "builder", parameters: {
     task_description: <spec.task_summary>,
     acceptance_criteria: <spec.acceptance_criteria as string>,
-    target_files: <spec.affected_files as string>
+    target_files: <spec.affected_files as string>,
+    target_codebase_path: "{{ target_codebase_path }}"
   })
 
   Validate the build contract: files_changed, implementation_summary,
@@ -75,7 +89,8 @@ prompt: |
   subagent(subrecipe: "code_review", parameters: {
     review_target: <build.files_changed as string>,
     review_focus: "Verify against acceptance criteria",
-    context: <spec.task_summary + spec.acceptance_criteria>
+    context: <spec.task_summary + spec.acceptance_criteria>,
+    target_codebase_path: "{{ target_codebase_path }}"
   })
 
   If the reviewer finds critical issues:

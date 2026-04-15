@@ -75,8 +75,36 @@ prompt: |
      base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-5/eval-ratchet.teach.md` — your playbook
-  3. `.goose/team_context.md` — project context
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.6 is already complete
+
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  the target codebase. The eval command being ratcheted, the baseline
+  file, and any CI wiring all belong under the target. Every subagent
+  and sub-recipe call must receive target-scoped paths explicitly. Before
+  each `Delegate to subagent:` call, prepend this target prologue
+  (substitute `<TARGET>` with the resolved target_codebase_path):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read, edit,
+      and scan. The eval command, existing baseline files, and CI
+      wiring live under <TARGET>/ — never in RILGoose.
+    - Write the baseline file, ratchet check script, and CI hooks under
+      <TARGET>/ (typically <TARGET>/evals/ or the project's existing
+      eval directory).
+    - Run the eval command and the ratchet check from within <TARGET>/
+      — use `cd <TARGET>` or `git -C <TARGET> ...`.
+    - Do NOT read, edit, or test files outside <TARGET>/.
+    - When a teaching script says `.goose/team_context.md` or refers to
+      "the eval" or "the codebase," interpret those as
+      `<TARGET>/.goose/team_context.md` and files under `<TARGET>/`.
+    ```
+
+  `eval_command` and baseline paths must resolve under `<TARGET>/`. Pass
+  `target_codebase_path` to the `eval_ratchet` sub-recipe.
 
   If concept 5.6 is already complete:
   "You've already shown you can do this well. Want to skip ahead or
@@ -97,7 +125,8 @@ prompt: |
     eval_command: "{{ eval_command }}",
     metric: "{{ metric }}",
     current_baseline: "{{ current_baseline }}",
-    ratchet_policy: "{{ ratchet_policy }}"
+    ratchet_policy: "{{ ratchet_policy }}",
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Tell the developer: "I'm calling our ratchet specialist to

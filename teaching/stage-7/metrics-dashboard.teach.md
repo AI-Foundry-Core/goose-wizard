@@ -1,5 +1,14 @@
 # Recipe 7.1: Metrics Dashboard - "Measure, don't guess"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, refers to baseline or comparison data,
+> pipeline outputs, metric snapshots, or "the pipeline," interpret those
+> against `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to
+> subagent` call. Pass `target_codebase_path` to the `metrics-dashboard`
+> sub-recipe.
+
 Covers:
 - 7.1 Measure, don't guess (metrics-dashboard)
 
@@ -9,7 +18,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read <TARGET>/.goose/team_context.md for project context.
 Read ~/.rilgoose/progression.json - check concept 7.1.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
@@ -73,13 +82,14 @@ The developer drives. The facilitator is available for questions.
 3. Use the metrics-dashboard recipe to collect and compare data
 4. Interpret the results - including unexpected side effects
 
-Delegate to code-work subagent when the developer is ready:
+Delegate to code-work subagent when the developer is ready (prepend the TARGET PROLOGUE):
   sub-recipe: "metrics-dashboard"
   parameters:
     change_description: {what the developer wants to measure}
     metrics_to_track: {if developer has specific metrics in mind}
-    baseline_data: {if developer has a previous metrics snapshot}
-    comparison_data: {if developer has post-change data}
+    baseline_data: {if developer has a previous metrics snapshot — absolute path under <TARGET>/}
+    comparison_data: {if developer has post-change data — absolute path under <TARGET>/}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent identifies metrics, collects data, compares, generates report]
 
@@ -257,7 +267,9 @@ The system doesn't need another stage. It needs you to keep doing what you've
 been doing - running cycles, reviewing findings, evolving instructions, pruning
 rules, and measuring the results. Every cycle makes it a little smarter.
 
-The recipes are yours. Use them."
+The recipes are yours. Use them. Make sense — or want to hold here and let it soak before you go run a cycle?"
+
+Check: Wait for the developer to respond. If they want to reflect or ask questions, engage. If they're ready to close, acknowledge and let them go. There's no next module — this is the end of the curriculum.
 
 ---
 

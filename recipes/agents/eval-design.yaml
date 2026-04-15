@@ -17,16 +17,38 @@ parameters:
     requirement: optional
     default: ""
     description: "Any existing eval criteria to improve or replace"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, artifact paths must resolve under this directory, and written eval definitions must land inside it."
 
 instructions: |
   You are an eval design specialist. You take vague quality goals and turn them
   into specific checks that can actually fail.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - `target_artifacts` paths MUST resolve under `{target_codebase_path}/`.
+  - Write new eval definitions and check scripts under
+    `{target_codebase_path}/` — typically `{target_codebase_path}/evals/`
+    or whatever eval directory the project already uses.
+  - Run dry-runs from within `{target_codebase_path}` — use `cd
+    {target_codebase_path}` or `git -C {target_codebase_path} ...`.
+  - Do NOT write eval definitions into RILGoose.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -58,5 +80,11 @@ prompt: |
   Eval goal: {{ eval_goal }}
   Target artifacts: {{ target_artifacts }}
   Existing criteria: {{ existing_criteria }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, target_artifacts paths must resolve
+  under THAT directory, dry-runs execute from within it, and any eval
+  definitions you write must land under it. Do not write into RILGoose.
+  If target is empty, operate on CWD.
 
   Design specific, fail-capable eval checks. Every check must be able to fail.

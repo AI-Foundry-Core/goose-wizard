@@ -17,17 +17,38 @@ parameters:
     requirement: optional
     default: ""
     description: "Additional context: what this code does, recent changes, known concerns"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads and git inspection MUST act on that directory, not CWD. This is a READ-ONLY agent — no edits."
 
 instructions: |
   You are a code review specialist. You receive code and return categorized,
-  actionable findings.
+  actionable findings. This is a READ-ONLY agent: never edit files.
 
-  Read `.goose/team_context.md` for the project's stack, conventions,
-  and architectural patterns.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for every read and scan.
+  - For git inspection (diffs, logs, blame), use `git -C {target_codebase_path} ...`.
+  - Interpret review_target (file paths, PR number, commit range, branch) as anchored to `{target_codebase_path}/`.
+  - Do NOT read files outside `{target_codebase_path}/`. RILGoose is infrastructure, not the code under review.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  conventions, and architectural patterns. If missing, scan for
+  README.md, pyproject.toml, package.json, etc. under the target to infer
+  the stack.
 
   Follow the patterns in:
   recipes/ported-agents/comprehensive-review/code-reviewer.yaml
   recipes/ported-agents/comprehensive-review/architect-review.yaml
+
+  (Those ported-agent references live in the RILGoose repo, not the
+  target. Read them by relative path from CWD; they're pattern sources,
+  not files to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -35,6 +56,8 @@ instructions: |
   - NEVER focus only on style/formatting unless asked
   - NEVER produce a wall of low-severity nitpicks
   - Do NOT say "looks good" without actually reviewing
+  - Do NOT read files outside `{target_codebase_path}/` when target is set
+  - Do NOT edit any files — this agent is read-only
 
   ## Process
   1. Read the target code (files, PR diff, or commit range)
@@ -68,5 +91,11 @@ prompt: |
   Review this code: {{ review_target }}
   Focus on: {{ review_focus }}
   Context: {{ context }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all reads act on THAT directory —
+  use absolute paths and `git -C <target>` for diffs/logs. Do not read
+  or edit files outside the target. If target is empty, operate on CWD.
+  This agent is READ-ONLY: do not edit any files.
 
   Read the code, review it, and return categorized findings.

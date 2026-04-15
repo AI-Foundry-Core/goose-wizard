@@ -5,11 +5,21 @@ Covers concept 4.3 (spec-review). Teaches AI-assisted quality gates and kill cri
 Mode: Adaptive + Checkpoints
 Checkpoint after 4.5: Has the developer gone through a quality gate cycle and revised the spec?
 
+> **Path resolution note.** All paths, spec reads, and any revision
+> writes in this script act on the TARGET codebase (the developer's
+> project). The parent recipe injected a TARGET PROLOGUE — whenever this
+> script says `.goose/team_context.md`, "the codebase," "the repo," or
+> "the spec," interpret those against `<TARGET>/`. The `spec_path` passed
+> to `spec-review` must be an absolute path under `<TARGET>/`. Any
+> revision the developer chooses to apply lands under `<TARGET>/`, never
+> RILGoose. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `spec-review` sub-recipe.
+
 ---
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json and check if concepts 4.5 and 4.6 are already demonstrated.
 If both are already demonstrated with all dimensions adequate or strong, offer to skip or revisit.
 If 4.5 is demonstrated but 4.6 is not, skip directly to the kill criteria pass.
@@ -23,20 +33,21 @@ Prerequisite: The developer should have a spec from Recipe 4.1 through 4.4. If t
 "You have a spec that looks buildable. Now we run it through a quality gate before anyone builds from it. The point is not to get a pretty review report. The point is to find the expensive mistakes while they are still cheap to fix."
 
 Ask the developer:
-"What kind of spec are we reviewing - one-pager, requirements doc, or decomposed spec?"
+"What kind of spec are we reviewing - one-pager, requirements doc, or decomposed spec? Point me at it, or let me find the most recent spec artifact in the project."
 
 ---
 
 ## Phase 1: Quality Gate Review (Concept 4.5)
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "spec-review"
   parameters:
-    spec_path: {path to the developer's spec}
+    spec_path: {absolute path under <TARGET>/ to the developer's spec}
     spec_type: {one-pager | requirements-doc | decomposed-spec}
     review_focus: "build readiness, ambiguity, testability, persona grounding, and kill criteria"
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent reviews the spec and returns dimension ratings, blocking issues, improvement suggestions, overall readiness, and next action]
+[Subagent reviews the spec (read-only) and returns dimension ratings, blocking issues, improvement suggestions, overall readiness, and next action]
 
 Present the review naturally:
 "The review found [number] blockers and [number] warnings. The most important one is [top finding]. If we build now, this is likely to turn into [specific rework or failure mode]."
@@ -48,16 +59,17 @@ If the developer picks a low-impact wording issue while blockers remain:
 "Let's start with the issue that would waste build time. Wording can wait. Ambiguous acceptance criteria, missing persona coverage, or no kill criteria will break the pipeline."
 
 Then revise the spec:
-Delegate to code-work subagent:
-  "Revise the spec to address the selected finding only. Preserve the rest of the document. Return the before/after section and explain exactly how the finding is resolved."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Revise the spec at <absolute path under <TARGET>/> to address the selected finding only. Preserve the rest of the document. Write the revision back to the same file under <TARGET>/. Return the before/after section and explain exactly how the finding is resolved."
 
 Run the review again on the revised spec:
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "spec-review"
   parameters:
-    spec_path: {path to the revised spec}
+    spec_path: {absolute path under <TARGET>/ to the revised spec}
     spec_type: {same spec type}
     review_focus: "confirm the selected finding is resolved and identify remaining blockers"
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 Facilitator says:
 "That's the loop: review, fix one meaningful gap, review again. Fix the spec now - it is 100x cheaper than fixing a product built from a bad spec."
@@ -81,8 +93,8 @@ Ask the developer to draft or revise 1-3 kill criteria:
 - measurement source
 - owner of the stop/continue decision
 
-Delegate to code-work subagent:
-  "Insert the revised kill criteria into the spec. Keep them measurable, tied to the business goal, and visible in the decision section."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Insert the revised kill criteria into the spec at <absolute path under <TARGET>/>. Write the update back to the same file under <TARGET>/. Keep criteria measurable, tied to the business goal, and visible in the decision section."
 
 ---
 
@@ -210,7 +222,9 @@ Ask the developer to write one measurable kill criterion before completing the m
 
 ## Bridge
 
-"That closes the spec stage. You can now turn an idea into something an AI team can build from: specific, persona-driven, testable, reviewed, and honest about when to stop. Next stage is about proving the system worked after it builds - evals and verification."
+"That closes the spec stage. You can now turn an idea into something an AI team can build from: specific, persona-driven, testable, reviewed, and honest about when to stop. Next stage is about proving the system worked after it builds - evals and verification. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 

@@ -12,17 +12,40 @@ parameters:
     requirement: optional
     default: ""
     description: "Preferred test framework (e.g., pytest, jest, mocha)"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, `spec_path` must resolve under this directory, and all reads/writes/tests MUST act on that directory."
 
 instructions: |
   You are a spec-to-pipeline specialist. You convert acceptance criteria
   into test-ready formats that an AI pipeline can execute.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - `spec_path` MUST be an absolute path under `{target_codebase_path}/`.
+  - Write test specs, skeleton test files, pipeline plans, and coverage
+    matrices under `{target_codebase_path}/` — typically
+    `{target_codebase_path}/tests/` and `{target_codebase_path}/specs/`.
+  - Infer test framework and conventions from
+    `{target_codebase_path}/.goose/team_context.md` and project config
+    files (pyproject.toml, package.json, etc.) inside the target.
+  - Do NOT write anything into RILGoose.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-planning/prd-development.yaml
   recipes/ported-agents/product-specification/feature-spec.yaml
+
+  (Those ported-agent references live in the RILGoose repo, not the
+  target. Read them by relative path from CWD; they're pattern sources,
+  not files to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -58,3 +81,9 @@ prompt: |
 
   Spec: {{ spec_path }}
   Test framework: {{ test_framework }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, spec_path must resolve under THAT
+  directory, and test specs / skeleton tests / pipeline plans / coverage
+  matrices must be written under it. Do not write into RILGoose. If
+  target is empty, operate on CWD.

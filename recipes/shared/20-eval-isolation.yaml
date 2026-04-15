@@ -71,8 +71,38 @@ prompt: |
      base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-5/eval-isolation.teach.md` — your playbook
-  3. `.goose/team_context.md` — project context
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.5 is already complete
+
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  the target codebase. The test suite being isolated, existing test
+  commands, mocks, fixtures, and smoke-check wiring all belong under the
+  target. Every subagent and sub-recipe call must receive target-scoped
+  paths explicitly. Before each `Delegate to subagent:` call, prepend
+  this target prologue (substitute `<TARGET>` with the resolved
+  target_codebase_path):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read, edit,
+      and scan. Existing tests, test commands, and dependency wiring
+      live under <TARGET>/ — never in RILGoose.
+    - Write mocks, fixtures, and the separated gate/integration test
+      commands under <TARGET>/ (typically <TARGET>/tests/fixtures/ or
+      the project's existing fixture directory).
+    - Run the isolated test command from within <TARGET>/ — use
+      `cd <TARGET>` or `git -C <TARGET> ...`.
+    - Do NOT read, edit, or test files outside <TARGET>/.
+    - When a teaching script says `.goose/team_context.md` or refers to
+      "the test suite" or "the codebase," interpret those as
+      `<TARGET>/.goose/team_context.md` and files under `<TARGET>/`.
+    ```
+
+  `test_scope` paths and `current_test_command` references must resolve
+  under `<TARGET>/`. Pass `target_codebase_path` to the `eval_isolation`
+  sub-recipe.
 
   If concept 5.5 is already complete:
   "You've already shown you can do this well. Want to skip ahead or
@@ -91,8 +121,9 @@ prompt: |
   Follow the teaching script's flow. When it says to delegate:
   subagent(subrecipe: "eval_isolation", parameters: {
     external_dependencies: "{{ external_dependencies }}",
-    test_scope: "{{ test_scope }}",
-    current_test_command: "{{ current_test_command }}"
+    test_scope: "<paths under <TARGET>/, resolved from {{ test_scope }}>",
+    current_test_command: "{{ current_test_command }}",
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Tell the developer: "I'm calling our isolation specialist to

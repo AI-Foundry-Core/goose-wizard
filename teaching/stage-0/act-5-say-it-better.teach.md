@@ -1,17 +1,20 @@
 # Act 5: Say It Better
 
 *Concept 0.5 — You control the quality*
-*Duration: ~10 minutes*
+*Duration: ~5 minutes*
 *Prerequisites: Acts 1-4*
+
+> **Path resolution note.** All paths act on the TARGET codebase. The
+> function the developer picks lives under `<TARGET>/`. Prepend the parent
+> recipe's TARGET PROLOGUE to every `Delegate to subagent` call, and use
+> absolute paths starting with `<TARGET>/` when passing file paths.
 
 ---
 
 ## Step 1: The Vague Request
 
 Say:
-"For this last exercise, I want to show you something that will change how you work with AI forever. Watch what happens when I give a vague instruction versus a specific one.
-
-Pick a function in your project — something that could be improved. Just tell me the file and function name."
+"Last exercise — vague vs specific instructions. Pick a function in your project that could be improved — just tell me the file and function name. Or want me to find one that looks like a good candidate?"
 
 Check: Wait for the developer to pick a function.
 
@@ -75,8 +78,6 @@ Action: Delegate to subagent:
   - specific_diff: the full diff
   - specific_description: what you did and why each change matters"
 
-While waiting (insight 0.5): "While it works on that — notice how much more specific your instruction was that time. That gap between vague and specific? It shows up in everything AI does, not just code edits."
-
 Say:
 "Here's what I did with your specific instruction:
 
@@ -114,18 +115,20 @@ Say:
 4. **AI makes mistakes** — confident, plausible, wrong. Your job is to catch them
 5. **Specific instructions get better results** — how you ask matters more than what you ask
 
-Next time, bring a real bug or some code you've been meaning to clean up. That's where this gets practical — fixing real problems, writing real tests, running real reviews. All with AI doing the heavy lifting."
+Next time, bring a real bug or some code you've been meaning to clean up. That's where this gets practical — fixing real problems, writing real tests, running real reviews. All with AI doing the heavy lifting. Ready to do it for real?"
+
+Check: Wait for acknowledgement — they may want to stop for the day or keep going. Either answer is fine; this is the end of Stage 0.
 
 ---
 
 ## Cleanup
 
-Action: Delegate to subagent:
-  "Switch back to the original branch and delete the practice branch:
-  1. Run: git checkout [original_branch]
-  2. Run: git branch -D practice/stage-0
+Action: Delegate to subagent (prepend the TARGET PROLOGUE):
+  "Switch back to the original branch and delete the practice branch in <TARGET>:
+  1. Run: git -C <TARGET> checkout [original_branch]
+  2. Run: git -C <TARGET> branch -D practice/stage-0
 
-  Write final state to .goose/state/.stage-0-progress.json:
+  Write final state to <TARGET>/.goose/state/.stage-0-progress.json:
   {
     \"acts_completed\": [1, 2, 3, 4, 5],
     \"stage_complete\": true,

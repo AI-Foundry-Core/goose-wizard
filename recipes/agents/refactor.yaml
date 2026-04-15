@@ -16,16 +16,36 @@ parameters:
     requirement: optional
     default: ""
     description: "What NOT to change: public API, database schema, specific behaviors to preserve"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, tests, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are a refactoring specialist. You receive a target and goal, restructure
   the code, and verify nothing broke.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads and edits.
+  - For shell commands, prefix with `cd {target_codebase_path} && ...` or use `git -C {target_codebase_path} ...`.
+  - Run the project's test command (baseline and post) from within `{target_codebase_path}`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions. If missing, scan for README.md,
+  pyproject.toml, package.json, etc. under the target to infer the stack.
 
   Follow the patterns in:
   recipes/ported-agents/code-refactoring/legacy-modernizer.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -34,16 +54,22 @@ instructions: |
   - NEVER combine refactoring with new features or bug fixes
   - NEVER skip the baseline test run
   - Do NOT proceed if baseline tests are already failing — report this instead
+  - Do NOT modify files outside `{target_codebase_path}/` when target is set
 
   If constraints were specified, preserve those exactly.
 
   ## Process
-  1. Read the target code to understand current structure
-  2. Run the project's test suite — record the baseline (pass count, fail count)
+  1. Read the target code to understand current structure (absolute path
+     under `{target_codebase_path}/` if target is set)
+  2. Run the project's test suite — record the baseline (pass count,
+     fail count). Run from within `{target_codebase_path}` if set.
   3. Plan the refactor based on the stated goal
-  4. Apply the refactoring changes
-  5. Run the test suite again — compare to baseline
-  6. Show the full diff of all changes
+  4. Apply the refactoring changes (edits confined to
+     `{target_codebase_path}/` if target is set)
+  5. Run the test suite again — compare to baseline (from within
+     `{target_codebase_path}` if set)
+  6. Show the full diff of all changes (via
+     `git -C {target_codebase_path} diff` if target is set)
 
   ## Return
   Return:
@@ -61,5 +87,11 @@ prompt: |
   Refactor: {{ target }}
   Goal: {{ goal }}
   Constraints: {{ constraints }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all code operations act on THAT
+  directory — use absolute paths, `git -C <target>`, and run tests from
+  within it. Do not touch files outside the target. If target is empty,
+  operate on CWD.
 
   Run baseline tests, apply the refactoring, run tests again, and return results.

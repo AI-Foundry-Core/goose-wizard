@@ -1,5 +1,14 @@
 # Recipe 2.3: Spec First — "Define Success Before Building"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `spec-first` sub-recipe. Spec
+> files written by the agent live under `<TARGET>/` (e.g.,
+> `<TARGET>/specs/`), not in the RILGoose repo.
+
 Covers concept 2.3 (spec-first). Teaches defining success before building.
 Mode: Adaptive + Checkpoints. Stage 2 completion checkpoint.
 
@@ -21,27 +30,26 @@ Mode: Adaptive + Checkpoints. Stage 2 completion checkpoint.
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check concept 2.3.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify concepts 2.1, 2.2, and 2.3 are complete. If not, flag it — 2.4 assumes the developer has the build-then-test and review gate patterns.
 
 ## Framing
 
-"You've set up agents that build, test, and gate independently. But everything so far has been reactive — the builder decides what to build, then the tester checks it. What happens when the builder solves the wrong problem? The tester confirms the wrong solution works perfectly."
+"So far everything's been reactive — the builder picks what to build, the tester checks it. If the builder solves the wrong problem, the tester confirms the wrong solution works perfectly. We fix that by defining success first: acceptance criteria, then tests, then build to pass them."
 
-"There's a way to prevent that: define what success looks like before anyone starts building. Acceptance criteria first. Tests from those criteria. Then build to pass the tests. The builder can't solve the wrong problem because the tests define the right one."
-
-"What's a small feature or change you need? Something with clear expected behavior — a new endpoint, a utility function, a data transformation, a form validation."
+"What's a small feature or change you need — something with clear expected behavior? Or want me to find one in your codebase that's spec-shaped?"
 
 If developer has no current task:
   "Let me find something."
-  Delegate to code-work subagent:
-    "Read .goose/team_context.md. Find a missing feature, a requested
-    enhancement from TODOs, or a gap in the codebase that would benefit
-    from a spec-first approach. Pick something with at least 3 distinct
-    behaviors that could be acceptance criteria. Describe it as a feature
-    the developer would recognize as useful."
+  Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+    "Read `<TARGET>/.goose/team_context.md`. Scan source code under
+    `<TARGET>/` for a missing feature, a requested enhancement from
+    TODOs, or a gap in the codebase that would benefit from a spec-first
+    approach. Pick something with at least 3 distinct behaviors that could
+    be acceptance criteria. Describe it as a feature the developer would
+    recognize as useful."
 
 ## The Task
 
@@ -77,11 +85,13 @@ If the developer accepts AI-suggested criteria without review:
   or any missing that you know matter?"
 
 Step 2 — Run spec-first recipe:
-Once the developer has concrete criteria, delegate to code-work subagent:
+Once the developer has concrete criteria, delegate to code-work subagent
+(prepend the TARGET PROLOGUE):
   sub-recipe: "spec-first"
   parameters:
     feature_description: {developer's feature}
     context: {any relevant context}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
   Pass the developer's acceptance criteria as part of the feature description context.
 
@@ -104,11 +114,13 @@ After the developer identifies the unmet criterion:
 The developer must practice explicitly rejecting incomplete work. If they say yes or hedge, redirect: "One of your own criteria isn't met. The spec is the contract — if the contract isn't satisfied, the build isn't done."
 
 **Reject-and-repair loop:**
-Once the developer rejects the build, delegate a targeted repair:
+Once the developer rejects the build, delegate a targeted repair (prepend
+the TARGET PROLOGUE):
   sub-recipe: "spec-first-repair"
   parameters:
     failing_criterion: {the criterion the developer identified}
     instruction: "Fix only the failing criterion. Do not broaden scope. Rerun the full acceptance suite."
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 Present the rerun result. If all tests pass, proceed to coaching. If the same test fails twice, treat it as an implementation stuck path and escalate.
 
@@ -168,7 +180,9 @@ Keep it to two questions maximum. Do not design the CI workflow — just connect
 
 ## Bridge to Stage 3
 
-"Right now you have two agents — a builder and a tester. That's the minimum for reliable work. But what happens when the task is bigger? When you need a builder, a tester, a reviewer, and maybe a specialist for the database layer? Stage 3 is about building a team of AI specialists — multiple agents with defined roles, file ownership, and coordination. The patterns you learned here — separation, independence, execution verification — are the foundation."
+"Right now you have two agents — a builder and a tester. That's the minimum for reliable work. But what happens when the task is bigger? When you need a builder, a tester, a reviewer, and maybe a specialist for the database layer? Stage 3 is about building a team of AI specialists — multiple agents with defined roles, file ownership, and coordination. The patterns you learned here — separation, independence, execution verification — are the foundation. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## Wait-Time Insights
 

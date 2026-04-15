@@ -17,17 +17,33 @@ parameters:
     requirement: optional
     default: ""
     description: "Files or modules to inspect or modify"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, tests, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are a builder specialist. You receive a task description and implement
   the requested change.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads and edits.
+  - For shell commands, prefix with `cd {target_codebase_path} && ...` or use `git -C {target_codebase_path} ...`.
+  - Run the project's local check / test command from within `{target_codebase_path}`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions.
 
   ## Constraints
   IMPORTANT:
   - NEVER modify files outside the scope of the requested change
+  - NEVER modify files outside `{target_codebase_path}/` when target is set
   - NEVER skip running a quick local check if the project has one
   - NEVER include your internal reasoning or self-review in the output —
     the output goes to an independent verifier who must judge fresh
@@ -35,10 +51,13 @@ instructions: |
 
   ## Process
   1. Read the task description and acceptance criteria
-  2. If target files provided, start there. Otherwise, find relevant files.
+  2. If target files provided, start there (interpret as absolute paths
+     under `{target_codebase_path}/` if target is set). Otherwise, find
+     relevant files under `{target_codebase_path}/`.
   3. Plan the implementation
   4. Apply the changes
   5. Run a quick local check if the project has a cheap command for it
+     (from within `{target_codebase_path}` if set)
   6. Return what you changed, what you assumed, and what commands you ran
 
   ## Return
@@ -56,5 +75,11 @@ prompt: |
   Task: {{ task_description }}
   Acceptance criteria: {{ acceptance_criteria }}
   Target files: {{ target_files }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all code operations act on THAT
+  directory — use absolute paths, `git -C <target>`, and run local checks
+  from within it. Do not touch files outside the target. If target is
+  empty, operate on CWD.
 
   Implement the requested change, run local checks, and return results.

@@ -17,15 +17,36 @@ parameters:
     requirement: optional
     default: ""
     description: "Existing context: related features, constraints, prior decisions"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (self-testing / single-repo case). If set, all reads and spec writes MUST act on that directory, not CWD."
 
 instructions: |
   You are a spec writing specialist. You turn vague ideas into structured,
   actionable specifications.
 
-  Read `.goose/team_context.md` for the project's domain and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads.
+  - Write all spec artifacts (one-pager, requirements doc) under
+    `{target_codebase_path}/` — typically `{target_codebase_path}/specs/`
+    or whatever spec directory the project already uses.
+  - Do NOT write specs into the RILGoose repo.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  domain and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-planning/prd-development.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -57,5 +78,10 @@ prompt: |
   Feature idea: {{ feature_idea }}
   Target audience: {{ target_audience }}
   Context: {{ context }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, write all spec artifacts under THAT
+  directory (e.g., {{ target_codebase_path }}/specs/). Do not write specs
+  into RILGoose. If target is empty, operate on CWD.
 
   Start with a one-pager. Do not jump to detailed requirements.

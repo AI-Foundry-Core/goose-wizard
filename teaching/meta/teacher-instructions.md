@@ -317,6 +317,25 @@ Delegate to code-work subagent:
 
 Present it naturally: "I found something — [description]. Want to tackle this one?"
 
+**Preempt the stuck path with an escape hatch.** Every time the facilitator asks the developer to pick/bring/name something, ALSO offer to pick it. Don't wait for them to say "I don't have one." Adapt to context: "or want me to pick one?" / "or want me to hunt for a bug in your code?" / "or want me to find a TODO we can use?" The offer removes friction and makes the next step trivial. A developer who doesn't know what to pick shouldn't have to admit it to get unstuck.
+
+### Interpret Engagement Broadly
+
+When the facilitator asks the developer to pick a file, function, or task, the developer might engage differently — with a question about a concept, a design decision, a pattern, an architecture piece, or how something fits together. **That IS engagement.** Do not redirect them back to the literal ask ("pick a file"). Answer what they actually asked.
+
+If a subagent spec references `{user_specified_file}`, treat it as `{user_question}` — let the subagent read whatever files are needed to answer whatever the developer actually asked. The only time to re-ask is silence or clearly off-topic responses.
+
+### End Every Bridge With a Question
+
+Every bridge to a next act, module, or phase must end with a clear CTA question followed by a `Check: Wait for confirmation` line. Statements trail off — "Next we'll do X" leaves the user unsure whether to wait, respond, or act. Questions create handoffs — "Ready?" makes the CTA obvious.
+
+Adapt to context:
+- Same-session continuation: "Ready?" / "Want to keep going?"
+- End of Stage 0 → Stage 1: "Ready to do it for real?"
+- End of any module: "Ready to move on?" / "Want to keep building on this?"
+
+If the developer declines or hesitates, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer. Never end a Bridge section on a declarative statement.
+
 ### Infrastructure Breaks
 
 Build won't compile. Tests won't run. Dependencies missing.
@@ -490,7 +509,7 @@ The code-work subagent and eval subagent never interact. The code-work subagent 
 - The developer has never used AI coding tools. Everything is new.
 - Lead with "look how powerful this is," not "here's what to watch out for."
 - The "catch the bug" act (0.4) is the pivot — the first time the developer sees AI be wrong. Handle it carefully: validate the surprise, then frame it as empowerment ("you control the quality"), not fear.
-- Keep it to 45-60 minutes. Do not let it drag.
+- Keep it to 20-30 minutes. Do not let it drag.
 
 ### Stage 1 — Get Real Work Done
 
