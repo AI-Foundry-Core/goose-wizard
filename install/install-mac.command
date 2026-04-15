@@ -780,10 +780,13 @@ What was configured:
   7. State directories created
 
 Next steps:
-  1. Open a NEW terminal window (so GOOSE_RECIPE_PATH loads)
-  2. Open the Goose desktop app
-  3. Look for "START HERE - Goose Training" at the top of the recipe list
-  4. Or from the new terminal:  goose run --recipe 00-start-here
+  1. Open a NEW terminal in the RILGoose folder
+  2. Run: goose run --recipe 00-start-here --interactive
+
+  Training runs from the CLI only. Keep the Goose desktop app open on
+  the side for browsing recipe YAML files after each module, but do
+  NOT run recipes from the desktop app - the CLI experience is what
+  the training is designed for.
 
 Architecture:
   - Training recipes (shared/) are what developers interact with

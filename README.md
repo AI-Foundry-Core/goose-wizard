@@ -28,14 +28,15 @@ See `install/README.md` for details, troubleshooting, and manual-setup instructi
 
 ## Start training
 
-1. Open the Goose desktop app.
-2. Find `★ START HERE — Goose Training` at the top of the recipe list.
-3. Or from a terminal in the RILGoose directory:
-   ```
-   goose run --recipe 00-start-here --interactive
-   ```
+Training runs from the **command line**, not the desktop app. Open a terminal in the RILGoose directory and run:
+
+```
+goose run --recipe 00-start-here --interactive
+```
 
 The gateway tutorial walks you through Goose, the training arc, and captures which codebase you want to train on.
+
+> Keep the Goose desktop app open on the side during training — it's a good way to **browse the recipe YAML files** after each module's Recipe Reveal. Just don't run recipes from the app; the CLI experience is what the training is designed around.
 
 ## For teachers / recipe authors
 

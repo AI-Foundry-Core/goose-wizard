@@ -54,11 +54,11 @@ if %EXITCODE% NEQ 0 (
     echo ========================================================
     echo   Installation complete.
     echo ========================================================
-    echo If the desktop app installed successfully, open it from
-    echo the Start Menu and look for "START HERE" at the top.
+    echo Open a NEW terminal in the RILGoose folder and run:
+    echo    goose run --recipe 00-start-here --interactive
     echo.
-    echo Or from a NEW terminal window:
-    echo    goose run --recipe 00-start-here
+    echo Training runs from the CLI. The desktop app is just for
+    echo browsing recipe YAML files - do not run recipes from it.
 )
 echo.
 pause
