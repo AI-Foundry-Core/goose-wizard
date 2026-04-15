@@ -7,7 +7,8 @@ description: "Guided walkthrough: design and implement a layered evaluation stra
 parameters:
   - key: pipeline_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The pipeline, autonomous workflow, or agent chain that needs evaluation"
   - key: current_evals
     input_type: string

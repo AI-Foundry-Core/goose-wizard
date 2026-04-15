@@ -6,8 +6,9 @@ description: "Guided walkthrough: convert acceptance criteria into test specific
 
 parameters:
   - key: spec_path
-    input_type: file
-    requirement: required
+    input_type: string
+    requirement: optional
+    default: ""
     description: "Path to the decomposed spec with acceptance criteria"
   - key: test_framework
     input_type: string

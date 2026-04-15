@@ -7,7 +7,8 @@ description: "Guided walkthrough: audit agent instruction files for rule duplica
 parameters:
   - key: instruction_files
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Comma-separated paths to all agent instruction/skill files to audit across the pipeline"
   - key: audit_focus
     input_type: string

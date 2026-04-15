@@ -7,11 +7,13 @@ description: "Guided walkthrough: independent review gate that verifies by execu
 parameters:
   - key: change_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "What changed and why"
   - key: changed_files
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Changed file paths, PR files, or commit range"
   - key: gate_criteria
     input_type: string

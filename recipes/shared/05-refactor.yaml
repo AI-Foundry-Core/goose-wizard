@@ -7,11 +7,13 @@ description: "Guided walkthrough: AI-assisted refactoring. Teaches goal definiti
 parameters:
   - key: target
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "What to refactor: file path, function name, or module"
   - key: goal
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "What 'better' means: more readable, more testable, split responsibilities, remove duplication, etc."
   - key: constraints
     input_type: string

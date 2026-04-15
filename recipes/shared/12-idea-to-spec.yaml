@@ -7,7 +7,8 @@ description: "Guided walkthrough: turn a feature idea into a structured spec. Te
 parameters:
   - key: feature_idea
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The feature idea — anything from a single sentence to a rough paragraph"
   - key: target_audience
     input_type: string

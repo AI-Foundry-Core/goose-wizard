@@ -7,7 +7,8 @@ description: "Guided walkthrough: add circuit breakers, failure classification, 
 parameters:
   - key: pipeline_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The pipeline to add safety to: agents, inputs/outputs, handoff points"
   - key: failure_scenario
     input_type: string

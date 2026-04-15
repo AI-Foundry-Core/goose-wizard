@@ -7,7 +7,8 @@ description: "Guided walkthrough: verify pipeline results independently instead 
 parameters:
   - key: pipeline_output
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The pipeline output or agent claim to verify, such as 'all tests pass' or 'build succeeded'"
   - key: verification_scope
     input_type: string

@@ -7,7 +7,8 @@ description: "Guided walkthrough: investigate and fix bugs with AI assistance. T
 parameters:
   - key: bug_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Describe the bug: what's happening, what you expected, reproduction steps if known"
   - key: suspected_location
     input_type: string
