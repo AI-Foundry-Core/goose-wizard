@@ -64,11 +64,20 @@ instructions: |
   - If `project.kind == "live"`, REFUSE to execute unless `live_confirmed`
     is true. Return `status: live_confirmation_required`. This is a hard
     gate; do NOT do any work (including marking [~]) without the flag.
+  - If `project.kind == "unknown"` OR the project has
+    `needs_kind_confirmation: true`, REFUSE unconditionally. Return
+    `status: kind_unconfirmed`. The user must run `setup-config` to pick
+    sandbox-vs-live before any conductor work can proceed. This path
+    catches stubbed-but-unresolved projects (e.g., from a Stage 0
+    legacy migration) where the user reached this primitive directly
+    via the CLI, bypassing conductor-setup's kind gate.
 
   ## Failure Modes
   - project.json or track files missing/corrupt → structured error; stop.
   - `project.kind == "live"` without `live_confirmed: true` →
     `status: live_confirmation_required`.
+  - `project.kind == "unknown"` or `needs_kind_confirmation: true` →
+    `status: kind_unconfirmed`. User must resolve via setup-config.
   - Config resolution via ensure_config returned non-ok →
     `status: config_unresolved` with the underlying ensure_config status
     in `config_status`.
@@ -88,7 +97,10 @@ instructions: |
   1. Call `ensure_config` with the supplied `project_id` and
      `require_project: true`. If the returned status is not `ok`, return
      `status: config_unresolved` with `config_status: <returned_status>`.
-     If resolved project.kind == "live" and `live_confirmed` is false,
+     If resolved `project.kind == "unknown"` or the project carries
+     `needs_kind_confirmation: true`, return
+     `status: kind_unconfirmed` immediately — no further work.
+     If resolved `project.kind == "live"` and `live_confirmed` is false,
      return `status: live_confirmation_required` without any further work.
   2. Load `<project.path>/.goose/conductor/tracks/<track_id>/plan.md`.
      Select the next pending `[ ]` task (or the supplied `task_id`).
@@ -118,10 +130,11 @@ instructions: |
       the plan update as `docs: update plan — task <task_id> complete`.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
-    "dirty_working_tree" | "task_not_pending" | "not_tdd_task" |
-    "env_broken" | "red_not_red" | "green_unreachable" |
-    "refactor_broke_green" | "coverage_gap" | "write_failed"
+  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+    "live_confirmation_required" | "dirty_working_tree" |
+    "task_not_pending" | "not_tdd_task" | "env_broken" | "red_not_red" |
+    "green_unreachable" | "refactor_broke_green" | "coverage_gap" |
+    "write_failed"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - task_id: The task executed (or attempted)

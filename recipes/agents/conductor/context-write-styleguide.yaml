@@ -61,6 +61,8 @@ instructions: |
     then rename tmp → canonical. Never overwrite an existing .bak.
   - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
+  - If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+    REFUSE unconditionally. Return `status: kind_unconfirmed`.
 
   ## Failure Modes
   - Config resolution via ensure_config returned non-ok →
@@ -68,6 +70,8 @@ instructions: |
     underlying ensure_config status.
   - `project.kind == "live"` without `live_confirmed: true` →
     `status: live_confirmation_required`.
+  - `project.kind == "unknown"` or `needs_kind_confirmation: true` →
+    `status: kind_unconfirmed`.
   - Unknown language → `status: unsupported_language` with a list of
     languages this recipe understands.
   - No code samples or configs found for the language and
@@ -78,6 +82,8 @@ instructions: |
   ## Process
   1. Call `ensure_config`. If status != `ok`, return
      `status: config_unresolved` with `config_status` set. If resolved
+     project.kind == "unknown" OR `needs_kind_confirmation: true`,
+     return `status: kind_unconfirmed` immediately. If resolved
      project.kind == "live" and `live_confirmed` is false, return
      `status: live_confirmation_required` immediately.
   2. Target path: `<project.path>/.goose/conductor/code_styleguides/<language>.md`.
@@ -89,9 +95,9 @@ instructions: |
   5. Atomic write with backup.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
-    "unsupported_language" | "no_signals" | "already_exists" |
-    "existing_corrupt"
+  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+    "live_confirmation_required" | "unsupported_language" |
+    "no_signals" | "already_exists" | "existing_corrupt"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - path: absolute path of the style guide file

@@ -80,11 +80,21 @@ prompt: |
      goose run --recipe recipes/shared/conductor-setup.yaml --interactive"
     Stop.
 
-  ## Step 0a — Live-project confirmation gate
+  ## Step 0a — Kind gate
 
-  If `project.kind == "live"`, obtain typed confirmation BEFORE the task
-  loop. `task_execute` will refuse any live-project task without
-  `live_confirmed: true`.
+  BEFORE the task loop, check the resolved project's kind:
+
+  - If `project.kind == "unknown"` OR the project carries
+    `needs_kind_confirmation: true`, tell the user:
+      "This project needs its sandbox/live designation confirmed
+       before conductor work can run. Run:
+         goose run --recipe recipes/shared/setup-config.yaml --interactive
+       and pick kind for this project. Then rerun conductor-implement."
+    Stop.
+
+  - If `project.kind == "live"`, obtain typed confirmation BEFORE the
+    task loop. `task_execute` will refuse any live-project task without
+    `live_confirmed: true`.
 
   Tell the user:
     "This project is marked `kind: live`. Implementing track
