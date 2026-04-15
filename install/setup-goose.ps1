@@ -1058,14 +1058,14 @@ $env:GOOSE_RECIPE_PATH = $newRecipePath
 # Count now includes nested primitives under recipes/agents/<subdir>/ too
 # (progression/, config/, conductor/). Keep the floor conservative - it's a
 # smoke check, not a gate.
-if ($agentsCount -lt 28) {
-    Write-Host "  WARNING: Expected 29+ agent primitives (including nested subdirs), found $agentsCount" -ForegroundColor Yellow
+if ($agentsCount -lt 35) {
+    Write-Host "  WARNING: Expected 40+ agent primitives (including nested subdirs), found $agentsCount" -ForegroundColor Yellow
 }
 if ($graduatedCount -lt 5) {
     Write-Host "  WARNING: Expected 5 graduated coordinators, found $graduatedCount" -ForegroundColor Yellow
 }
-if ($sharedCount -lt 26) {
-    Write-Host "  WARNING: Expected 27 training recipes, found $sharedCount" -ForegroundColor Yellow
+if ($sharedCount -lt 32) {
+    Write-Host "  WARNING: Expected 34 training/gateway recipes in shared/, found $sharedCount" -ForegroundColor Yellow
 }
 
 # Verify gateway recipe exists (reuse $gatewayPath from touch section above)

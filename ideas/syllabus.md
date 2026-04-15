@@ -348,6 +348,17 @@ recipes/
 *Mode: Fully Adaptive. Developer evolves their pipeline. Facilitator is pure consulting.*
 *Goal: The pipeline itself evolves — agent instructions improve, bad rules get pruned, measurements drive decisions.*
 
+> **Concept numbering vs. module order.** The 7.1-7.5 concepts below are
+> a conceptual map, not the execution order. The three Stage 7 modules
+> (in teach/progression/shared-numbering order) are:
+> 1. **metrics-dashboard** (module 24) — covers concept 7.4 here
+> 2. **pipeline-self-edit** (module 25) — covers concepts 7.3 + 7.5
+> 3. **skill-evolution** (module 26) — covers concepts 7.1 + 7.2
+>
+> Syllabus concept numbering (below) is arranged by topical priority; the
+> training sequence is arranged for pedagogical flow (measure → prune →
+> evolve).
+
 | # | Concept | Recipe | Core Requirement | Observable Signals | Teaching Trigger | Source |
 | --- | --- | --- | --- | --- | --- | --- |
 | 7.1 | **The Curator closes the loop** | skill-evolution | Developer creates an agent that turns review findings into verified improvements to the system | A curator-type agent exists that reads findings and produces changes, not just reports | "You have agents that build and agents that review. The Curator turns review findings into actual system improvements — and verifies they worked." | [pipeline] ACE pattern: Generator → Reflector → Curator |

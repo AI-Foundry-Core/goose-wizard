@@ -2,8 +2,10 @@
 
 ## Current Work
 **Three-recipe-type architecture is complete.** All 26 modules converted:
-- 29 agent primitives in `recipes/agents/`
-- 27 training recipes in `recipes/shared/` (with graduation automation)
+- 40 agent primitives in `recipes/agents/` (top-level modules + nested
+  `config/`, `progression/`, `conductor/` subdirs)
+- 34 recipes in `recipes/shared/`: gateway + 26 numbered training
+  modules + 7 support recipes (conductor, setup, etc.)
 - 5 graduated coordinators in `recipes/graduated/`
 - GooseForge: Recipe Forge + Pipeline Forge
 - Gateway (Start Here) with check-progress sub-recipe
