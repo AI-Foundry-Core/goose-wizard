@@ -129,6 +129,41 @@ Read eval results. For each dimension:
 If ALL dimensions are Strong:
 "Your eval gate is independent, blocking, documented, and proven. You have mechanical proof that the pipeline works — not agent claims, not rubber stamps, but independent verification at every layer. This is the foundation for autonomous operation."
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session — this is the final
+recipe of Stage 5 and the one that ties everything together.
+
+"Last recipe of Stage 5. This one is the capstone — it's how the five pieces you've
+built become something the pipeline literally can't bypass."
+
+Read the Eval Gate agent recipe (recipes/agents/eval-gate.yaml) and show the developer:
+- The **'fail-closed' design** — "Step 3 of the process: 'Make the gate fail-closed: any
+  eval failure blocks execution.' The default when something goes wrong has to be STOP,
+  not CONTINUE. A gate that fails open is worse than no gate — it teaches the team to
+  trust a signal that isn't doing anything."
+- The **'NEVER let the pipeline grade its own output' constraint** — "You'll recognize this
+  from Stage 2 — the builder can't be the reviewer. Now it's applied to the whole pipeline.
+  The gate is a separate script that reads pipeline artifacts and runs its own checks. The
+  pipeline never finds out whether it passed."
+- The **`bypass_risk` return field** — "Most recipes return only what was built. This one
+  asks: 'Any remaining ways the gate could be skipped?' That's the paranoid question —
+  because a gate with a bypass is a theater prop. Forcing the agent to enumerate bypasses
+  is how you catch the obvious ones (env variable flags, skip-ci comments, direct script
+  invocation) before they become 2am footguns."
+- The **`evidence_location` return field** — "The gate doesn't just decide — it writes a
+  record of what it checked, what passed, what failed, against which artifacts, and when.
+  That record is the audit trail you read Monday morning. 'The pipeline ran' is a claim.
+  The evidence log is proof."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/eval-gate.yaml>`
+"This recipe is the one you'll actually run before switching on autonomy in Stage 6 — read
+the constraints carefully. Each one is a failure mode someone found the hard way."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge (Stage 5 → Stage 6)
 "You've built the system that proves a pipeline works. Independent verification, layered checks, ratchets, specific criteria, isolated dependencies, and a blocking gate. That's the safety net. Now it's time to use it — let the pipeline run while you sleep, review what it did in the morning, and tune the feedback loops. That's Stage 6: autonomous operation with human oversight at the cycle boundary, not the execution boundary. Ready to move on?"
 

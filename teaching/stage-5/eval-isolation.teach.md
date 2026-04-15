@@ -128,6 +128,39 @@ Read eval results. For each dimension:
 If ALL dimensions are Strong:
 "Your eval suite is fully isolated — every dependency identified, gate and live tests separated, realistic fixtures, and a refresh strategy to keep them current. Your evals now test your code, not your network."
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"You just split tests into two jobs — the fast gate and the live check. The recipe
+encodes that split. Worth seeing how it's named in the return block."
+
+Read the Eval Isolation agent recipe (recipes/agents/eval-isolation.yaml) and show the developer:
+- The **two separate test commands in the return** — "Look at the return: `isolated_test_command`
+  AND `integration_test_command`. Two commands, different jobs. The gate runs one. A scheduled
+  job runs the other. Most test setups conflate these into a single 'npm test' and then can't
+  figure out why the gate is flaky."
+- The **'NEVER mock away behavior that matters without a live smoke check elsewhere' constraint** —
+  "This is the non-negotiable. Mocking is how gates stay fast, but a mock without a paired live
+  check means the gate can be green while the real integration is silently broken. The recipe
+  forces you to keep the live check alive, just moved out of the blocking path."
+- The **`smoke_check` return field** — "Separate from the test commands. This is the periodic
+  validation that says 'the real API still behaves the way our fixtures say it does.' When
+  that fails, your fixtures are stale — the gate will stay green until you update them, and
+  you'll only know because the smoke check caught the drift."
+- The **`flaky_tests_removed` return field with reasons** — "The recipe doesn't silently delete
+  flaky tests — it logs which ones got moved out of the gate and why. That's auditable. Next
+  quarter when someone asks 'why isn't the Stripe test in the gate?' the answer is in the
+  return field from the day the gate was built."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/eval-isolation.yaml>`
+"The gate/schedule split is the core pattern here — most of the constraints exist to keep
+those two jobs from collapsing back into one."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "You've got independent verification, layered checks, ratchets to prevent regression, specific criteria, and isolated dependencies. There's one piece left: putting it all together into a gate that must pass before anything runs autonomously. That's the final checkpoint before you let the pipeline run on its own. Ready to move on?"
 

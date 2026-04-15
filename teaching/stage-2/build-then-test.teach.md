@@ -129,6 +129,28 @@ Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
 
 ---
 
+## Recipe Reveal
+
+After the wait-time insights and any checkpoint coaching, show the developer the recipe behind this session.
+
+"Fifth recipe — and this one is the first multi-agent recipe you've seen. It's not one worker doing a job. It's a coordinator that runs two workers that don't know about each other."
+
+Read the Build-Then-Test coordinator recipe (recipes/graduated/build-then-test.yaml) and show the developer:
+- The **`sub_recipes` block** — "This is new. Every Stage 1 recipe was one agent doing one job. This recipe has a `sub_recipes:` section that lists two child recipes — `builder` and `tester`. The coordinator itself writes no code and runs no tests. Its entire job is to call the two sub-recipes in order and pass results between them."
+- The **coordinator constraint 'NEVER do implementation or testing yourself'** — "Look at the instructions block: 'NEVER do implementation or testing yourself — delegate to sub-recipes.' That's the rule that keeps role separation real. The coordinator is not allowed to grade the builder's work — that's why the tester exists."
+- The **information boundary in the prompt** — "Find the line 'Do NOT pass the builder's reasoning, assumptions, or self-review.' Remember when we talked about why the tester shouldn't see the builder's notes? That's literally encoded in the coordinator prompt. The tester gets `task_description`, `acceptance_criteria`, and `changed_files` — nothing else. The information wall is not a convention. It's a parameter list."
+- The **two agent primitives side-by-side** — "Open builder.yaml and independent-tester.yaml next to each other. Builder's constraints say 'NEVER include your internal reasoning in the output.' Tester's constraints say 'NEVER trust the builder's summary — you have not seen it.' The separation you experienced is the product of two recipes each refusing to do the other's job."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open them in the desktop app:
+Run: `goose recipe open <path to recipes/graduated/build-then-test.yaml>`
+Run: `goose recipe open <path to recipes/agents/builder.yaml>`
+Run: `goose recipe open <path to recipes/agents/independent-tester.yaml>`
+"Three files for one workflow — that's what coordinated specialists look like on disk."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 
 "You've got two agents that don't trust each other's work. Next up: turning that tester into a gate that actually blocks bad code — and making sure it checks by running things, not just looking at them. Ready to keep going?"

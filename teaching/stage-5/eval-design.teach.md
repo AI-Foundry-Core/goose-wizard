@@ -126,6 +126,38 @@ Read eval results. For each dimension:
 If ALL dimensions are Strong:
 "Your eval criteria are specific, scoped, produce detailed findings, and you've proven they work against real artifacts. This is the difference between an eval system that catches problems and one that rubber-stamps everything."
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"You just rewrote vague criteria into specific checks. The recipe encodes that
+rewrite discipline — let me show you the key parts."
+
+Read the Eval Design agent recipe (recipes/agents/eval-design.yaml) and show the developer:
+- The **'every check must be able to fail' rule** — "Look at step 3 of the process and the
+  constraint 'NEVER create rubber-stamp criteria that always pass.' That's the single test
+  for whether a check is real. If you can't imagine the bad input that trips it, you've got
+  a wish, not a check. The recipe enforces that at design time."
+- The **dry-run against real artifacts step** — "Step 4: 'dry-run each check against them.'
+  Step 5: 'Remove or sharpen any check that passes on known-bad examples.' That's not
+  optional — it's how the recipe proves the criteria work. Eval criteria that haven't been
+  run against real code are hypotheses, not tests."
+- The **`dropped_checks` return field** — "Most recipes only return what they built. This
+  one explicitly returns what it DIDN'T build and why. That's a quality signal — a check
+  that got dropped because it rubber-stamped on bad input is more valuable data than a list
+  of checks that passed."
+- The **'fewer sharp checks beat many blunt ones' constraint** — "Written as a NEVER in the
+  constraints block. Most teams' eval surface area is 80% rubber stamp. This recipe optimizes
+  for signal, not coverage — the opposite of the usual instinct."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/eval-design.yaml>`
+"Compare to `eval-foundation.yaml` — they both enforce 'don't trust, verify,' but this one
+applies it at design time, not runtime."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "Specific criteria solve the accuracy problem. But what about reliability? If your eval depends on a live API that's down, the whole gate fails — not because your code is bad, but because Stripe's servers are slow today. That's the isolation problem. Mock your external dependencies and your evals run every time. Ready to move on?"
 

@@ -178,6 +178,26 @@ If the developer engages, follow up with one more:
 
 Keep it to two questions maximum. Do not design the CI workflow — just connect the exercise to enterprise reality.
 
+## Recipe Reveal
+
+After enterprise grounding, show the developer the recipe behind this session.
+
+"Seventh recipe, and the last of Stage 2. This is the one that flips the workflow — tests before code, not after."
+
+Read the Spec-First agent recipe (recipes/agents/spec-first.yaml) and show the developer:
+- The **order of the Process block** — "Look at the four-step process: Spec → Tests from spec → Build to spec → Verify. Compare that to Build-Then-Test where the order was build first, test second. This recipe literally inverts the ordering. The sequence in the YAML is the sequence you experienced — spec before tests, tests before code."
+- The **'tests should fail before build' constraint** — "Read this line: 'Do NOT skip running tests before implementation — new tests should fail when they cover behavior that doesn't exist yet.' That's the fail-then-pass cycle you just did, written as a hard rule. The recipe won't let the agent write tests that already pass — because a test that passes before the code exists is a tautology."
+- The **`NEVER weaken or remove tests to make them pass` constraint** — "This is the anti-cheat rule. Without it, an agent that can't make the test pass can just soften the test. The recipe forbids it. Tests and spec are the contract — the agent can change the code until tests pass, but can't change the tests to lower the bar."
+- The **`approved_criteria` and `spec_coverage` return fields** — "Notice the return block doesn't just give you a diff. It returns `approved_criteria` (the spec used), `initial_test_run` (proof the tests failed first), `final_test_run` (proof they pass now), and `spec_coverage` (which criteria are covered, partial, or missed). The recipe hands you the evidence to verify the spec-as-contract yourself."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/spec-first.yaml>`
+"Compare the Process block to build-then-test — same agents, reversed order, entirely different discipline."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge to Stage 3
 
 "Right now you have two agents — a builder and a tester. That's the minimum for reliable work. But what happens when the task is bigger? When you need a builder, a tester, a reviewer, and maybe a specialist for the database layer? Stage 3 is about building a team of AI specialists — multiple agents with defined roles, file ownership, and coordination. The patterns you learned here — separation, independence, execution verification — are the foundation. Ready to move on?"

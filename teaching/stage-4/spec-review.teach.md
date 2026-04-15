@@ -220,6 +220,47 @@ Ask the developer to write one measurable kill criterion before completing the m
 
 ---
 
+## Recipe Reveal
+After the checkpoint, show the developer the recipe behind this session.
+
+"Fourteenth recipe. Third in the Stage 4 chain — and this one is read-only. It never
+edits your spec. It reviews it, finding-by-finding, and hands you the list. You decide
+what to fix."
+
+Read the Spec Review recipe (recipes/agents/spec-review.yaml) and show the developer:
+- The **read-only declaration repeated in instructions AND working-directory block** —
+  "'This primitive is READ-ONLY — do not edit files.' And then in the working directory
+  block: 'Do NOT write files. Return findings as structured data.' Same pattern you saw
+  in code-review.yaml. A reviewer that could edit would have an incentive to declare
+  itself correct. Separating review from revision is what makes the quality gate real."
+- The **two different 10-dimension rubrics by `spec_type`** — "Process step 2: 'Select
+  the appropriate 10-dimension rubric for the spec type.' One-pagers get problem clarity,
+  kill criteria, market evidence, feasibility. Requirements docs get testability,
+  persona coverage, traceability, gap analysis. The recipe knows the 10 things to
+  check — you don't have to remember them. The review skepticism dimension you were
+  rated on? This is what it's skeptical of — 10 named dimensions with evidence."
+- The **'NEVER rate without evidence — quote the specific text or absence'** —
+  "That constraint is why the review iteration loop worked. Every finding cites what
+  in the spec triggered it. When you went back to revise, you weren't debating the
+  reviewer's opinion; you were responding to a specific quoted passage. Evidence is
+  what lets you triage confidently."
+- The **`next_action` return field** — "The return has `next_action: The single most
+  important thing to fix first.` That's the finding-triage dimension you were rated on —
+  baked into the output. The agent commits to ONE thing you should fix before anything
+  else. No 47-item priority list."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/agents/spec-review.yaml`
+"Notice how this one is an evaluator archetype — strict read-only, returns findings.
+Compare it to spec-decomposition.yaml which rewrites the spec. Different archetypes,
+different constraints."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge
 
 "That closes the spec stage. You can now turn an idea into something an AI team can build from: specific, persona-driven, testable, reviewed, and honest about when to stop. Next stage is about proving the system worked after it builds - evals and verification. Ready to move on?"

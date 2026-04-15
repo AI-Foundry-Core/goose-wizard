@@ -162,6 +162,39 @@ Optional follow-up (pick the most relevant):
 - "Where does the ratchet config live in your repo — root, a config directory, or somewhere the team has a convention for?"
 - "You're working on three projects. If ratchets work here, would you set them up the same way in the other two — or does each project need different metrics?"
 
+## Recipe Reveal
+After enterprise grounding, show the developer the recipe behind this session.
+
+"The ratchet you just built is almost deceptively simple — but the recipe encodes a few
+decisions that make it work in practice instead of becoming dead weight."
+
+Read the Eval Ratchet agent recipe (recipes/agents/eval-ratchet.yaml) and show the developer:
+- The **measured baseline, not guessed** — "Step 1: 'Run the eval command and capture the
+  current metric value.' Step 2: 'If no baseline exists, set the current value as the
+  baseline.' The recipe refuses to accept a guessed threshold — it runs the command. That's
+  why you can't ship a ratchet based on a round number someone remembered."
+- The **'NEVER lower a baseline without explicit developer approval' constraint** — "This is
+  what keeps the ratchet honest. The whole failure mode of quality systems is that the bar
+  quietly slides down. The recipe makes lowering the baseline a deliberate, visible act —
+  not a config edit in a side commit."
+- The **`regression_test` return field** — "The recipe doesn't ship the ratchet until it's
+  proven the ratchet catches a regression. Step 6: 'Test the ratchet by temporarily lowering
+  the metric and confirming it blocks.' A ratchet that's never blocked anything might not
+  actually work. This one has to prove it works before you trust it."
+- The **`update_process` return field** — "Separate from the ratchet check itself. This is
+  how the baseline gets raised when quality improves. Without it, the floor stays flat
+  forever and you lose the benefit of a genuine improvement. Monotonic means 'only goes up' —
+  but something has to actually raise it."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/eval-ratchet.yaml>`
+"The ratchet pattern is tiny — maybe 40 lines of check script. The recipe around it is mostly
+guardrails to stop the obvious failure modes."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "The ratchet prevents regression on metrics you can count. But what about evaluation criteria that aren't numbers? 'Check quality' produces rubber stamps. 'Rate each assertion as meaningful, weak, or trivial' produces findings. That's eval design — making your criteria specific enough to actually catch problems. Ready to move on?"
 

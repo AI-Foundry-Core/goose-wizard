@@ -186,6 +186,39 @@ Before the Bridge, connect refactoring to team workflow:
 - "Do you have any shared modules where a refactor would need sign-off from another team?"
 - "How does your team handle refactoring that crosses service boundaries — do you coordinate or just let CI catch it?"
 
+## Recipe Reveal
+After enterprise grounding, show the developer the recipe behind this session.
+
+"Last recipe of Stage 1. By now you're starting to see the pattern — but this one
+has a twist the other three don't."
+
+Read the Refactor agent recipe (recipes/agents/refactor.yaml) and show the developer:
+- The **baseline-tests-first process** — "Look at step 2: 'Run the project's test suite —
+  record the baseline.' Then step 5: 'Run the test suite again — compare to baseline.' The
+  recipe *itself* encodes the verification you were supposed to do manually. Safety isn't
+  an afterthought — it's baked into the workflow."
+- The **`constraints` parameter** — "Bug Fix didn't have this. Test Writer didn't either.
+  But refactoring is the highest-risk thing you'll run, so the recipe gives you a parameter
+  for 'what NOT to change.' Preserve the public API? Keep the DB schema stable? Write it in,
+  and the agent treats it as a hard rule."
+- The **`behavioral_changes` return field** — "Most recipes return just the diff. This one
+  returns 'behavioral_changes: None, or list any detected changes.' That's the agent
+  explicitly stating whether it thinks your behavior is preserved. You can trust or verify —
+  but it has to commit to an answer."
+- The **pattern across all four** — "Bug Fix, Test Writer, Code Review, Refactor. Same skeleton:
+  parameters + constraints + process + return. Different risk profiles, different safeguards.
+  By Stage 2, you'll read a recipe YAML and understand exactly what it will do — before
+  running it."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/refactor.yaml>`
+"Compare all four Stage 1 recipes side-by-side if you have time — the differences are
+the whole point."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "You've been the one catching everything — verifying fixes, evaluating tests, triaging reviews, checking diffs. Imagine if a second AI did that for you."
 

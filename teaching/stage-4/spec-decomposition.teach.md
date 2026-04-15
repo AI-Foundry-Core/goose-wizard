@@ -201,6 +201,46 @@ Read eval results. For each dimension:
 
 ---
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"Thirteenth recipe. This one reads the spec you just wrote and restructures it around
+real people — notice how the contract between Stage 4 recipes is starting to show."
+
+Read the Spec Decomposition recipe (recipes/agents/spec-decomposition.yaml) and show the developer:
+- The **`spec_path` parameter with `input_type: file`** — "This is the first recipe in
+  your chain that consumes an artifact instead of an idea. `input_type: file` means
+  Goose will validate that the path exists before running — the recipe can't start
+  without a real spec to decompose. The Stage 4 chain is now a pipeline: one recipe's
+  output is the next one's required input."
+- The **hard constraint: 'NEVER organize by feature — organize by persona'** — "Look
+  at Constraints. 'NEVER organize by feature — organize by persona.' 'NEVER use abstract
+  persona names (\"User A\") — use real names and roles.' The persona-first organization
+  dimension you were rated on is an enforced rule, not a stylistic preference. And
+  'NEVER write subjective acceptance criteria (\"user-friendly\", \"fast\")' — that's
+  the testability bar turned into a constraint."
+- The **Given/When/Then in the Process** — "Process step 3: 'acceptance criteria
+  (Given/When/Then).' The testable pattern you were coached to use — setup, action,
+  measurable outcome — is in the recipe's own instructions as the required acceptance
+  criteria format. Every criterion this agent writes has that shape."
+- The **`cross_cutting` and `untestable_flags` return fields** — "The return block has
+  two fields most recipes don't: `cross_cutting: requirements spanning multiple personas`
+  and `untestable_flags: requirements needing rewriting`. That's the agent forcing
+  itself to surface what normally falls through the cracks — the cross-cutting concerns
+  you were rated on, and the vague requirements that need rewriting before the spec is
+  handed to a build pipeline."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/agents/spec-decomposition.yaml`
+"Notice how the input is a file path and the output is structured data — that's the
+contract between Stage 4 recipes. No prose handoffs."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge to Spec Review
 
 "You've got a spec that's organized around real people with testable requirements. But how do you know it's actually good? Your own judgment is necessary but not sufficient — you'll miss things because you wrote it. That's where AI-assisted quality gates come in. Let's run your spec through a multi-dimension review and see what it catches. Ready to move on?"

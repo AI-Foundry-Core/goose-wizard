@@ -181,6 +181,34 @@ When the developer mentions team workflows, PR processes, CI/CD integration, or 
 
 Keep it to one question unless the developer wants to go deeper. Do not volunteer enterprise context unprompted unless the developer raises a team or process concern.
 
+## Recipe Reveal
+After enterprise grounding, show the developer the recipe behind this session.
+
+"Third recipe reveal — let me show you what's different about this one."
+
+Read the Code Review agent recipe (recipes/agents/code-review.yaml) and show the developer:
+- The **`review_focus` parameter** — "Remember when we said you can run review multiple
+  times with different lenses? That's literally one optional parameter. Empty = general review,
+  'security' = security pass, 'performance' = performance pass. The iteration pattern you just
+  used is encoded in a single field."
+- The **severity categorization** — "See how the return block has `critical_count`,
+  `warning_count`, `suggestion_count`? That's not just for your eyes. Later, when pipelines
+  coordinate multiple agents, a downstream agent can say 'only proceed if critical_count is 0'.
+  Structured output unlocks automation."
+- The **read-only constraint** — "This recipe says 'this agent is read-only' three separate
+  times. That's intentional. Review is safe to run 5 times in a row because it can never touch
+  your code. Bug Fix and Refactor edit files — Code Review never does."
+- Compare to Bug Fix and Test Writer — "Same four sections: parameters, constraints, process,
+  return. Different content, same skeleton. That's the pattern you'll see for every recipe."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/code-review.yaml>`
+"Open in the app — notice how much of what you just learned is right there in the YAML."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "You've been fixing bugs, writing tests, and reviewing code. One more skill — AI handles the restructuring you've been putting off. Got some ugly code that works but makes you cringe? That's next. Ready to keep going?"
 

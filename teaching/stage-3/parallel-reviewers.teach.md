@@ -172,7 +172,41 @@ After coaching, connect the exercise to GooseForge:
 Ask: "Want to try Recipe Forge to design a custom review layer for your project? Or move on."
 
 If yes: direct them to run `goose run --recipe recipes/graduated/recipe-forge.yaml --interactive`. Tell them to specify a reviewer archetype with a specific focus area.
-If no: proceed to Bridge.
+If no: proceed to Recipe Reveal.
+
+## Recipe Reveal
+After the GooseForge connection, show the developer the recipe behind this session.
+
+"Tenth recipe. Second coordinator — but this one runs agents in parallel instead of
+in sequence, and that changes what the YAML has to guarantee."
+
+Read the Parallel Reviewers recipe (recipes/graduated/parallel-reviewers.yaml) and show the developer:
+- The **single reusable sub_recipe, called with different `review_focus`** — "Only ONE
+  sub_recipe is declared: `code_review`. But the prompt calls it multiple times with a
+  scoped focus per layer — syntax, behavioral, contract, execution. Same agent primitive,
+  four different layers. That's the trick: one recipe plus a parameter equals four
+  specialists."
+- The **scoped temp paths with `{run_id}` isolation** — "Look at the context passed to
+  each reviewer: `.goose/tmp/parallel-review/{run_id}/{layer}.json`. That's the unique
+  output path per reviewer you were rated on for parallel coordination. No shared files,
+  no concurrent writes, no corruption. Each reviewer writes to its own path."
+- The **hard read-only rule in the instructions** — "Rule 1: 'NEVER let reviewers write
+  to source files — they are read-only.' Rule 2: 'NEVER let reviewers share state.' The
+  safety constraints that made this pattern safe to run in parallel are spelled out as
+  rules in the coordinator, not left to the reviewers to remember."
+- The **merge step after parallel fan-out** — "After all complete: read each layer's
+  file, deduplicate by file+line+finding, preserve which layers found each issue, rank
+  by severity, clean up temp. That's the full merge strategy you sketched — encoded as
+  numbered steps in the prompt. Parallel is cheap; the merge is where correctness lives."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/graduated/parallel-reviewers.yaml`
+"Compare it to three-agent-pipeline.yaml side-by-side — same coordinator shape, but
+this one runs in parallel and has to guarantee isolation."
+
+WAIT for any questions about the recipe structure.
 
 ## Bridge
 "Stage 3 gives you the team. Stage 4 is about what you feed that team: specs precise enough that the agents can build without guessing. Ready to move on?"

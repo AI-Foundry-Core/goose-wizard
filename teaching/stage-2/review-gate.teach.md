@@ -104,6 +104,26 @@ Read eval results. For each dimension:
 If ALL dimensions are Strong:
 "That's a solid review gate — execution-backed, evidence-required, hard pass/fail. This is what separates 'AI said it looks fine' from 'AI proved it works.' From here, every workflow you build should have a gate like this."
 
+## Recipe Reveal
+
+After the coaching, show the developer the recipe behind this session.
+
+"Sixth recipe. You just saw a gate that decides PASS or FAIL based on execution, not opinion. Let me show you how that rule is enforced in the YAML."
+
+Read the Review Gate agent recipe (recipes/agents/review-gate.yaml) and show the developer:
+- The **execution-over-inspection constraints** — "Look at the constraints block: 'NEVER say tests pass unless you ran the command and captured the result' and 'NEVER treat test file exists as success — the test must execute.' Those aren't polite suggestions. They're the exact behaviors we were watching for in the session, written as hard rules the agent must follow."
+- The **`gate_result: PASS or FAIL` return field** — "Notice the return schema. It doesn't say `summary` or `findings` like a review recipe would. It says `gate_result: PASS or FAIL`. The recipe forces a binary decision — the agent can't hand you back 'looks mostly good.' That's the difference between a gate and a review, encoded at the output level."
+- The **`evidence` and `execution_results` return fields** — "The return block separates `execution_results` (commands run, pass/fail counts, exit codes) from `evidence` (concrete output supporting the decision). Prose doesn't fit anywhere in that schema. If the agent wants to claim PASS, it has to fill those fields with real output. Structured returns make opinion-based verdicts literally unfillable."
+- The **read-only constraint** — "The instructions say 'You are READ-ONLY: do NOT modify any files.' A gate that edits the code it's gating would be a conflict of interest. This recipe enforces the separation — it can only judge, never fix. If it finds issues, a different agent has to repair them."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/review-gate.yaml>`
+"Read the constraints block carefully — that's where the 'prove it works' discipline lives."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 
 "You've got agents that build, test, and gate — all independently. But they're all reacting to what you asked for. What if you defined success before anyone started building? That way the builder has a target, the tester has a checklist, and the gate has criteria that existed before the code did. Ready to try that?"
