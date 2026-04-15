@@ -45,11 +45,13 @@ instructions: |
   ## Failure Modes
   - Config resolution via ensure_config returned non-ok →
     `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status.
-  - `project.json` missing or corrupt → return `status: project_unusable`
-    and stop; the caller must rerun `setup-config`.
-  - Conductor directory missing → return `status: not_initialized`; the
-    caller should run the `conductor-setup` recipe.
+    underlying ensure_config status. (This covers project.json missing
+    or corrupt — ensure_config returns `project_json_missing` or
+    `project_corrupt`; callers should switch on `config_status` and
+    route the user to `setup-config` when those values appear.)
+  - Conductor directory missing (but ensure_config returned `ok`) →
+    return `status: not_initialized`; the caller should run the
+    `conductor-setup` recipe.
   - Can't read a file due to permissions → return a structured error for
     that file; continue with the rest.
 
@@ -91,8 +93,7 @@ instructions: |
     any listed track has no directory.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "project_unusable" |
-    "not_initialized" | "has_findings"
+  - status: "ok" | "config_unresolved" | "not_initialized" | "has_findings"
   - config_status: Underlying ensure_config status when
     status == "config_unresolved", else null
   - project: { id, path, kind }

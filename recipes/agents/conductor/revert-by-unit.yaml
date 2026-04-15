@@ -96,7 +96,8 @@ instructions: |
      - track: all phase checkpoint commits + the track's setup commits
      Baseline fallback for `track` when the track has no setup commit
      recorded: use the oldest commit reachable from HEAD whose subject
-     matches `^docs: start task` AND whose body references `Track: <track_id>`.
+     matches `^docs: start task .+ — <track_id>$` (canonical subject
+     emitted by `track-task-execute.yaml` step 3 — em-dash literal).
      If no such commit exists, the track has produced zero task work;
      return `status: unit_not_found`.
   3. Verify every SHA exists in git history. If not, `history_drift`.

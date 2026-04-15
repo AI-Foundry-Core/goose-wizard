@@ -74,9 +74,10 @@ instructions: |
      a. Look for the previous phase's checkpoint SHA in plan.md. Use it
         if present.
      b. Else, find the oldest commit reachable from HEAD whose subject
-        matches `^docs: start task` AND whose body references
-        `Track: <track_id>`. Use that commit's parent (or the commit
-        itself if it has no parent).
+        matches `^docs: start task .+ — <track_id>$` (this is the
+        canonical subject emitted by `track-task-execute.yaml` step 3 —
+        treat the em-dash literally). Use that commit's parent (or the
+        commit itself if it has no parent).
      c. Else, use `HEAD` (produces an empty diff; record in
         `last_checkpoint_sha_used` as `HEAD` so the caller knows the
         track has no recorded task work yet).
