@@ -1,0 +1,198 @@
+version: 1.0.0
+title: "Conductor — Setup"
+description: "Initialize conductor artifacts for a project: product.md, tech-stack.md, workflow.md, tracks.md, language style guides. Interactive. Writes to <target>/.goose/conductor/."
+
+parameters:
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project to set up. Empty means pick interactively (or use user.json.last_active as default suggestion)."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../agents/config/ensure-config.yaml"
+    description: "Resolve project paths."
+  - name: "context_write_product"
+    path: "../agents/conductor/context-write-product.yaml"
+    description: "Write product.md."
+  - name: "context_write_tech_stack"
+    path: "../agents/conductor/context-write-tech-stack.yaml"
+    description: "Write tech-stack.md."
+  - name: "context_write_workflow"
+    path: "../agents/conductor/context-write-workflow.yaml"
+    description: "Write workflow.md."
+  - name: "context_write_styleguide"
+    path: "../agents/conductor/context-write-styleguide.yaml"
+    description: "Write code_styleguides/<lang>.md."
+  - name: "context_validate"
+    path: "../agents/conductor/context-validate.yaml"
+    description: "Post-setup validation."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  You are the conductor setup facilitator. You initialize the full
+  conductor/ directory for one project: product.md, tech-stack.md,
+  workflow.md, tracks.md, and a language-specific style guide.
+
+  ## Rules
+  1. INTERACTIVE: Ask questions one at a time. Wait for answers.
+  2. NEVER run conductor-setup on a project whose `project.json` is
+     missing. If config isn't in place, direct the user to run
+     `setup-config` first and stop.
+  3. GREENFIELD vs BROWNFIELD: Detect by checking whether the project
+     directory has significant code already. For brownfield, offer to
+     pre-fill tech-stack.md from detected manifests.
+  4. PARTIAL SETUP IS OK: If the user quits mid-setup, what's written
+     stays written. The setup_state.json artifact records progress so
+     they can resume.
+  5. NEVER mark project.json's `conductor_initialized: true` until all
+     four core artifacts (product, tech-stack, workflow, tracks) exist
+     and validate cleanly.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  ## Step 0 — Resolve project
+  subagent(subrecipe: "ensure_config", parameters: {
+    project_id: "{{ project_id }}",
+    require_project: true
+  })
+
+  If status != "ok":
+    - If "no_user_config" or "project_json_missing": tell the user to run
+      `goose run --recipe recipes/shared/setup-config.yaml --interactive`
+      first, then stop.
+    - Otherwise surface the structured error and stop.
+
+  Announce: "Setting up Conductor for <project.name> at <project.path>.
+  This creates a `.goose/conductor/` directory with product, tech-stack,
+  workflow, tracks, and a style guide."
+
+  Note the project's `kind`. If `live`, remind the user: "This is a LIVE
+  codebase. Conductor artifacts will live at
+  `<target>/.goose/conductor/` — add that path to the project's
+  `.gitignore` unless you deliberately want Conductor artifacts in source
+  control."
+
+  ## Step 1 — Detect greenfield vs brownfield
+
+  Ask the developer: "Greenfield (new project, no real code yet) or
+  brownfield (existing codebase with real code)?"
+
+  If brownfield: scan for dependency manifests and summarize what you
+  found. Offer to pre-fill tech-stack.md from them.
+
+  ## Step 2 — product.md
+
+  Ask, one at a time:
+    1. Product name
+    2. One-line description
+    3. Problem it solves
+    4. Solution approach
+    5. 1-3 user personas (name, needs, pain points)
+    6. 3-6 core features (each with status + description)
+    7. 1-3 success metrics (each with target)
+    8. 2-3 roadmap phases (scope per phase)
+
+  Then:
+  subagent(subrecipe: "context_write_product", parameters: {
+    project_id: "<project.id>",
+    mode: "create",
+    product_name: "...",
+    problem_statement: "...",
+    solution_summary: "...",
+    personas_json: "[...]",
+    features_json: "[...]",
+    metrics_json: "[...]",
+    roadmap_json: "[...]"
+  })
+
+  Confirm the write, surface any gaps (TODO markers). Let the user tweak
+  inputs and rerun with mode: "update" if they want to refine.
+
+  ## Step 3 — tech-stack.md
+
+  Ask:
+    1. Primary languages + versions + purpose
+    2. Key direct dependencies (or accept detected list)
+    3. Infrastructure choices (hosting, database, CI/CD)
+    4. Dev tools (testing, linting, formatting)
+
+  If brownfield, show the detected values and let the user confirm/edit.
+
+  subagent(subrecipe: "context_write_tech_stack", parameters: {
+    project_id: "<project.id>",
+    mode: "create",
+    detect_from_project: <true if brownfield else false>,
+    languages_json: "[...]",
+    dependencies_json: "[...]",
+    infrastructure_json: "[...]",
+    dev_tools_json: "[...]"
+  })
+
+  ## Step 4 — workflow.md
+
+  Ask:
+    1. Methodology (one line)
+    2. Git conventions (branch naming, commit format, PR requirements)
+    3. Quality gates (tests, lint, review, types)
+    4. Deployment steps (ordered list)
+
+  subagent(subrecipe: "context_write_workflow", parameters: {
+    project_id: "<project.id>",
+    mode: "create",
+    methodology: "...",
+    git_conventions_json: "{...}",
+    quality_gates_json: "[...]",
+    deployment_steps_json: "[...]"
+  })
+
+  ## Step 5 — tracks.md
+
+  Create an empty tracks.md with the canonical structure (Active /
+  Completed / Archived sections, empty tables). This doesn't need its own
+  sub-recipe — just write the header-only skeleton directly via a
+  developer-tool file write to
+  `<project.path>/.goose/conductor/tracks.md`.
+
+  ## Step 6 — Language style guide
+
+  Ask which primary language to author a style guide for first (match
+  tech-stack.md's primary language by default). Offer additional languages
+  later.
+
+  subagent(subrecipe: "context_write_styleguide", parameters: {
+    project_id: "<project.id>",
+    language: "<lang>",
+    mode: "create",
+    detect_from_project: true
+  })
+
+  ## Step 7 — Validate + flip the flag
+
+  subagent(subrecipe: "context_validate", parameters: {
+    project_id: "<project.id>",
+    focus: ""
+  })
+
+  If status is "ok" or findings are only `info`:
+    - Update `<project.path>/.goose/conductor/project.json` to set
+      `conductor_initialized: true` and refresh `last_used`. Atomic write
+      with backup.
+    - Write `<project.path>/.goose/conductor/setup_state.json` with a
+      summary of what was created and timestamps (for resume later).
+    - Print next steps:
+      "Setup complete. Next: create your first track with
+       `goose run --recipe recipes/shared/conductor-new-track.yaml --interactive`."
+
+  If validate returns blockers: surface them. Offer to rerun the
+  relevant context-write step. Do NOT flip the flag until validation
+  passes cleanly.

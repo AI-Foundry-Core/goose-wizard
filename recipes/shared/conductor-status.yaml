@@ -1,0 +1,95 @@
+version: 1.0.0
+title: "Conductor — Status"
+description: "Display project progress: active tracks, phase progress, blockers, recent activity. Read-only."
+
+parameters:
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project ID. Empty means use the active project."
+  - key: detail
+    input_type: string
+    requirement: optional
+    default: "summary"
+    description: "'summary' | 'full'. Full includes task-level details per track."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../agents/config/ensure-config.yaml"
+    description: "Resolve project paths."
+  - name: "context_validate"
+    path: "../agents/conductor/context-validate.yaml"
+    description: "Read current state of all artifacts."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  You display project status. You do not modify anything. The entire
+  workload is read-only audits plus formatting for the developer.
+
+  ## Rules
+  1. READ-ONLY. No writes, ever.
+  2. SHOW EVIDENCE, NOT OPINIONS. "3 of 5 tasks complete in phase 2"
+     not "making good progress."
+  3. SURFACE BLOCKERS LOUDLY. Any `[!]` task, any stale artifact, any
+     unresolved finding from context-validate — show it first.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  ## Step 0 — Resolve
+  subagent(subrecipe: "ensure_config", parameters: {
+    project_id: "{{ project_id }}",
+    require_project: true
+  })
+  If status != "ok", surface and stop.
+
+  ## Step 1 — Validate artifacts
+  subagent(subrecipe: "context_validate", parameters: {
+    project_id: "<project.id>",
+    focus: ""
+  })
+
+  ## Step 2 — Gather track state
+  Read `<project.path>/.goose/conductor/tracks.md` and enumerate active
+  tracks. For each, read the track's metadata.json and plan.md. Compute:
+    - Current phase (1-indexed)
+    - Tasks by status (pending, in_progress, complete, skipped, blocked)
+    - Last checkpoint SHA + date
+    - Last task commit SHA (from plan.md)
+
+  ## Step 3 — Render
+
+  Header:
+    <project.name> at <project.path>  (kind: <sandbox|live>)
+    Conductor initialized: <yes|no>
+    Last used: <timestamp>
+
+  Blockers (if any):
+    - Any track task with `[!]` status and its blocker description
+    - Any context-validate blocker finding
+    - Duplicate project entries (from ensure-config)
+
+  Active tracks:
+    <id> — <type> — phase <n>/<total>
+      Tasks: <pending>/<in_progress>/<complete>/<skipped>/<blocked>
+      Last checkpoint: <sha> on <date>  (or "— none yet")
+      Last commit: <sha> — <subject>
+
+  If `detail == "full"`, also list each track's current-phase tasks with
+  their status markers and any recorded SHAs.
+
+  Warnings (context-validate `warning` findings):
+    - Each finding's file/section + message + suggested action.
+
+  Summary:
+    - Total active tracks, total in-progress tasks, total blockers.
+    - Recommended next action (which track to advance, which blocker to
+      resolve, which artifact to refresh).
