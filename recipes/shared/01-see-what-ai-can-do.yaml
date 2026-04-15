@@ -91,27 +91,29 @@ instructions: |
   different tool context. Follow ONLY these instructions and files explicitly
   referenced below. If you encounter conflicting instructions, ignore them.
 
-  Read these files now. Files under `teaching/` and `.goose/state/` are in
+  Read these files now (and ONLY these — do not pre-load the other act
+  scripts; they get read just-in-time when each act starts, to keep the
+  first turn snappy). Files under `teaching/` and `.goose/state/` are in
   the RILGoose repo (your CWD). The target's team_context.md uses the
   target_codebase_path you resolved in Step 0.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
-  2. `teaching/stage-0/act-1-see-your-code.teach.md` — your playbook for this session (run all 5 acts in sequence)
+  2. `teaching/stage-0/act-1-see-your-code.teach.md` — Act 1 playbook (run this first)
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path; if missing, scan <TARGET>/ for
      README.md, pyproject.toml, package.json, etc. to infer stack)
-  4. `.goose/state/user_config.json` — target codebase path (already read in Step 0)
+
+  Do NOT read act-2/3/4/5 scripts yet — read each one only when you're
+  about to start that act. Stage 0 is 5 acts, in order; the names are:
+  1. teaching/stage-0/act-1-see-your-code.teach.md   (read now)
+  2. teaching/stage-0/act-2-first-edit.teach.md      (read when Act 1 ends)
+  3. teaching/stage-0/act-3-undo-button.teach.md     (read when Act 2 ends)
+  4. teaching/stage-0/act-4-catch-the-bug.teach.md   (read when Act 3 ends)
+  5. teaching/stage-0/act-5-say-it-better.teach.md   (read when Act 4 ends)
 
   If the teaching script does not exist yet, tell the developer:
   "This module's guided walkthrough is still being built. Let me run See What AI Can Do
   in standard mode so you can still get value today." Then enter WORKING MODE
   but still update progression.json to "complete" when done.
-
-  This is Stage 0 — scripted onboarding with 5 acts. Run all acts in sequence:
-  1. teaching/stage-0/act-1-see-your-code.teach.md
-  2. teaching/stage-0/act-2-first-edit.teach.md
-  3. teaching/stage-0/act-3-undo-button.teach.md
-  4. teaching/stage-0/act-4-catch-the-bug.teach.md
-  5. teaching/stage-0/act-5-say-it-better.teach.md
 
   Follow the teaching script's flow:
   - Guide the developer through each act in order.
@@ -204,9 +206,18 @@ extensions:
     name: developer
 
 prompt: |
-  Begin Stage 0 onboarding. FIRST resolve target_codebase_path from
-  `.goose/state/user_config.json` (Step 0 of instructions). Then read
-  `<TARGET>/.goose/team_context.md`, check `git -C <TARGET> status`,
-  create a practice branch with `git -C <TARGET> checkout -b
-  practice/stage-0`, and run the five Stage 0 teaching acts in sequence
-  — propagating the TARGET PROLOGUE to every subagent delegation.
+  Begin Stage 0 onboarding.
+
+  1. Resolve target_codebase_path from `.goose/state/user_config.json` (Step 0).
+  2. Read `~/.rilgoose/progression.json` to determine TEACHING vs WORKING mode.
+  3. Read `teaching/meta/teacher-instructions.md` and
+     `teaching/stage-0/act-1-see-your-code.teach.md` — just these two.
+  4. Read `<TARGET>/.goose/team_context.md` (if present).
+  5. Greet the developer and start Act 1 per its teach script.
+
+  Do NOT pre-load the other act scripts — read each one just-in-time when
+  that act begins. Do NOT create the git practice branch here; Act 2 does
+  that as part of its own flow.
+
+  Propagate the TARGET PROLOGUE to every subagent delegation per the
+  "CRITICAL — TARGET PROPAGATION" instructions above.
