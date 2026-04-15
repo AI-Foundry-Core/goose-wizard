@@ -2,3 +2,9 @@ __pycache__/
 *.pyc
 .coverage
 *.png
+
+# Claude Code per-user local settings
+.claude/settings.local.json
+
+# Per-user runtime state (target codebase path, etc.)
+.goose/state/
