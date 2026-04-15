@@ -237,7 +237,7 @@ Run: `goose recipe open recipes/agents/spec-decomposition.yaml`
 "Notice how the input is a file path and the output is structured data — that's the
 contract between Stage 4 recipes. No prose handoffs."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/spec-decomposition.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

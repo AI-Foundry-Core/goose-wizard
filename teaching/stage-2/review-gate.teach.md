@@ -122,7 +122,7 @@ Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/review-gate.yaml>`
 "Read the constraints block carefully — that's where the 'prove it works' discipline lives."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/review-gate.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

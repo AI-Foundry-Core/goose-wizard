@@ -267,7 +267,7 @@ Run: `goose recipe open recipes/agents/idea-to-spec.yaml`
 "Stage 4 is a chain — this recipe writes the spec, the next three decompose, review,
 and convert it. Watch how each one takes the previous artifact as input."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/idea-to-spec.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

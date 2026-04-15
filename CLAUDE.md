@@ -162,7 +162,7 @@ RILGoose/
 │   │   ├── 02-bug-fix.yaml             # Stage 1: training facilitator (calls agents/bug-fix)
 │   │   ├── 03-test-writer.yaml         # ...through 26-skill-evolution.yaml
 │   │   └── ...26 module recipes total
-│   ├── agents/                         # 29 agent primitives — non-interactive workers (NOT in GOOSE_RECIPE_PATH)
+│   ├── agents/                         # 40 agent primitives — non-interactive workers (incl. nested config/, progression/, conductor/; NOT in GOOSE_RECIPE_PATH)
 │   │   ├── bug-fix.yaml                # Stage 1: bug investigation + fix + test + diff
 │   │   ├── test-writer.yaml            # Stage 1: generate and run tests
 │   │   ├── code-review.yaml            # Stage 1: review code, return categorized findings

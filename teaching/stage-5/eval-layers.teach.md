@@ -156,7 +156,7 @@ Run: `goose recipe open <path to recipes/agents/eval-layers.yaml>`
 "Notice that this recipe designs the strategy but doesn't execute it — the layer scripts it
 writes are what actually runs. Separation of concerns again."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/eval-layers.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

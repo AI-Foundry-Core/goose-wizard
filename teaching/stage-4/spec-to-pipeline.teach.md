@@ -351,7 +351,7 @@ Run: `goose recipe open recipes/agents/spec-to-pipeline.yaml`
 restructures it by persona, spec-review rates it, spec-to-pipeline turns it into
 executable artifacts. Four recipes, one pipeline."
 
-If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/spec-to-pipeline.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 
