@@ -24,7 +24,7 @@ echo ========================================================
 echo.
 echo This installer will:
 echo   - Install Node.js if missing (via winget)
-echo   - Install Goose if missing (from block/goose releases)
+echo   - Install Goose CLI + desktop app if missing (from block/goose releases)
 echo   - Install Claude CLI if missing (via npm)
 echo   - Install the Claude ACP adapter if missing (via npm)
 echo   - Configure Goose for RILGoose training recipes
@@ -51,8 +51,11 @@ if %EXITCODE% NEQ 0 (
     echo ========================================================
     echo   Installation complete.
     echo ========================================================
-    echo Open the Goose desktop app and look for "START HERE"
-    echo at the top of the recipe list.
+    echo If the desktop app installed successfully, open it from
+    echo the Start Menu and look for "START HERE" at the top.
+    echo.
+    echo Or from a NEW terminal window:
+    echo    goose run --recipe start-here
 )
 echo.
 pause

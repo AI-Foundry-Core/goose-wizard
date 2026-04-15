@@ -39,7 +39,8 @@ say_step()    { printf "\n${YELLOW}%s${NC}\n" "$1"; }
 say_ok()      { printf "${GREEN}%s${NC}\n" "$1"; }
 say_err()     { printf "${RED}%s${NC}\n" "$1" 1>&2; }
 
-trap 'say_err ""; say_err "Installation failed on line $LINENO."; say_err "Scroll up to see what went wrong."; read -p "Press Enter to close this window." _; exit 1' ERR
+set -E  # inherit ERR trap into functions and subshells
+trap 'say_err ""; say_err "Installation failed (command: $BASH_COMMAND) on or near line $LINENO."; say_err "Scroll up to see what went wrong."; read -p "Press Enter to close this window." _; exit 1' ERR
 
 say_header "RILGoose Installer (macOS)"
 
@@ -65,6 +66,37 @@ read -p "Press Enter to continue, or Ctrl+C to cancel. " _
 # ================================================================
 
 say_phase "Phase 1: Bootstrap prerequisites"
+
+# --- Preflight: python3 (needed for config.yaml + ACP patches later) ---
+say_step "Checking python3..."
+if command -v python3 >/dev/null 2>&1; then
+    echo "  python3: $(python3 --version 2>&1)"
+else
+    say_err "  python3 not found."
+    say_err "  macOS 12+ ships a python3 stub that triggers Xcode Command Line Tools install."
+    say_err "  Run 'xcode-select --install' in Terminal, accept the dialog, wait for it to finish,"
+    say_err "  then re-run this installer."
+    exit 1
+fi
+
+# --- Preflight: connectivity ---
+say_step "Checking network reachability..."
+check_url() {
+    local url="$1" label="$2"
+    if curl --head --silent --fail --max-time 10 "$url" >/dev/null 2>&1; then
+        echo "  $label reachable: $url"
+        return 0
+    else
+        echo "  WARNING: cannot reach $label ($url). Check your network / VPN / proxy."
+        return 1
+    fi
+}
+GH_OK=1; NPM_OK=1
+check_url "https://github.com" "GitHub" || GH_OK=0
+check_url "https://registry.npmjs.org" "npm registry" || NPM_OK=0
+if [ $GH_OK -eq 0 ] || [ $NPM_OK -eq 0 ]; then
+    echo "  Continuing anyway — some downloads may fail."
+fi
 
 # --- Homebrew ---
 say_step "Checking Homebrew..."
@@ -124,15 +156,34 @@ else
     say_ok "  Goose installed: $(goose --version)"
 fi
 
+# --- Check npm global prefix writability ---
+# Intel Homebrew / migrated Macs / locked-down /usr/local commonly EACCES on
+# global npm installs. If the prefix isn't writable, switch to a per-user
+# prefix at ~/.npm-global instead of failing.
+say_step "Checking npm global prefix..."
+NPM_PREFIX="$(npm config get prefix)"
+echo "  npm prefix: $NPM_PREFIX"
+if [ ! -w "$NPM_PREFIX" ] && [ ! -w "$(dirname "$NPM_PREFIX")" ]; then
+    echo "  npm global prefix is not writable — switching to per-user prefix at ~/.npm-global"
+    mkdir -p "$HOME/.npm-global"
+    npm config set prefix "$HOME/.npm-global"
+    export PATH="$HOME/.npm-global/bin:$PATH"
+    # Persist in rc file so future shells see it
+    PERUSER_LINE='export PATH="$HOME/.npm-global/bin:$PATH"'
+fi
+
 # --- Claude CLI ---
 say_step "Checking Claude CLI..."
 if command -v claude >/dev/null 2>&1; then
     echo "  Claude CLI: found (already installed)"
 else
     echo "  Claude CLI not found. Installing via npm..."
+    echo "  (Note: npm install of @anthropic-ai/claude-code may be deprecated in future releases in favor of https://claude.ai/install.sh — current approach still works.)"
     npm install -g "@anthropic-ai/claude-code"
+    hash -r
     if ! command -v claude >/dev/null 2>&1; then
         say_err "Claude CLI installed but 'claude' not on PATH."
+        say_err "Expected in: $(npm root -g)/../bin"
         exit 1
     fi
     say_ok "  Claude CLI installed."
@@ -145,18 +196,29 @@ if command -v claude-agent-acp >/dev/null 2>&1; then
 else
     echo "  ACP adapter not found. Installing via npm..."
     npm install -g "@agentclientprotocol/claude-agent-acp"
+    hash -r
     say_ok "  ACP adapter installed."
 fi
 
 # --- Claude auth ---
+# Check for existing creds file first; if present, skip the login prompt.
 say_step "Checking Claude authentication..."
-echo "  Have you already logged in to Claude with your Claude Max account?"
-echo "  (If not, we'll open the login flow now.)"
-read -p "  Logged in? [y/N] " AUTH_ANSWER
-if [[ ! "$AUTH_ANSWER" =~ ^[Yy] ]]; then
-    echo "  Launching Claude login. A browser will open — log in, then come back here."
-    claude auth login || true
-    read -p "  Press Enter when login is complete. " _
+CLAUDE_CREDS="$HOME/.claude/.credentials.json"
+if [ -f "$CLAUDE_CREDS" ]; then
+    echo "  Found existing Claude credentials at $CLAUDE_CREDS"
+    echo "  Assuming you are logged in. If recipes fail with auth errors later, run 'claude' and re-login."
+else
+    echo "  No existing Claude credentials found."
+    echo "  We'll launch 'claude' — it will open a browser for you to log in with your Claude Max account."
+    echo "  After login, type '/exit' or press Ctrl+D to leave the Claude session and return here."
+    read -p "  Press Enter to launch Claude login. " _
+    claude || true  # interactive; may exit non-zero on /exit
+    if [ -f "$CLAUDE_CREDS" ]; then
+        say_ok "  Login detected."
+    else
+        echo "  WARNING: credentials file still not at $CLAUDE_CREDS."
+        echo "           Recipe execution will likely fail until you log in. Open a new terminal and run 'claude' to retry."
+    fi
 fi
 
 # --- Bootstrap config.yaml if missing ---
@@ -236,37 +298,69 @@ say_step "Setting GOOSE_RECIPE_PATH..."
 # Only shared/ goes on the path — agents/ and graduated/ are invoked as sub_recipes.
 RECIPE_PATH_VALUE="$RECIPE_ROOT/shared"
 
-# Pick the right rc file based on the user's current shell
-if [ -n "$ZSH_VERSION" ] || [ "$(basename "$SHELL")" = "zsh" ]; then
-    RC_FILE="$HOME/.zshrc"
-elif [ -n "$BASH_VERSION" ] || [ "$(basename "$SHELL")" = "bash" ]; then
-    RC_FILE="$HOME/.bash_profile"
-else
-    RC_FILE="$HOME/.profile"
+# Pick the right rc file based on the user's LOGIN shell ($SHELL).
+# Note: $BASH_VERSION / $ZSH_VERSION reflect the script's interpreter (bash),
+# NOT the user's interactive Terminal shell. On macOS Catalina+ the default
+# Terminal shell is zsh, so we must prefer $SHELL over *_VERSION vars.
+USER_SHELL_NAME="$(basename "${SHELL:-/bin/zsh}")"
+case "$USER_SHELL_NAME" in
+    zsh)
+        RC_FILE="$HOME/.zshrc"
+        ;;
+    bash)
+        # On macOS, .bash_profile takes precedence over .bashrc for login shells
+        RC_FILE="$HOME/.bash_profile"
+        ;;
+    fish)
+        RC_FILE="$HOME/.config/fish/config.fish"
+        mkdir -p "$(dirname "$RC_FILE")"
+        ;;
+    *)
+        echo "  WARNING: unrecognized login shell '$USER_SHELL_NAME'. Falling back to ~/.profile."
+        echo "           You may need to set GOOSE_RECIPE_PATH manually for your shell."
+        RC_FILE="$HOME/.profile"
+        ;;
+esac
+
+if [ ! -w "$HOME" ]; then
+    say_err "HOME directory $HOME is not writable. Aborting."
+    exit 1
 fi
 
 touch "$RC_FILE"
 
-# Remove any prior RILGoose-managed block, then append the current one
+# Remove any prior RILGoose-managed block, then append the current one.
+# Use substring matching so a marker merged onto another line still triggers
+# block removal (prevents duplicate blocks on repeated installs).
 RILGOOSE_MARKER_START="# >>> RILGoose (managed) >>>"
 RILGOOSE_MARKER_END="# <<< RILGoose (managed) <<<"
 
-# Portable in-place delete between markers (BSD sed requires -i '')
 if grep -qF "$RILGOOSE_MARKER_START" "$RC_FILE"; then
-    # Delete everything between the markers, inclusive
     awk -v start="$RILGOOSE_MARKER_START" -v end="$RILGOOSE_MARKER_END" '
-        $0 == start {inblock=1; next}
-        $0 == end {inblock=0; next}
-        !inblock {print}
+        index($0, start) { inblock=1; next }
+        index($0, end)   { inblock=0; next }
+        !inblock { print }
     ' "$RC_FILE" > "$RC_FILE.tmp" && mv "$RC_FILE.tmp" "$RC_FILE"
 fi
 
-cat >> "$RC_FILE" <<EOF
+# Fish uses different syntax — emit the right form for the shell
+if [ "$USER_SHELL_NAME" = "fish" ]; then
+    cat >> "$RC_FILE" <<EOF
+
+$RILGOOSE_MARKER_START
+set -gx GOOSE_RECIPE_PATH "$RECIPE_PATH_VALUE"
+${PERUSER_LINE:+set -gx PATH \$HOME/.npm-global/bin \$PATH}
+$RILGOOSE_MARKER_END
+EOF
+else
+    cat >> "$RC_FILE" <<EOF
 
 $RILGOOSE_MARKER_START
 export GOOSE_RECIPE_PATH="$RECIPE_PATH_VALUE"
+${PERUSER_LINE:+$PERUSER_LINE}
 $RILGOOSE_MARKER_END
 EOF
+fi
 
 export GOOSE_RECIPE_PATH="$RECIPE_PATH_VALUE"
 say_ok "  Set GOOSE_RECIPE_PATH in $RC_FILE"
@@ -324,10 +418,24 @@ print("  Config saved.")
 PY_EOF
 
 # --- Patch ACP adapter (5 patches for clean recipe execution) ---
+# Locate acp-agent.js using `npm ls -g --parseable` first (handles nvm / volta /
+# version-specific global dirs that `npm root -g` misses), falling back to
+# `npm root -g` as a last resort.
 say_step "Patching ACP adapter (context isolation)..."
 
-NPM_ROOT="$(npm root -g)"
-ACP_FILE="$NPM_ROOT/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js"
+ACP_FILE=""
+# Ask npm directly for the package path it knows about
+PKG_PATH="$(npm ls -g --parseable "@agentclientprotocol/claude-agent-acp" 2>/dev/null | head -1 || true)"
+if [ -n "$PKG_PATH" ] && [ -d "$PKG_PATH" ]; then
+    ACP_FILE="$PKG_PATH/dist/acp-agent.js"
+fi
+# Fallback: compose from npm root -g
+if [ -z "$ACP_FILE" ] || [ ! -f "$ACP_FILE" ]; then
+    NPM_ROOT="$(npm root -g 2>/dev/null || true)"
+    if [ -n "$NPM_ROOT" ]; then
+        ACP_FILE="$NPM_ROOT/@agentclientprotocol/claude-agent-acp/dist/acp-agent.js"
+    fi
+fi
 
 if [ ! -f "$ACP_FILE" ]; then
     say_err "  WARNING: acp-agent.js not found at $ACP_FILE"
@@ -355,16 +463,17 @@ else:
     print('  WARNING: Could not find settingSources line')
 
 # Patch 2: autoMemoryEnabled — disable Claude Code auto-memory
+# Tolerate whitespace variations + optional trailing comma in the anchor.
 if "autoMemoryEnabled: false" in content:
     print("  Already patched (autoMemoryEnabled = false)")
-elif 'settingSources: ["local"],' in content:
-    content = content.replace(
-        'settingSources: ["local"],',
-        'settingSources: ["local"],\n            autoMemoryEnabled: false,',
-    )
-    print("  Patched: autoMemoryEnabled = false (prevents memory interference)")
 else:
-    print("  WARNING: Could not insert autoMemoryEnabled patch")
+    anchor_re = re.compile(r'settingSources:\s*\[\s*"local"\s*\],?')
+    m = anchor_re.search(content)
+    if m:
+        content = content[:m.end()] + "\n            autoMemoryEnabled: false," + content[m.end():]
+        print("  Patched: autoMemoryEnabled = false (prevents memory interference)")
+    else:
+        print("  WARNING: Could not insert autoMemoryEnabled patch (Patch 1 may have failed)")
 
 # Patch 3: enable AskUserQuestion tool
 if 'const disallowedTools = ["AskUserQuestion"];' in content:
@@ -378,23 +487,25 @@ elif 'const disallowedTools = [];' in content:
 else:
     print("  WARNING: Could not find disallowedTools line")
 
-# Patch 4: disable extended thinking output
-think_orig = (
-    "        const maxThinkingTokens = process.env.MAX_THINKING_TOKENS\n"
-    "            ? parseInt(process.env.MAX_THINKING_TOKENS, 10)\n"
-    "            : undefined;"
-)
-think_patch = (
-    "        // Configure thinking tokens - disabled for clean recipe output\n"
-    "        const maxThinkingTokens = 0;"
-)
-if "const maxThinkingTokens = 0" in content:
+# Patch 4: disable extended thinking output — use a tolerant regex so
+# upstream reformatting (prettier, indentation changes, semicolon
+# reflow) doesn't silently break the patch.
+if re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
     print("  Already patched (thinking disabled)")
-elif think_orig in content:
-    content = content.replace(think_orig, think_patch)
-    print("  Patched: extended thinking disabled (no visible thinking blocks)")
 else:
-    print("  WARNING: Could not find maxThinkingTokens block")
+    think_re = re.compile(
+        r"const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?;",
+        re.DOTALL,
+    )
+    if think_re.search(content):
+        content = think_re.sub(
+            "const maxThinkingTokens = 0; // thinking disabled for clean recipe output",
+            content,
+            count=1,
+        )
+        print("  Patched: extended thinking disabled (no visible thinking blocks)")
+    else:
+        print("  WARNING: Could not find maxThinkingTokens block")
 
 # Patch 5: replace claude_code preset system prompt with recipe-focused prompt
 prompt_orig = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
@@ -456,15 +567,20 @@ fi
 
 # --- Verify recipe list ---
 say_step "Verifying recipes are visible to Goose..."
-if goose recipe list --format text >/tmp/rilgoose-recipe-check 2>&1; then
-    FOUND=$(grep -c '^  \w' /tmp/rilgoose-recipe-check || echo "0")
-    rm -f /tmp/rilgoose-recipe-check
-    if [ "$FOUND" -gt 0 ]; then
+RECIPE_CHECK_TMP="/tmp/rilgoose-recipe-check-$$"
+if goose recipe list --format text >"$RECIPE_CHECK_TMP" 2>&1; then
+    # `grep -c` returns exit 1 on no-match, which would trigger the ERR trap
+    # inside `$(...)`. Capture into a plain var, defaulting to 0 if empty.
+    FOUND=$(grep -c '^  [[:alpha:]]' "$RECIPE_CHECK_TMP" 2>/dev/null || true)
+    FOUND="${FOUND:-0}"
+    rm -f "$RECIPE_CHECK_TMP"
+    if [ "$FOUND" -gt 0 ] 2>/dev/null; then
         say_ok "  goose recipe list: $FOUND recipes visible"
     else
         echo "  WARNING: goose recipe list shows no recipes. Open a new terminal and try again."
     fi
 else
+    rm -f "$RECIPE_CHECK_TMP"
     echo "  WARNING: goose recipe list failed. You may need to open a new terminal."
 fi
 

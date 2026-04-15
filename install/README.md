@@ -29,15 +29,24 @@ Both installers run the same two phases.
 | Tool | Windows | Mac |
 |---|---|---|
 | Node.js LTS | `winget install OpenJS.NodeJS.LTS` | `brew install node` |
-| Goose | download + extract Windows CLI zip | `brew install --cask block-goose` |
+| Goose CLI | download + extract Windows CLI zip | installed with `--cask block-goose` |
+| Goose desktop app | download + run `Goose.zip` installer | installed with `--cask block-goose` |
 | Claude CLI | `npm install -g @anthropic-ai/claude-code` | same |
 | ACP adapter | `npm install -g @agentclientprotocol/claude-agent-acp` | same |
 | Homebrew | — | installed if missing |
+| python3 | assumed present (PowerShell native) | validated, prompts to install Xcode CLT if missing |
 
 If a tool is already installed, the installer skips that step.
 
-The installer will also open the Claude login flow in a browser if you aren't
-already logged in. A **Claude Max** subscription is required.
+**Connectivity preflight:** the installer checks GitHub and the npm registry are
+reachable before running anything. If a corporate proxy blocks them you get a
+warning — you can still proceed but expect download failures.
+
+**Claude login:** the installer checks for `~/.claude/.credentials.json` (Mac) or
+`%USERPROFILE%\.claude\.credentials.json` (Windows). If absent, it launches
+`claude` (no subcommand — `claude auth login` does not exist). The browser
+opens, you log in, then type `/exit` or Ctrl+D to leave the Claude session and
+return to the installer. A **Claude Max** subscription is required.
 
 ### Phase 2 — Configure for RILGoose
 
