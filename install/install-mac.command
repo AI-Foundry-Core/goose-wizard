@@ -536,15 +536,27 @@ acp_path = Path(sys.argv[1])
 content = acp_path.read_text()
 original = content
 
-# Patch 1: settingSources - only load .claude/CLAUDE.md from project dir
+# Patch 1: settingSources - drop "project" scope
+# Keep "user" so ~/.claude/settings.json permissions allowlist imports (we WANT
+# that). Keep "local" so the project's .claude/CLAUDE.md override loads. Drop
+# "project" so the RILGoose design-doc CLAUDE.md doesn't confuse the agent
+# inside recipes.
 if 'settingSources: ["user", "project", "local"]' in content:
     content = content.replace(
         'settingSources: ["user", "project", "local"]',
-        'settingSources: ["local"]',
+        'settingSources: ["user", "local"]',
     )
-    print('  Patched: settingSources now ["local"] (prevents CLAUDE.md interference)')
+    print('  Patched: settingSources now ["user", "local"] (drops project scope)')
 elif 'settingSources: ["local"]' in content:
-    print('  Already patched (settingSources = ["local"])')
+    # Upgrade path: prior RILGoose installs patched to ["local"] only, which
+    # also stripped the user allowlist. Restore "user" scope.
+    content = content.replace(
+        'settingSources: ["local"]',
+        'settingSources: ["user", "local"]',
+    )
+    print('  Upgraded: settingSources now ["user", "local"] (was ["local"])')
+elif 'settingSources: ["user", "local"]' in content:
+    print('  Already patched (settingSources = ["user", "local"])')
 else:
     print('  WARNING: Could not find settingSources line')
 
@@ -553,7 +565,7 @@ else:
 if "autoMemoryEnabled: false" in content:
     print("  Already patched (autoMemoryEnabled = false)")
 else:
-    anchor_re = re.compile(r'settingSources:\s*\[\s*"local"\s*\],?')
+    anchor_re = re.compile(r'settingSources:\s*\[[^\]]*\],?')
     m = anchor_re.search(content)
     if m:
         content = content[:m.end()] + "\n            autoMemoryEnabled: false," + content[m.end():]
@@ -561,32 +573,54 @@ else:
     else:
         print("  WARNING: Could not insert autoMemoryEnabled patch (Patch 1 may have failed)")
 
-# Patch 3: enable AskUserQuestion tool
-if 'const disallowedTools = ["AskUserQuestion"];' in content:
-    content = content.replace(
-        'const disallowedTools = ["AskUserQuestion"];',
-        'const disallowedTools = [];',
+# Patch 3: cap extended thinking budget at 4096 tokens ("medium" level).
+# Upstream default is `undefined` (no cap), which lets Opus spend 30-60+
+# seconds reasoning per turn - too slow for interactive teaching. Cap keeps
+# visible reasoning for the teaching moment without multi-minute latency.
+# The MAX_THINKING_TOKENS env var still overrides the default.
+thinking_cap_re = re.compile(
+    r"(?P<indent>[ \t]*)const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS\s*\n"
+    r"\s*\?\s*parseInt\(process\.env\.MAX_THINKING_TOKENS,\s*10\)\s*\n"
+    r"\s*:\s*undefined\s*;"
+)
+m = thinking_cap_re.search(content)
+if m:
+    indent = m.group("indent")
+    capped = (
+        f"{indent}const maxThinkingTokens = process.env.MAX_THINKING_TOKENS\n"
+        f"{indent}    ? parseInt(process.env.MAX_THINKING_TOKENS, 10)\n"
+        f"{indent}    : 4096;"
     )
-    print("  Patched: AskUserQuestion enabled (allows interactive recipes)")
-elif 'const disallowedTools = [];' in content:
-    print("  Already patched (AskUserQuestion enabled)")
-else:
-    print("  WARNING: Could not find disallowedTools line")
+    content = content[:m.start()] + capped + content[m.end():]
+    print("  Patched: maxThinkingTokens default = 4096 (medium; env var overrides)")
+elif re.search(r"maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?:\s*4096\s*;", content):
+    print("  Already patched (maxThinkingTokens capped at 4096)")
 
-# Patch 4: Ensure extended thinking is ENABLED.
-# Earlier RILGoose versions disabled thinking (maxThinkingTokens = 0) to hide
-# "thinking" blocks. For a teaching audience, visible thinking IS the pitch
-# ("look how much the AI reasons through this"), so we re-enable it.
-#   - If the upstream env-var expression is still in place, leave it alone
-#   - If an earlier RILGoose install set it to 0, restore the upstream
-#   - Otherwise, warn but don't fail
-if re.search(r"const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS", content):
-    print("  Thinking: already at upstream default (enabled / env-var gated)")
-elif re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
+# Revert legacy patches if a prior RILGoose install applied them.
+# - disallowedTools=[] caused every tool call to require approval.
+# - custom systemPrompt was unnecessary.
+# - maxThinkingTokens=0 hid thinking blocks.
+if 'const disallowedTools = [];' in content:
+    content = content.replace(
+        'const disallowedTools = [];',
+        'const disallowedTools = ["AskUserQuestion"];',
+    )
+    print("  Reverted: disallowedTools back to upstream default")
+
+if "user knows what they are approving" in content:
+    legacy_prompt_re = re.compile(
+        r'let\s+systemPrompt\s*=\s*"You are an AI assistant running in the Goose agent platform[^"]*"\s*;',
+        re.DOTALL,
+    )
+    upstream_prompt = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
+    content = legacy_prompt_re.sub(upstream_prompt, content, count=1)
+    print("  Reverted: systemPrompt back to upstream claude_code preset")
+
+if re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
     restored = (
         "        const maxThinkingTokens = process.env.MAX_THINKING_TOKENS\n"
         "            ? parseInt(process.env.MAX_THINKING_TOKENS, 10)\n"
-        "            : undefined;"
+        "            : 4096;"
     )
     content = re.sub(
         r"(?m)^[ \t]*const\s+maxThinkingTokens\s*=\s*0[^;]*;\s*(?://[^\n]*)?",
@@ -594,39 +628,7 @@ elif re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
         content,
         count=1,
     )
-    print("  Patched: re-enabled extended thinking (reverted prior RILGoose patch)")
-else:
-    print("  Thinking: maxThinkingTokens block not found; leaving upstream behavior untouched")
-
-# Patch 5: replace claude_code preset system prompt with recipe-focused prompt.
-# MUST include the pre-tool-call announcement line - Goose's approval dialog
-# renders the model's natural-language preface before "approve this tool?".
-# Without that line, users see a generic prompt with no context about what
-# the tool call will actually do.
-# Use a tolerant regex so we can re-patch over any previous RILGoose version.
-prompt_re = re.compile(
-    r'let\s+systemPrompt\s*=\s*(\{[^}]*\}|"(?:[^"\\]|\\.)*")\s*;',
-    re.DOTALL,
-)
-prompt_patched_value = (
-    'let systemPrompt = "You are an AI assistant running in the Goose agent platform. '
-    'Your task comes from a recipe \\u2014 follow its instructions exactly. '
-    'Use the available tools (file read/write/edit, shell commands, code analysis) to do the work. '
-    'Before running any tool, write one short sentence (under 20 words) naming the tool and what you are about to do with it, '
-    'so the user knows what they are approving when the permission dialog appears. '
-    'When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. '
-    'Write complete paragraphs, not fragments.";'
-)
-# Marker text that only exists in the CURRENT prompt - distinguishes
-# "already up-to-date" from "patched with an older version that needs upgrade".
-current_marker = "user knows what they are approving"
-if current_marker in content:
-    print("  Already patched (current prompt with pre-tool announcement)")
-elif prompt_re.search(content):
-    content = prompt_re.sub(prompt_patched_value, content, count=1)
-    print("  Patched: system prompt replaced (recipe-focused, with pre-tool announcement)")
-else:
-    print("  WARNING: Could not find systemPrompt line")
+    print("  Reverted: re-enabled extended thinking with 4096 cap")
 
 if content != original:
     acp_path.write_text(content)

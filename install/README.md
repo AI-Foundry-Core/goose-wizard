@@ -61,11 +61,18 @@ return to the installer. A **Claude Max** subscription is required.
   sets provider to `claude-acp`, model to `opus`, and mode to `smart_approve`
   (auto-approves low-risk tool calls, prompts for destructive ones — default
   `auto` is too aggressive for developers learning to trust the AI)
-- Patches the ACP adapter with 5 edits for clean recipe execution
-  (settingSources, autoMemoryEnabled, AskUserQuestion, thinking tokens, system prompt).
-  Thinking tokens are **kept enabled** so developers see the model's reasoning
-  during training — an earlier version disabled them, and the installer now
-  reverts that patch on re-run.
+- Patches the ACP adapter with 3 edits for clean recipe execution:
+  (1) `settingSources: ["user", "local"]` - drops the project-scope
+  design-doc CLAUDE.md while keeping the user's permissions allowlist from
+  `~/.claude/settings.json`. (2) `autoMemoryEnabled: false` - prevents
+  personal Claude Code memory from leaking into recipe sessions. (3)
+  `maxThinkingTokens: 4096` default - caps extended thinking at "medium"
+  budget so Opus doesn't monologue for 30-60+ seconds per turn during
+  training (set `MAX_THINKING_TOKENS` env var to override, e.g. `0` to
+  disable or `16000` for deep reasoning). If a prior RILGoose install
+  applied the older 5-patch set, this script reverts the extra edits
+  (disallowedTools, custom systemPrompt, maxThinkingTokens=0) back to
+  upstream defaults.
 - Touches `00-start-here.yaml` so the gateway recipe sorts first
 - Creates `.goose/state/` and `~/.rilgoose/` directories
 - Seeds `.goose/PROGRESS.md` from the project template
