@@ -50,6 +50,37 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         $env:Path = "$machinePath;$userPath"
     }
 
+    # Helper: treat winget "already installed" / "no upgrade needed" as success
+    function Test-WingetResult($exitCode, $binaryName) {
+        if ($exitCode -eq 0) { return $true }
+        # Winget returns these for "already installed" / "no newer version" cases:
+        #   0x8A150010 = APPINSTALLER_CLI_ERROR_UPDATE_NOT_APPLICABLE (-1978335216)
+        #   0x8A15002B = APPINSTALLER_CLI_ERROR_NO_APPLICABLE_UPDATE_FOUND
+        # Rather than enumerate codes, fall back to "is the binary reachable?"
+        Refresh-Path
+        return (Test-Command $binaryName)
+    }
+
+    # Helper: preflight connectivity to a required URL; warn if blocked
+    function Test-Reachable($url, $label) {
+        try {
+            $resp = Invoke-WebRequest -Uri $url -Method Head -UseBasicParsing -TimeoutSec 10 -ErrorAction Stop
+            return $true
+        } catch {
+            Write-Host "  WARNING: cannot reach $label ($url). Error: $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "           If this is a corporate laptop, you likely need a proxy/VPN or IT to whitelist GitHub and npm." -ForegroundColor Yellow
+            return $false
+        }
+    }
+
+    # --- Preflight connectivity ---
+    Write-Host "`nPreflight: connectivity to GitHub and npm..." -ForegroundColor Yellow
+    $ghOk  = Test-Reachable "https://github.com" "GitHub"
+    $npmOk = Test-Reachable "https://registry.npmjs.org" "npm registry"
+    if (-not ($ghOk -and $npmOk)) {
+        Write-Host "  Continuing anyway — some downloads may fail. Check with IT if you hit download errors." -ForegroundColor Yellow
+    }
+
     # --- Node.js ---
     Write-Host "`nChecking Node.js..." -ForegroundColor Yellow
     if (Test-Command "node") {
@@ -59,12 +90,13 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Node.js not found. Installing via winget..."
         if (-not (Test-Command "winget")) {
             Write-Host "ERROR: winget not available. Install Node.js LTS manually from https://nodejs.org" -ForegroundColor Red
-            Write-Host "       Then re-run this installer." -ForegroundColor Red
+            Write-Host "       Older Windows 11 builds lack winget — update Windows or install the Node LTS .msi yourself, then re-run." -ForegroundColor Red
             exit 1
         }
         & winget install --id OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "ERROR: Node.js install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+        if (-not (Test-WingetResult $LASTEXITCODE "node")) {
+            Write-Host "ERROR: Node.js install failed (winget exit $LASTEXITCODE)" -ForegroundColor Red
+            Write-Host "       If GPO or Store restrictions block winget, install Node LTS manually from https://nodejs.org and re-run." -ForegroundColor Red
             exit 1
         }
         Refresh-Path
@@ -75,24 +107,58 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Node.js installed: $(& node --version)"
     }
 
-    # --- Goose CLI + desktop ---
-    Write-Host "`nChecking Goose..." -ForegroundColor Yellow
+    # Explicitly add %APPDATA%\npm to this session's PATH — it's where npm puts
+    # global shims but only gets added to user PATH on first npm invocation,
+    # which may not be reflected in our cached Refresh-Path result yet.
+    $npmShimDir = Join-Path $env:APPDATA "npm"
+    if ($env:Path -notlike "*$npmShimDir*") {
+        $env:Path = "$env:Path;$npmShimDir"
+    }
+
+    # --- Goose CLI (portable extract from zip) ---
+    Write-Host "`nChecking Goose CLI..." -ForegroundColor Yellow
     if (Test-Command "goose") {
-        $gooseVer = & goose --version 2>&1
-        Write-Host "  Goose: $($gooseVer.Trim()) (already installed)"
+        try {
+            $gooseVer = & goose --version 2>&1
+            if ($LASTEXITCODE -ne 0 -or -not $gooseVer) {
+                throw "goose --version failed"
+            }
+            Write-Host "  Goose: $($gooseVer.Trim()) (already installed)"
+        } catch {
+            Write-Host "  WARNING: 'goose' is on PATH but --version failed. The existing install may be broken." -ForegroundColor Yellow
+            Write-Host "           Continuing — if recipe execution fails later, reinstall Goose manually." -ForegroundColor Yellow
+        }
     } else {
-        Write-Host "  Goose not found. Downloading latest stable release..."
-        # Download the Windows MSVC CLI zip from block/goose stable release
+        Write-Host "  Goose CLI not found. Downloading latest stable release..."
         $gooseZipUrl = "https://github.com/block/goose/releases/download/stable/goose-x86_64-pc-windows-msvc.zip"
         $gooseTarget = Join-Path $env:USERPROFILE ".local\bin"
-        $tempZip = Join-Path $env:TEMP "goose-cli.zip"
+        # Unique temp filename to avoid collision with a concurrent installer run
+        $tempZip = Join-Path $env:TEMP ("goose-cli-" + [System.Guid]::NewGuid().ToString("N") + ".zip")
+        $tempExtract = Join-Path $env:TEMP ("goose-cli-extract-" + [System.Guid]::NewGuid().ToString("N"))
 
         try {
             Write-Host "  URL: $gooseZipUrl"
             Invoke-WebRequest -Uri $gooseZipUrl -OutFile $tempZip -UseBasicParsing
             New-Item -ItemType Directory -Path $gooseTarget -Force | Out-Null
-            Expand-Archive -Path $tempZip -DestinationPath $gooseTarget -Force
-            Remove-Item $tempZip -ErrorAction SilentlyContinue
+            New-Item -ItemType Directory -Path $tempExtract -Force | Out-Null
+            Expand-Archive -Path $tempZip -DestinationPath $tempExtract -Force
+
+            # Find goose.exe inside the extracted tree (zip may or may not have a
+            # single top-level subdirectory like goose-package/).
+            $gooseExe = Get-ChildItem -Path $tempExtract -Filter "goose.exe" -Recurse | Select-Object -First 1
+            if (-not $gooseExe) {
+                throw "goose.exe not found in the extracted archive at $tempExtract"
+            }
+            $gooseSourceDir = $gooseExe.Directory.FullName
+
+            # Move goose.exe and every file in its directory (DLLs, etc) to the target
+            Get-ChildItem -Path $gooseSourceDir -File | ForEach-Object {
+                Copy-Item $_.FullName (Join-Path $gooseTarget $_.Name) -Force
+            }
+
+            # Clean up temp
+            Remove-Item $tempZip -Force -ErrorAction SilentlyContinue
+            Remove-Item $tempExtract -Recurse -Force -ErrorAction SilentlyContinue
 
             # Ensure goose bin dir is on user PATH
             $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
@@ -101,19 +167,79 @@ if (-not $SkipBootstrap -and -not $DryRun) {
                 [System.Environment]::SetEnvironmentVariable("Path", $newPath, "User")
                 Write-Host "  Added $gooseTarget to user PATH"
             }
-            Refresh-Path
+            # Also ensure it's on THIS session's PATH
+            if ($env:Path -notlike "*$gooseTarget*") {
+                $env:Path = "$env:Path;$gooseTarget"
+            }
             if (-not (Test-Command "goose")) {
-                Write-Host "ERROR: Goose binary extracted but not on PATH. Close this window and re-run from a new terminal." -ForegroundColor Red
+                Write-Host "ERROR: Goose binary extracted but still not on PATH. Contents of ${gooseTarget}:" -ForegroundColor Red
+                Get-ChildItem -Path $gooseTarget | ForEach-Object { Write-Host "    $($_.Name)" }
                 exit 1
             }
-            Write-Host "  Goose installed: $(& goose --version)"
-            Write-Host "  Note: the desktop app is a separate download. For now, the CLI is enough to run recipes."
-            Write-Host "        To install the desktop app, download Goose.zip from:"
-            Write-Host "        https://github.com/block/goose/releases/tag/stable"
+            Write-Host "  Goose CLI installed: $(& goose --version)"
         } catch {
-            Write-Host "ERROR: Goose download failed: $_" -ForegroundColor Red
+            Write-Host "ERROR: Goose download/extract failed: $_" -ForegroundColor Red
             Write-Host "       Install manually from https://github.com/block/goose/releases/tag/stable" -ForegroundColor Red
             exit 1
+        }
+    }
+
+    # --- Goose desktop app ---
+    Write-Host "`nChecking Goose desktop app..." -ForegroundColor Yellow
+    $desktopInstalled = $false
+    # Look in the most common install locations for a Goose desktop app
+    $desktopCandidates = @(
+        (Join-Path $env:LOCALAPPDATA "Programs\Goose\Goose.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\goose\Goose.exe"),
+        "C:\Program Files\Goose\Goose.exe",
+        (Join-Path $env:USERPROFILE "AppData\Local\Programs\Goose\Goose.exe")
+    )
+    foreach ($candidate in $desktopCandidates) {
+        if (Test-Path $candidate) {
+            Write-Host "  Desktop app: found at $candidate"
+            $desktopInstalled = $true
+            break
+        }
+    }
+    if (-not $desktopInstalled) {
+        Write-Host "  Goose desktop app not found. Downloading installer..."
+        $desktopZipUrl = "https://github.com/block/goose/releases/download/stable/Goose.zip"
+        $tempDesktopZip = Join-Path $env:TEMP ("goose-desktop-" + [System.Guid]::NewGuid().ToString("N") + ".zip")
+        $tempDesktopExtract = Join-Path $env:TEMP ("goose-desktop-extract-" + [System.Guid]::NewGuid().ToString("N"))
+
+        try {
+            Invoke-WebRequest -Uri $desktopZipUrl -OutFile $tempDesktopZip -UseBasicParsing
+            New-Item -ItemType Directory -Path $tempDesktopExtract -Force | Out-Null
+            Expand-Archive -Path $tempDesktopZip -DestinationPath $tempDesktopExtract -Force
+
+            # The zip may contain an NSIS installer .exe or a Setup .msi — find and run it.
+            $installer = Get-ChildItem -Path $tempDesktopExtract -Include "*.exe","*.msi" -Recurse -File |
+                         Where-Object { $_.Name -match "(?i)goose|setup|install" } |
+                         Select-Object -First 1
+            if (-not $installer) {
+                # Fall back to ANY exe in the extracted tree
+                $installer = Get-ChildItem -Path $tempDesktopExtract -Filter "*.exe" -Recurse -File | Select-Object -First 1
+            }
+            if (-not $installer) {
+                throw "Goose desktop installer not found in Goose.zip"
+            }
+
+            Write-Host "  Running desktop installer: $($installer.Name)"
+            Write-Host "  (a Windows install dialog may appear — click through it)"
+            if ($installer.Extension -eq ".msi") {
+                Start-Process msiexec.exe -ArgumentList "/i `"$($installer.FullName)`" /qb" -Wait
+            } else {
+                # NSIS/Electron installers usually support /S for silent — try that but fall back to visible
+                Start-Process -FilePath $installer.FullName -ArgumentList "/S" -Wait -ErrorAction SilentlyContinue
+            }
+
+            Remove-Item $tempDesktopZip -Force -ErrorAction SilentlyContinue
+            Remove-Item $tempDesktopExtract -Recurse -Force -ErrorAction SilentlyContinue
+            Write-Host "  Goose desktop app installer completed."
+        } catch {
+            Write-Host "  WARNING: Goose desktop install failed: $_" -ForegroundColor Yellow
+            Write-Host "           The CLI is enough to run recipes. Install the desktop app later from:" -ForegroundColor Yellow
+            Write-Host "           https://github.com/block/goose/releases/tag/stable" -ForegroundColor Yellow
         }
     }
 
@@ -123,14 +249,21 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Claude CLI: found (already installed)"
     } else {
         Write-Host "  Claude CLI not found. Installing via npm..."
+        Write-Host "  (Note: npm install of @anthropic-ai/claude-code may be deprecated in future releases in favor of https://claude.ai/install.sh — current approach still works.)"
         & npm install -g "@anthropic-ai/claude-code"
         if ($LASTEXITCODE -ne 0) {
             Write-Host "ERROR: Claude CLI install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            Write-Host "       Common cause: npm global prefix not writable. Run 'npm config get prefix' and check permissions." -ForegroundColor Red
             exit 1
         }
         Refresh-Path
+        # npm shims land in %APPDATA%\npm — make sure it's on this session's PATH
+        if ($env:Path -notlike "*$npmShimDir*") {
+            $env:Path = "$env:Path;$npmShimDir"
+        }
         if (-not (Test-Command "claude")) {
-            Write-Host "ERROR: Claude CLI installed but not on PATH. Close this window and re-run from a new terminal." -ForegroundColor Red
+            Write-Host "ERROR: Claude CLI installed but not on PATH." -ForegroundColor Red
+            Write-Host "       Expected at: $npmShimDir\claude.cmd" -ForegroundColor Red
             exit 1
         }
         Write-Host "  Claude CLI installed."
@@ -148,23 +281,39 @@ if (-not $SkipBootstrap -and -not $DryRun) {
             exit 1
         }
         Refresh-Path
+        if ($env:Path -notlike "*$npmShimDir*") {
+            $env:Path = "$env:Path;$npmShimDir"
+        }
         Write-Host "  ACP adapter installed."
     }
 
     # --- Claude authentication ---
     Write-Host "`nChecking Claude authentication..." -ForegroundColor Yellow
-    # We can't reliably probe login state without triggering a real call,
-    # so just prompt the user to confirm they've logged in.
-    Write-Host "  Have you already logged in to Claude with your Claude Max account?"
-    Write-Host "  (If not, we'll open the login flow now.)"
-    $response = Read-Host "  Logged in? [y/N]"
-    if ($response -notmatch '^[Yy]') {
-        Write-Host "  Launching Claude login. A browser will open — log in, then come back here."
-        Write-Host "  Press Enter in this window once login is complete."
-        # `claude` with no args opens an interactive session; prefer an explicit
-        # login command if available. Fall back to running `claude` briefly.
-        Start-Process -FilePath "claude" -ArgumentList "auth login" -NoNewWindow -Wait -ErrorAction SilentlyContinue
-        Read-Host "  Press Enter when logged in"
+    # Check if credentials file exists as a heuristic for "already logged in"
+    $claudeCredsPath = Join-Path $env:USERPROFILE ".claude\.credentials.json"
+    if (Test-Path $claudeCredsPath) {
+        Write-Host "  Found existing Claude credentials at $claudeCredsPath"
+        Write-Host "  Assuming you are logged in. If recipes later fail with auth errors, run 'claude' and re-login."
+    } else {
+        Write-Host "  No existing Claude credentials found."
+        Write-Host "  We'll now launch 'claude' — it will open a browser for you to log in with your Claude Max account."
+        Write-Host "  After login, type '/exit' or press Ctrl+D to leave the Claude session and return here."
+        Read-Host "  Press Enter to launch Claude login"
+        # Run 'claude' with no args — this triggers the OAuth browser flow on first run.
+        # Start-Process -Wait so the script pauses until the user exits the Claude session.
+        try {
+            Start-Process -FilePath "claude" -NoNewWindow -Wait
+        } catch {
+            Write-Host "  WARNING: could not launch 'claude' automatically. Please open a new terminal, run 'claude', complete login, then come back." -ForegroundColor Yellow
+            Read-Host "  Press Enter when login is complete"
+        }
+        # Verify credentials now exist
+        if (Test-Path $claudeCredsPath) {
+            Write-Host "  Login detected."
+        } else {
+            Write-Host "  WARNING: credentials file still not found at $claudeCredsPath." -ForegroundColor Yellow
+            Write-Host "           Recipe execution will likely fail until you log in. Run 'claude' manually to retry." -ForegroundColor Yellow
+        }
     }
 
     # --- Bootstrap config.yaml if missing ---
@@ -444,8 +593,25 @@ if (-not $SkipExtensions) {
 # to control settingSources. Until then, this patch is the only way.
 Write-Host "`nPatching ACP adapter (context isolation)..." -ForegroundColor Yellow
 
-$acpModuleDir = Join-Path $env:APPDATA "npm\node_modules\@agentclientprotocol\claude-agent-acp\dist"
-$acpAgentFile = Join-Path $acpModuleDir "acp-agent.js"
+# Locate the ACP adapter via `npm root -g` so we work with any npm prefix
+# (default %APPDATA%\npm, nvm-windows, Scoop, Chocolatey, custom prefix).
+# Fall back to the historical default if npm isn't on PATH.
+$acpAgentFile = $null
+try {
+    $npmGlobalRoot = (& npm root -g 2>$null).Trim()
+    if ($LASTEXITCODE -eq 0 -and $npmGlobalRoot) {
+        $candidate = Join-Path $npmGlobalRoot "@agentclientprotocol\claude-agent-acp\dist\acp-agent.js"
+        if (Test-Path $candidate) {
+            $acpAgentFile = $candidate
+        }
+    }
+} catch {
+    # npm not on PATH or failed; fall through to fallback
+}
+if (-not $acpAgentFile) {
+    $fallbackDir = Join-Path $env:APPDATA "npm\node_modules\@agentclientprotocol\claude-agent-acp\dist"
+    $acpAgentFile = Join-Path $fallbackDir "acp-agent.js"
+}
 
 if (Test-Path $acpAgentFile) {
     $acpContent = Get-Content $acpAgentFile -Raw
@@ -472,20 +638,21 @@ if (Test-Path $acpAgentFile) {
     # The claude_code preset enables auto-memory by default, which reads from
     # ~/.claude/projects/<hash>/memory/ independently of settingSources. This
     # brings in user-specific rules that override recipe instructions.
-    $memoryInsertAfter = 'settingSources: ["local"],'
-    $memoryLine = '            autoMemoryEnabled: false,'
-
+    # Tolerant match: settingSources: ["local"] with optional trailing comma.
     if ($acpContent.Contains("autoMemoryEnabled: false")) {
         Write-Host "  Already patched (autoMemoryEnabled = false)"
-    } elseif ($acpContent.Contains($memoryInsertAfter)) {
-        if ($DryRun) {
-            Write-Host "  [DRY RUN] Would disable autoMemoryEnabled"
-        } else {
-            $acpContent = $acpContent.Replace($memoryInsertAfter, "$memoryInsertAfter`n$memoryLine")
-            Write-Host "  Patched: autoMemoryEnabled = false (prevents memory interference)" -ForegroundColor Green
-        }
     } else {
-        Write-Host "  WARNING: Could not insert autoMemoryEnabled patch" -ForegroundColor Yellow
+        $memoryPattern = '(settingSources:\s*\[\s*"local"\s*\],?)'
+        if ($acpContent -match $memoryPattern) {
+            if ($DryRun) {
+                Write-Host "  [DRY RUN] Would disable autoMemoryEnabled"
+            } else {
+                $acpContent = [regex]::Replace($acpContent, $memoryPattern, '$1' + "`n            autoMemoryEnabled: false,")
+                Write-Host "  Patched: autoMemoryEnabled = false (prevents memory interference)" -ForegroundColor Green
+            }
+        } else {
+            Write-Host "  WARNING: Could not insert autoMemoryEnabled patch (Patch 1 may have failed)" -ForegroundColor Yellow
+        }
     }
 
     # Patch 3: Enable AskUserQuestion tool — required for interactive recipes
@@ -509,29 +676,26 @@ if (Test-Path $acpAgentFile) {
 
     # Patch 4: Disable extended thinking output
     # Claude's extended thinking streams visible "thinking" blocks in the Goose UI,
-    # which looks confusing to users ("The user wants me to check..."). Setting
-    # maxThinkingTokens to 0 disables this.
-    $thinkOriginal = 'const maxThinkingTokens = process.env.MAX_THINKING_TOKENS'
-    $thinkPatched  = 'const maxThinkingTokens = 0; // process.env.MAX_THINKING_TOKENS'
-
-    if ($acpContent.Contains($thinkOriginal) -and -not $acpContent.Contains($thinkPatched)) {
-        $thinkFullOriginal = @'
-        const maxThinkingTokens = process.env.MAX_THINKING_TOKENS
-            ? parseInt(process.env.MAX_THINKING_TOKENS, 10)
-            : undefined;
-'@
-        $thinkFullPatched = '        // Configure thinking tokens - disabled for clean recipe output' + "`n" + '        const maxThinkingTokens = 0;'
-
-        if ($DryRun) {
-            Write-Host "  [DRY RUN] Would disable extended thinking"
-        } else {
-            $acpContent = $acpContent.Replace($thinkFullOriginal, $thinkFullPatched)
-            Write-Host "  Patched: extended thinking disabled (no visible thinking blocks)" -ForegroundColor Green
-        }
-    } elseif ($acpContent.Contains("const maxThinkingTokens = 0")) {
+    # which looks confusing to users. Setting maxThinkingTokens to 0 disables this.
+    # Use a regex that tolerates whitespace/line-ending variations across upstream
+    # reformatting (prettier, indentation changes, etc.) instead of an exact match.
+    $alreadyThinkPatched = ($acpContent -match 'const\s+maxThinkingTokens\s*=\s*0\b')
+    if ($alreadyThinkPatched) {
         Write-Host "  Already patched (thinking disabled)"
     } else {
-        Write-Host "  WARNING: Could not find maxThinkingTokens block" -ForegroundColor Yellow
+        # Match `const maxThinkingTokens = <anything up to and including undefined>;`
+        # across multiple lines of any whitespace. [\s\S] = any char including newline.
+        $thinkPattern = '(?s)const\s+maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?;'
+        if ($acpContent -match $thinkPattern) {
+            if ($DryRun) {
+                Write-Host "  [DRY RUN] Would disable extended thinking"
+            } else {
+                $acpContent = [regex]::Replace($acpContent, $thinkPattern, 'const maxThinkingTokens = 0; // thinking disabled for clean recipe output')
+                Write-Host "  Patched: extended thinking disabled (no visible thinking blocks)" -ForegroundColor Green
+            }
+        } else {
+            Write-Host "  WARNING: Could not find maxThinkingTokens block" -ForegroundColor Yellow
+        }
     }
 
     # Patch 5: Replace claude_code system prompt with recipe-focused prompt
