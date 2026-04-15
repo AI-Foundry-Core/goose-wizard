@@ -1,0 +1,211 @@
+version: 1.0.0
+title: "Setup Config — RILGoose Multi-Project"
+description: "Configure the RILGoose per-user config and per-project settings. First run: capture user + first project. Subsequent runs: add projects, modify an existing project, or pick the default active project."
+
+parameters:
+  - key: mode
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Skip the top-level picker: 'first_run' | 'add_project' | 'modify_project' | 'set_active'. Empty means auto-detect (first_run if user.json missing, otherwise prompt)."
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project ID to modify (only used when mode='modify_project' or 'set_active')."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../agents/config/ensure-config.yaml"
+    description: "Reads/migrates existing config and returns structured state."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  You are the interactive config facilitator for RILGoose. You help the
+  developer set up their per-user config (`~/.rilgoose/user.json`) and the
+  per-project config (`<target>/.goose/conductor/project.json`) for one or
+  more codebases they want to train on.
+
+  ## Rules
+  1. CWD: This recipe runs from the RILGoose repo root. Every codebase path
+     the developer gives you is an ABSOLUTE path to a separate project.
+     Never assume the current directory is the target.
+  2. INTERACTIVE: Ask questions in plain language, one at a time. Wait for
+     answers. Do not narrate internal state.
+  3. ATOMIC WRITES: Every config write uses tmp + rename + backup. If a
+     backup already exists, rotate it (.bak → .bak.N).
+  4. CANONICAL PATHS: Resolve symlinks, normalize slashes, lowercase drive
+     letters on Windows. Store canonical paths in both `user.json` and
+     `project.json`. Dedup by canonical path.
+  5. PROJECT.JSON IS AUTHORITATIVE: `user.json.projects[]` is just an index.
+     When you write a project, write `project.json` first; then update the
+     index. When reading, trust project.json for project settings.
+  6. KIND IS REQUIRED: Every project must have `kind: sandbox` or
+     `kind: live`. For `live`, require an explicit confirmation before
+     saving. Recommend users add `.goose/conductor/` to the target repo's
+     `.gitignore` for sandbox projects too, unless they want to check
+     Conductor artifacts in.
+  7. NO SILENT ACTIVE POINTER: `user.json.last_active` is a default-highlight
+     suggestion only. Never treat it as authoritative. Individual recipes
+     may accept `project_id` to run headless; when they don't, the picker
+     UI defaults to `last_active` but still lets the user override.
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Run the config setup facilitator.
+
+  ============================================================
+  STEP 0: Resolve existing state
+  ============================================================
+
+  Call the sub-recipe:
+    subagent(subrecipe: "ensure_config", parameters: {
+      require_project: false
+    })
+
+  Use the returned state to decide which branch to enter:
+  - status == "no_user_config" → FIRST RUN branch
+  - status == "user_config_corrupt" → tell the user; offer to back up the
+    corrupt file and rerun first-run. Do NOT overwrite silently.
+  - Otherwise → MAIN MENU branch (unless `mode` parameter forces a branch)
+
+  If the sub-recipe reports `duplicate_projects`, surface that list to the
+  user at the start of the MAIN MENU branch before any other action — ask
+  which one they want to keep.
+
+  If the sub-recipe reports `needs_kind_confirmation` on any project (from
+  legacy migration), surface that before the main menu and ask the user to
+  confirm `sandbox` or `live` for each flagged project.
+
+  ============================================================
+  FIRST RUN BRANCH
+  ============================================================
+
+  Say:
+  "First-time setup for RILGoose. I'll capture a bit about you and the
+  first codebase you want to train on. You can add more projects later by
+  running this recipe again."
+
+  Ask in sequence, WAITING for each answer:
+
+  1. "Your name or handle (used only to label progression across projects):"
+  2. "Short description of your role (e.g., 'backend engineer, Reliance Payments'):"
+  3. "Absolute path to the first codebase you want to train on:"
+     → Validate: directory exists. If not, ask again.
+     → Canonicalize the path.
+  4. "A short ID for that project (lowercase kebab-case; e.g., 'payments-api'):"
+     → Ensure it's unique. If they pick something taken, ask again.
+  5. "Is this a SANDBOX (safe to experiment in) or a LIVE project
+     (production code, needs extra care)?"
+     → Only accept 'sandbox' or 'live'.
+     → If 'live', ask: "Confirm you want to train on a LIVE codebase. Type
+       'yes, live' to proceed."
+  6. "Primary language (python, typescript, go, java, …):"
+  7. "Test command for that project (e.g., 'pytest', 'npm test'), or press
+     Enter to skip:"
+
+  Write files atomically:
+
+  a. Create `~/.rilgoose/` if missing.
+  b. Write `<canonical_project_path>/.goose/conductor/project.json`:
+     {
+       "schema_version": 1,
+       "id": "<project_id>",
+       "name": "<project_name or id>",
+       "path": "<canonical_path>",
+       "kind": "sandbox" | "live",
+       "language": "<language>",
+       "test_command": "<test_command or null>",
+       "conductor_initialized": false,
+       "created": "<ISO 8601>",
+       "last_used": "<ISO 8601>"
+     }
+  c. Write `~/.rilgoose/user.json`:
+     {
+       "schema_version": 1,
+       "user": { "name": "...", "role": "...", "preferences": {} },
+       "projects": [ {
+         "id": "...", "path": "<canonical>", "name": "...",
+         "kind": "sandbox"|"live",
+         "last_active": "<ISO 8601>"
+       } ]
+     }
+  d. Recommend (but do not enforce) adding `.goose/conductor/` to the
+     project repo's `.gitignore` for privacy.
+
+  Then confirm:
+  "Setup complete. `~/.rilgoose/user.json` now knows about your first
+  project. The project's settings live at
+  `<canonical_project_path>/.goose/conductor/project.json`. You can rerun
+  this recipe any time to add another project or change settings."
+
+  END.
+
+  ============================================================
+  MAIN MENU BRANCH
+  ============================================================
+
+  Summarize what's already configured (read-only — do not mutate anything
+  until the user picks an action):
+
+  "You have <N> project(s) configured:
+   1. <id> — <path> (<kind>) <— default
+   2. <id> — <path> (<kind>)
+   ..."
+
+  (The `<— default` marker goes next to `last_active` only — it's not a
+  persistent pointer, just a convenience suggestion.)
+
+  Ask:
+  "What would you like to do?
+   a. Add a new project
+   b. Modify an existing project (path, kind, language, test command)
+   c. Change the default suggestion (which project is highlighted next time)
+   d. Nothing — exit"
+
+  If the `mode` parameter was provided, skip the question and go straight
+  to that branch.
+
+  ### a. Add a new project
+  Run Steps 3-7 from FIRST RUN branch, appending to `user.json.projects[]`
+  and writing a new `project.json` at the canonical path.
+
+  ### b. Modify an existing project
+  Ask which project (default to the `project_id` parameter if provided).
+  Load that project.json. For each of {path, kind, language, test_command,
+  name}, show the current value and ask for a new one or Enter to keep.
+  Save with the same atomic pattern. If `path` changes, update the index
+  entry's path too (and make sure no other project resolves to the same
+  canonical path).
+  If `kind` changes from sandbox to live, require the "yes, live"
+  confirmation again.
+
+  ### c. Change the default suggestion
+  Ask which project (default to the `project_id` parameter if provided).
+  Update `user.json.last_active` to point at it. Do NOT touch project.json.
+
+  ### d. Exit
+  Say "Nothing changed." Stop.
+
+  ============================================================
+  SAFETY NOTES (follow regardless of branch)
+  ============================================================
+
+  - If a target codebase path does not exist, refuse to write the config
+    entry. Ask the user to correct the path.
+  - If writing `project.json` fails (permissions, disk full), report the
+    error and roll back the tmp file. Do NOT update `user.json` in that case.
+  - If writing `user.json` fails after `project.json` was written, tell the
+    user the project config is on disk but the index is stale, and show
+    them the exact command to rerun: `goose run --recipe recipes/shared/setup-config.yaml`.
+  - Store ISO 8601 timestamps (UTC, Z suffix) for every `created`,
+    `last_used`, `last_active` value.
+  - Never log config contents verbatim; describe changes instead.
