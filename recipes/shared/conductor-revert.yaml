@@ -97,8 +97,17 @@ prompt: |
      2. <sha>  <subject>
      ..."
 
-  Ask the user to confirm: "Type 'revert' to proceed, anything else to
-  cancel."
+  Ask the user to confirm with a target-specific typed string. The exact
+  expected confirmation depends on `unit`:
+    - unit == "task":  expected = `revert {{ track_id }} task <task_id>`
+    - unit == "phase": expected = `revert {{ track_id }} phase <phase>`
+    - unit == "track": expected = `revert {{ track_id }}`
+  Show the user the EXACT string they need to type, then say:
+  "Type that string exactly to proceed, or anything else to cancel."
+  String-match the response against the expected confirmation, byte-for-byte
+  (after trimming surrounding whitespace). Anything else cancels — including
+  a bare "revert" or "yes". This is the same target-specific confirmation
+  pattern conductor-manage uses for delete.
 
   ## Step 3 — Execute (only if confirmed)
 

@@ -136,8 +136,13 @@ prompt: |
          "id": "...", "path": "<canonical>", "name": "...",
          "kind": "sandbox"|"live",
          "last_active": "<ISO 8601>"
-       } ]
+       } ],
+       "last_active": "<project_id of the project just added>"
      }
+     The top-level `last_active` is the picker's DEFAULT SUGGESTION (which
+     project to highlight next time). On first run with one project,
+     point it at that project's id so headless callers don't get
+     `no_active_project` from `ensure-config`.
   d. Recommend (but do not enforce) adding `.goose/conductor/` to the
      project repo's `.gitignore` for privacy.
 
@@ -177,6 +182,8 @@ prompt: |
   ### a. Add a new project
   Run Steps 3-7 from FIRST RUN branch, appending to `user.json.projects[]`
   and writing a new `project.json` at the canonical path.
+  Do NOT change `user.json.last_active` — the user's existing default
+  suggestion stays in effect. They can change it explicitly via branch (c).
 
   ### b. Modify an existing project
   Ask which project (default to the `project_id` parameter if provided).

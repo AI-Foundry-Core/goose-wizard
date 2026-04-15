@@ -95,10 +95,15 @@ instructions: |
   4. Resolve the target project:
      a. If `project_id` is provided, look it up in projects[]. If not
         found, return status "project_missing".
-     b. Else if user_config has a `last_active` field pointing at a valid
-        project, use it as the DEFAULT SUGGESTION (not a persistent pointer).
-     c. Else if `require_project` is true, return "no_active_project".
-     d. Else return with project fields null.
+     b. Else if user_config has a top-level `last_active` field pointing at
+        a valid project, use it as the DEFAULT SUGGESTION. NOT a persistent
+        active-project pointer — interactive callers may still let the user
+        override; headless callers may still pass an explicit `project_id`.
+     c. Else if `projects[]` has exactly one entry, use it (with
+        `auto_selected: true` in the return so the caller knows this was
+        a single-project fallback, not an explicit user choice).
+     d. Else if `require_project` is true, return "no_active_project".
+     e. Else return with project fields null.
   5. Read the project's on-disk `project.json` at
      `<canonical_project_path>/.goose/conductor/project.json`.
      - If missing → "project_json_missing".
@@ -117,6 +122,8 @@ instructions: |
   - migrated: true if the legacy file was migrated this run
   - projects: Array of {id, path (canonical), name, kind, last_active, needs_kind_confirmation?}
   - resolved_project: { id, path, name, kind } or null
+  - resolved_via: "explicit_project_id" | "last_active_suggestion" | "single_project_fallback" | null
+  - auto_selected: true if `single_project_fallback` was used, else false
   - project_json_path: Absolute path or null
   - project_json: Parsed contents or null
   - drift: Null or a structured note of differences between index entry and project.json

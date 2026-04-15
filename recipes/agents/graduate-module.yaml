@@ -52,8 +52,11 @@ instructions: |
      a. If the canonical file exists, use it.
      b. Else if the legacy file exists (relative to cwd):
         - Create canonical parent dir if missing.
-        - Move legacy file to canonical path (atomic: write tmp + rename).
-        - Rename legacy file to `{legacy_state_path}.migrated`.
+        - COPY the legacy file contents to the canonical path atomically
+          (write `{canonical}.tmp`, then rename to the canonical path).
+          Do NOT move or delete the legacy file yet.
+        - After the canonical file is confirmed readable, rename the
+          legacy file to `{legacy_state_path}.migrated`.
      c. Else STOP and report "no_progression_state" — graduation requires
         an existing state file.
   2. Validate inputs: module_number must be 2-26. Reject 0 or 1.
