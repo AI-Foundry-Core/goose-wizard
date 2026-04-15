@@ -258,12 +258,27 @@ WAIT for any questions about the recipe structure.
 
 ## Bridge
 
-"Your instructions evolve now. But instructions aren't the only thing that
-accumulates - rules do too. And when you have rules in 5 different files
-saying slightly different things, agents start making arbitrary choices.
-Next: auditing and pruning the rules themselves. Ready to move on?"
+This is the final recipe in the final stage. The bridge connects to the
+ongoing practice, not to another module.
 
-Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
+"That's the full arc. You started by watching AI fix a bug. Now you have a
+development system that builds, tests, reviews, runs cycles while you sleep,
+captures learnings, measures its own improvement, audits its own rules, and
+evolves its own instructions.
+
+The system doesn't need another stage. It needs you to keep doing what you've
+been doing — running cycles, reviewing findings, letting the Curator turn
+those findings into instruction changes, auditing the rule set, and measuring
+the results. Every cycle makes it a little smarter.
+
+The recipes are yours. Use them, edit them, author new ones. If you want
+to design your own recipe or pipeline from scratch, the GooseForge recipes
+(`recipes/graduated/recipe-forge.yaml` and `pipeline-forge.yaml`) walk
+through that end-to-end.
+
+Make sense — or want to hold here and let it soak before you go run a cycle?"
+
+Check: Wait for the developer to respond. If they want to reflect or ask questions, engage. If they're ready to close, acknowledge and let them go. There's no next module — this is the end of the curriculum.
 
 ---
 
