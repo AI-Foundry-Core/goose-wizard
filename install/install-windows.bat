@@ -58,7 +58,7 @@ if %EXITCODE% NEQ 0 (
     echo the Start Menu and look for "START HERE" at the top.
     echo.
     echo Or from a NEW terminal window:
-    echo    goose run --recipe start-here
+    echo    goose run --recipe 00-start-here
 )
 echo.
 pause

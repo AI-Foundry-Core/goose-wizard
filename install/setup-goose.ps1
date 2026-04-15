@@ -237,7 +237,7 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         }
     }
     if (-not $desktopInstalled) {
-        Write-Host "  Goose desktop app not found. Downloading installer..."
+        Write-Host "  Goose desktop app not found. Downloading..."
         $desktopZipUrl = "https://github.com/block/goose/releases/download/stable/Goose.zip"
         $tempDesktopZip = Join-Path $env:TEMP ("goose-desktop-" + [System.Guid]::NewGuid().ToString("N") + ".zip")
         $tempDesktopExtract = Join-Path $env:TEMP ("goose-desktop-extract-" + [System.Guid]::NewGuid().ToString("N"))
@@ -247,30 +247,54 @@ if (-not $SkipBootstrap -and -not $DryRun) {
             New-Item -ItemType Directory -Path $tempDesktopExtract -Force | Out-Null
             Expand-Archive -Path $tempDesktopZip -DestinationPath $tempDesktopExtract -Force
 
-            # The zip may contain an NSIS installer .exe or a Setup .msi - find and run it.
+            # Goose.zip layout changed over releases. Handle two cases:
+            # (a) Contains a Setup/Install .exe or .msi - run it (older layout).
+            # (b) Contains Goose.exe directly as a portable app - copy to
+            #     %LOCALAPPDATA%\Programs\Goose\ (newer layout, no installer).
             $installer = Get-ChildItem -Path $tempDesktopExtract -Include "*.exe","*.msi" -Recurse -File |
-                         Where-Object { $_.Name -match "(?i)goose|setup|install" } |
+                         Where-Object { $_.Name -match "(?i)setup|install" } |
                          Select-Object -First 1
-            if (-not $installer) {
-                # Fall back to ANY exe in the extracted tree
-                $installer = Get-ChildItem -Path $tempDesktopExtract -Filter "*.exe" -Recurse -File | Select-Object -First 1
-            }
-            if (-not $installer) {
-                throw "Goose desktop installer not found in Goose.zip"
-            }
 
-            Write-Host "  Running desktop installer: $($installer.Name)"
-            Write-Host "  (a Windows install dialog may appear - click through it)"
-            if ($installer.Extension -eq ".msi") {
-                Start-Process msiexec.exe -ArgumentList "/i `"$($installer.FullName)`" /qb" -Wait
+            if ($installer) {
+                Write-Host "  Running desktop installer: $($installer.Name)"
+                Write-Host "  (a Windows install dialog may appear - click through it)"
+                if ($installer.Extension -eq ".msi") {
+                    Start-Process msiexec.exe -ArgumentList "/i `"$($installer.FullName)`" /qb" -Wait
+                } else {
+                    Start-Process -FilePath $installer.FullName -ArgumentList "/S" -Wait -ErrorAction SilentlyContinue
+                }
+                Write-Host "  Goose desktop app installer completed."
             } else {
-                # NSIS/Electron installers usually support /S for silent - try that but fall back to visible
-                Start-Process -FilePath $installer.FullName -ArgumentList "/S" -Wait -ErrorAction SilentlyContinue
+                # Portable-app layout: find Goose.exe and copy the containing dir
+                $gooseAppExe = Get-ChildItem -Path $tempDesktopExtract -Filter "Goose.exe" -Recurse -File |
+                               Where-Object { $_.FullName -notlike "*goose-x86_64*" } |
+                               Select-Object -First 1
+                if (-not $gooseAppExe) {
+                    throw "Could not locate Goose.exe or a setup installer inside Goose.zip"
+                }
+                $appInstallDir = Join-Path $env:LOCALAPPDATA "Programs\Goose"
+                New-Item -ItemType Directory -Path $appInstallDir -Force | Out-Null
+                $sourceDir = Split-Path -Parent $gooseAppExe.FullName
+                Copy-Item -Path (Join-Path $sourceDir "*") -Destination $appInstallDir -Recurse -Force
+                Write-Host "  Goose desktop app copied to $appInstallDir"
+
+                # Create a Start Menu shortcut for discoverability
+                try {
+                    $startMenu = Join-Path $env:APPDATA "Microsoft\Windows\Start Menu\Programs"
+                    $shortcutPath = Join-Path $startMenu "Goose.lnk"
+                    $shell = New-Object -ComObject WScript.Shell
+                    $shortcut = $shell.CreateShortcut($shortcutPath)
+                    $shortcut.TargetPath = Join-Path $appInstallDir "Goose.exe"
+                    $shortcut.WorkingDirectory = $appInstallDir
+                    $shortcut.Save()
+                    Write-Host "  Start Menu shortcut created"
+                } catch {
+                    Write-Host "  (Shortcut creation skipped: $_)" -ForegroundColor DarkGray
+                }
             }
 
             Remove-Item $tempDesktopZip -Force -ErrorAction SilentlyContinue
             Remove-Item $tempDesktopExtract -Recurse -Force -ErrorAction SilentlyContinue
-            Write-Host "  Goose desktop app installer completed."
         } catch {
             Write-Host "  WARNING: Goose desktop install failed: $_" -ForegroundColor Yellow
             Write-Host "           The CLI is enough to run recipes. Install the desktop app later from:" -ForegroundColor Yellow
@@ -298,8 +322,14 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         $nativeInstallOk = $false
         try {
             # Official installer: irm https://claude.ai/install.ps1 | iex
-            $installScript = Invoke-WebRequest -Uri "https://claude.ai/install.ps1" -UseBasicParsing -TimeoutSec 30
-            Invoke-Expression $installScript.Content
+            # Invoke-RestMethod returns decoded string content directly (unlike
+            # Invoke-WebRequest, which can return $.Content as byte[] when the
+            # server omits charset, breaking Invoke-Expression).
+            $installScript = Invoke-RestMethod -Uri "https://claude.ai/install.ps1" -UseBasicParsing -TimeoutSec 30
+            if ($installScript -is [byte[]]) {
+                $installScript = [System.Text.Encoding]::UTF8.GetString($installScript)
+            }
+            Invoke-Expression $installScript
             # Binary lands at %USERPROFILE%\.local\bin\claude.exe - same dir as goose.exe.
             $claudeLocalBin = Join-Path $env:USERPROFILE ".local\bin"
             if ($env:Path -notlike "*$claudeLocalBin*") {
@@ -429,11 +459,21 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  We'll now launch 'claude' - it will open a browser for you to log in with your Claude Max account."
         Write-Host "  After login, type '/exit' or press Ctrl+D to leave the Claude session and return here."
         Read-Host "  Press Enter to launch Claude login"
-        # Run 'claude' with no args - this triggers the OAuth browser flow on first run.
-        # Start-Process -Wait so the script pauses until the user exits the Claude session.
+        # Run 'claude' with no args - triggers the OAuth browser flow on first run.
+        # Start-Process can't directly launch 'claude' because it's a .cmd/.ps1
+        # shim on Windows, not a native .exe. Route through cmd.exe so the PATH
+        # lookup resolves the shim correctly.
+        $claudeLaunchedOk = $false
         try {
-            Start-Process -FilePath "claude" -NoNewWindow -Wait
+            $claudeCmd = Get-Command "claude" -ErrorAction SilentlyContinue
+            if ($claudeCmd -and $claudeCmd.Source -and (Test-Path $claudeCmd.Source)) {
+                Start-Process -FilePath "cmd.exe" -ArgumentList "/c","`"$($claudeCmd.Source)`"" -NoNewWindow -Wait
+                $claudeLaunchedOk = $true
+            }
         } catch {
+            # fall through to manual prompt
+        }
+        if (-not $claudeLaunchedOk) {
             Write-Host "  WARNING: could not launch 'claude' automatically. Please open a new terminal, run 'claude', complete login, then come back." -ForegroundColor Yellow
             Read-Host "  Press Enter when login is complete"
         }
@@ -500,9 +540,11 @@ extensions:
     # --- Claude doctor (verify Claude Code install is healthy) ---
     Write-Host "`nRunning 'claude doctor' to verify install..." -ForegroundColor Yellow
     try {
-        # 'claude doctor' exits non-zero if anything is wrong. Run with a timeout.
+        # First run of 'claude doctor' on a fresh install can take 60-90s as it
+        # pulls down schemas, checks for updates, runs MCP health checks, etc.
+        # Use 120s timeout, and make it non-fatal.
         $job = Start-Job -ScriptBlock { & claude doctor 2>&1 }
-        if (Wait-Job $job -Timeout 45) {
+        if (Wait-Job $job -Timeout 120) {
             $doctorOutput = Receive-Job $job
             Remove-Job $job
             foreach ($line in $doctorOutput) { Write-Host "    $line" }
@@ -510,10 +552,11 @@ extensions:
         } else {
             Stop-Job $job
             Remove-Job $job -Force
-            Write-Host "  WARNING: 'claude doctor' timed out after 45s. Continue and check manually later." -ForegroundColor Yellow
+            Write-Host "  NOTE: 'claude doctor' timed out after 120s (first-run warmup can be slow)." -ForegroundColor Yellow
+            Write-Host "        Skipping - setup will continue. Run 'claude doctor' manually later if you hit issues." -ForegroundColor Yellow
         }
     } catch {
-        Write-Host "  WARNING: couldn't run 'claude doctor'. Continue; run it manually later to verify setup." -ForegroundColor Yellow
+        Write-Host "  NOTE: 'claude doctor' skipped. Run it manually later to verify setup." -ForegroundColor Yellow
     }
 
     Write-Host "`n--- Phase 1 complete ---" -ForegroundColor Green
@@ -686,11 +729,29 @@ if (-not $SkipExtensions) {
             }
         }
 
-        # Ensure provider is set
-        if ($config -notmatch "GOOSE_PROVIDER:\s*claude-acp") {
-            Write-Host "  WARNING: GOOSE_PROVIDER is not set to claude-acp" -ForegroundColor Yellow
+        # Ensure provider is set to claude-acp. This MUST be written even on a
+        # pre-existing config where 'goose configure' was never run (otherwise
+        # `goose run` fails with "No provider configured").
+        if ($config -match "(?m)^GOOSE_PROVIDER:\s*(\S+)") {
+            $currentProvider = $Matches[1]
+            if ($currentProvider -ne "claude-acp") {
+                if ($DryRun) {
+                    Write-Host "  [DRY RUN] Would set GOOSE_PROVIDER to claude-acp (currently: $currentProvider)"
+                } else {
+                    $config = $config -replace "(?m)^GOOSE_PROVIDER:\s*\S+", "GOOSE_PROVIDER: claude-acp"
+                    Write-Host "  Set GOOSE_PROVIDER: claude-acp (was: $currentProvider)" -ForegroundColor Green
+                }
+            } else {
+                Write-Host "  Provider: claude-acp (OK)"
+            }
         } else {
-            Write-Host "  Provider: claude-acp (OK)"
+            if (-not $DryRun) {
+                if (-not $config.EndsWith("`n")) { $config += "`n" }
+                $config += "GOOSE_PROVIDER: claude-acp`n"
+                Write-Host "  Added GOOSE_PROVIDER: claude-acp (not previously set)" -ForegroundColor Green
+            } else {
+                Write-Host "  [DRY RUN] Would add GOOSE_PROVIDER: claude-acp"
+            }
         }
 
         # Set model to Opus - required for instruction-following in recipes.
@@ -712,7 +773,13 @@ if (-not $SkipExtensions) {
                 Write-Host "  Model: opus (OK)"
             }
         } else {
-            Write-Host "  WARNING: GOOSE_MODEL not found in config" -ForegroundColor Yellow
+            if (-not $DryRun) {
+                if (-not $config.EndsWith("`n")) { $config += "`n" }
+                $config += "GOOSE_MODEL: opus`n"
+                Write-Host "  Added GOOSE_MODEL: opus (not previously set)" -ForegroundColor Green
+            } else {
+                Write-Host "  [DRY RUN] Would add GOOSE_MODEL: opus"
+            }
         }
 
         # Set GOOSE_MODE to smart_approve. Goose's default is "auto"
@@ -1059,7 +1126,7 @@ Write-Host ""
 Write-Host "Next steps:"
 Write-Host "  1. Restart the Goose desktop app (close and reopen)"
 Write-Host "  2. Look for '* START HERE - Goose Training' at the top of the recipe list"
-Write-Host "  3. Or run from CLI: goose run --recipe start-here"
+Write-Host "  3. Or run from CLI: goose run --recipe 00-start-here"
 Write-Host ""
 Write-Host "Architecture:"
 Write-Host "  - Training recipes (shared/) are what developers see and interact with"
