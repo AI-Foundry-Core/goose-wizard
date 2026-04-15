@@ -6,6 +6,16 @@
 
 **Sources:** `[pipeline]` = lessons from our AgenticSystem project. `[ddd]` = patterns from the Document-Driven Development system. `[research]` = industry best practices from eval/testing research.
 
+> **Concept numbering vs. module count.** The X.Y entries in each stage below
+> are a **topical concept map**, not a 1:1 module list. Several stages pack
+> multiple concepts into a single training module (for example Stage 6 covers
+> 6 concepts across 2 modules; Stage 7 covers 5 concepts across 3 modules;
+> Stage 0's 5 concepts are the 5 acts inside module 1). The authoritative
+> module sequence (26 modules, numbered 1-26) lives in
+> `install/project-template/.goose/state/progression.json` and drives the
+> training flow. When a teach script references "concept X.Y," it means the
+> concept below — not a module number.
+
 ---
 
 ## Teaching Framework: Adaptive Evaluation
