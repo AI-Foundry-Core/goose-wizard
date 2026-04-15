@@ -122,6 +122,24 @@ else
     say_ok "  Homebrew installed."
 fi
 
+# --- Git (required by Claude Code for repo operations) ---
+# On macOS, Git usually ships with Xcode Command Line Tools — but some
+# minimal setups don't have it until a brew formula or xcode-select pulls it.
+say_step "Checking Git..."
+if command -v git >/dev/null 2>&1; then
+    echo "  Git: $(git --version) (already installed)"
+else
+    echo "  Git not found. Installing via brew..."
+    brew install git
+    if ! command -v git >/dev/null 2>&1; then
+        say_err "  Git install failed. Install manually:"
+        say_err "    brew install git"
+        say_err "  or accept the Xcode Command Line Tools install prompt."
+        exit 1
+    fi
+    say_ok "  Git installed: $(git --version)"
+fi
+
 # --- Node.js ---
 say_step "Checking Node.js..."
 if command -v node >/dev/null 2>&1; then

@@ -23,6 +23,7 @@ echo   RILGoose Installer
 echo ========================================================
 echo.
 echo This installer will:
+echo   - Install Git if missing (via winget)
 echo   - Install Node.js if missing (via winget)
 echo   - Install Goose CLI + desktop app if missing (from block/goose releases)
 echo   - Install Claude CLI if missing (via npm)
