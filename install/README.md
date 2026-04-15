@@ -28,14 +28,18 @@ Both installers run the same two phases.
 
 | Tool | Windows | Mac |
 |---|---|---|
-| Git | `winget install Git.Git` | `brew install git` (usually via Xcode CLT) |
+| OS minimum | Windows 10 1809+ (build 17763) | macOS 13.0+ |
+| Git | `winget install Git.Git` (Claude Code requires Git Bash) | `brew install git` |
 | Node.js LTS | `winget install OpenJS.NodeJS.LTS` | `brew install node` |
 | Goose CLI | download + extract Windows CLI zip | installed with `--cask block-goose` |
 | Goose desktop app | download + run `Goose.zip` installer | installed with `--cask block-goose` |
-| Claude CLI | `npm install -g @anthropic-ai/claude-code` | same |
+| Claude CLI | `irm https://claude.ai/install.ps1 \| iex` (native; npm fallback) | `curl -fsSL https://claude.ai/install.sh \| bash` (native; npm fallback) |
 | ACP adapter | `npm install -g @agentclientprotocol/claude-agent-acp` | same |
 | Homebrew | — | installed if missing |
 | python3 | assumed present (PowerShell native) | validated, prompts to install Xcode CLT if missing |
+| `claude doctor` | run post-install to verify Claude Code health | same |
+
+**Windows-specific: Git Bash path.** Claude Code runs Bash internally on Windows regardless of which shell launched it. The installer proactively writes `CLAUDE_CODE_GIT_BASH_PATH` into `~/.claude/settings.json` so Claude Code can find `bash.exe` even if Git is installed in a non-standard location (Scoop, PortableGit, user-local). The canonical path is `C:\Program Files\Git\bin\bash.exe`.
 
 If a tool is already installed, the installer skips that step.
 
