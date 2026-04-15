@@ -23,6 +23,33 @@ Plus this handoff. All on `main`. Push pending — I pushed Phase A already (at 
 
 ---
 
+## Decisions Doni made this session
+
+1. **Ship Phase A first, then start Phase B.** Pushed Phase A commits to origin/main before touching Phase B work.
+
+2. **Pick Phase B work strategy:** knock out every deferred item from the Phase A handoff EXCEPT #14 (real-project walkthrough). Walkthrough reserved for Doni's return.
+
+3. **Review cadence:** after every "series of changes," spin up 2 subagents in parallel (1 Claude Agent + 1 Codex per the half-Codex policy) for review before moving on. This shaped the 4-series structure.
+
+4. **Conductor curriculum placement (design agreed before Doni's walk; implementation deferred to a later session).** The placement map:
+
+   | Stage | Role of conductor | Why |
+   |---|---|---|
+   | End of Stage 3 — PRIMARY INTRODUCTION | "You've outgrown one-off prompts" reveal. Run `setup-config` → `conductor-setup` → one `conductor-new-track` + `conductor-implement` cycle. | Stage 3 ends with a multi-agent team. That team needs a project-level scaffold — exactly what Conductor provides. Earlier (Stage 2) is premature ceremony; later (Stage 6) is too late. |
+   | Stage 4 — ARTIFACT INTEGRATION | Spec output lands in `.goose/conductor/tracks/<id>/spec.md`. DDD artifact chain writes into conductor's context artifacts. | DDD artifact chain needs a canonical home. Conductor already has one. |
+   | Stage 5 — EVAL HOOK | `checkpoint-verify` becomes the Stage 5 eval-gate's execution layer. Eval ratchets live in conductor checkpoints. | Stage 5 teaches "verify before advancing" — that's what checkpoint-verify does. |
+   | Stage 6 — PROMOTE TO FOREGROUND | Rewrite 22/23 recipes so conductor is the primary operational loop. Track = the unit of work that gets reviewed. | Stage 6 is "let it run while you sleep" — conductor tracks ARE the overnight unit. |
+
+   **Stage 2 stays conductor-free.** Two-agent separation shouldn't carry config/kinds/tracks baggage.
+
+   This is the map to implement when you (or a future session) picks up Option B2 from the Phase A handoff.
+
+5. **Two design calls inside Phase B Series 4** (both made during the converged-review patches):
+   - **Kind refusal is uniform across all 6 mutating primitives** (not just a facilitator-layer check). A CLI-direct caller bypassing the facilitators should still hit the refusal. Chose `kind_unconfirmed` as a new primitive-emitted status rather than making ensure-config emit it (keeps ensure-config's surface small).
+   - **The `needs_kind_confirmation` flag is REMOVED (not set to false) when resolved.** Stale truthy strings are a real risk on a schema-evolving system; a deleted key is unambiguous.
+
+---
+
 ## Series-by-series summary
 
 Each series was built, committed, then reviewed by 1 Claude Agent + 1 Codex in parallel. Converged blockers from each review were patched in a follow-up commit before moving on.

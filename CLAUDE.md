@@ -29,6 +29,7 @@ When discussing "the team" or "our workflow," it means AIF unless explicitly sta
 
 ## Conventions
 - **Handoffs go in `handoffs/`.** When ending a session or switching context, write a handoff document to `handoffs/` with enough context for a fresh session to continue the work. Name it descriptively (e.g., `tonight-untested-recipes.md`).
+- **Every handoff MUST include a "Decisions Doni made this session" section.** List every non-trivial decision he made — scope calls ("do X not Y"), design picks ("use A instead of B"), cadence rules ("review after every series"), deferred-vs-now calls. Include the reasoning when he gave one. A handoff without this section is incomplete: the next session won't know which design calls are locked-in vs still open, and will re-litigate them. When in doubt, err toward including more.
 
 ## What This Is
 A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's agent platform) extended with progressive teaching recipes that take development teams from zero agentic experience to autonomous development pipelines.
