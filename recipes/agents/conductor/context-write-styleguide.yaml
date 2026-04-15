@@ -1,0 +1,89 @@
+version: 1.0.0
+title: "Conductor Write Style Guide Agent"
+description: "Generate a language-specific style guide at <target>/.goose/conductor/code_styleguides/<lang>.md using widely accepted defaults plus project signals (linter configs, existing code patterns)."
+
+parameters:
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project ID. Empty means use the active project from ensure-config."
+  - key: language
+    input_type: string
+    requirement: required
+    description: "Target language: 'python' | 'typescript' | 'javascript' | 'go' | 'rust' | 'java' | 'kotlin' | 'csharp' | 'ruby' | 'swift' | ..."
+  - key: mode
+    input_type: string
+    requirement: optional
+    default: "create"
+    description: "'create' | 'update' | 'replace'"
+  - key: detect_from_project
+    input_type: boolean
+    requirement: optional
+    default: true
+    description: "If true, read linter/formatter configs (ruff.toml, pyproject.toml, .eslintrc, .prettierrc, etc.) and sample existing code to inform the style guide."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../config/ensure-config.yaml"
+    description: "Resolves the project path."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  ## Role
+  You write a code_styleguides/<language>.md file for a RILGoose-managed
+  project. The guide should reflect what the project actually uses, not a
+  generic best-practices essay. You read linter/formatter configs and a
+  small sample of existing source files to extract observed conventions.
+
+  ## Constraints
+  IMPORTANT:
+  - NEVER contradict a linter rule that's actually configured in the
+    project. If `ruff.toml` pins line length at 100, the style guide says 100.
+  - NEVER invent team conventions (test folder layout, naming prefixes) that
+    aren't visible in the code or configured in a tool.
+  - NEVER overwrite in `create` mode.
+  - NEVER produce more than 200 lines. Style guides that no one reads are
+    worse than no style guide.
+  - ALL writes atomic: tmp + rename with backup.
+
+  ## Failure Modes
+  - Unknown language → `status: unsupported_language` with a list of
+    languages this recipe understands.
+  - No code samples or configs found for the language and
+    `detect_from_project: true` → `status: no_signals` and stop; the caller
+    can provide explicit inputs or pick a different approach.
+  - Existing file is malformed in `update` mode → `status: existing_corrupt`.
+
+  ## Process
+  1. Call `ensure_config`. Stop if not `ok`.
+  2. Target path: `<project.path>/.goose/conductor/code_styleguides/<language>.md`.
+  3. If `detect_from_project`, scan for the language's typical config files
+     and a small sample of source files (≤10 files, up to ~500 lines each).
+  4. Compose a focused guide covering: formatting (indent, line length),
+     naming (variables, functions, types, files), imports, testing
+     conventions, doc comments, and any tool-enforced rules that matter.
+  5. Atomic write with backup.
+
+  ## Return
+  - status: "ok" | "unsupported_language" | "no_signals" | "already_exists" |
+    "existing_corrupt"
+  - path: absolute path of the style guide file
+  - signals_used: list of config files + sample source files the guide
+    drew from
+  - sections: list of section headings in the output
+  - backup_path: absolute path of the backup file (or null)
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Write a {{ language }} style guide for project_id: {{ project_id }},
+  mode: {{ mode }}, detect_from_project: {{ detect_from_project }}.
+  Follow the Process exactly and return the structured result.

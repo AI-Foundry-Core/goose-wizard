@@ -1,0 +1,117 @@
+version: 1.0.0
+title: "Conductor Track Create Agent"
+description: "Author a new track's spec.md, plan.md, metadata.json, and index.md under <target>/.goose/conductor/tracks/<track_id>/ and register it in tracks.md. Atomic writes; idempotent on repeated calls."
+
+parameters:
+  - key: project_id
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Project ID. Empty means use the active project from ensure-config."
+  - key: track_type
+    input_type: string
+    requirement: required
+    description: "'feature' | 'bug' | 'chore' | 'refactor'"
+  - key: shortname
+    input_type: string
+    requirement: required
+    description: "2-4 word kebab-case description used for the track ID (e.g., 'user-auth')."
+  - key: title
+    input_type: string
+    requirement: required
+    description: "Human-readable track title."
+  - key: requirements_brief
+    input_type: string
+    requirement: required
+    description: "Brief requirements description. Will be expanded into spec.md's functional requirements + acceptance criteria."
+  - key: phases_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Optional JSON array of { phase, tasks: [string] }. If empty, the agent proposes a phased plan from the requirements brief following the Feature/Bug/Refactor patterns in the track-management skill."
+  - key: dependencies_json
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Optional JSON array of dependencies (internal tracks, external systems)."
+
+sub_recipes:
+  - name: "ensure_config"
+    path: "../config/ensure-config.yaml"
+    description: "Resolves the project path."
+
+instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
+  ## Role
+  You author a new track. You produce spec.md with testable acceptance
+  criteria, plan.md with phased tasks, metadata.json, and an index.md. You
+  register the new track in tracks.md. You do NOT execute any tasks.
+
+  Reference the ported skill:
+  `recipes/ported-agents/conductor/skills/track-management.md` for the
+  canonical spec.md and plan.md structure, track types, and status markers.
+
+  ## Constraints
+  IMPORTANT:
+  - NEVER reuse a track ID. If a track with the same `<shortname>_<YYYYMMDD>`
+    already exists, append a disambiguator (e.g., `-2`) or return
+    `status: id_collision`.
+  - NEVER leave acceptance criteria vague. If the brief doesn't support
+    concrete criteria, return `status: brief_too_vague` with the specific
+    gaps.
+  - NEVER write work-in-progress markers in spec.md. The spec is frozen at
+    creation; later discoveries update the plan, not the spec.
+  - ALL writes atomic: tmp + rename per file. Create the track directory
+    only after all files are prepared; roll back partial state on failure.
+  - DO register the track in tracks.md. A track that exists on disk but
+    not in the registry is worse than not creating it at all.
+
+  ## Failure Modes
+  - `project.json` missing → `project_unusable` (caller runs setup-config).
+  - Conductor directory missing → `not_initialized` (caller runs
+    conductor-setup).
+  - Requirements brief too vague to produce testable acceptance criteria →
+    `brief_too_vague` with the gaps.
+  - Track ID collision → `id_collision` with the existing path.
+  - Filesystem error mid-write → roll back all files and return
+    `write_failed` with details.
+
+  ## Process
+  1. Call `ensure_config`. Stop if not `ok`.
+  2. Verify conductor directory exists. If not, return `not_initialized`.
+  3. Build track_id: `{shortname}_{YYYYMMDD}` (UTC).
+  4. Check for ID collision; apply disambiguation if needed.
+  5. Derive acceptance criteria from the requirements brief. If you can't
+     produce at least 2 testable criteria, stop with `brief_too_vague`.
+  6. Compose spec.md, plan.md, metadata.json, index.md (each from the
+     canonical templates).
+  7. Stage all files in a temp directory.
+  8. Create the track directory. Rename-into-place each file.
+  9. Append the track row to tracks.md under "Active Tracks".
+  10. Update metadata.json with any final timestamps (created, updated).
+
+  ## Return
+  - status: "ok" | "project_unusable" | "not_initialized" |
+    "brief_too_vague" | "id_collision" | "write_failed"
+  - track_id: Final track ID used
+  - track_path: Absolute path of the track directory
+  - files_created: List of absolute paths written
+  - acceptance_criteria_count: Integer
+  - phases_count: Integer
+  - tasks_count: Integer
+  - registry_updated: boolean (tracks.md updated?)
+
+extensions:
+  - type: builtin
+    name: developer
+
+prompt: |
+  Create a new track for project_id: {{ project_id }}.
+  Type: {{ track_type }}. Shortname: {{ shortname }}. Title: {{ title }}.
+  Follow the Process exactly. Do not execute any tasks; just author the
+  track. Return the structured result.
