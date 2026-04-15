@@ -7,11 +7,13 @@ description: "Guided walkthrough: wire a functioning eval system in front of aut
 parameters:
   - key: pipeline_entrypoint
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Command, script, workflow, or runbook that starts the autonomous pipeline"
   - key: eval_commands
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Commands or checks that must pass before autonomy is enabled"
   - key: autonomy_mode
     input_type: string

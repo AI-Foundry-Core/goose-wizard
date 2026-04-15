@@ -7,7 +7,8 @@ description: "Guided walkthrough: build with one AI, verify with a separate test
 parameters:
   - key: task_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "What to build: feature, function, component, or change"
   - key: acceptance_criteria
     input_type: string

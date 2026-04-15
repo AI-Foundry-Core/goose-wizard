@@ -7,7 +7,8 @@ description: "Guided walkthrough: turn vague evaluation goals into specific chec
 parameters:
   - key: eval_goal
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The quality goal or vague check to make specific"
   - key: target_artifacts
     input_type: string

@@ -7,7 +7,8 @@ description: "Guided walkthrough: collect before/after metrics for pipeline chan
 parameters:
   - key: change_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "What pipeline change you want to measure (e.g., 'updated builder prompt to require docstrings', 'added pre-commit test gate')"
   - key: metrics_to_track
     input_type: string

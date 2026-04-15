@@ -7,7 +7,8 @@ description: "Guided walkthrough: design and run a spec-build-review pipeline wi
 parameters:
   - key: task_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The real development task the pipeline should accomplish"
   - key: safety_policy
     input_type: string

@@ -7,7 +7,8 @@ description: "Guided walkthrough: AI-assisted code review. Teaches review scope,
 parameters:
   - key: review_target
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "What to review: file paths, PR number, commit range, or branch name"
   - key: review_focus
     input_type: string

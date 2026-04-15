@@ -7,11 +7,13 @@ description: "Guided walkthrough: add quality thresholds that prevent an evaluat
 parameters:
   - key: eval_command
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The command or eval suite whose baseline should be ratcheted"
   - key: metric
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The metric to ratchet, such as passing test count, coverage, mutation score, or grader score"
   - key: current_baseline
     input_type: string

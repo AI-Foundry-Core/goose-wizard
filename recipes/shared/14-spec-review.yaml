@@ -6,12 +6,14 @@ description: "Guided walkthrough: multi-dimension spec review. Teaches evidence-
 
 parameters:
   - key: spec_path
-    input_type: file
-    requirement: required
+    input_type: string
+    requirement: optional
+    default: ""
     description: "Path to the spec document to review"
   - key: spec_type
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Type of spec: one-pager, requirements-doc, or decomposed-spec"
   - key: review_focus
     input_type: string

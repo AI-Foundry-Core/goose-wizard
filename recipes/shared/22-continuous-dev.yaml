@@ -7,7 +7,8 @@ description: "Guided walkthrough: prepare an autonomous pipeline for repeated cy
 parameters:
   - key: pipeline_description
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "The autonomous pipeline or conductor track to prepare for repeated cycles"
   - key: surprising_findings
     input_type: string

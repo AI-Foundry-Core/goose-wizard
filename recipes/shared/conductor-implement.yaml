@@ -10,7 +10,8 @@ parameters:
     description: "Project ID. Empty means use the active project."
   - key: track_id
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Track to implement."
   - key: stop_after
     input_type: string

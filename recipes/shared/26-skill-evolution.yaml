@@ -7,11 +7,13 @@ description: "Guided walkthrough: analyze agent performance findings and produce
 parameters:
   - key: findings_source
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Path to the findings file (cycle review log, LEARNINGS.md, eval output, or post-mortem) that contains improvement opportunities"
   - key: skill_files
     input_type: string
-    requirement: required
+    requirement: optional
+    default: ""
     description: "Comma-separated paths to the agent skill/instruction files to potentially improve"
   - key: verification_command
     input_type: string
