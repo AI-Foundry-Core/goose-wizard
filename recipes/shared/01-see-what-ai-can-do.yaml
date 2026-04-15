@@ -38,7 +38,7 @@ instructions: |
   Before reading it the first time, run this migration fallback once:
     - If `~/.rilgoose/progression.json` exists, use it.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, move the legacy file to
+      create `~/.rilgoose/` if missing, COPY the legacy file contents to
       `~/.rilgoose/progression.json` (atomic: write tmp + rename), rename
       the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).

@@ -39,9 +39,12 @@ instructions: |
      a. If the resolved canonical state file exists, read it.
      b. Else if the legacy file (`legacy_state_path` relative to cwd) exists:
         - Create the canonical state file's parent directory if missing.
-        - Move the legacy file to the canonical path (atomic: write tmp + rename).
-        - Rename the legacy file to `{legacy_state_path}.migrated` so future
-          checks skip it.
+        - COPY the legacy file contents to the canonical path atomically
+          (write `{canonical}.tmp`, then rename to the canonical path).
+          Do NOT move or delete the legacy file yet.
+        - After the canonical file is confirmed readable, rename the
+          legacy file to `{legacy_state_path}.migrated` (this breadcrumb
+          stops future Step-0 checks from re-migrating).
         - Read the canonical file.
      c. Else return new_user status with module 1 as next. Stop.
   3. Count completed modules.
