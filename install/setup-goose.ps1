@@ -81,8 +81,18 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         Write-Host "  Continuing anyway — some downloads may fail. Check with IT if you hit download errors." -ForegroundColor Yellow
     }
 
-    # --- Git (required by Claude Code for repo operations) ---
-    Write-Host "`nChecking Git..." -ForegroundColor Yellow
+    # --- OS version check ---
+    # Claude Code requires Windows 10 1809+ (build 17763) or Server 2019+.
+    $osBuild = [System.Environment]::OSVersion.Version.Build
+    if ($osBuild -lt 17763) {
+        Write-Host "ERROR: Windows build $osBuild is below the minimum (17763 / Win10 1809)." -ForegroundColor Red
+        Write-Host "       Claude Code will not run. Update Windows and re-run." -ForegroundColor Red
+        exit 1
+    }
+    Write-Host "  OS: Windows build $osBuild (OK — 17763+ required)"
+
+    # --- Git for Windows (required by Claude Code — runs bash internally) ---
+    Write-Host "`nChecking Git for Windows..." -ForegroundColor Yellow
     if (Test-Command "git") {
         $gitVer = & git --version 2>&1
         Write-Host "  Git: $gitVer (already installed)"
@@ -268,30 +278,125 @@ if (-not $SkipBootstrap -and -not $DryRun) {
         }
     }
 
-    # --- Claude CLI ---
+    # --- Claude CLI (native installer; auto-updating, no Node required) ---
+    # Anthropic's official PowerShell installer places the binary at
+    # %USERPROFILE%\.local\bin\claude.exe — the same dir as goose.exe. Falls
+    # back to npm if the native install fails (common on corporate machines
+    # where iex-from-web is blocked by policy).
     Write-Host "`nChecking Claude CLI..." -ForegroundColor Yellow
     if (Test-Command "claude") {
-        Write-Host "  Claude CLI: found (already installed)"
+        try {
+            $claudeVer = & claude --version 2>&1
+            Write-Host "  Claude CLI: $($claudeVer.Trim()) (already installed)"
+        } catch {
+            Write-Host "  Claude CLI on PATH but --version failed; reinstalling..."
+            $reinstall = $true
+        }
+    }
+    if (-not (Test-Command "claude")) {
+        Write-Host "  Claude CLI not found. Installing via Anthropic native installer..."
+        $nativeInstallOk = $false
+        try {
+            # Official installer: irm https://claude.ai/install.ps1 | iex
+            $installScript = Invoke-WebRequest -Uri "https://claude.ai/install.ps1" -UseBasicParsing -TimeoutSec 30
+            Invoke-Expression $installScript.Content
+            # Binary lands at %USERPROFILE%\.local\bin\claude.exe — same dir as goose.exe.
+            $claudeLocalBin = Join-Path $env:USERPROFILE ".local\bin"
+            if ($env:Path -notlike "*$claudeLocalBin*") {
+                $env:Path = "$env:Path;$claudeLocalBin"
+            }
+            Refresh-Path
+            if (Test-Command "claude") {
+                $nativeInstallOk = $true
+                Write-Host "  Claude CLI installed via native installer: $(& claude --version)" -ForegroundColor Green
+            }
+        } catch {
+            Write-Host "  WARNING: native installer failed ($_). Falling back to npm..." -ForegroundColor Yellow
+        }
+
+        if (-not $nativeInstallOk) {
+            Write-Host "  Falling back to: npm install -g @anthropic-ai/claude-code"
+            Write-Host "  (npm install is deprecated by Anthropic but still functional.)"
+            & npm install -g "@anthropic-ai/claude-code"
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "ERROR: Claude CLI install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+                Write-Host "       Install manually: open a new terminal and run:" -ForegroundColor Red
+                Write-Host "         irm https://claude.ai/install.ps1 | iex" -ForegroundColor Red
+                exit 1
+            }
+            Refresh-Path
+            if ($env:Path -notlike "*$npmShimDir*") {
+                $env:Path = "$env:Path;$npmShimDir"
+            }
+            if (-not (Test-Command "claude")) {
+                Write-Host "ERROR: Claude CLI installed but not on PATH." -ForegroundColor Red
+                exit 1
+            }
+            Write-Host "  Claude CLI installed via npm."
+        }
+    }
+
+    # --- Configure CLAUDE_CODE_GIT_BASH_PATH ---
+    # Claude Code uses Git Bash internally to execute commands on Windows,
+    # regardless of which shell you launched it from. It normally auto-detects
+    # bash.exe at the default install path — but if Git is installed
+    # elsewhere, we must write the path into ~/.claude/settings.json.
+    # Do this proactively so corporate Git installs (e.g. PortableGit, Scoop)
+    # don't break Claude Code silently.
+    Write-Host "`nConfiguring Claude Code git-bash path..." -ForegroundColor Yellow
+    $bashExe = $null
+    # Check the canonical location first
+    $bashCandidates = @(
+        "C:\Program Files\Git\bin\bash.exe",
+        "C:\Program Files (x86)\Git\bin\bash.exe",
+        (Join-Path $env:LOCALAPPDATA "Programs\Git\bin\bash.exe"),
+        (Join-Path $env:USERPROFILE "scoop\apps\git\current\bin\bash.exe"),
+        (Join-Path $env:USERPROFILE "AppData\Local\Programs\Git\bin\bash.exe")
+    )
+    foreach ($cand in $bashCandidates) {
+        if (Test-Path $cand) { $bashExe = $cand; break }
+    }
+    # Last resort: ask `git` where it lives and compute bash from there
+    if (-not $bashExe -and (Test-Command "git")) {
+        try {
+            $gitExe = (& where.exe git 2>$null | Select-Object -First 1)
+            if ($gitExe) {
+                $gitDir = Split-Path -Parent $gitExe
+                # git.exe is typically in <install>\cmd; bash.exe is in <install>\bin
+                $guess = Join-Path (Split-Path -Parent $gitDir) "bin\bash.exe"
+                if (Test-Path $guess) { $bashExe = $guess }
+            }
+        } catch {}
+    }
+
+    if ($bashExe) {
+        $claudeSettingsDir = Join-Path $env:USERPROFILE ".claude"
+        $claudeSettingsPath = Join-Path $claudeSettingsDir "settings.json"
+        New-Item -ItemType Directory -Path $claudeSettingsDir -Force | Out-Null
+
+        # Load or create settings.json; merge env.CLAUDE_CODE_GIT_BASH_PATH
+        if (Test-Path $claudeSettingsPath) {
+            try {
+                $settings = Get-Content $claudeSettingsPath -Raw | ConvertFrom-Json
+            } catch {
+                Write-Host "  WARNING: existing settings.json is malformed. Backing up and recreating." -ForegroundColor Yellow
+                Copy-Item $claudeSettingsPath "$claudeSettingsPath.bak" -Force
+                $settings = [pscustomobject]@{}
+            }
+        } else {
+            $settings = [pscustomobject]@{}
+        }
+        if (-not $settings.PSObject.Properties["env"]) {
+            $settings | Add-Member -MemberType NoteProperty -Name "env" -Value ([pscustomobject]@{}) -Force
+        }
+        $settings.env | Add-Member -MemberType NoteProperty -Name "CLAUDE_CODE_GIT_BASH_PATH" -Value $bashExe -Force
+        $settings | ConvertTo-Json -Depth 10 | Set-Content -Path $claudeSettingsPath -NoNewline
+        Write-Host "  Set CLAUDE_CODE_GIT_BASH_PATH: $bashExe"
+        Write-Host "  Written to: $claudeSettingsPath"
     } else {
-        Write-Host "  Claude CLI not found. Installing via npm..."
-        Write-Host "  (Note: npm install of @anthropic-ai/claude-code may be deprecated in future releases in favor of https://claude.ai/install.sh — current approach still works.)"
-        & npm install -g "@anthropic-ai/claude-code"
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "ERROR: Claude CLI install failed (exit $LASTEXITCODE)" -ForegroundColor Red
-            Write-Host "       Common cause: npm global prefix not writable. Run 'npm config get prefix' and check permissions." -ForegroundColor Red
-            exit 1
-        }
-        Refresh-Path
-        # npm shims land in %APPDATA%\npm — make sure it's on this session's PATH
-        if ($env:Path -notlike "*$npmShimDir*") {
-            $env:Path = "$env:Path;$npmShimDir"
-        }
-        if (-not (Test-Command "claude")) {
-            Write-Host "ERROR: Claude CLI installed but not on PATH." -ForegroundColor Red
-            Write-Host "       Expected at: $npmShimDir\claude.cmd" -ForegroundColor Red
-            exit 1
-        }
-        Write-Host "  Claude CLI installed."
+        Write-Host "  WARNING: could not locate bash.exe. Claude Code may fail on shell commands." -ForegroundColor Yellow
+        Write-Host "           Install Git for Windows to the default location, or manually edit $env:USERPROFILE\.claude\settings.json:" -ForegroundColor Yellow
+        Write-Host '           { "env": { "CLAUDE_CODE_GIT_BASH_PATH": "C:\\Program Files\\Git\\bin\\bash.exe" } }' -ForegroundColor Yellow
     }
 
     # --- ACP adapter ---
@@ -389,6 +494,25 @@ extensions:
         Write-Host "  Created: $configPath"
     } else {
         Write-Host "  config.yaml exists: $configPath"
+    }
+
+    # --- Claude doctor (verify Claude Code install is healthy) ---
+    Write-Host "`nRunning 'claude doctor' to verify install..." -ForegroundColor Yellow
+    try {
+        # 'claude doctor' exits non-zero if anything is wrong. Run with a timeout.
+        $job = Start-Job -ScriptBlock { & claude doctor 2>&1 }
+        if (Wait-Job $job -Timeout 45) {
+            $doctorOutput = Receive-Job $job
+            Remove-Job $job
+            foreach ($line in $doctorOutput) { Write-Host "    $line" }
+            Write-Host "  'claude doctor' completed."
+        } else {
+            Stop-Job $job
+            Remove-Job $job -Force
+            Write-Host "  WARNING: 'claude doctor' timed out after 45s. Continue and check manually later." -ForegroundColor Yellow
+        }
+    } catch {
+        Write-Host "  WARNING: couldn't run 'claude doctor'. Continue; run it manually later to verify setup." -ForegroundColor Yellow
     }
 
     Write-Host "`n--- Phase 1 complete ---" -ForegroundColor Green

@@ -23,11 +23,13 @@ echo   RILGoose Installer
 echo ========================================================
 echo.
 echo This installer will:
-echo   - Install Git if missing (via winget)
-echo   - Install Node.js if missing (via winget)
+echo   - Install Git for Windows if missing (via winget; Claude Code needs Git Bash)
+echo   - Install Node.js if missing (via winget; needed for the ACP adapter)
 echo   - Install Goose CLI + desktop app if missing (from block/goose releases)
-echo   - Install Claude CLI if missing (via npm)
+echo   - Install Claude CLI if missing (via Anthropic native installer, npm fallback)
 echo   - Install the Claude ACP adapter if missing (via npm)
+echo   - Point Claude Code at Git Bash (CLAUDE_CODE_GIT_BASH_PATH setting)
+echo   - Run 'claude doctor' to verify the install
 echo   - Configure Goose for RILGoose training recipes
 echo   - Patch the ACP adapter for clean recipe execution
 echo.

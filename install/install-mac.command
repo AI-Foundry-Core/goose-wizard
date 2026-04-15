@@ -67,6 +67,18 @@ read -p "Press Enter to continue, or Ctrl+C to cancel. " _
 
 say_phase "Phase 1: Bootstrap prerequisites"
 
+# --- OS version check ---
+# Claude Code requires macOS 13.0+.
+say_step "Checking macOS version..."
+MACOS_VER="$(sw_vers -productVersion 2>/dev/null || echo "0.0.0")"
+MACOS_MAJOR="$(echo "$MACOS_VER" | cut -d. -f1)"
+if [ "$MACOS_MAJOR" -lt 13 ] 2>/dev/null; then
+    say_err "  ERROR: macOS $MACOS_VER is below the minimum (13.0)."
+    say_err "         Claude Code will not run. Update macOS and re-run."
+    exit 1
+fi
+echo "  macOS: $MACOS_VER (OK — 13.0+ required)"
+
 # --- Preflight: python3 (needed for config.yaml + ACP patches later) ---
 say_step "Checking python3..."
 if command -v python3 >/dev/null 2>&1; then
@@ -190,21 +202,39 @@ if [ ! -w "$NPM_PREFIX" ] && [ ! -w "$(dirname "$NPM_PREFIX")" ]; then
     PERUSER_LINE='export PATH="$HOME/.npm-global/bin:$PATH"'
 fi
 
-# --- Claude CLI ---
+# --- Claude CLI (native installer; auto-updating, no Node needed) ---
+# Anthropic's official installer places the binary at ~/.local/bin/claude.
+# Falls back to npm if the native installer fails (e.g. curl blocked).
 say_step "Checking Claude CLI..."
 if command -v claude >/dev/null 2>&1; then
-    echo "  Claude CLI: found (already installed)"
+    echo "  Claude CLI: $(claude --version 2>&1 | head -1) (already installed)"
 else
-    echo "  Claude CLI not found. Installing via npm..."
-    echo "  (Note: npm install of @anthropic-ai/claude-code may be deprecated in future releases in favor of https://claude.ai/install.sh — current approach still works.)"
-    npm install -g "@anthropic-ai/claude-code"
-    hash -r
-    if ! command -v claude >/dev/null 2>&1; then
-        say_err "Claude CLI installed but 'claude' not on PATH."
-        say_err "Expected in: $(npm root -g)/../bin"
-        exit 1
+    echo "  Claude CLI not found. Installing via Anthropic native installer..."
+    NATIVE_OK=0
+    if curl -fsSL https://claude.ai/install.sh | bash; then
+        # Ensure ~/.local/bin is on this session's PATH
+        if [ -d "$HOME/.local/bin" ] && [[ ":$PATH:" != *":$HOME/.local/bin:"* ]]; then
+            export PATH="$HOME/.local/bin:$PATH"
+        fi
+        hash -r
+        if command -v claude >/dev/null 2>&1; then
+            NATIVE_OK=1
+            say_ok "  Claude CLI installed via native installer: $(claude --version 2>&1 | head -1)"
+        fi
     fi
-    say_ok "  Claude CLI installed."
+
+    if [ "$NATIVE_OK" -eq 0 ]; then
+        echo "  WARNING: native installer failed. Falling back to: npm install -g @anthropic-ai/claude-code"
+        echo "  (npm install is deprecated by Anthropic but still functional.)"
+        npm install -g "@anthropic-ai/claude-code"
+        hash -r
+        if ! command -v claude >/dev/null 2>&1; then
+            say_err "Claude CLI install failed on both native and npm paths."
+            say_err "Install manually: curl -fsSL https://claude.ai/install.sh | bash"
+            exit 1
+        fi
+        say_ok "  Claude CLI installed via npm."
+    fi
 fi
 
 # --- ACP adapter ---
@@ -287,6 +317,25 @@ YAML_EOF
 else
     echo "  config.yaml exists: $CONFIG_PATH"
 fi
+
+# --- Claude doctor (verify Claude Code install is healthy) ---
+say_step "Running 'claude doctor' to verify install..."
+# Use bash's built-in timeout pattern (no `timeout` on stock macOS)
+(
+    claude doctor 2>&1 &
+    DOCTOR_PID=$!
+    SECONDS=0
+    while kill -0 "$DOCTOR_PID" 2>/dev/null; do
+        if [ "$SECONDS" -ge 45 ]; then
+            kill "$DOCTOR_PID" 2>/dev/null || true
+            echo "  WARNING: 'claude doctor' timed out after 45s. Run it manually later."
+            break
+        fi
+        sleep 1
+    done
+    wait "$DOCTOR_PID" 2>/dev/null || true
+) | sed 's/^/    /' || true
+echo "  'claude doctor' completed."
 
 say_ok "--- Phase 1 complete ---"
 
