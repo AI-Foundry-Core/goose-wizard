@@ -171,6 +171,38 @@ Read eval results. For each dimension:
 If ALL dimensions are Strong:
 "You've got the core instinct — verify independently, decompose claims, flag what you can't check, and automate it. That's the foundation everything else in this stage builds on."
 
+## Recipe Reveal
+Before bridging, show the developer the recipe that powered this session.
+
+"First recipe of Stage 5. The framing shift is worth a minute — this one exists
+because self-reported results aren't evidence."
+
+Read the Eval Foundation agent recipe (recipes/agents/eval-foundation.yaml) and show the developer:
+- The **three-bucket return structure** — "Look at the return block: `verified_claims`,
+  `failed_claims`, `unverifiable_claims`. Not just pass/fail. The third bucket is the one
+  most evals skip — claims that can't be checked at all. Naming them explicitly is how you
+  prevent silent trust from creeping back in."
+- The **'NEVER accept agent self-reported results as evidence' constraint** — "This is the
+  whole philosophy of Stage 5 compressed into one line. Same principle as separating builder
+  from reviewer in Stage 2 — now applied to pipeline output. The reporter can't audit itself."
+- The **'Check exit codes, not just stdout text' step** — "Step 4 of the process. Agents love
+  to read 'tests pass' in stdout and call it verified. Exit codes are the only claim the OS
+  itself signs off on. The recipe forces the agent to treat text and exit code as two different
+  sources of truth."
+- The **read-only + re-run constraint** — "The working-directory block says this primitive
+  is read-only with respect to the codebase, but DOES re-run commands. That distinction
+  matters. Verification has to execute — reading artifacts isn't enough. But it must never
+  mutate what it's verifying."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/eval-foundation.yaml>`
+"Read the constraints block carefully — every Stage 5 recipe has one, and they're where the
+eval philosophy is encoded."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "Now you have independent verification for one pipeline output. But one layer of checking isn't enough — different types of checks catch different types of problems. That's eval layers, and it's where we go next. Ready to move on?"
 

@@ -186,6 +186,39 @@ If all dimensions are Strong:
 
 "This is the morning-after workflow: review the whole cycle, close the loop from last time, and challenge the green lights. That is how you let a pipeline run while you sleep without letting it quietly drift."
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"You've been doing the verification work by hand. Here's what the agent is built to do —
+and, more importantly, what it's forbidden from doing."
+
+Read the Cycle Review agent recipe (recipes/agents/cycle-review.yaml) and show the developer:
+- The **four `NEVER` constraints** — "'NEVER accept agent self-reports as evidence.'
+  'NEVER infer success from missing evidence.' 'NEVER skip the mandatory independent
+  verification pass.' This is the success-signal skepticism you just practiced — encoded
+  as hard rules the agent cannot relax under pressure."
+- The **`prior_review_path` parameter** — "Optional. When provided, the agent compares
+  this cycle to the previous one. That's how the feedback loop chains — each cycle review
+  becomes input to the next. Without this parameter, every review is isolated; with it,
+  you get trend-level reasoning across runs."
+- The **separated return fields for `verified_outcomes` vs `unverified_claims`** — "Most
+  recipes return a single findings blob. This one splits claims by evidence status. A
+  downstream conductor can auto-approve verified outcomes and surface unverified ones for
+  human review. Structured output turns the review into a routing signal."
+- The **observer stance in the instructions** — "'You review entire cycles — not individual
+  sessions.' That's the frame: this agent never executes work, only evaluates patterns
+  across sessions. Separating execution from observation is why cycle review can safely
+  challenge the pipeline it's watching."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/cycle-review.yaml>`
+"The NEVER block is the whole philosophy of this recipe — read that first, the rest
+follows from it."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 
 "The next piece is durability. Once the cycle review teaches you something, the pipeline needs somewhere to put that learning, and each periodic agent needs memory it can actually find next time. Ready to move on?"

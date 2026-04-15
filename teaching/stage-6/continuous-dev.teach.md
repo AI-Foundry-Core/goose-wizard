@@ -193,6 +193,38 @@ Ordered list. Deliver one per subagent operation that takes 30+ seconds. See tea
 4. `[enterprise]` "In a team setting, per-agent state files become a lightweight dashboard. The morning reviewer reads three small files instead of scrolling a 200-line shared log. That scales to multiple pipelines."
 5. `[feedback-loops]` "The escalation threshold matters more than the finding. If the same issue repeats for 3 cycles without action, the learning is not driving change — it is just documentation. Escalation turns a note into a forcing function."
 
+## Recipe Reveal
+After wait-time insights, show the developer the recipe behind this session.
+
+"This one's built to be durable. Let me show you the three fields that turn a one-shot
+agent into something a pipeline can rely on cycle after cycle."
+
+Read the Continuous Dev agent recipe (recipes/agents/continuous-dev.yaml) and show the developer:
+- The **`surprising_findings` parameter** — "Optional, defaults to empty string. When
+  cycle review hands findings forward, they land here. When the developer has nothing in
+  hand, the agent discovers candidates. Same recipe, two entry points — that's the design
+  that lets this run unattended AND get driven manually."
+- The **five `NEVER` constraints** — "Look at what the agent is forbidden to do: merge
+  agents into one shared memory, leave stale stop flags, delete state without confirming
+  the owner, skip the next-cycle checklist. These aren't polite suggestions — they're the
+  hard rules that keep unattended cycles from corrupting their own state."
+- The **`next_cycle_checklist` return field** — "Most agents return what they did. This
+  one returns a pre-flight checklist for the NEXT run. That's the feedback loop literally
+  encoded in the output shape — one cycle hands a checklist to the next one, and the
+  pipeline stays coherent even without a human in the loop."
+- The **per-agent memory design step** — "Process step 2: 'each agent owns its own
+  learnings.' The observer pattern you just practiced — separate memory per agent, not a
+  shared log — is a single line in the process block."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/continuous-dev.yaml>`
+"Read the constraints block first — those five NEVERs are most of what separates an
+autonomous pipeline from one that silently corrupts itself."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 
 "Your pipeline now runs autonomously with durable memory and clean state management. The next step is closing the improvement loop: when the workflow itself keeps getting smarter, you start packaging what works into reusable skills that evolve on their own. Ready to move on?"

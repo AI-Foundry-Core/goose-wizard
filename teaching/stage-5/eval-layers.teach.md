@@ -127,6 +127,37 @@ Read eval results. For each dimension:
 If ALL dimensions are Strong:
 "You've built a layered eval that catches different failure types at different costs, runs in the right order, and each layer stands on its own. That's a real evaluation system, not just 'run the tests.'"
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"Most eval systems are one layer pretending to be three. This recipe forces the
+layers to be genuinely different — let me show you where that's encoded."
+
+Read the Eval Layers agent recipe (recipes/agents/eval-layers.yaml) and show the developer:
+- The **'NEVER let layers share the same blind spots' constraint** — "That's the whole point
+  of a layered strategy. If deterministic, behavioral, and model-graded all miss the same
+  kind of failure, you don't have three layers — you have one check run three times. The
+  recipe rejects strategies that look layered but aren't."
+- The **`coverage_matrix` return** — "Risk areas mapped to which layers cover them. This is
+  the answer to the question 'if a bug escapes, which layer should have caught it?' Without
+  the matrix, you can't tell which layer needs work — you just know something slipped through."
+- The **`uncovered_gaps` return field** — "Explicit list of risk areas no layer addresses.
+  Most teams pretend the gaps don't exist. This recipe names them and asks for mitigation
+  suggestions. Known unknowns are manageable. Unknown unknowns aren't."
+- The **`recommended_order` return field** — "'Cheapest/fastest first.' That's not just
+  optimization — it's fail-fast engineering. If the 2-second lint check can kill the run,
+  why waste 5 minutes on a test suite? The recipe bakes the execution strategy into the
+  output so the orchestration runner inherits it."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/eval-layers.yaml>`
+"Notice that this recipe designs the strategy but doesn't execute it — the layer scripts it
+writes are what actually runs. Separation of concerns again."
+
+WAIT for any questions about the recipe structure.
+
 ## Bridge
 "You've got layers that catch problems. But what prevents quality from slowly sliding backward between checks? That's ratchets — quality thresholds that only go up. Once you have 200 passing tests, the number should never drop below 200. Ready to move on?"
 

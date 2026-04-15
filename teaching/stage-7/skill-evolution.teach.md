@@ -222,6 +222,40 @@ Maximum two questions unless the developer wants to go deeper.
 
 ---
 
+## Recipe Reveal
+After enterprise grounding, show the developer the recipe behind this session.
+
+"This is the Curator. It's the recipe that edits other recipes based on what cycle review
+finds. The safety rails are where the design lives."
+
+Read the Skill Evolution agent recipe (recipes/agents/skill-evolution.yaml) and show the developer:
+- The **five-way classification in the process block** — "INSTRUCTION_GAP,
+  INSTRUCTION_VAGUE, INSTRUCTION_MISSING, INSTRUCTION_OUTDATED, NOT_INSTRUCTION. Every
+  finding gets one label before any edit happens. That last one is the important one —
+  'NOT_INSTRUCTION' means the root cause isn't in a prompt, so no edit is warranted.
+  Without that category, the Curator would try to turn every finding into an edit."
+- The **'NEVER combine multiple findings into one edit' constraint** — "One finding,
+  one change. That's the traceability rule — if an edit breaks something, you can revert
+  exactly the finding it came from. Batch edits look efficient and wreck the audit trail."
+- The **'NEVER fix the output instead of the instruction' constraint** — "This is the
+  whole philosophy in one line. The temptation is to patch the latest broken output. The
+  discipline is to trace back to the instruction that allowed it. The recipe enforces
+  that at the constraint level, not as a suggestion."
+- The **`not_instruction` return field** — "Separate from `edits_applied`. The Curator
+  is required to report what it DIDN'T fix and why. A curator that only shows its wins
+  is a curator that's quietly skipping the hard findings."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/skill-evolution.yaml>`
+"Read the classification step and the constraints block together — that's where the
+Curator pattern actually lives."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge
 
 "Your instructions evolve now. But instructions aren't the only thing that

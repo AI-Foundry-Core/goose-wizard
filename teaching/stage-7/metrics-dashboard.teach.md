@@ -251,6 +251,44 @@ operationally real instead of conceptually complete.
 
 ---
 
+## Recipe Reveal
+After enterprise grounding, show the developer the recipe behind this session — the
+last recipe reveal of the curriculum.
+
+"This is the recipe that closes the improvement loop. Metrics in, honest comparison out.
+The design is almost entirely about what it's forbidden from doing."
+
+Read the Metrics Dashboard agent recipe (recipes/agents/metrics-dashboard.yaml) and show the developer:
+- The **four `NEVER` constraints** — "'NEVER show percentages without the raw numbers
+  alongside them.' 'NEVER ignore small sample sizes — flag them prominently.' 'NEVER hide
+  metrics that moved in the wrong direction.' 'NEVER compare snapshots taken from the
+  same run as before/after.' Every wait-time insight you heard today is encoded here as
+  a hard constraint. The anti-spin discipline is the recipe."
+- The **separated `improved` vs `regressed` vs `insufficient_data` return fields** —
+  "The recipe literally cannot return 'things got better' without also reporting what
+  got worse and what's inconclusive. That structure is what makes the output honest —
+  the agent has nowhere to hide a regression by omission."
+- The **`baseline_data` and `comparison_data` parameters** — "Both required. You can't
+  run this recipe against a single snapshot and get a 'looks good.' No baseline, no
+  dashboard. That's the baseline discipline you just practiced, enforced at the parameter
+  level."
+- The **feedback loop from here back to Skill Evolution** — "When the metrics say a
+  change regressed, you feed that back into the Curator as a finding. Measure →
+  evolve → measure again. These last three recipes — Metrics, Skill Evolution, and
+  Pipeline Self-Edit — are the self-improvement loop you've been building toward."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/metrics-dashboard.yaml>`
+"Last recipe — read the NEVER block and then look back across Stage 7. The same pattern
+repeats: structured output, required fields, hard-coded honesty. Now you know how to read
+any recipe YAML and predict what it will do."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge
 
 This is the final recipe in the final stage. The bridge connects to the

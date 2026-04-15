@@ -198,6 +198,42 @@ If ALL dimensions are Strong:
 
 ---
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"This is the first recipe you've seen that edits other recipes. That's a big enough
+shift that the safety rails deserve a close look."
+
+Read the Pipeline Self-Edit agent recipe (recipes/agents/pipeline-self-edit.yaml) and show the developer:
+- The **`audit_only` parameter defaulting to `'true'`** — "A curator agent defaults to
+  read-only. You have to explicitly pass `audit_only: false` to let it touch instruction
+  files. That's the kill-switch — any recipe that edits other recipes should ship with
+  its destructive mode off by default."
+- The **'NEVER remove rules marked POTENTIALLY_OUTDATED automatically' constraint** —
+  "Even in apply mode, the agent isn't allowed to delete guardrails unilaterally. It flags
+  them for human review. That's the line between a curator and a bulldozer: it can
+  consolidate duplicates, but deciding whether an old rule still earns its keep stays with
+  you."
+- The **`rule_counts` return field (before and after)** — "The recipe is required to
+  report rules per file before AND after. That's the metric that makes self-editing
+  measurable — if total rules went from 84 to 71, you can see that the consolidation
+  actually happened. A curator that can't show its work can't be trusted."
+- The **split between `edits_applied` and `conflicts`** — "Anything the agent is
+  confident about goes in `edits_applied`. Anything ambiguous lands in `conflicts` for you
+  to decide. That's the self-editing pattern: automate the safe parts, escalate the
+  judgment calls."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open <path to recipes/agents/pipeline-self-edit.yaml>`
+"Look at `audit_only` first — that one default is most of what makes this recipe safe
+to ship."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge
 
 "Your instructions evolve. Your rules are clean. But how do you know any of

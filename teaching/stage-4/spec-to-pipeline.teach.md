@@ -313,6 +313,48 @@ If all Stage 4 concepts are complete:
 
 ---
 
+## Recipe Reveal
+After the checkpoint, show the developer the recipe behind this session.
+
+"Fifteenth recipe. Final one in the Stage 4 chain — and the one that makes everything
+before it actionable. It takes the reviewed spec and produces the artifacts a build
+pipeline needs to execute."
+
+Read the Spec to Pipeline recipe (recipes/agents/spec-to-pipeline.yaml) and show the developer:
+- The **'NEVER leave a requirement without a corresponding test' constraint** — "Look
+  at Constraints. That's the traceability-discipline dimension you were rated on, as a
+  hard rule the agent won't break. Every acceptance criterion gets a test spec, or the
+  agent flags it as non-automatable. No orphan requirements, period."
+- The **`coverage_matrix` return field** — "The return block has `coverage_matrix:
+  Requirement-to-test traceability matrix.` That matrix you were coached to inspect
+  isn't a nice-to-have output — it's a required return value. The agent can't finish
+  without producing it. That's why 'which requirement has the weakest trace' is
+  always a question you can ask."
+- The **`non_automatable` flagged separately from tests** — "Look at the returns:
+  `test_specifications` and `non_automatable: Criteria needing human judgment +
+  suggested rewrites` are separate fields. The agent doesn't silently skip the
+  untestable criteria or pretend it can automate them — it surfaces them with a
+  suggested rewrite so you can decide: rewrite into an automated check, keep as an
+  explicit manual gate, or drop the requirement. That's the non-automatable-handling
+  dimension, enforced as a structured output."
+- The **`pipeline_plan` with dependencies and parallelization** — "Process step 4:
+  'ordered tasks, test mappings, dependencies, parallelization opportunities.' That's
+  the full execution plan for a build pipeline — not just 'here's what to build,' but
+  what depends on what and what can run in parallel. This is the handoff artifact to
+  Stage 5 and beyond: the build agents in later stages take this plan as input."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/agents/spec-to-pipeline.yaml`
+"Trace the Stage 4 chain end-to-end: idea-to-spec produces the spec, spec-decomposition
+restructures it by persona, spec-review rates it, spec-to-pipeline turns it into
+executable artifacts. Four recipes, one pipeline."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge
 
 If continuing to spec-review:

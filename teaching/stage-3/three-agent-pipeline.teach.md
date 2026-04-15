@@ -195,7 +195,43 @@ Show the developer Pipeline Forge: "Take a look at recipes/graduated/pipeline-fo
 Ask: "Want to try Pipeline Forge on a variation of what you just built? For example, add a fourth agent, change the review strategy, or design a completely different pipeline."
 
 If yes: direct them to run `goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive`.
-If no: proceed to Bridge.
+If no: proceed to Recipe Reveal.
+
+## Recipe Reveal
+After the GooseForge connection, show the developer the recipe behind this session.
+
+"Ninth recipe — and this is the first *coordinator* you've seen. The earlier recipes
+were single agents doing one job. This one runs three agents in sequence and enforces
+contracts between them."
+
+Read the Three-Agent Pipeline recipe (recipes/graduated/three-agent-pipeline.yaml) and show the developer:
+- The **`sub_recipes:` block** — "At the top: `spec_writer`, `builder`, `code_review`
+  — three separate recipe files this coordinator calls. That's new. Every recipe you've
+  seen until now did its own work. This one delegates. The coordinator has exactly one
+  job: make sure each handoff is clean."
+- The **contract validation between phases** — "Look at Phase 1: after spec_writer
+  returns, the coordinator validates `task_summary, affected_files, constraints,
+  acceptance_criteria, non_goals must all be present`. That's the handoff contract you
+  just sketched — but enforced in YAML. A missing field triggers one retry to the
+  spec writer. That's not vibes; that's a validator."
+- The **scoped context passed to each agent** — "Phase 2 passes the builder ONLY the
+  validated spec contract — not the full conversation. Phase 3 passes the reviewer the
+  spec AND build contract, but not the builder's reasoning. Exactly the 'scoped context'
+  dimension you were rated on. The reviewer literally cannot see what the builder
+  intended, only what the spec required."
+- The **circuit breaker rule** — "'STOP after 2 build-review rejection loops — escalate
+  to developer.' That's the safety rail, in plain English, in the instructions block.
+  Without it, a stubborn bug could burn 50 cycles. With it, you get 3 cycles and a
+  handoff back to you."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/graduated/three-agent-pipeline.yaml`
+"This is the first recipe that reads like an org chart — look at the sub_recipes block
+and trace the data flow between them."
+
+WAIT for any questions about the recipe structure.
 
 ## Bridge
 "Now that you have a team pipeline, the next problem is coordination under parallel work. Multiple reviewers can catch different classes of issues at the same time, but shared files and temp state need discipline. Ready for the next one?"

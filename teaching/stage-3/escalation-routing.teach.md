@@ -197,7 +197,42 @@ After coaching, connect the exercise to GooseForge:
 Ask: "Want to try Pipeline Forge to design a new pipeline with built-in safety rails? Or are you ready to move on."
 
 If yes: direct them to run `goose run --recipe recipes/graduated/pipeline-forge.yaml --interactive`. When it asks about failure handling, they'll recognize the same patterns.
-If no: proceed to Bridge.
+If no: proceed to Recipe Reveal.
+
+## Recipe Reveal
+After the GooseForge connection, show the developer the recipe behind this session.
+
+"Eleventh recipe. This one is different — it's not a coordinator and it doesn't build
+anything. It's an *analyzer* that adds safety rails to a pipeline you already have."
+
+Read the Escalation Routing recipe (recipes/agents/escalation-routing.yaml) and show the developer:
+- The **enumerated failure classes** — "Look at Process step 2: `malformed_output`,
+  `execution_failure`, `review_rejection`, `timeout`, `state_conflict`, `repeated_no_progress`.
+  Those are the exact failure buckets you were coached to separate. They're not
+  suggestions in the instructions — they're the canonical list the agent uses every time
+  it analyzes a pipeline."
+- The **explicit CLOSED / OPEN / HALF_OPEN breaker states** — "Process step 3 names the
+  three circuit breaker states and the numeric thresholds: '2 consecutive failures -> halt',
+  '2 rejected loops -> halt', '3 same failures -> halt'. Those aren't the developer's
+  numbers — they're the recipe's defaults. The 'make the threshold a number' coaching
+  you got is baked in as a default policy."
+- The **hard constraints against 'try harder'** — "Look at Constraints: 'NEVER define a
+  safety rail as \"try harder\" — it must define when to stop.' 'NEVER hide escalation —
+  include enough evidence for the next owner to act.' Those are the exact failure modes
+  you were coached on — encoded as constraints the agent refuses to violate."
+- The **`cleanup_actions` return field** — "The return block includes `cleanup_actions:
+  State or artifacts to repair before rerun.` Most recipes return what was done. This one
+  returns what needs *undoing* before the next attempt — because a retry against dirty
+  state is worse than no retry at all."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/agents/escalation-routing.yaml`
+"This recipe is a pure analyzer — note how the whole output is structured data, no
+source edits. That's what makes it safe to bolt onto any pipeline."
+
+WAIT for any questions about the recipe structure.
 
 ## Bridge
 "Safety rails answer what the team does when it gets stuck. The next big jump is what you feed that team: specs precise enough that agents can build without guessing."

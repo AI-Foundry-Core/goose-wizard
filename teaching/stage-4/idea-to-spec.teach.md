@@ -232,6 +232,45 @@ Coach on the weak dimensions (using coaching language above), then offer:
 
 ---
 
+## Recipe Reveal
+After coaching, show the developer the recipe behind this session.
+
+"Twelfth recipe — and this one is the first of the Stage 4 spec chain. The earlier
+Stage 1-3 recipes did work on code you already had. This one produces a spec from
+nothing but an idea."
+
+Read the Idea to Spec recipe (recipes/agents/idea-to-spec.yaml) and show the developer:
+- The **hard constraint against skipping the one-pager** — "Look at Constraints:
+  'NEVER skip the one-pager — it's a kill gate for bad ideas.' 'Do NOT jump straight to
+  detailed requirements without the one-pager.' That progressive-discipline behavior you
+  were rated on? It's literally a rule the agent won't break. The one-pager isn't
+  suggested — it's enforced."
+- The **Process ordering that locks in the kill gate** — "Process: step 2 produces a
+  one-pager. Step 3 PRESENTS it and asks whether to elaborate. Only step 4 — conditional
+  on a 'yes' — produces the full requirements doc. That's the kill gate sequenced in
+  numbered steps. The developer has to choose to elaborate; it's never automatic."
+- The **six required one-pager elements** — "Step 2 names them: problem statement,
+  proposed solution, target personas, success criteria (measurable), kill criteria, key
+  risks, scope boundaries. Those are the exact six questions you answered in Phase 1.
+  'Measurable' is in parentheses because the next constraint is 'NEVER use subjective
+  success criteria (\"easy to use\", \"fast\").'"
+- The **spec-writing target path convention** — "Notice the `target_codebase_path`
+  parameter and the working-directory block: 'Write all spec artifacts under
+  {target_codebase_path}/specs/.' The spec lands in the developer's project, not
+  RILGoose. Artifacts live where the build agents will look for them — that's why the
+  later recipes in the chain take `spec_path` as input and know where to find it."
+
+Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
+
+Open it in the desktop app:
+Run: `goose recipe open recipes/agents/idea-to-spec.yaml`
+"Stage 4 is a chain — this recipe writes the spec, the next three decompose, review,
+and convert it. Watch how each one takes the previous artifact as input."
+
+WAIT for any questions about the recipe structure.
+
+---
+
 ## Bridge to Spec Decomposition
 
 "You've got a solid spec. But right now it's organized around features — what the system does. The problem is, features miss cross-cutting needs. When you organize by persona — real people with real workflows — you catch edge cases that feature lists miss. That's Recipe 4.3. Ready to move on?"
