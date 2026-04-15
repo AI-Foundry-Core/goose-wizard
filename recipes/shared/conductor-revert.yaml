@@ -67,7 +67,30 @@ prompt: |
     project_id: "{{ project_id }}",
     require_project: true
   })
-  If status != "ok", surface and stop.
+
+  **Status routing table.** Every non-`ok` status stops this recipe.
+
+  | status                 | Action                                                                                                                 |
+  |------------------------|------------------------------------------------------------------------------------------------------------------------|
+  | `ok`                   | Proceed.                                                                                                               |
+  | `no_user_config`       | Tell user to run `setup-config` first. Stop.                                                                           |
+  | `user_config_corrupt`  | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
+  | `legacy_ambiguous`     | Instruct user to complete migration via `setup-config`. Stop.                                                          |
+  | `project_missing`      | Show `projects[]`; ask user to pick or run `setup-config`. Stop.                                                       |
+  | `project_json_missing` | "Run `conductor-setup` to initialize this project." Stop.                                                              |
+  | `project_corrupt`      | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
+  | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config`." Stop.                                                           |
+  | `duplicate_projects`   | List duplicate IDs; instruct `setup-config`. Stop.                                                                     |
+
+  ## Step 0a — Determine live_confirmed_bool
+
+  If `project.kind == "live"`, the revert_by_unit sub-recipe refuses
+  `execute: true` unless `live_confirmed: true` is passed. Planning
+  (`execute: false`) never requires the flag. The target-specific typed
+  string check in Step 2 below is the live confirmation for this recipe
+  — if the user types the exact revert string, that's the confirmation;
+  set `live_confirmed_bool = true` just before the execute call in Step 3.
+  Until then, leave it false.
 
   ## Step 1 — Ask for unit (if not provided)
   If `unit` is empty, ask: "Revert by task, phase, or track?"
@@ -111,13 +134,17 @@ prompt: |
 
   ## Step 3 — Execute (only if confirmed)
 
+  The byte-for-byte match in Step 2 is the live confirmation. Now set
+  `live_confirmed_bool = true` and call the execute variant:
+
   subagent(subrecipe: "revert", parameters: {
     project_id: "<project.id>",
     unit: "<unit>",
     track_id: "{{ track_id }}",
     phase: <phase>,
     task_id: "<task_id>",
-    execute: true
+    execute: true,
+    live_confirmed: true
   })
 
   If status == "conflicts_present":

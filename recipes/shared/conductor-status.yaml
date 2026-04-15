@@ -49,7 +49,22 @@ prompt: |
     project_id: "{{ project_id }}",
     require_project: true
   })
-  If status != "ok", surface and stop.
+
+  **Status routing table.** This recipe is read-only, but we still route
+  non-`ok` statuses to specific user-facing actions — silently failing
+  isn't useful to the developer trying to audit state.
+
+  | status                 | Action                                                                                                                 |
+  |------------------------|------------------------------------------------------------------------------------------------------------------------|
+  | `ok`                   | Proceed.                                                                                                               |
+  | `no_user_config`       | "No RILGoose config. Run `setup-config`." Stop.                                                                         |
+  | `user_config_corrupt`  | Show parse error + config path. Instruct manual fix or rerun `setup-config`. Stop.                                     |
+  | `legacy_ambiguous`     | "Legacy config present but ambiguous. Run `setup-config` to complete migration." Stop.                                  |
+  | `project_missing`      | Show `projects[]`. "Project `<id>` not found. Pass --params project_id=<existing> or run `setup-config`." Stop.         |
+  | `project_json_missing` | "This project's conductor isn't initialized. Run `conductor-setup`." Stop.                                              |
+  | `project_corrupt`      | Show parse error. Instruct manual fix. Stop.                                                                           |
+  | `no_active_project`    | Show `projects[]`. "No active project. Pass --params project_id=<id> or run `setup-config` to set `last_active`." Stop. |
+  | `duplicate_projects`   | List duplicate IDs + canonical path as the FIRST output (this IS status to the user, not an error to skip past). Stop. |
 
   ## Step 1 — Validate artifacts
   subagent(subrecipe: "context_validate", parameters: {

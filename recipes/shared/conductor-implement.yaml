@@ -60,7 +60,42 @@ prompt: |
     project_id: "{{ project_id }}",
     require_project: true
   })
-  If status != "ok", surface and stop.
+
+  **Status routing table.** Every non-`ok` status stops this recipe.
+
+  | status                 | Action                                                                                                                 |
+  |------------------------|------------------------------------------------------------------------------------------------------------------------|
+  | `ok`                   | Proceed.                                                                                                               |
+  | `no_user_config`       | Tell user to run `setup-config` first. Stop.                                                                           |
+  | `user_config_corrupt`  | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
+  | `legacy_ambiguous`     | Instruct user to complete migration via `setup-config`. Stop.                                                          |
+  | `project_missing`      | Show `projects[]` from the result; ask user to pick one or run `setup-config`. Stop.                                   |
+  | `project_json_missing` | "This project has no conductor config. Run `conductor-setup` or `setup-config`." Stop.                                 |
+  | `project_corrupt`      | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
+  | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config` to set `last_active`." Stop.                                       |
+  | `duplicate_projects`   | List duplicate IDs + canonical path; tell user to run `setup-config`. Stop.                                            |
+
+  Verify `project.json.conductor_initialized` is true. If not:
+    "Conductor hasn't been set up for this project yet. Run:
+     goose run --recipe recipes/shared/conductor-setup.yaml --interactive"
+    Stop.
+
+  ## Step 0a — Live-project confirmation gate
+
+  If `project.kind == "live"`, obtain typed confirmation BEFORE the task
+  loop. `task_execute` will refuse any live-project task without
+  `live_confirmed: true`.
+
+  Tell the user:
+    "This project is marked `kind: live`. Implementing track
+     {{ track_id }} will run RED → GREEN → REFACTOR cycles and commit
+     code to a live codebase.
+     Type exactly `implement {{ track_id }}` to proceed, or anything
+     else to cancel."
+  Byte-for-byte match (after trimming surrounding whitespace). Set
+  `live_confirmed_bool = true` ONLY on exact match; otherwise stop.
+
+  For non-live projects, set `live_confirmed_bool = false` and continue.
 
   Load `<project.path>/.goose/conductor/tracks/{{ track_id }}/plan.md`.
   If missing, tell the user to run `conductor-new-track` first.
@@ -78,7 +113,8 @@ prompt: |
     d. subagent(subrecipe: "task_execute", parameters: {
          project_id: "<project.id>",
          track_id: "{{ track_id }}",
-         task_id: ""
+         task_id: "",
+         live_confirmed: <live_confirmed_bool>
        })
     e. If status != "ok":
        - `red_not_red`: show the test that passed without implementation.
@@ -108,14 +144,23 @@ prompt: |
   If status == "ready_for_user_review":
     - Show the gate results (test count, coverage, lint, types).
     - Show the manual verification checklist from plan.md's Verify tasks.
-    - Say: "Please verify each manual item. Reply 'approved' to create
-      the checkpoint commit, or list specific issues."
+    - Say: "Please verify each manual item. Type exactly `approved`
+      (lowercase, no quotes, no surrounding punctuation) to create the
+      checkpoint commit. Anything else — including `approve`, `yes`,
+      `ok`, `APPROVED`, or a typo — is treated as unresolved issues.
+      You can also list specific issues directly."
     - WAIT for user response.
-    - If approved: create the checkpoint commit using the
-      recommended message. Update plan.md's Checkpoints table with the
-      new SHA and date. Increment the phase.
-    - If the user lists issues: create tasks to address them, mark the
-      phase incomplete, and return to Step 1.
+    - Byte-for-byte string match after trimming surrounding whitespace:
+      the response must equal the literal ASCII string `approved`. A
+      looser model-interpretation of approval is NOT acceptable here —
+      this is a safety gate. If the string doesn't match, proceed as
+      "user lists issues".
+    - If matched: create the checkpoint commit using the recommended
+      message. Update plan.md's Checkpoints table with the new SHA and
+      date. Increment the phase.
+    - If not matched: treat the response as issue descriptions. Create
+      tasks to address them, mark the phase incomplete, and return to
+      Step 1.
 
   ## Step 3 — Decide whether to continue
 
