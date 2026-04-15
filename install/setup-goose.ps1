@@ -957,13 +957,14 @@ if (-not (Test-Path $rilgooseHome)) {
 }
 
 # Seed .goose/PROGRESS.md (the user-facing training checklist)
-$progressSource = Join-Path $projectRoot ".goose" "PROGRESS.md"
+# Note: Windows PowerShell 5.1 Join-Path only accepts 2 positional args;
+# nest calls to build deeper paths.
 $progressTarget = Join-Path (Join-Path $projectRoot ".goose") "PROGRESS.md"
 if (-not (Test-Path $progressTarget)) {
     # In the RILGoose repo, PROGRESS.md is already there. For external projects,
     # we need to copy from the template. Check if template exists.
-    $templateProgress = Join-Path $projectRoot "install" "project-template" ".goose" "PROGRESS.md"
-    $repoProgress = Join-Path $projectRoot ".goose" "PROGRESS.md"
+    $templateProgress = Join-Path (Join-Path (Join-Path (Join-Path $projectRoot "install") "project-template") ".goose") "PROGRESS.md"
+    $repoProgress = Join-Path (Join-Path $projectRoot ".goose") "PROGRESS.md"
     if (Test-Path $templateProgress) {
         if ($DryRun) {
             Write-Host "  [DRY RUN] Would copy PROGRESS.md from template"
