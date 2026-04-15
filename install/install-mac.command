@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ============================================================
-#  RILGoose Installer — macOS
+#  RILGoose Installer - macOS
 #  Double-click this file in Finder to install and configure Goose.
 # ============================================================
 #
@@ -62,7 +62,7 @@ EOF
 read -p "Press Enter to continue, or Ctrl+C to cancel. " _
 
 # ================================================================
-# PHASE 1: Bootstrap — install prerequisites if missing
+# PHASE 1: Bootstrap - install prerequisites if missing
 # ================================================================
 
 say_phase "Phase 1: Bootstrap prerequisites"
@@ -77,7 +77,7 @@ if [ "$MACOS_MAJOR" -lt 13 ] 2>/dev/null; then
     say_err "         Claude Code will not run. Update macOS and re-run."
     exit 1
 fi
-echo "  macOS: $MACOS_VER (OK — 13.0+ required)"
+echo "  macOS: $MACOS_VER (OK - 13.0+ required)"
 
 # --- Preflight: python3 (needed for config.yaml + ACP patches later) ---
 say_step "Checking python3..."
@@ -107,7 +107,7 @@ GH_OK=1; NPM_OK=1
 check_url "https://github.com" "GitHub" || GH_OK=0
 check_url "https://registry.npmjs.org" "npm registry" || NPM_OK=0
 if [ $GH_OK -eq 0 ] || [ $NPM_OK -eq 0 ]; then
-    echo "  Continuing anyway — some downloads may fail."
+    echo "  Continuing anyway - some downloads may fail."
 fi
 
 # --- Homebrew ---
@@ -135,7 +135,7 @@ else
 fi
 
 # --- Git (required by Claude Code for repo operations) ---
-# On macOS, Git usually ships with Xcode Command Line Tools — but some
+# On macOS, Git usually ships with Xcode Command Line Tools - but some
 # minimal setups don't have it until a brew formula or xcode-select pulls it.
 say_step "Checking Git..."
 if command -v git >/dev/null 2>&1; then
@@ -194,7 +194,7 @@ say_step "Checking npm global prefix..."
 NPM_PREFIX="$(npm config get prefix)"
 echo "  npm prefix: $NPM_PREFIX"
 if [ ! -w "$NPM_PREFIX" ] && [ ! -w "$(dirname "$NPM_PREFIX")" ]; then
-    echo "  npm global prefix is not writable — switching to per-user prefix at ~/.npm-global"
+    echo "  npm global prefix is not writable - switching to per-user prefix at ~/.npm-global"
     mkdir -p "$HOME/.npm-global"
     npm config set prefix "$HOME/.npm-global"
     export PATH="$HOME/.npm-global/bin:$PATH"
@@ -257,7 +257,7 @@ if [ -f "$CLAUDE_CREDS" ]; then
     echo "  Assuming you are logged in. If recipes fail with auth errors later, run 'claude' and re-login."
 else
     echo "  No existing Claude credentials found."
-    echo "  We'll launch 'claude' — it will open a browser for you to log in with your Claude Max account."
+    echo "  We'll launch 'claude' - it will open a browser for you to log in with your Claude Max account."
     echo "  After login, type '/exit' or press Ctrl+D to leave the Claude session and return here."
     read -p "  Press Enter to launch Claude login. " _
     claude || true  # interactive; may exit non-zero on /exit
@@ -362,7 +362,7 @@ echo "  graduated/: $GRADUATED_COUNT coordinator recipes"
 # --- Set GOOSE_RECIPE_PATH in shell rc ---
 say_step "Setting GOOSE_RECIPE_PATH..."
 
-# Only shared/ goes on the path — agents/ and graduated/ are invoked as sub_recipes.
+# Only shared/ goes on the path - agents/ and graduated/ are invoked as sub_recipes.
 RECIPE_PATH_VALUE="$RECIPE_ROOT/shared"
 
 # Pick the right rc file based on the user's LOGIN shell ($SHELL).
@@ -410,7 +410,7 @@ if grep -qF "$RILGOOSE_MARKER_START" "$RC_FILE"; then
     ' "$RC_FILE" > "$RC_FILE.tmp" && mv "$RC_FILE.tmp" "$RC_FILE"
 fi
 
-# Fish uses different syntax — emit the right form for the shell
+# Fish uses different syntax - emit the right form for the shell
 if [ "$USER_SHELL_NAME" = "fish" ]; then
     cat >> "$RC_FILE" <<EOF
 
@@ -517,7 +517,7 @@ acp_path = Path(sys.argv[1])
 content = acp_path.read_text()
 original = content
 
-# Patch 1: settingSources — only load .claude/CLAUDE.md from project dir
+# Patch 1: settingSources - only load .claude/CLAUDE.md from project dir
 if 'settingSources: ["user", "project", "local"]' in content:
     content = content.replace(
         'settingSources: ["user", "project", "local"]',
@@ -529,7 +529,7 @@ elif 'settingSources: ["local"]' in content:
 else:
     print('  WARNING: Could not find settingSources line')
 
-# Patch 2: autoMemoryEnabled — disable Claude Code auto-memory
+# Patch 2: autoMemoryEnabled - disable Claude Code auto-memory
 # Tolerate whitespace variations + optional trailing comma in the anchor.
 if "autoMemoryEnabled: false" in content:
     print("  Already patched (autoMemoryEnabled = false)")
@@ -554,7 +554,7 @@ elif 'const disallowedTools = [];' in content:
 else:
     print("  WARNING: Could not find disallowedTools line")
 
-# Patch 4: disable extended thinking output — use a tolerant regex so
+# Patch 4: disable extended thinking output - use a tolerant regex so
 # upstream reformatting (prettier, indentation changes, semicolon
 # reflow) doesn't silently break the patch.
 if re.search(r"const\s+maxThinkingTokens\s*=\s*0\b", content):
@@ -575,7 +575,7 @@ else:
         print("  WARNING: Could not find maxThinkingTokens block")
 
 # Patch 5: replace claude_code preset system prompt with recipe-focused prompt.
-# MUST include the pre-tool-call announcement line — Goose's approval dialog
+# MUST include the pre-tool-call announcement line - Goose's approval dialog
 # renders the model's natural-language preface before "approve this tool?".
 # Without that line, users see a generic prompt with no context about what
 # the tool call will actually do.
@@ -593,7 +593,7 @@ prompt_patched_value = (
     'When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. '
     'Write complete paragraphs, not fragments.";'
 )
-# Marker text that only exists in the CURRENT prompt — distinguishes
+# Marker text that only exists in the CURRENT prompt - distinguishes
 # "already up-to-date" from "patched with an older version that needs upgrade".
 current_marker = "user knows what they are approving"
 if current_marker in content:

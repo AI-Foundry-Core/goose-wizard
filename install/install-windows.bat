@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM  RILGoose Installer — Windows
+REM  RILGoose Installer - Windows
 REM  Double-click this file to install and configure Goose.
 REM ============================================================
 REM
