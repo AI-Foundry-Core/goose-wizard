@@ -574,21 +574,33 @@ else:
     else:
         print("  WARNING: Could not find maxThinkingTokens block")
 
-# Patch 5: replace claude_code preset system prompt with recipe-focused prompt
-prompt_orig = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
-prompt_patched_marker = "You are an AI assistant running in the Goose agent platform"
+# Patch 5: replace claude_code preset system prompt with recipe-focused prompt.
+# MUST include the pre-tool-call announcement line — Goose's approval dialog
+# renders the model's natural-language preface before "approve this tool?".
+# Without that line, users see a generic prompt with no context about what
+# the tool call will actually do.
+# Use a tolerant regex so we can re-patch over any previous RILGoose version.
+prompt_re = re.compile(
+    r'let\s+systemPrompt\s*=\s*(\{[^}]*\}|"(?:[^"\\]|\\.)*")\s*;',
+    re.DOTALL,
+)
 prompt_patched_value = (
     'let systemPrompt = "You are an AI assistant running in the Goose agent platform. '
     'Your task comes from a recipe \\u2014 follow its instructions exactly. '
     'Use the available tools (file read/write/edit, shell commands, code analysis) to do the work. '
+    'Before running any tool, write one short sentence (under 20 words) naming the tool and what you are about to do with it, '
+    'so the user knows what they are approving when the permission dialog appears. '
     'When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. '
-    'Write complete paragraphs, not fragments. Never narrate your reasoning process out loud.";'
+    'Write complete paragraphs, not fragments.";'
 )
-if prompt_orig in content:
-    content = content.replace(prompt_orig, prompt_patched_value)
-    print("  Patched: system prompt replaced (recipe-focused)")
-elif prompt_patched_marker in content:
-    print("  Already patched (custom system prompt)")
+# Marker text that only exists in the CURRENT prompt — distinguishes
+# "already up-to-date" from "patched with an older version that needs upgrade".
+current_marker = "user knows what they are approving"
+if current_marker in content:
+    print("  Already patched (current prompt with pre-tool announcement)")
+elif prompt_re.search(content):
+    content = prompt_re.sub(prompt_patched_value, content, count=1)
+    print("  Patched: system prompt replaced (recipe-focused, with pre-tool announcement)")
 else:
     print("  WARNING: Could not find systemPrompt line")
 

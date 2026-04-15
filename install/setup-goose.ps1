@@ -848,22 +848,29 @@ if (Test-Path $acpAgentFile) {
     }
 
     # Patch 5: Replace claude_code system prompt with recipe-focused prompt
-    # The claude_code preset's system prompt is massive and drowns out recipe
-    # instructions. It also tells the agent about memory systems and CLAUDE.md,
-    # causing hallucinated memories. A focused prompt lets recipe instructions
-    # be the primary authority while keeping tool access intact.
-    $promptOriginal = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
-    $promptPatched  = 'let systemPrompt = "You are an AI assistant running in the Goose agent platform. Your task comes from a recipe \u2014 follow its instructions exactly. Use the available tools (file read/write/edit, shell commands, code analysis) to do the work. When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. Write complete paragraphs, not fragments. Never narrate your reasoning process out loud.";'
+    # The claude_code preset is massive and drowns out recipe instructions; it
+    # also references memory and CLAUDE.md, causing hallucinated memories.
+    # The prompt MUST instruct pre-tool-call announcement — Goose's approval
+    # dialog renders the model's natural-language preface before "approve?".
+    # Without this line, users see a generic prompt with no context.
+    # Use a tolerant regex so we can re-apply the patch over any previous
+    # RILGoose-installed version of the prompt (not just the original preset).
+    $promptRegex = '(?s)let\s+systemPrompt\s*=\s*(\{[^}]*\}|"(?:[^"\\]|\\.)*")\s*;'
+    $promptPatched = 'let systemPrompt = "You are an AI assistant running in the Goose agent platform. Your task comes from a recipe \u2014 follow its instructions exactly. Use the available tools (file read/write/edit, shell commands, code analysis) to do the work. Before running any tool, write one short sentence (under 20 words) naming the tool and what you are about to do with it, so the user knows what they are approving when the permission dialog appears. When the recipe says to stop and wait for the user, use AskUserQuestion to pause and get their response before continuing. Write complete paragraphs, not fragments.";'
 
-    if ($acpContent.Contains($promptOriginal)) {
+    # Marker text that only exists in the CURRENT prompt — used to distinguish
+    # "already up-to-date" from "patched with an older version that needs upgrade".
+    $currentPromptMarker = "user knows what they are approving"
+
+    if ($acpContent.Contains($currentPromptMarker)) {
+        Write-Host "  Already patched (current prompt with pre-tool announcement)"
+    } elseif ($acpContent -match $promptRegex) {
         if ($DryRun) {
             Write-Host "  [DRY RUN] Would replace system prompt"
         } else {
-            $acpContent = $acpContent.Replace($promptOriginal, $promptPatched)
-            Write-Host "  Patched: system prompt replaced (recipe-focused)" -ForegroundColor Green
+            $acpContent = [regex]::Replace($acpContent, $promptRegex, $promptPatched, 1)
+            Write-Host "  Patched: system prompt replaced (recipe-focused, with pre-tool announcement)" -ForegroundColor Green
         }
-    } elseif ($acpContent.Contains("You are an AI assistant running in the Goose agent platform")) {
-        Write-Host "  Already patched (custom system prompt)"
     } else {
         Write-Host "  WARNING: Could not find systemPrompt line" -ForegroundColor Yellow
     }
