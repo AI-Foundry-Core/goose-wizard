@@ -83,6 +83,22 @@ prompt: |
 
   If status `!= "ok"`, follow the table and stop. Do NOT continue.
 
+  **Kind confirmation check (Stage 0 → conductor bridge).** If the
+  resolved project.json has `kind: "unknown"` OR
+  `needs_kind_confirmation: true`, the project was auto-migrated from
+  Stage 0's legacy `user_config.json` and the user hasn't picked
+  sandbox-vs-live yet. conductor-setup cannot proceed without that
+  decision — the live-project gate depends on it.
+
+  In that case, tell the user:
+    "This project was auto-detected from your Stage 0 welcome tutorial,
+     but we don't know yet whether to treat it as a sandbox (safe-to-
+     scratch) or a live codebase (extra guardrails). Before conductor
+     setup can proceed, run:
+       goose run --recipe recipes/shared/setup-config.yaml --interactive
+     and pick `kind` for this project. Then rerun conductor-setup."
+  Stop. Do NOT continue — the user needs to complete setup-config first.
+
   Announce: "Setting up Conductor for <project.name> at <project.path>.
   This creates a `.goose/conductor/` directory with product, tech-stack,
   workflow, tracks, and a style guide."
