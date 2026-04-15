@@ -1,17 +1,24 @@
 # RILGoose Setup Script
-# Sets up Goose desktop app with all course recipes and correct extensions.
-# Prerequisites: Goose installed, Claude CLI authenticated, ACP adapter installed.
+# Installs and configures Goose for RILGoose training recipes.
+#
+# Phase 1 (bootstrap): installs Node.js, Goose, Claude CLI, and ACP adapter
+#                      if they're missing. Bootstraps config.yaml.
+# Phase 2 (configure): sets GOOSE_RECIPE_PATH, enables/disables extensions,
+#                      patches the ACP adapter, seeds state directories.
 #
 # Usage: powershell -ExecutionPolicy Bypass -File install\setup-goose.ps1
 # Or from PowerShell: .\install\setup-goose.ps1
+# Or double-click: install-windows.bat (recommended for new users)
 #
 # Flags:
+#   -SkipBootstrap  Skip prerequisite auto-install (legacy behavior)
 #   -IncludeLocal   Also add recipes/local/ to GOOSE_RECIPE_PATH (pipeline/testing recipes)
 #   -SkipExtensions Skip updating config.yaml extensions
 #   -DryRun         Show what would change without making changes
 
 param(
     [string]$RecipeRoot = "",
+    [switch]$SkipBootstrap,
     [switch]$IncludeLocal,
     [switch]$SkipExtensions,
     [switch]$DryRun
@@ -20,6 +27,199 @@ param(
 $ErrorActionPreference = "Stop"
 
 Write-Host "=== RILGoose Setup ===" -ForegroundColor Cyan
+
+# ================================================================
+# PHASE 1: Bootstrap — install prerequisites if missing
+# ================================================================
+# This block auto-installs Node.js, Goose, Claude CLI, and the ACP
+# adapter. Skippable with -SkipBootstrap for users who've already
+# set things up manually (legacy setup-goose.ps1 behavior).
+
+if (-not $SkipBootstrap -and -not $DryRun) {
+    Write-Host "`n--- Phase 1: Bootstrap prerequisites ---" -ForegroundColor Cyan
+
+    # Helper: check if a command exists on PATH
+    function Test-Command($name) {
+        return [bool](Get-Command $name -ErrorAction SilentlyContinue)
+    }
+
+    # Helper: refresh PATH in the current process after installing something
+    function Refresh-Path {
+        $machinePath = [System.Environment]::GetEnvironmentVariable("Path", "Machine")
+        $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+        $env:Path = "$machinePath;$userPath"
+    }
+
+    # --- Node.js ---
+    Write-Host "`nChecking Node.js..." -ForegroundColor Yellow
+    if (Test-Command "node") {
+        $nodeVer = & node --version 2>&1
+        Write-Host "  Node.js: $nodeVer (already installed)"
+    } else {
+        Write-Host "  Node.js not found. Installing via winget..."
+        if (-not (Test-Command "winget")) {
+            Write-Host "ERROR: winget not available. Install Node.js LTS manually from https://nodejs.org" -ForegroundColor Red
+            Write-Host "       Then re-run this installer." -ForegroundColor Red
+            exit 1
+        }
+        & winget install --id OpenJS.NodeJS.LTS --silent --accept-source-agreements --accept-package-agreements
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Node.js install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            exit 1
+        }
+        Refresh-Path
+        if (-not (Test-Command "node")) {
+            Write-Host "ERROR: Node.js installed but not on PATH. Close this window and re-run from a new terminal." -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "  Node.js installed: $(& node --version)"
+    }
+
+    # --- Goose CLI + desktop ---
+    Write-Host "`nChecking Goose..." -ForegroundColor Yellow
+    if (Test-Command "goose") {
+        $gooseVer = & goose --version 2>&1
+        Write-Host "  Goose: $($gooseVer.Trim()) (already installed)"
+    } else {
+        Write-Host "  Goose not found. Downloading latest stable release..."
+        # Download the Windows MSVC CLI zip from block/goose stable release
+        $gooseZipUrl = "https://github.com/block/goose/releases/download/stable/goose-x86_64-pc-windows-msvc.zip"
+        $gooseTarget = Join-Path $env:USERPROFILE ".local\bin"
+        $tempZip = Join-Path $env:TEMP "goose-cli.zip"
+
+        try {
+            Write-Host "  URL: $gooseZipUrl"
+            Invoke-WebRequest -Uri $gooseZipUrl -OutFile $tempZip -UseBasicParsing
+            New-Item -ItemType Directory -Path $gooseTarget -Force | Out-Null
+            Expand-Archive -Path $tempZip -DestinationPath $gooseTarget -Force
+            Remove-Item $tempZip -ErrorAction SilentlyContinue
+
+            # Ensure goose bin dir is on user PATH
+            $userPath = [System.Environment]::GetEnvironmentVariable("Path", "User")
+            if ($userPath -notlike "*$gooseTarget*") {
+                $newPath = if ($userPath) { "$userPath;$gooseTarget" } else { $gooseTarget }
+                [System.Environment]::SetEnvironmentVariable("Path", $newPath, "User")
+                Write-Host "  Added $gooseTarget to user PATH"
+            }
+            Refresh-Path
+            if (-not (Test-Command "goose")) {
+                Write-Host "ERROR: Goose binary extracted but not on PATH. Close this window and re-run from a new terminal." -ForegroundColor Red
+                exit 1
+            }
+            Write-Host "  Goose installed: $(& goose --version)"
+            Write-Host "  Note: the desktop app is a separate download. For now, the CLI is enough to run recipes."
+            Write-Host "        To install the desktop app, download Goose.zip from:"
+            Write-Host "        https://github.com/block/goose/releases/tag/stable"
+        } catch {
+            Write-Host "ERROR: Goose download failed: $_" -ForegroundColor Red
+            Write-Host "       Install manually from https://github.com/block/goose/releases/tag/stable" -ForegroundColor Red
+            exit 1
+        }
+    }
+
+    # --- Claude CLI ---
+    Write-Host "`nChecking Claude CLI..." -ForegroundColor Yellow
+    if (Test-Command "claude") {
+        Write-Host "  Claude CLI: found (already installed)"
+    } else {
+        Write-Host "  Claude CLI not found. Installing via npm..."
+        & npm install -g "@anthropic-ai/claude-code"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: Claude CLI install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            exit 1
+        }
+        Refresh-Path
+        if (-not (Test-Command "claude")) {
+            Write-Host "ERROR: Claude CLI installed but not on PATH. Close this window and re-run from a new terminal." -ForegroundColor Red
+            exit 1
+        }
+        Write-Host "  Claude CLI installed."
+    }
+
+    # --- ACP adapter ---
+    Write-Host "`nChecking Claude ACP adapter..." -ForegroundColor Yellow
+    if (Test-Command "claude-agent-acp") {
+        Write-Host "  ACP adapter: found (already installed)"
+    } else {
+        Write-Host "  ACP adapter not found. Installing via npm..."
+        & npm install -g "@agentclientprotocol/claude-agent-acp"
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "ERROR: ACP adapter install failed (exit $LASTEXITCODE)" -ForegroundColor Red
+            exit 1
+        }
+        Refresh-Path
+        Write-Host "  ACP adapter installed."
+    }
+
+    # --- Claude authentication ---
+    Write-Host "`nChecking Claude authentication..." -ForegroundColor Yellow
+    # We can't reliably probe login state without triggering a real call,
+    # so just prompt the user to confirm they've logged in.
+    Write-Host "  Have you already logged in to Claude with your Claude Max account?"
+    Write-Host "  (If not, we'll open the login flow now.)"
+    $response = Read-Host "  Logged in? [y/N]"
+    if ($response -notmatch '^[Yy]') {
+        Write-Host "  Launching Claude login. A browser will open — log in, then come back here."
+        Write-Host "  Press Enter in this window once login is complete."
+        # `claude` with no args opens an interactive session; prefer an explicit
+        # login command if available. Fall back to running `claude` briefly.
+        Start-Process -FilePath "claude" -ArgumentList "auth login" -NoNewWindow -Wait -ErrorAction SilentlyContinue
+        Read-Host "  Press Enter when logged in"
+    }
+
+    # --- Bootstrap config.yaml if missing ---
+    Write-Host "`nChecking Goose config.yaml..." -ForegroundColor Yellow
+    $configDir = Join-Path $env:APPDATA "Block\goose\config"
+    $configPath = Join-Path $configDir "config.yaml"
+    if (-not (Test-Path $configPath)) {
+        Write-Host "  config.yaml not found. Creating minimal config for claude-acp..."
+        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+        $minimalConfig = @"
+GOOSE_PROVIDER: claude-acp
+GOOSE_MODEL: opus
+extensions:
+  developer:
+    enabled: true
+    type: builtin
+    name: developer
+  analyze:
+    enabled: true
+    type: builtin
+    name: analyze
+  summon:
+    enabled: true
+    type: builtin
+    name: summon
+  skills:
+    enabled: true
+    type: builtin
+    name: skills
+  todo:
+    enabled: true
+    type: builtin
+    name: todo
+  memory:
+    enabled: true
+    type: builtin
+    name: memory
+  orchestrator:
+    enabled: true
+    type: builtin
+    name: orchestrator
+  chatrecall:
+    enabled: false
+    type: builtin
+    name: chatrecall
+"@
+        Set-Content -Path $configPath -Value $minimalConfig -NoNewline
+        Write-Host "  Created: $configPath"
+    } else {
+        Write-Host "  config.yaml exists: $configPath"
+    }
+
+    Write-Host "`n--- Phase 1 complete ---" -ForegroundColor Green
+    Write-Host "`n--- Phase 2: Configure for RILGoose ---" -ForegroundColor Cyan
+}
 
 # --- Locate recipe root ---
 if (-not $RecipeRoot) {
