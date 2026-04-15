@@ -69,7 +69,32 @@ prompt: |
     project_id: "{{ project_id }}",
     require_project: true
   })
-  If status != "ok", surface and stop.
+
+  **Status routing table.** Every non-`ok` status stops this recipe.
+
+  | status                 | Action                                                                                                                 |
+  |------------------------|------------------------------------------------------------------------------------------------------------------------|
+  | `ok`                   | Proceed.                                                                                                               |
+  | `no_user_config`       | Tell user to run `setup-config` first. Stop.                                                                           |
+  | `user_config_corrupt`  | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
+  | `legacy_ambiguous`     | Instruct user to complete migration via `setup-config`. Stop.                                                          |
+  | `project_missing`      | Show `projects[]`; ask user to pick or run `setup-config`. Stop.                                                       |
+  | `project_json_missing` | "Run `conductor-setup` first." Stop.                                                                                   |
+  | `project_corrupt`      | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
+  | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config`." Stop.                                                           |
+  | `duplicate_projects`   | List duplicate IDs + canonical path; tell user to run `setup-config`. Stop.                                            |
+
+  ## Step 0a — Live-project gating
+
+  If `project.kind == "live"` AND the chosen action in Step 1 is one of
+  `archive | restore | delete | rename` (not `cleanup`, which is
+  read-only), the per-action typed confirmation in Step 2 IS the live
+  confirmation. The action-specific string ("delete <track_id>", etc.)
+  must be typed before any filesystem mutation. No separate
+  `live_confirmed` flag is plumbed because this recipe does its own
+  filesystem writes (not via the conductor write primitives).
+
+  For `cleanup` (read-only), no confirmation is required.
 
   ## Step 1 — Pick action
   If `action` is empty, ask: "What do you want to do?
