@@ -72,6 +72,9 @@ instructions: |
     not in the registry is worse than not creating it at all.
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
   - `project.json` missing → `project_unusable` (caller runs setup-config).
   - Conductor directory missing → `not_initialized` (caller runs
     conductor-setup).
@@ -82,7 +85,8 @@ instructions: |
     `write_failed` with details.
 
   ## Process
-  1. Call `ensure_config`. Stop if not `ok`.
+  1. Call `ensure_config`. If status != `ok`, return
+     `status: config_unresolved` with `config_status` set.
   2. Verify conductor directory exists. If not, return `not_initialized`.
   3. Build track_id: `{shortname}_{YYYYMMDD}` (UTC).
   4. Check for ID collision; apply disambiguation if needed.
@@ -96,8 +100,10 @@ instructions: |
   10. Update metadata.json with any final timestamps (created, updated).
 
   ## Return
-  - status: "ok" | "project_unusable" | "not_initialized" |
-    "brief_too_vague" | "id_collision" | "write_failed"
+  - status: "ok" | "config_unresolved" | "project_unusable" |
+    "not_initialized" | "brief_too_vague" | "id_collision" | "write_failed"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - track_id: Final track ID used
   - track_path: Absolute path of the track directory
   - files_created: List of absolute paths written

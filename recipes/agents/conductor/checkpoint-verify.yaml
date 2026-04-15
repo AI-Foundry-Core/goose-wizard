@@ -53,6 +53,9 @@ instructions: |
     80%, say so; don't write "approximately 80%".
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
   - Phase not complete (tasks in non-terminal states) → `phase_incomplete`.
   - Test command missing in project.json → `no_test_command`.
   - Test suite fails to run at all → `env_broken`.
@@ -62,11 +65,23 @@ instructions: |
     gates; compute changed files vs. HEAD.
 
   ## Process
-  1. Call `ensure_config`. Stop if not `ok`.
+  1. Call `ensure_config`. If status != `ok`, return
+     `status: config_unresolved` with `config_status` set.
   2. Load plan.md. Verify all tasks in the requested phase are `[x]`.
      If any aren't, return `phase_incomplete`.
   3. Compute changed files: `git diff --name-only <last_checkpoint_sha>..HEAD`.
-     If `last_checkpoint_sha` is empty, pick a reasonable baseline.
+     Baseline resolution when `last_checkpoint_sha` is empty:
+     a. Look for the previous phase's checkpoint SHA in plan.md. Use it
+        if present.
+     b. Else, find the oldest commit reachable from HEAD whose subject
+        matches `^docs: start task` AND whose body references
+        `Track: <track_id>`. Use that commit's parent (or the commit
+        itself if it has no parent).
+     c. Else, use `HEAD` (produces an empty diff; record in
+        `last_checkpoint_sha_used` as `HEAD` so the caller knows the
+        track has no recorded task work yet).
+     Record the chosen SHA in `last_checkpoint_sha_used` so the caller
+     can audit which baseline was used.
   4. Run gates in order, collecting each command's output and exit code:
      a. Test suite (`project.json.test_command`).
      b. Coverage (if project defines one; otherwise skip with reason).
@@ -80,8 +95,10 @@ instructions: |
      phase ready for commit.
 
   ## Return
-  - status: "ready_for_user_review" | "phase_incomplete" |
-    "no_test_command" | "env_broken" | "gate_failed"
+  - status: "ready_for_user_review" | "config_unresolved" |
+    "phase_incomplete" | "no_test_command" | "env_broken" | "gate_failed"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - phase: Integer
   - changed_files: List of paths relative to project.path
   - gates: array of { name, command, exit_code, summary, details,

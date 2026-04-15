@@ -22,6 +22,11 @@ parameters:
     requirement: optional
     default: true
     description: "If true, read linter/formatter configs (ruff.toml, pyproject.toml, .eslintrc, .prettierrc, etc.) and sample existing code to inform the style guide."
+  - key: live_confirmed
+    input_type: boolean
+    requirement: optional
+    default: false
+    description: "Required to be true when project.kind == 'live'. Caller must obtain typed user confirmation before setting true."
 
 sub_recipes:
   - name: "ensure_config"
@@ -51,8 +56,15 @@ instructions: |
   - NEVER produce more than 200 lines. Style guides that no one reads are
     worse than no style guide.
   - ALL writes atomic: tmp + rename with backup.
+  - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
+    Return `status: live_confirmation_required` without any write.
 
   ## Failure Modes
+  - Config resolution via ensure_config returned non-ok →
+    `status: config_unresolved` with `config_status` carrying the
+    underlying ensure_config status.
+  - `project.kind == "live"` without `live_confirmed: true` →
+    `status: live_confirmation_required`.
   - Unknown language → `status: unsupported_language` with a list of
     languages this recipe understands.
   - No code samples or configs found for the language and
@@ -61,7 +73,10 @@ instructions: |
   - Existing file is malformed in `update` mode → `status: existing_corrupt`.
 
   ## Process
-  1. Call `ensure_config`. Stop if not `ok`.
+  1. Call `ensure_config`. If status != `ok`, return
+     `status: config_unresolved` with `config_status` set. If resolved
+     project.kind == "live" and `live_confirmed` is false, return
+     `status: live_confirmation_required` immediately.
   2. Target path: `<project.path>/.goose/conductor/code_styleguides/<language>.md`.
   3. If `detect_from_project`, scan for the language's typical config files
      and a small sample of source files (≤10 files, up to ~500 lines each).
@@ -71,8 +86,11 @@ instructions: |
   5. Atomic write with backup.
 
   ## Return
-  - status: "ok" | "unsupported_language" | "no_signals" | "already_exists" |
+  - status: "ok" | "config_unresolved" | "live_confirmation_required" |
+    "unsupported_language" | "no_signals" | "already_exists" |
     "existing_corrupt"
+  - config_status: Underlying ensure_config status when
+    status == "config_unresolved", else null
   - path: absolute path of the style guide file
   - signals_used: list of config files + sample source files the guide
     drew from
@@ -85,5 +103,7 @@ extensions:
 
 prompt: |
   Write a {{ language }} style guide for project_id: {{ project_id }},
-  mode: {{ mode }}, detect_from_project: {{ detect_from_project }}.
-  Follow the Process exactly and return the structured result.
+  mode: {{ mode }}, detect_from_project: {{ detect_from_project }},
+  live_confirmed: {{ live_confirmed }}.
+  Refuse live projects without live_confirmed. Follow the Process
+  exactly and return the structured result.
