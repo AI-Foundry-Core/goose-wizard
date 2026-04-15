@@ -79,7 +79,7 @@ prompt: |
   | `user_config_corrupt`  | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
   | `legacy_ambiguous`     | Instruct user to complete migration via `setup-config`. Stop.                                                          |
   | `project_missing`      | Show `projects[]`; ask user to pick or run `setup-config`. Stop.                                                       |
-  | `project_json_missing` | "Run `conductor-setup` first." Stop.                                                                                   |
+  | `project_json_missing` | "Index entry exists but `project.json` is missing. Run `setup-config` (repair)." Stop.                                  |
   | `project_corrupt`      | Show parse error; instruct fix or rerun `setup-config`. Stop.                                                          |
   | `no_active_project`    | "Pass --params project_id=<id> or run `setup-config`." Stop.                                                           |
   | `duplicate_projects`   | List duplicate IDs + canonical path; tell user to run `setup-config`. Stop.                                            |
@@ -89,10 +89,11 @@ prompt: |
   If `project.kind == "live"` AND the chosen action in Step 1 is one of
   `archive | restore | delete | rename` (not `cleanup`, which is
   read-only), the per-action typed confirmation in Step 2 IS the live
-  confirmation. The action-specific string ("delete <track_id>", etc.)
-  must be typed before any filesystem mutation. No separate
-  `live_confirmed` flag is plumbed because this recipe does its own
-  filesystem writes (not via the conductor write primitives).
+  confirmation. Every mutating action in Step 2 REQUIRES a typed,
+  action-specific, byte-for-byte matched string BEFORE any filesystem
+  mutation. No separate `live_confirmed` flag is plumbed because this
+  recipe does its own filesystem writes (not via the conductor write
+  primitives).
 
   For `cleanup` (read-only), no confirmation is required.
 
@@ -108,21 +109,29 @@ prompt: |
   ## Step 2 — Execute the chosen branch
 
   ### archive
-  Require `track_id` + `reason`. Confirm with the user.
-  Move `tracks/<track_id>/` to `tracks/_archive/<track_id>/`.
+  Require `track_id` + `reason`. Show the source and destination paths,
+  then say: "Type exactly `archive <track_id>` to proceed, or anything
+  else to cancel." Byte-for-byte match after trimming surrounding
+  whitespace. A bare "yes", "archive", or differently-cased variant
+  cancels.
+  On match: move `tracks/<track_id>/` to `tracks/_archive/<track_id>/`.
   In tracks.md: remove the row from Active Tracks and add it to Archived
   with the reason + date. Update metadata.json with status=archived,
   archived_at, archive_reason. Atomic writes throughout.
 
   ### restore
-  Require `track_id`. Confirm with the user.
-  Move `tracks/_archive/<track_id>/` back to `tracks/<track_id>/`.
-  In tracks.md: remove the row from Archived; reinsert into Active with
-  current metadata. Update metadata.json accordingly.
+  Require `track_id`. Show source and destination paths, then say:
+  "Type exactly `restore <track_id>` to proceed, or anything else to
+  cancel." Byte-for-byte match after trimming surrounding whitespace.
+  On match: move `tracks/_archive/<track_id>/` back to
+  `tracks/<track_id>/`. In tracks.md: remove the row from Archived;
+  reinsert into Active with current metadata. Update metadata.json
+  accordingly.
 
   ### delete
   Require `track_id` + `reason`. Show the absolute path and ask the user
-  to type the exact string `delete <track_id>` to confirm.
+  to type the exact string `delete <track_id>` to confirm. Byte-for-byte
+  match after trimming surrounding whitespace.
   If confirmed: remove the directory, remove the tracks.md row, and
   record the deletion + reason at the bottom of tracks.md under a new
   "Deleted Tracks" section (ID, reason, deleted_at) so there's an audit
@@ -131,9 +140,12 @@ prompt: |
   ### rename
   Require `track_id` + `new_id`. Validate that `new_id` follows the
   `{shortname}_{YYYYMMDD}` pattern. Check no collision.
-  Move the directory. Update tracks.md. Update any references in
-  commit messages and git notes (DO NOT rewrite history — just note the
-  mapping in a new tracks.md footer entry). Update metadata.json.
+  Show both IDs + paths, then say: "Type exactly
+  `rename <track_id> to <new_id>` to proceed, or anything else to
+  cancel." Byte-for-byte match after trimming surrounding whitespace.
+  On match: move the directory. Update tracks.md. Update any references
+  in commit messages and git notes (DO NOT rewrite history — just note
+  the mapping in a new tracks.md footer entry). Update metadata.json.
 
   ### cleanup
   subagent(subrecipe: "context_validate", parameters: {
