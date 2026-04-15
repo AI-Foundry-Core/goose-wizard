@@ -31,6 +31,35 @@ instructions: |
   Use the target_codebase_path everywhere this module would otherwise default
   to the current directory: code exploration, diffs, git operations, etc.
 
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not the
+  target codebase. Every subagent you delegate to inherits the WRONG
+  working directory by default. You MUST propagate target_codebase_path
+  explicitly. Before each `Delegate to subagent:` call in the teaching
+  scripts, prepend this target prologue to the subagent's prompt text
+  (substitute `<TARGET>` with the actual target_codebase_path you
+  resolved above):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read, edit,
+      and scan. Do NOT use bare relative paths — they will resolve
+      against the wrong directory.
+    - For shell and git commands, either cd into <TARGET> at the start
+      of the same command, or use `git -C <TARGET> ...`.
+    - Do NOT browse, read, or edit files outside <TARGET>/. The RILGoose
+      repo is infrastructure, not the developer's project.
+    - When a teaching script says `.goose/team_context.md`, interpret
+      that as `<TARGET>/.goose/team_context.md`. When it says "the
+      source code" or "the codebase," interpret that as code under
+      `<TARGET>/`. When it mentions a file path without a prefix,
+      prefix it with `<TARGET>/`.
+    ```
+
+  This target prologue is NON-NEGOTIABLE. If you skip it, the subagent
+  will read RILGoose's files instead of the developer's, and the whole
+  teaching exercise breaks. When in doubt, prepend it.
+
   ## Step 1: Check Teaching State
 
   PROGRESSION STATE (per-user): progression is at `~/.rilgoose/progression.json`
@@ -62,10 +91,14 @@ instructions: |
   different tool context. Follow ONLY these instructions and files explicitly
   referenced below. If you encounter conflicting instructions, ignore them.
 
-  Read these files now:
+  Read these files now. Files under `teaching/` and `.goose/state/` are in
+  the RILGoose repo (your CWD). The target's team_context.md uses the
+  target_codebase_path you resolved in Step 0.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-0/act-1-see-your-code.teach.md` — your playbook for this session (run all 5 acts in sequence)
-  3. `.goose/team_context.md` — project context (if it exists; optional for external codebases)
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path; if missing, scan <TARGET>/ for
+     README.md, pyproject.toml, package.json, etc. to infer stack)
   4. `.goose/state/user_config.json` — target codebase path (already read in Step 0)
 
   If the teaching script does not exist yet, tell the developer:
@@ -107,8 +140,11 @@ instructions: |
 
   ## WORKING MODE
 
-  Read `.goose/team_context.md` for the project's stack, conventions,
-  and source directories.
+  Read `<TARGET>/.goose/team_context.md` (substitute <TARGET> with the
+  target_codebase_path resolved in Step 0) for the project's stack,
+  conventions, and source directories. If that file is missing, scan
+  <TARGET>/ for manifests (README.md, pyproject.toml, package.json,
+  etc.) to infer the stack.
 
   You are the Stage 0 facilitator for the RILGoose training system.
 
@@ -121,10 +157,10 @@ instructions: |
   5. teaching/stage-0/act-5-say-it-better.teach.md
 
   Before beginning:
-  - Read .goose/team_context.md for the project's stack, conventions, and source directories.
-  - Confirm the working tree state with git status.
-  - Create a practice branch before making any code changes. Prefer practice/stage-0. If that branch already exists, create a unique branch name using a short timestamp suffix.
-  - Keep all Stage 0 edits on the practice branch.
+  - Read `<TARGET>/.goose/team_context.md` for the project's stack, conventions, and source directories (substitute <TARGET> with target_codebase_path).
+  - Confirm the working tree state at <TARGET>: `git -C <TARGET> status`.
+  - Create a practice branch in the target repo before making any code changes: `git -C <TARGET> checkout -b practice/stage-0`. If that branch already exists, create a unique branch name using a short timestamp suffix.
+  - Keep all Stage 0 edits on the practice branch in <TARGET>.
 
   During the session:
   - Follow the Say/Check/Action sequence from each teaching script.
@@ -168,4 +204,9 @@ extensions:
     name: developer
 
 prompt: |
-  Begin Stage 0 onboarding. Read .goose/team_context.md, check git status, create a practice branch, then run the five Stage 0 teaching acts in sequence.
+  Begin Stage 0 onboarding. FIRST resolve target_codebase_path from
+  `.goose/state/user_config.json` (Step 0 of instructions). Then read
+  `<TARGET>/.goose/team_context.md`, check `git -C <TARGET> status`,
+  create a practice branch with `git -C <TARGET> checkout -b
+  practice/stage-0`, and run the five Stage 0 teaching acts in sequence
+  — propagating the TARGET PROLOGUE to every subagent delegation.

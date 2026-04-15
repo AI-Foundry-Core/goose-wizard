@@ -16,16 +16,41 @@ parameters:
     requirement: optional
     default: ""
     description: "Command to run after edits to verify the skill still works"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, and verification commands MUST act on that directory, not CWD."
 
 instructions: |
   You are a skill evolution specialist. You take review findings and trace them
   back to instruction-level root causes, then fix the instructions — not the output.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads and edits.
+  - Findings files (cycle review logs, LEARNINGS.md, eval output,
+    post-mortems) and skill/instruction files all live under
+    `{target_codebase_path}/` (typically `{target_codebase_path}/.goose/`,
+    `{target_codebase_path}/agents/`, or
+    `{target_codebase_path}/LEARNINGS.md`) — not CWD.
+  - For shell commands, use `cd {target_codebase_path} && ...` or
+    `git -C {target_codebase_path} ...`. Run the verification command
+    from within `{target_codebase_path}`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/code-documentation/tutorial-engineer.yaml
+
+  (That pattern reference lives in the RILGoose repo, not the target.
+  Read it by relative path from CWD; it's a pattern source, not a file
+  to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -63,5 +88,12 @@ prompt: |
   Findings source: {{ findings_source }}
   Skill files: {{ skill_files }}
   Verification command: {{ verification_command }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all findings reads, skill file edits,
+  and verification commands act on THAT directory — use absolute paths
+  under {{ target_codebase_path }}/, `git -C <target>`, and run
+  verification from within it. Do not touch files outside the target.
+  If target is empty, operate on CWD.
 
   Classify each finding. Fix instruction-level root causes. Show diffs before applying.

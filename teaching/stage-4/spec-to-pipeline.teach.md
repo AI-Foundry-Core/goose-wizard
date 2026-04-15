@@ -9,11 +9,21 @@ This wrapper can run in two positions:
 - As the focused 4.4 module after persona decomposition
 - As a Stage 4 capstone after spec review, using the latest reviewed decomposed spec
 
+> **Path resolution note.** All paths, spec reads, test spec writes, and
+> skeleton test writes in this script act on the TARGET codebase (the
+> developer's project). The parent recipe injected a TARGET PROLOGUE —
+> whenever this script says `.goose/team_context.md`, "the repo," "the
+> codebase," or "the spec," interpret those against `<TARGET>/`.
+> Skeleton tests and coverage matrices belong under `<TARGET>/tests/`
+> and `<TARGET>/specs/`, never in RILGoose. Prepend the TARGET PROLOGUE
+> to every `Delegate to subagent` call. Pass `target_codebase_path` to
+> every sub-recipe.
+
 ---
 
 ## Setup
 
-Read .goose/team_context.md for project context, including stack, test framework, test commands, and conventions.
+Read `<TARGET>/.goose/team_context.md` for project context, including stack, test framework, test commands, and conventions.
 
 Read ~/.rilgoose/progression.json and check concepts 4.1 through 4.4.
 
@@ -34,10 +44,10 @@ If this is being run as a capstone after spec-review, use the reviewed version o
 
 ## Framing
 
-"You've got a spec with clear acceptance criteria. Now the question is: can an AI pipeline actually execute against it? Let's turn the requirements into test specs, a coverage matrix, and an implementation plan."
+"Can an AI pipeline actually execute against this spec? Let's turn the requirements into test specs, a coverage matrix, and an implementation plan."
 
 Ask:
-"Which spec should we use? Point me at the decomposed spec or the reviewed spec if you already ran the quality gate."
+"Which spec should we use? Point me at the decomposed spec or the reviewed spec if you already ran the quality gate — or want me to scan the repo for the latest Stage 4 output?"
 
 If the developer does not know the test framework:
 "No problem. I can read the project context and infer the default test framework from the repo."
@@ -49,19 +59,20 @@ If the developer does not know the test framework:
 If the developer has no spec ready:
 "No ready spec is fine. I can look for the latest Stage 4 output or a requirements doc we can use."
 
-Delegate to code-work subagent:
-  "Read .goose/team_context.md and scan the repo for recent Stage 4 spec artifacts, requirements docs, or decomposed specs with acceptance criteria. Prefer files that include persona use cases and Given/When/Then criteria. Return the best candidate path, why it is usable, and any gaps that might block spec-to-pipeline conversion."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read <TARGET>/.goose/team_context.md and scan <TARGET>/ for recent Stage 4 spec artifacts, requirements docs, or decomposed specs with acceptance criteria. Prefer files that include persona use cases and Given/When/Then criteria. Return the best candidate absolute path under <TARGET>/, why it is usable, and any gaps that might block spec-to-pipeline conversion."
 
 If no usable spec exists:
 "We need a decomposed spec before this step has anything real to translate. Let's run spec-decomposition first, then come back to pipeline translation."
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "spec-decomposition"
   parameters:
-    spec_path: {developer-provided requirements doc or best available spec}
+    spec_path: {absolute path under <TARGET>/ — developer-provided requirements doc or best available spec}
     personas: {developer-provided personas, if any}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-Then continue with the produced decomposed spec.
+Then continue with the produced decomposed spec (also under <TARGET>/).
 
 ---
 
@@ -91,11 +102,12 @@ Do NOT skip Phase 1. If the developer will not engage with even one criterion, n
 
 ## Phase 2: Convert Spec to Pipeline Artifacts
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "spec-to-pipeline"
   parameters:
-    spec_path: {path to decomposed or reviewed spec}
+    spec_path: {absolute path under <TARGET>/ to decomposed or reviewed spec}
     test_framework: {developer preference or inferred project default}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent returns test specifications, non-automatable criteria, pipeline execution plan, skeleton test files, and coverage matrix.]
 
@@ -136,8 +148,8 @@ If the developer keeps it manual:
 If the developer ignores non-automatable criteria:
 "Leaving these vague means the pipeline will either guess or skip them. Both are bad. Pick one and make the decision visible."
 
-Optionally delegate a narrow revision:
-  "Revise only the non-automatable criteria selected by the developer. Convert them into automated criteria where possible. For true manual gates, define owner, evidence, and pass/fail condition. Preserve the rest of the spec."
+Optionally delegate a narrow revision (prepend the TARGET PROLOGUE):
+  "Revise only the non-automatable criteria selected by the developer in the spec at <absolute path under <TARGET>/>. Write the update back to the same file under <TARGET>/. Convert them into automated criteria where possible. For true manual gates, define owner, evidence, and pass/fail condition. Preserve the rest of the spec."
 
 ---
 
@@ -304,10 +316,14 @@ If all Stage 4 concepts are complete:
 ## Bridge
 
 If continuing to spec-review:
-"Now that every requirement can trace to a test, the next question is whether the spec itself is worth building. We review it before the pipeline spends time on implementation."
+"Now that every requirement can trace to a test, the next question is whether the spec itself is worth building. We review it before the pipeline spends time on implementation. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 If continuing to Stage 5:
-"Next is trust but verify. The pipeline can now build from the spec; Stage 5 is about proving the pipeline's claims are true instead of trusting its own report."
+"Next is trust but verify. The pipeline can now build from the spec; Stage 5 is about proving the pipeline's claims are true instead of trusting its own report. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 

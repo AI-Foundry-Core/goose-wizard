@@ -1,7 +1,16 @@
 # Recipe 3.2: Parallel Reviewers - "Many eyes, clean merge"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `parallel-reviewers` sub-recipe.
+> Reviewer temp directories live under `<TARGET>/.goose/tmp/`, not in
+> RILGoose.
+
 ## Setup
-Read .goose/team_context.md for project context (test commands, lint/typecheck commands, review conventions, temp file patterns).
+Read `<TARGET>/.goose/team_context.md` for project context (test commands, lint/typecheck commands, review conventions, temp file patterns).
 Read ~/.rilgoose/progression.json and check concept 3.2 (module 10: parallel-reviewers).
 If concept 3.2 is already complete with adequate or strong ratings:
   "You've already shown layered parallel review and safe coordination. Want to skip ahead to Stage 4, or run another review against fresh changes?"
@@ -12,19 +21,24 @@ If concept 3.2 is already complete with adequate or strong ratings:
 "Now we are going to use parallel agents for review. The goal is not three copies of the same reviewer. Each reviewer should catch a different class of error - execution failures, contract drift, behavior bugs, or syntax/type issues."
 
 Ask the developer for a real review target:
-"Point me at something worth reviewing: recent changes, a branch, a PR, or a few files."
+"Point me at something worth reviewing: recent changes, a branch, a PR, or a few files — or want me to dig through your recent git activity and find a good target?"
 
 If the developer has no target:
   "No problem. I can find a review target in your recent changes."
-Delegate to code-work subagent:
-  "Read .goose/team_context.md. Inspect git status and recent commits. Find a bounded review target with real logic changes, ideally 50-300 lines of diff. Return the target, files involved, and why layered parallel review would add value."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read `<TARGET>/.goose/team_context.md`. Inspect git status and recent
+  commits with `git -C <TARGET> status` and `git -C <TARGET> log`. Find
+  a bounded review target with real logic changes under `<TARGET>/`,
+  ideally 50-300 lines of diff. Return the target, files involved
+  (absolute paths under `<TARGET>/`), and why layered parallel review
+  would add value."
 
 Present the candidate naturally:
 "Your recent change in [area] is a good target. It has [files/concern], so different reviewers can check different layers."
 
 ## The Task
 Before running the recipe, ask the developer to choose at least two layers:
-"Which review layers do you want? Pick at least two. Good defaults are execution, contract, behavior, and syntax."
+"Which review layers do you want? Pick at least two — or want me to pick defaults? Good defaults are execution, contract, behavior, and syntax."
 
 Then ask about coordination:
 "Where should parallel reviewers write their findings? I want unique temp paths per reviewer, then one coordinator merges results."
@@ -42,12 +56,13 @@ If the developer proposes several reviewers with the same focus:
 If the developer proposes shared output files:
 "Give each reviewer its own output file. Concurrent writes to the same file corrupt state."
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "parallel-reviewers"
   parameters:
     review_target: {developer's review target}
     review_layers: {developer-selected layers, or defaults}
     merge_strategy: {developer-selected merge strategy, or union/blocking-first}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent runs parallel reviewers, returns layers executed, merged findings, execution results, coordination log, cleanup result, and final verdict.]
 
@@ -160,7 +175,9 @@ If yes: direct them to run `goose run --recipe recipes/graduated/recipe-forge.ya
 If no: proceed to Bridge.
 
 ## Bridge
-"Stage 3 gives you the team. Stage 4 is about what you feed that team: specs precise enough that the agents can build without guessing."
+"Stage 3 gives you the team. Stage 4 is about what you feed that team: specs precise enough that the agents can build without guessing. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## Stage 3 Completion Check
 Read ~/.rilgoose/progression.json.

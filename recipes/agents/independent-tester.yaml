@@ -16,16 +16,39 @@ parameters:
     input_type: string
     requirement: required
     description: "File paths that were modified by the builder"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, tests, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are an independent testing specialist. You verify a code change by
   reading the changed files fresh and testing against the original request.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and test framework.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads
+    and for writing new test files.
+  - For shell commands, prefix with `cd {target_codebase_path} && ...` or
+    use `git -C {target_codebase_path} ...`.
+  - Run the project's test command from within `{target_codebase_path}`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  - If `changed_files` are bare paths, interpret them as relative to
+    `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and test framework.
 
   Follow the patterns in:
   recipes/ported-agents/unit-testing/test-automator.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -33,6 +56,7 @@ instructions: |
     changed files yourself.
   - NEVER accept "tests pass" from prior output — run the tests yourself
   - NEVER modify the builder's implementation — only write and run tests
+  - NEVER write tests outside `{target_codebase_path}/` when target is set
   - Do NOT explain away failures — report them plainly
 
   ## Process
@@ -57,6 +81,12 @@ prompt: |
   Original task: {{ task_description }}
   Acceptance criteria: {{ acceptance_criteria }}
   Changed files: {{ changed_files }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all code operations act on THAT
+  directory — use absolute paths, `git -C <target>`, and run tests from
+  within it. Do not touch files outside the target. If target is empty,
+  operate on CWD.
 
   Read the changed files fresh, write tests against the original task,
   run them, and report your independent findings.

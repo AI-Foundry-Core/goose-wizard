@@ -1,5 +1,12 @@
 # Recipe 2.2: Review Gate — "Prove It Works, Don't Just Look at It"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `review-gate` sub-recipe.
+
 Covers concept 2.2 (review-gate). Teaches execution-backed review gates.
 Mode: Adaptive + Checkpoints.
 
@@ -19,39 +26,40 @@ Mode: Adaptive + Checkpoints.
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check concept 2.2.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify concepts 2.1 and 2.2 are complete. If not, flag it — 2.3 builds on the two-agent pattern.
 
 ## Framing
 
-"You've seen how a separate tester catches what a builder misses. But right now, you're the one deciding what to do with the tester's findings. What if you turned that into a gate — something that actually blocks bad code, with evidence you can verify?"
+"Now we turn the tester into a gate: it runs the tests, checks the results, and returns PASS or FAIL — a hard decision backed by evidence, not suggestions."
 
-"Think about the build-then-test workflow you just ran. The tester found issues, and you looked at them. Now imagine that tester is a gate: it runs the tests, checks the results, and returns PASS or FAIL. Not 'here are some things to consider' — a hard decision backed by evidence."
-
-"Let's set one up. We need a change to review. You can either:"
+"We need a change to review. You can:"
 - "Use a change you need to make right now"
 - "Use the build-then-test recipe to make a change, then run the review gate on it"
+- "Or want me to find a small change in your codebase and set it up for you?"
 
 If developer has no current change:
   "Let me set something up."
-  Delegate to code-work subagent:
+  Delegate to code-work subagent (prepend the TARGET PROLOGUE):
     sub-recipe: "build-then-test"
     parameters:
-      task_description: "Find a TODO or small improvement in the codebase and implement it"
+      task_description: "Find a TODO or small improvement in the codebase under <TARGET>/ and implement it"
+      target_codebase_path: {TARGET — from the parent recipe's Step 0}
   Use the output as the change to gate.
 
 ## The Task
 
 Developer has a change to review (built themselves, built via recipe, or pre-existing).
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "review-gate"
   parameters:
     change_description: {what was changed}
-    changed_files: {files modified}
+    changed_files: {files modified, absolute paths under <TARGET>/}
     gate_criteria: {developer's criteria if provided}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent runs the review gate, returns PASS/FAIL with evidence]
 
@@ -75,9 +83,10 @@ Key moment — watch for execution vs. inspection:
 If developer is satisfied with the gate checking file existence or code inspection:
   "Pause — the gate checked that the test file exists. But does it pass?
   An empty test file exists too. Let me show you the difference."
-  Delegate to code-work subagent:
-    "Run the actual tests in {changed files}. Show the full output:
-    pass/fail counts, exit code, any errors."
+  Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+    "Run the actual tests in {changed files} under `<TARGET>/`. Use
+    `git -C <TARGET> ...` or cd into `<TARGET>` first. Show the full
+    output: pass/fail counts, exit code, any errors."
   Present the difference: "See? Existence check says 'yes.' Execution check says '[actual result].' Only one of those protects you."
 
 ## Eval
@@ -97,7 +106,9 @@ If ALL dimensions are Strong:
 
 ## Bridge
 
-"You've got agents that build, test, and gate — all independently. But they're all reacting to what you asked for. What if you defined success before anyone started building? That way the builder has a target, the tester has a checklist, and the gate has criteria that existed before the code did."
+"You've got agents that build, test, and gate — all independently. But they're all reacting to what you asked for. What if you defined success before anyone started building? That way the builder has a target, the tester has a checklist, and the gate has criteria that existed before the code did. Ready to try that?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 

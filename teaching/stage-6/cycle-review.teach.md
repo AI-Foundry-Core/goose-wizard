@@ -1,10 +1,19 @@
 # Recipe 6.2: Cycle Review - "Did the overnight run actually work?"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, refers to cycle artifacts, run directories,
+> session logs, conductor logs, eval output, diffs, or "the repo,"
+> interpret those against `<TARGET>/`. Prepend the TARGET PROLOGUE to
+> every `Delegate to subagent` call. Pass `target_codebase_path` to the
+> `cycle-review` sub-recipe.
+
 Covers concept 6.2 (cycle-review). Teaches holistic review, feedback loops, and success signal skepticism.
 
 ## Setup
 
-Read `.goose/team_context.md` for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read `~/.rilgoose/progression.json` and check concept 6.2 (module 23: cycle-review).
 If concept 6.2 is already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
 
@@ -18,10 +27,15 @@ If the developer has no artifact path ready:
 
 "No problem. I can scan the repo for the most recent run artifacts and we can review those. I will treat anything missing as unknown, not as success."
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
 
 ```
-Read .goose/team_context.md. Find the most recent autonomous pipeline or conductor artifacts in this repo. Look for run directories, session logs, eval output, cycle review logs, recommendation files, stop flags, and changed files. Return the artifact paths and a short explanation of what each contains. Do not modify files.
+Read <TARGET>/.goose/team_context.md. Find the most recent autonomous
+pipeline or conductor artifacts in the target repo. Look under <TARGET>/
+for run directories, session logs, eval output, cycle review logs,
+recommendation files, stop flags, and changed files. Return absolute
+artifact paths starting with <TARGET>/ and a short explanation of what
+each contains. Do not modify files.
 ```
 
 ## The Task
@@ -34,15 +48,16 @@ Ask only for missing inputs that materially affect the review:
 - Previous review path, if this is not the first cycle and no prior review artifact was found
 - Specific concern, if the developer already suspects a failure mode
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
 
 ```
 sub-recipe: "cycle-review"
 parameters:
-  cycle_artifacts: {developer-provided or discovered artifact paths}
+  cycle_artifacts: {developer-provided or discovered artifact paths — absolute under <TARGET>/}
   session_count: {if provided}
-  prior_review_path: {if provided or discovered}
+  prior_review_path: {if provided or discovered — absolute under <TARGET>/}
   review_focus: {if provided}
+  target_codebase_path: {TARGET — from the parent recipe's Step 0}
 ```
 
 The code-work subagent invokes `recipes/stage-6/cycle-review.yaml`, performs the artifact review, and returns:
@@ -173,7 +188,9 @@ If all dimensions are Strong:
 
 ## Bridge
 
-"The next piece is durability. Once the cycle review teaches you something, the pipeline needs somewhere to put that learning, and each periodic agent needs memory it can actually find next time."
+"The next piece is durability. Once the cycle review teaches you something, the pipeline needs somewhere to put that learning, and each periodic agent needs memory it can actually find next time. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 

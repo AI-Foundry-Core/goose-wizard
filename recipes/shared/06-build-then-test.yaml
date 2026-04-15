@@ -76,8 +76,33 @@ prompt: |
      base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-2/build-then-test.teach.md` — your playbook
-  3. `.goose/team_context.md` — project context
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 2.1 is already complete
+
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  the target codebase. Every subagent and sub-recipe call must receive
+  target_codebase_path explicitly. Before each `Delegate to subagent:`
+  call, prepend this target prologue (substitute `<TARGET>` with the
+  resolved target_codebase_path):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read, edit,
+      scan, and test run.
+    - For shell and git commands, use `git -C <TARGET> ...` or cd into
+      <TARGET> in the same command.
+    - Do NOT read, edit, or test files outside <TARGET>/. RILGoose is
+      infrastructure, not the developer's project.
+    - When a teaching script says `.goose/team_context.md` or refers to
+      "the source code" or "the codebase," interpret those as
+      `<TARGET>/.goose/team_context.md` and code under `<TARGET>/`.
+    ```
+
+  When calling sub-recipes (`builder`, `tester`), pass `target_codebase_path`
+  as a parameter so the agent primitives operate on the developer's code,
+  not RILGoose's.
 
   If concept 2.1 is already complete:
   "You've already shown you can do this well. Want to skip ahead to the next
@@ -99,7 +124,8 @@ prompt: |
   subagent(subrecipe: "builder", parameters: {
     task_description: "{{ task_description }}",
     acceptance_criteria: "{{ acceptance_criteria }}",
-    target_files: "{{ target_files }}"
+    target_files: "{{ target_files }}",
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Tell the developer: "I'm calling the builder agent with your task now."
@@ -113,7 +139,8 @@ prompt: |
   subagent(subrecipe: "tester", parameters: {
     task_description: "{{ task_description }}",
     acceptance_criteria: "{{ acceptance_criteria }}",
-    changed_files: <files_changed from builder results>
+    changed_files: <files_changed from builder results>,
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Present both results per the teaching script. If the tester finds

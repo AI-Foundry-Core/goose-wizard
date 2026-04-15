@@ -1,7 +1,14 @@
 # Recipe 1.1: Bug Fix — "AI as investigator"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `bug-fix` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context (stack, test commands, conventions).
+Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, conventions).
 Read ~/.rilgoose/progression.json — check if concept 1.1 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to [next incomplete recipe], or run through another bug fix to sharpen the skill?"
@@ -9,18 +16,17 @@ If already demonstrated (all dimensions adequate+):
   If revisit: continue normally — update ratings only if they improve.
 
 ## Framing
-"Got a bug that's been bugging you? Something you've been meaning to fix, or something that's been hard to track down? Tell me about it — what's happening, what you expected, and anything you've already tried."
+"Got a bug that's been bugging you? Something you've been meaning to fix, or something that's been hard to track down? Tell me about it — what's happening, what you expected, and anything you've already tried. Or want me to hunt for one in your codebase?"
 
 **Stuck path — developer has no current bug:**
 "No problem. Let me scan your codebase for something we can work with."
-Delegate to code-work subagent:
-  "Read .goose/team_context.md. Scan the codebase for a real issue worth fixing —
-  look for TODO/FIXME comments, code smells, potential null reference issues, error
-  handling gaps, or logic that looks wrong. Pick something the developer would
-  recognize as a real problem, not a style nit. Describe it as a bug report:
-  what's happening, where it is, why it matters."
-
-While waiting (insight 1.1a): "While it investigates — the quality of the fix usually tracks with the quality of the description you gave it. Symptom, location, what you tried. The more it knows upfront, the fewer passes it needs."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read <TARGET>/.goose/team_context.md. Scan source code under <TARGET>/
+  for a real issue worth fixing — look for TODO/FIXME comments, code
+  smells, potential null reference issues, error handling gaps, or logic
+  that looks wrong. Pick something the developer would recognize as a
+  real problem, not a style nit. Describe it as a bug report: what's
+  happening, where it is (absolute path under <TARGET>/), why it matters."
 
 Present the found issue naturally:
 "I found something — [description of the issue]. Want to tackle this one?"
@@ -53,6 +59,7 @@ Delegate to code-work subagent:
     bug_description: {developer's description}
     suspected_location: {if provided}
     prior_attempts: {if provided}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 > **Do not over-specify the patch.** If the facilitator's scan already found a concrete bug,
 > pass the evidence to the bug-fix sub-recipe as a bug report — not an implementation recipe.
@@ -60,8 +67,6 @@ Delegate to code-work subagent:
 > contradiction in get_signing_serializer; ask the subagent to propose and apply the smallest
 > correct fix." The code-work subagent should still own the implementation. Do not provide the
 > exact patch unless the developer explicitly proposed that patch.
-
-While waiting (insight 1.1b): "Something to watch for with bug fixes — AI loves wrapping things in try/catch to make the error go away. That's not fixing the bug, that's hiding it. The diff will tell you which one happened."
 
 [Subagent investigates, fixes, returns results]
 
@@ -203,7 +208,9 @@ Run: `goose recipe open <path to recipes/agents/bug-fix.yaml>`
 WAIT for any questions about the recipe structure.
 
 ## Bridge
-"Now imagine applying this speed to test writing — pointing AI at a function that has no tests and getting a test suite in 60 seconds. That's next."
+"Now imagine applying this speed to test writing — pointing AI at a function that has no tests and getting a test suite in 60 seconds. That's next. Ready to keep going?"
+
+Check: Wait for acknowledgement — they may want to stop for the day or keep going. If they have a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

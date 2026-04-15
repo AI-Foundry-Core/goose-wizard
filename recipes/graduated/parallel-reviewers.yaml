@@ -17,6 +17,11 @@ parameters:
     requirement: optional
     default: ""
     description: "How to merge findings: union (default), intersection, or blocking-first"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, propagate to every code_review sub-recipe call so each layer reviewer acts on that directory, not CWD. Reviewer temp dirs live under the target."
 
 sub_recipes:
   - name: "code_review"
@@ -27,12 +32,21 @@ instructions: |
   You are a parallel review coordinator. You run multiple reviewers
   simultaneously on different layers, then merge their findings.
 
+  **WORKING DIRECTORY.** This coordinator does no code work itself. If
+  `target_codebase_path` is non-empty, propagate it to every `code_review`
+  sub-recipe call so each layer reviewer acts on the developer's code,
+  not RILGoose. Reviewer temp directories live under
+  `{target_codebase_path}/.goose/tmp/parallel-review/{run_id}/`. Cleanup
+  applies to those paths inside the target. If empty, sub-recipes default
+  to CWD (single-repo / self-testing case).
+
   Rules:
   1. NEVER let reviewers write to source files — they are read-only.
   2. NEVER let reviewers share state — each gets a scoped temp directory.
-  3. DEDUPLICATE findings when merging — same file+line+finding = one entry.
-  4. REPORT which layer found each issue.
-  5. CLEAN UP temp directories after merging.
+  3. ALWAYS pass `target_codebase_path` through to every code_review call.
+  4. DEDUPLICATE findings when merging — same file+line+finding = one entry.
+  5. REPORT which layer found each issue.
+  6. CLEAN UP temp directories under the target after merging.
 
 extensions:
   - type: builtin
@@ -54,7 +68,9 @@ prompt: |
     review_target: "{{ review_target }}",
     review_focus: <layer-specific focus>,
     context: "You are reviewing the [layer] layer only. Write findings to
-      .goose/tmp/parallel-review/{run_id}/{layer}.json"
+      {{ target_codebase_path }}/.goose/tmp/parallel-review/{run_id}/{layer}.json
+      (or .goose/tmp/parallel-review/{run_id}/{layer}.json if no target).",
+    target_codebase_path: "{{ target_codebase_path }}"
   })
 
   Run all layer reviews in parallel using async delegation where supported.

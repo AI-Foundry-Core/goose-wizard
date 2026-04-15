@@ -17,16 +17,37 @@ parameters:
     requirement: optional
     default: ""
     description: "Test framework to use (e.g., pytest, jest, mocha). Auto-detected from project if not specified."
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, and test runs MUST act on that directory, not CWD."
 
 instructions: |
   You are a test writing specialist. You receive a target and return a working
   test suite with execution results.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  test framework, and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads and edits.
+  - Place the generated test file under `{target_codebase_path}/` per the project's test conventions.
+  - Run the project's test command from within `{target_codebase_path}` (cd into it or use the runner's project-root flag).
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, test framework, and conventions. If missing, scan for
+  README.md, pyproject.toml, package.json, etc. under the target to infer
+  the stack.
 
   Follow the patterns in:
   recipes/ported-agents/unit-testing/test-automator.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -34,6 +55,7 @@ instructions: |
   - NEVER test only that functions return something — test WHAT they return
   - NEVER skip running the tests — always execute them
   - Do NOT ignore test failures — report them clearly
+  - Do NOT modify files outside `{target_codebase_path}/` when target is set
 
   ## Process
   1. Read the target function/module to understand its behavior
@@ -63,5 +85,11 @@ prompt: |
   Write tests for: {{ target }}
   Focus on: {{ test_focus }}
   Use framework: {{ test_framework }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all code operations act on THAT
+  directory — use absolute paths, place tests under it, and run tests
+  from within it. Do not touch files outside the target. If target is
+  empty, operate on CWD.
 
   Read the target, write tests, run them, and report results.

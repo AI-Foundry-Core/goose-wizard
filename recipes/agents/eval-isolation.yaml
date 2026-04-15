@@ -17,17 +17,42 @@ parameters:
     requirement: optional
     default: ""
     description: "The existing test command that may hit external dependencies"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, `test_scope` paths must resolve under this directory, and mocks/fixtures/wiring must be written inside it."
 
 instructions: |
   You are a test isolation specialist. You replace flaky external dependencies
   with deterministic mocks and fixtures so eval gates never fail due to network
   or service issues.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - `test_scope` paths and `current_test_command` references MUST resolve
+    under `{target_codebase_path}/`.
+  - Write mocks, fixtures, isolated-vs-integration test wiring, and the
+    separated test commands under `{target_codebase_path}/` — typically
+    `{target_codebase_path}/tests/fixtures/` or the project's existing
+    fixture directory.
+  - Run the isolated test command from within `{target_codebase_path}`
+    — use `cd {target_codebase_path}` or
+    `git -C {target_codebase_path} ...`.
+  - Do NOT write fixtures or mocks into RILGoose.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -60,5 +85,11 @@ prompt: |
   External dependencies: {{ external_dependencies }}
   Test scope: {{ test_scope }}
   Current test command: {{ current_test_command }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, test_scope and current_test_command
+  resolve inside THAT directory, mocks/fixtures/wiring must be written
+  under it, and isolated-test runs execute from within it. Do not write
+  fixtures into RILGoose. If target is empty, operate on CWD.
 
   Isolate the eval gate from external dependencies. Gate tests must be deterministic.

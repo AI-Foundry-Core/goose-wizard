@@ -17,13 +17,36 @@ parameters:
     requirement: optional
     default: ""
     description: "Preferred escalation target: human owner, specialist agent, or team"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, scans, and ownership/state references MUST act on that directory, not CWD."
 
 instructions: |
   You are a pipeline reliability specialist. You make multi-agent workflows
   safe to run without constant supervision.
 
-  Read `.goose/team_context.md` for the project's stack, ownership model,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for every
+    file read and scan (e.g., reading existing pipeline configs, owners
+    files, CI definitions).
+  - For shell commands (e.g., `git -C {target_codebase_path} log`), act
+    on the target.
+  - Ownership model, external systems, dirty-state references, and
+    cleanup actions in your output should reference paths/owners inside
+    the developer's project (`{target_codebase_path}/`), not RILGoose.
+  - You are primarily an analyzer: do NOT modify source files. If you
+    persist a `safety_config` artifact, write it under
+    `{target_codebase_path}/.goose/` or another conventional location
+    inside the target.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  ownership model, and conventions.
 
   ## Constraints
   IMPORTANT:
@@ -70,6 +93,12 @@ prompt: |
   Pipeline: {{ pipeline_description }}
   Failure scenario: {{ failure_scenario }}
   Escalation target: {{ escalation_target }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all reads/scans and
+  ownership/state references act on THAT directory. Persist any
+  safety_config artifact inside the target, not in RILGoose. If target
+  is empty, operate on CWD.
 
   Map the pipeline, identify failures, add circuit breakers, define
   escalation routing, and simulate one failure path.

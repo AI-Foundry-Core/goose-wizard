@@ -71,8 +71,37 @@ prompt: |
      base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-5/eval-layers.teach.md` — your playbook
-  3. `.goose/team_context.md` — project context
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.3 is already complete
+
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  the target codebase. The pipeline being layered lives in the target;
+  existing evals, new layer scripts, and orchestration runners all
+  belong under `<TARGET>/`. Every subagent and sub-recipe call must
+  receive target-scoped paths explicitly. Before each `Delegate to
+  subagent:` call, prepend this target prologue (substitute `<TARGET>`
+  with the resolved target_codebase_path):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read, edit,
+      and scan. Existing evals, pipeline definitions, and new layer
+      scripts live under <TARGET>/ — never in RILGoose.
+    - Write new deterministic/behavioral/model-graded check scripts and
+      the orchestration runner under <TARGET>/ (e.g., <TARGET>/evals/
+      or the project's existing eval directory).
+    - Run layer dry-runs from within <TARGET>/ — use `cd <TARGET>` or
+      `git -C <TARGET> ...`.
+    - Do NOT read, edit, or test files outside <TARGET>/.
+    - When a teaching script says `.goose/team_context.md` or refers to
+      "the pipeline" or "the codebase," interpret those as
+      `<TARGET>/.goose/team_context.md` and files under `<TARGET>/`.
+    ```
+
+  `current_evals` paths must resolve under `<TARGET>/`. Pass
+  `target_codebase_path` to the `eval_layers` sub-recipe.
 
   If concept 5.3 is already complete:
   "You've already shown you can do this well. Want to skip ahead or
@@ -91,8 +120,9 @@ prompt: |
   Follow the teaching script's flow. When it says to delegate:
   subagent(subrecipe: "eval_layers", parameters: {
     pipeline_description: "{{ pipeline_description }}",
-    current_evals: "{{ current_evals }}",
-    risk_areas: "{{ risk_areas }}"
+    current_evals: "<paths under <TARGET>/, resolved from {{ current_evals }}>",
+    risk_areas: "{{ risk_areas }}",
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Tell the developer: "I'm calling our evaluation architect to

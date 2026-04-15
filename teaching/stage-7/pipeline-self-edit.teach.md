@@ -1,5 +1,15 @@
 # Recipe 7.2: Pipeline Self-Edit - "One source of truth per rule"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, refers to instruction files, skill files,
+> agent definitions, or "the pipeline," interpret those against
+> `<TARGET>/` (e.g., `<TARGET>/.goose/`, `<TARGET>/agents/`, or wherever
+> the developer's instruction files live under <TARGET>). Prepend the
+> TARGET PROLOGUE to every `Delegate to subagent` call. Pass
+> `target_codebase_path` to the `pipeline-self-edit` sub-recipe.
+
 Covers concept 7.2 (pipeline-self-edit). Teaches rule deduplication and guardrail auditing.
 
 Mode: Fully Adaptive. Facilitator is pure consulting - available when the developer asks, not driving.
@@ -8,7 +18,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read <TARGET>/.goose/team_context.md for project context.
 Read ~/.rilgoose/progression.json - check concept 7.2 (module 25: pipeline-self-edit).
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
@@ -55,13 +65,14 @@ The developer drives. The facilitator is available for questions.
 4. For the guardrail audit specifically: identify at least one guardrail that exists
    because of a model limitation that may no longer apply
 
-Delegate to code-work subagent when the developer is ready:
+Delegate to code-work subagent when the developer is ready (prepend the TARGET PROLOGUE):
   sub-recipe: "pipeline-self-edit"
   parameters:
-    instruction_files: {developer's list of instruction file paths}
+    instruction_files: {developer's list of instruction file paths — absolute under <TARGET>/}
     audit_focus: {if developer wants to focus on a specific area}
     known_issues: {if developer has known conflicts to prioritize}
-    verification_command: {if developer provides one}
+    verification_command: {if developer provides one — should run from within <TARGET>/}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent reads all files, extracts rules, cross-references, applies safe consolidation edits, verifies, and generates report]
 
@@ -191,7 +202,9 @@ If ALL dimensions are Strong:
 
 "Your instructions evolve. Your rules are clean. But how do you know any of
 this is actually making things better? Right now you're going on intuition.
-Next: measuring the impact of pipeline changes with real data."
+Next: measuring the impact of pipeline changes with real data. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 

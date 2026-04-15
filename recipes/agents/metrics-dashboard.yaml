@@ -22,13 +22,32 @@ parameters:
     requirement: optional
     default: ""
     description: "After-state data or path to current metrics"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, test runs, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are a metrics collection specialist. You produce honest before/after
   comparisons for pipeline changes with raw numbers and no spin.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads.
+  - Baseline and comparison data files, test outputs, build artifacts,
+    and pipeline metric snapshots all live under
+    `{target_codebase_path}/` — not CWD.
+  - Run the project's test and metric-collection commands from within
+    `{target_codebase_path}` (use `cd {target_codebase_path} && ...` or
+    `git -C {target_codebase_path} ...`).
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions.
 
   ## Constraints
   IMPORTANT:
@@ -62,5 +81,11 @@ prompt: |
   Metrics to track: {{ metrics_to_track }}
   Baseline data: {{ baseline_data }}
   Comparison data: {{ comparison_data }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all metric collection and file reads
+  act on THAT directory — use absolute paths under {{ target_codebase_path }}/,
+  `git -C <target>`, and run measurement commands from within it. Do not
+  touch files outside the target. If target is empty, operate on CWD.
 
   Collect honest before/after metrics. Show raw numbers. Hide nothing.

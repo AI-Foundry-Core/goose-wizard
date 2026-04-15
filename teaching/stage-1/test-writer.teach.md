@@ -1,7 +1,14 @@
 # Recipe 1.2: Test Writer — "AI writes the tests you never get around to"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `test-writer` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context (stack, test commands, test framework, conventions).
+Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, test framework, conventions).
 Read ~/.rilgoose/progression.json — check if concept 1.2 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to [next incomplete recipe], or write another test suite to sharpen the skill?"
@@ -9,19 +16,18 @@ If already demonstrated (all dimensions adequate+):
   If revisit: continue normally — update ratings only if they improve.
 
 ## Framing
-"Got a function or module that should have tests but doesn't? Something you've been meaning to cover, or something that broke recently and made you think 'we should have had a test for that'? Point me at it."
+"Got a function or module that should have tests but doesn't? Something you've been meaning to cover, or something that broke recently and made you think 'we should have had a test for that'? Point me at it — or want me to find something in your code that needs coverage?"
 
 **Stuck path — developer has no untested code in mind:**
 "No problem. Let me scan your codebase for something that needs coverage."
-Delegate to code-work subagent:
-  "Read .goose/team_context.md. Scan the codebase for functions or modules that
-  have no corresponding test file, or that have meaningful logic with no test
-  coverage. Prioritize: functions with branching logic, error handling, or data
-  transformation — not simple getters/setters. Pick one that's important enough
-  to test but small enough for a focused session. Report: what the function does,
-  where it is, and why it needs tests."
-
-While waiting (insight 1.2b): "Scope matters a lot here. Pointing AI at one function gets you focused, meaningful tests. Pointing it at a whole module gets you shallow coverage of everything and deep coverage of nothing."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read <TARGET>/.goose/team_context.md. Scan source code under <TARGET>/
+  for functions or modules that have no corresponding test file, or that
+  have meaningful logic with no test coverage. Prioritize: functions with
+  branching logic, error handling, or data transformation — not simple
+  getters/setters. Pick one that's important enough to test but small
+  enough for a focused session. Report: what the function does, where it
+  is (absolute path under <TARGET>/), and why it needs tests."
 
 Present the found target naturally:
 "I found something — [function/module name] in [file]. It [what it does] and has no tests. Good candidate?"
@@ -33,14 +39,13 @@ Note what the developer provides — this is what the eval will assess for scope
 - Did they target a specific function or small module?
 - Or did they ask for "tests for everything"?
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "test-writer"
   parameters:
     target: {developer's chosen target}
     test_focus: {if provided}
     test_framework: {if provided}
-
-While waiting (insight 1.2a): "While it writes — one thing to watch: AI-generated tests that all pass on the first try aren't always a good sign. Sometimes they pass because they don't actually test anything meaningful. A test that can't fail is worse than no test."
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent writes tests, runs them, returns results]
 
@@ -211,7 +216,9 @@ you'll see the pattern clearly."
 WAIT for any questions.
 
 ## Bridge
-"You've been fixing bugs and writing tests — both times, you were the one checking the quality. Now imagine pointing AI at someone else's PR and getting a full review in 30 seconds. That's next."
+"You've been fixing bugs and writing tests — both times, you were the one checking the quality. Now imagine pointing AI at someone else's PR and getting a full review in 30 seconds. That's next. Ready to keep going?"
+
+Check: Wait for acknowledgement — they may want to stop for the day or keep going. If they have a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

@@ -16,15 +16,38 @@ parameters:
     requirement: optional
     default: ""
     description: "Specific areas to focus the review on"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, `spec_path` must resolve under this directory, and all reads MUST act on that directory."
 
 instructions: |
   You are a spec review specialist. You evaluate specs across multiple
-  dimensions and produce actionable findings.
+  dimensions and produce actionable findings. This primitive is
+  READ-ONLY — do not edit files.
 
-  Read `.goose/team_context.md` for the project's domain and constraints.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file read:
+  - `spec_path` MUST be an absolute path under `{target_codebase_path}/`.
+  - Use absolute paths starting with `{target_codebase_path}/` for any
+    other reads (related code, prior specs, team context).
+  - Do NOT read files outside `{target_codebase_path}/`. RILGoose is
+    infrastructure — ignore it.
+  - Do NOT write files. Return findings as structured data.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  domain and constraints.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -61,3 +84,8 @@ prompt: |
 
   Spec: {{ spec_path }}
   Focus areas: {{ review_focus }}
+  Target codebase: {{ target_codebase_path }}
+
+  Read-only. If target codebase is non-empty, spec_path and any related
+  reads must resolve under THAT directory. Do not read or write files
+  outside it. If target is empty, operate on CWD.

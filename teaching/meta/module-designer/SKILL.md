@@ -146,6 +146,12 @@ These rules apply to every module regardless of stage or mode.
 
 8. **Real code, real work.** Stage 0 excepted — everything else uses the developer's actual codebase. No toy projects, no synthetic exercises. The developer should be solving a real problem.
 
+9. **Always offer an escape hatch on user picks.** Every time the facilitator asks the developer to pick/bring/name/describe something, ALSO offer to pick it for them. Adapt to context: "or want me to pick one?" / "or want me to find a bug in your codebase?" / "or want me to draft personas from the spec?" The next step must be SUPER EASY. A developer who doesn't know what to pick must not be stuck.
+
+10. **Interpret user engagement broadly.** When the facilitator asks "pick a file and ask a question," a developer who asks about a concept, design decision, pattern, or architecture piece IS engaging — not deflecting. Do not redirect them back to "pick a file." Subagent specs that reference `{user_specified_file}` should instead be framed to answer whatever the developer actually asked about, reading any files needed to answer well. The only reason to re-ask is silence or clearly off-topic response.
+
+11. **End every bridge with a question.** Every Step/Section that bridges to a next act, module, or phase must end with a clear CTA question — "Ready?" / "Want to keep going?" / "Ready to do it for real?" / "Shall we move on?" — followed by a `Check: Wait for confirmation` line. Statements trail off; questions create handoffs. Users should never be left wondering whether the facilitator is done talking or expecting them to act. Adapt the question to context (same-session continuation vs next-module vs end-of-stage), but always end with one.
+
 ---
 
 ## Progression State

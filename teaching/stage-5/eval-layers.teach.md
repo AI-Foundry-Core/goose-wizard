@@ -1,30 +1,40 @@
 # Recipe 5.3: Eval Layers — "Layered eval strategy"
 
+> **Path resolution note.** All paths, pipeline reads, existing-eval
+> reads, and new layer writes in this script act on the TARGET codebase
+> (the developer's project). The parent recipe injected a TARGET
+> PROLOGUE — whenever this script says `.goose/team_context.md`, "the
+> pipeline," "the repo," or "your evals," interpret those against
+> `<TARGET>/`. New deterministic/behavioral/model-graded layer scripts
+> and the orchestration runner all live under `<TARGET>/` (typically
+> `<TARGET>/evals/`), never in RILGoose. Prepend the TARGET PROLOGUE to
+> every `Delegate to subagent` call. Pass `target_codebase_path` to the
+> `eval-layers` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concept 5.3 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
 
 ## Framing
-"You've got independent verification running. But right now it's probably all one type of check — running tests and parsing results. What happens when the tests all pass but the code is unreadable? Or the code looks clean but doesn't handle edge cases? Different types of checks catch different types of problems."
+"What happens when the tests all pass but the code is unreadable? Three layers cover most failure modes: deterministic checks for the obvious, behavioral tests for the functional, and model-based grading for the subjective. Most teams only have one. Let's build all three — pick a component or pipeline to layer, or want me to pick one from your repo?"
 
 Let the developer think about what their current eval misses.
-
-"There are three layers that cover most failure modes: deterministic checks that catch the obvious, behavioral tests that catch the functional, and model-based grading that catches the subjective. Most teams only have one. Let's build all three."
 
 ## The Task
 The developer picks a component or pipeline to build a layered eval for.
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "eval-layers"
   parameters:
-    target_component: {developer's chosen component}
-    existing_evals: {what they already have}
+    target_component: {developer's chosen component — absolute path under <TARGET>/}
+    existing_evals: {what they already have — paths under <TARGET>/}
     quality_concerns: {if they mentioned specific worries}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent audits existing layers, identifies gaps, builds missing checks]
+[Subagent audits existing layers under <TARGET>/, identifies gaps, builds missing checks under <TARGET>/evals/]
 
 Present results naturally:
 "Here's what you had and what was missing. [Summarize the layer audit.] I added [new checks] to fill the gaps. Your eval runner now executes all three layers — deterministic first for fast failure, then behavioral, then model-based."
@@ -118,7 +128,9 @@ If ALL dimensions are Strong:
 "You've built a layered eval that catches different failure types at different costs, runs in the right order, and each layer stands on its own. That's a real evaluation system, not just 'run the tests.'"
 
 ## Bridge
-"You've got layers that catch problems. But what prevents quality from slowly sliding backward between checks? That's ratchets — quality thresholds that only go up. Once you have 200 passing tests, the number should never drop below 200."
+"You've got layers that catch problems. But what prevents quality from slowly sliding backward between checks? That's ratchets — quality thresholds that only go up. Once you have 200 passing tests, the number should never drop below 200. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

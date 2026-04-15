@@ -5,11 +5,20 @@ Covers concept 4.1 (idea-to-spec). Teaches concrete specs and progressive elabor
 Mode: Adaptive + Checkpoints
 Checkpoint after 4.2: Has the developer internalized progressive elaboration?
 
+> **Path resolution note.** All paths and artifact writes in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, "the codebase," "the repo," or "the spec
+> file," interpret those against `<TARGET>/`. Spec artifacts belong under
+> `<TARGET>/specs/` (or the project's existing spec directory), never in
+> RILGoose. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `idea-to-spec` sub-recipe.
+
 ---
 
 ## Setup
 
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concepts 4.1 and 4.2 are already demonstrated.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 If 4.1 demonstrated but not 4.2: skip to the elaboration phase.
@@ -18,12 +27,16 @@ If 4.1 demonstrated but not 4.2: skip to the elaboration phase.
 
 ## Framing
 
-"You've got a pipeline that can build and verify code. But every pipeline needs input — and the quality of that input determines the quality of everything downstream. Got a feature idea you've been kicking around? Something your team has been meaning to build, or a new capability someone asked for? Tell me about it — even a single sentence is fine."
+"Every pipeline needs input, and the quality of that input determines everything downstream. Got a feature idea you've been kicking around? Tell me about it — even a single sentence is fine. Or want me to pick something promising out of your TODOs or feature-shaped gaps?"
 
 If developer has no current feature idea:
   "No problem. Let me look at your codebase for opportunities."
-  Delegate to code-work subagent:
-    "Read .goose/team_context.md. Look for TODOs, feature requests in comments, or obvious gaps in the codebase that represent a real feature opportunity. Describe it as a feature idea the developer would recognize — one paragraph max."
+  Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+    "Read <TARGET>/.goose/team_context.md. Scan <TARGET>/ for TODOs,
+    feature requests in comments, or obvious gaps in the codebase that
+    represent a real feature opportunity. Describe it as a feature idea
+    the developer would recognize — one paragraph max. Reference
+    absolute paths under <TARGET>/."
 
 ---
 
@@ -43,14 +56,15 @@ Facilitator takes the developer's raw idea and asks them to refine it into a one
 
 Listen to the developer's answers. Note which ones are vague (adjectives instead of numbers, "the user" instead of a named persona, missing kill criteria, success criteria that aren't measurable).
 
-Then delegate to code-work subagent:
+Then delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "idea-to-spec"
   parameters:
     feature_idea: {developer's refined idea with their answers}
     target_audience: {from developer's persona answer}
     context: {any context the developer provided}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent produces the one-pager]
+[Subagent produces the one-pager — written under <TARGET>/specs/ or equivalent]
 
 Facilitator presents the one-pager, then draws attention to the difference between the developer's original idea and the structured output:
 
@@ -75,14 +89,15 @@ Let the developer decide. If they want to elaborate:
 
 If the developer genuinely does not know (not avoidance, but real knowledge gap), mark the choice as provisional in the subagent prompt and flag it as an open design decision in the spec.
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "idea-to-spec"
   parameters:
     feature_idea: {one-pager content, with developer's concrete choices, elaborated into full requirements}
     target_audience: {personas from one-pager}
     context: {one-pager content as context, with any provisional choices flagged}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent produces full requirements document]
+[Subagent produces full requirements document — written under <TARGET>/specs/ or equivalent]
 
 If the developer tries to jump to detailed requirements without the one-pager:
 "Hold on — before we go deep, let's make sure the idea survives a one-page summary. If you can't make the case in one page, more detail won't fix it. Start with the one-pager."
@@ -219,7 +234,9 @@ Coach on the weak dimensions (using coaching language above), then offer:
 
 ## Bridge to Spec Decomposition
 
-"You've got a solid spec. But right now it's organized around features — what the system does. The problem is, features miss cross-cutting needs. When you organize by persona — real people with real workflows — you catch edge cases that feature lists miss. That's Recipe 4.3."
+"You've got a solid spec. But right now it's organized around features — what the system does. The problem is, features miss cross-cutting needs. When you organize by persona — real people with real workflows — you catch edge cases that feature lists miss. That's Recipe 4.3. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ---
 

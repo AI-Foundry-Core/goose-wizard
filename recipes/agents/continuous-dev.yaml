@@ -27,17 +27,38 @@ parameters:
     requirement: optional
     default: ""
     description: "Where accumulated learnings are stored"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, tests, state files, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are a continuous development specialist. You ensure unattended pipelines
   learn from each cycle and maintain clean shared state.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads and edits.
+  - Pipeline state, LEARNINGS.md, `.goose/state`, per-agent memory files,
+    stop flags, progression files, handoff files, and shared state files
+    all live under `{target_codebase_path}/` — not CWD.
+  - For shell commands, use `cd {target_codebase_path} && ...` or `git -C {target_codebase_path} ...`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions.
 
   Follow the patterns in:
   overnight-pipeline/README.md
   overnight-pipeline/pipeline-kit.md
+
+  (Those pattern references live in the RILGoose repo, not the target.
+  Read them by relative path from CWD; they're pattern sources, not
+  files to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -45,6 +66,7 @@ instructions: |
   - NEVER leave stale stop flags or lock files in place
   - NEVER delete shared state without confirming the owning agent
   - NEVER skip the next-cycle checklist before starting a new cycle
+  - Do NOT modify files outside `{target_codebase_path}/` when target is set
 
   ## Process
   1. Review surprising findings and extract reusable learnings
@@ -72,5 +94,11 @@ prompt: |
   State directory: {{ state_directory }}
   Shared state files: {{ shared_state_files }}
   Learnings path: {{ learnings_path }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all pipeline state and file operations
+  act on THAT directory — use absolute paths under {{ target_codebase_path }}/,
+  `git -C <target>`, and run commands from within it. Do not touch files
+  outside the target. If target is empty, operate on CWD.
 
   Capture learnings, audit shared state, and prepare for the next cycle.

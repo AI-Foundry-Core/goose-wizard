@@ -17,16 +17,36 @@ parameters:
     requirement: optional
     default: ""
     description: "What you've already tried"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, edits, tests, and git operations MUST act on that directory, not CWD."
 
 instructions: |
   You are a bug fix specialist. You receive a bug report and return a verified fix.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for reads and edits.
+  - For shell commands, prefix with `cd {target_codebase_path} && ...` or use `git -C {target_codebase_path} ...`.
+  - Run the project's test command from within `{target_codebase_path}`.
+  - Do NOT touch files outside `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, and conventions. If missing, scan for README.md,
+  pyproject.toml, package.json, etc. to infer the stack.
 
   Follow the patterns in:
   recipes/ported-agents/error-debugging/debugger.yaml
   recipes/ported-agents/error-debugging/error-detective.yaml
+
+  (Those ported-agent references live in the RILGoose repo, not the
+  target. Read them by relative path from CWD; they're pattern sources,
+  not files to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -34,16 +54,19 @@ instructions: |
   - NEVER add null checks that hide the real problem
   - NEVER "fix" by disabling the failing code path
   - Do NOT modify files unrelated to the bug
+  - Do NOT modify files outside `{target_codebase_path}/` when target is set
 
   ## Process
   1. Understand the bug from the description
   2. If suspected location provided, start there. Otherwise, use the
-     description to find relevant files.
+     description to find relevant files under `{target_codebase_path}/`.
   3. Investigate: read code, trace the logic, identify the root cause
   4. Propose a fix — explain what you're changing and why
   5. Apply the fix
-  6. Run the project's test command to verify no regressions
-  7. Show the diff of what changed
+  6. Run the project's test command to verify no regressions (from
+     within `{target_codebase_path}` if set)
+  7. Show the diff of what changed (via `git -C {target_codebase_path} diff`
+     if target is set)
 
   ## Return
   Return:
@@ -60,5 +83,11 @@ prompt: |
   Bug report: {{ bug_description }}
   Suspected location: {{ suspected_location }}
   Already tried: {{ prior_attempts }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all code operations act on THAT
+  directory — use absolute paths, `git -C <target>`, and run tests from
+  within it. Do not touch files outside the target. If target is empty,
+  operate on CWD.
 
   Investigate, fix, test, and return the results.

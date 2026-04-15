@@ -1,10 +1,19 @@
 # Recipe 6.1: Continuous Development - "Give the pipeline a memory"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md`, `.goose/state`, `LEARNINGS.md`, refers to
+> shared state files, stop flags, per-agent memory files, or "the
+> pipeline," interpret those against `<TARGET>/`. Prepend the TARGET
+> PROLOGUE to every `Delegate to subagent` call. Pass
+> `target_codebase_path` to the `continuous-dev` sub-recipe.
+
 Covers concept 6.1 (continuous-dev). Teaches learning capture, agent memory, and shared state discipline.
 
 ## Setup
 
-Read `.goose/team_context.md` for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read `~/.rilgoose/progression.json` and check concept 6.1 (module 22: continuous-dev).
 If concept 6.1 is already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
 
@@ -24,10 +33,15 @@ If the developer has no recent findings:
 
 "I can inspect the recent review and state files and pull candidate learnings from there. I will keep anything uncertain as a candidate instead of writing it as fact."
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
 
 ```
-Read .goose/team_context.md. Inspect recent cycle review artifacts, LEARNINGS.md, .goose/state, conductor state files, stop flags, progression files, and handoff files. Return candidate findings, existing per-agent state files, shared communication files, and obvious stale signals. Do not modify files yet.
+Read <TARGET>/.goose/team_context.md. Inspect recent cycle review
+artifacts, <TARGET>/LEARNINGS.md, <TARGET>/.goose/state, conductor state
+files, stop flags, progression files, and handoff files — all under
+<TARGET>/. Return candidate findings, existing per-agent state files,
+shared communication files, and obvious stale signals. Use absolute
+paths starting with <TARGET>/. Do not modify files yet.
 ```
 
 ## The Task
@@ -41,16 +55,17 @@ Ask only for missing inputs that materially affect the work:
 - Where state files should live, if not `.goose/state`
 - Which shared state files must be audited, if discovery did not find them
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
 
 ```
 sub-recipe: "continuous-dev"
 parameters:
   pipeline_description: {developer-provided pipeline or conductor track}
   surprising_findings: {developer-provided findings or accepted discovered candidates}
-  state_directory: {if provided, otherwise .goose/state}
-  shared_state_files: {if provided or discovered}
-  learnings_path: {if provided, otherwise LEARNINGS.md}
+  state_directory: {if provided, otherwise <TARGET>/.goose/state}
+  shared_state_files: {if provided or discovered — absolute paths under <TARGET>/}
+  learnings_path: {if provided, otherwise <TARGET>/LEARNINGS.md}
+  target_codebase_path: {TARGET — from the parent recipe's Step 0}
 ```
 
 The code-work subagent invokes `recipes/stage-6/continuous-dev.yaml`, performs the operational hardening work, and returns:
@@ -180,7 +195,9 @@ Ordered list. Deliver one per subagent operation that takes 30+ seconds. See tea
 
 ## Bridge
 
-"Your pipeline now runs autonomously with durable memory and clean state management. The next step is closing the improvement loop: when the workflow itself keeps getting smarter, you start packaging what works into reusable skills that evolve on their own."
+"Your pipeline now runs autonomously with durable memory and clean state management. The next step is closing the improvement loop: when the workflow itself keeps getting smarter, you start packaging what works into reusable skills that evolve on their own. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 

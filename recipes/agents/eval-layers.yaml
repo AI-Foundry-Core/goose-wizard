@@ -17,16 +17,39 @@ parameters:
     requirement: optional
     default: ""
     description: "Known risk areas or failure modes to cover"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, `current_evals` paths must resolve under this directory, and new layer scripts must be written inside it."
 
 instructions: |
   You are an eval strategy architect. You design layered evaluation strategies
   where each layer catches different failure modes.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - `current_evals` paths MUST resolve under `{target_codebase_path}/`.
+  - Write new layer scripts (deterministic, behavioral, model-graded)
+    and the orchestration runner under `{target_codebase_path}/` —
+    typically `{target_codebase_path}/evals/` or the project's existing
+    eval directory.
+  - Run layer dry-runs from within `{target_codebase_path}` — use `cd
+    {target_codebase_path}` or `git -C {target_codebase_path} ...`.
+  - Do NOT write layer artifacts into RILGoose.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -58,5 +81,11 @@ prompt: |
   Pipeline description: {{ pipeline_description }}
   Current evals: {{ current_evals }}
   Known risk areas: {{ risk_areas }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, current_evals paths must resolve
+  under THAT directory, dry-runs execute from within it, and any new
+  layer scripts or runners you write must land under it. Do not write
+  into RILGoose. If target is empty, operate on CWD.
 
   Design a layered eval strategy. Every layer must catch something the others miss.

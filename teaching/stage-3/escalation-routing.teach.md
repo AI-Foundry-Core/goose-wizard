@@ -1,7 +1,16 @@
 # Recipe 3.3: Escalation Routing - "Know when to stop"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `escalation-routing` sub-recipe.
+> Pipeline ownership and external state references should reference the
+> developer's project, not RILGoose.
+
 ## Setup
-Read .goose/team_context.md for project context (stack, test commands, ownership model, external systems, temp file patterns).
+Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, ownership model, external systems, temp file patterns).
 Read ~/.rilgoose/progression.json and check concept 3.3 (module 11: escalation-routing).
 Also check concept 3.1 (module 9: three-agent-pipeline) as a prerequisite.
 
@@ -15,17 +24,21 @@ If concept 3.3 is already complete with adequate or strong ratings:
   If revisit: continue normally and only update ratings that improve.
 
 ## Framing
-"Your pipeline runs cleanly when each agent does its job. Now let's handle the more important case: what happens when it doesn't?"
-
-"I want one concrete failure path: malformed output, repeated test failure, review rejection, timeout, shared-state conflict, or unclear requirements. Then we'll decide when the loop stops, who gets it next, and what evidence they receive."
+"Your pipeline runs cleanly when each agent does its job. Now the important case: what happens when it doesn't?"
 
 Ask the developer for the pipeline and failure path:
-"Use the pipeline you just built, or describe another multi-agent pipeline you care about. What is the failure you most want to route safely?"
+"Use the pipeline you just built, or describe another you care about — or let me reconstruct the one from your last three-agent run. What failure do you most want to route safely — malformed output, repeated test failure, review rejection, timeout, shared-state conflict, or unclear requirements? Pick one, or I'll pick the most likely failure for your pipeline."
 
 If the developer has no pipeline ready:
   "No problem. I'll use the pipeline from the previous three-agent run as the base and pick the most likely failure route."
-  Delegate to code-work subagent:
-    "Read .goose/team_context.md and any available output from the previous three-agent-pipeline run in the current conversation or progression notes. Reconstruct a bounded pipeline with agents, handoff contracts, and likely failure points. If no prior run is available, propose a small default Spec Agent -> Build Agent -> Review Agent pipeline for a real task in this repo. Return the pipeline description and one realistic failure scenario."
+  Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+    "Read `<TARGET>/.goose/team_context.md` and any available output from
+    the previous three-agent-pipeline run in the current conversation or
+    progression notes. Reconstruct a bounded pipeline with agents, handoff
+    contracts, and likely failure points. If no prior run is available,
+    propose a small default Spec Agent -> Build Agent -> Review Agent
+    pipeline for a real task under `<TARGET>/`. Return the pipeline
+    description and one realistic failure scenario."
 
 Present the candidate naturally:
 "Let's route this: [failure scenario]. It matters because [specific loop or state risk]."
@@ -51,12 +64,13 @@ If the developer uses vague thresholds:
 If the developer proposes escalation without evidence:
 "The next owner needs a packet, not a panic message. Include failure type, attempts, command or validation output, changed files, dirty state, and the recommended next action."
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "escalation-routing"
   parameters:
     pipeline_description: {developer's pipeline or reconstructed pipeline}
     failure_scenario: {developer's failure scenario or selected likely failure}
     escalation_target: {developer's preferred escalation target, or default human plus specialist-agent}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent maps the pipeline, defines failure classes, breaker rules, escalation routes, cleanup actions, safety_config, and simulates one failure path.]
 
@@ -188,7 +202,9 @@ If no: proceed to Bridge.
 ## Bridge
 "Safety rails answer what the team does when it gets stuck. The next big jump is what you feed that team: specs precise enough that agents can build without guessing."
 
-"If you continue through the rest of Stage 3 first, parallel reviewers are the coordination exercise: multiple agents checking different layers at the same time without corrupting shared state."
+"If you continue through the rest of Stage 3 first, parallel reviewers are the coordination exercise: multiple agents checking different layers at the same time without corrupting shared state. Ready to keep going?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## Wait-Time Insights
 

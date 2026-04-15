@@ -1,7 +1,14 @@
 # Recipe 1.4: Refactor — "AI handles the restructuring you've been putting off"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `refactor` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context (stack, test commands, conventions).
+Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, conventions).
 Read ~/.rilgoose/progression.json — check if concept 1.4 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to the next set of skills, or run through another refactor to sharpen this one?"
@@ -9,21 +16,21 @@ If already demonstrated (all dimensions adequate+):
   If revisit: continue normally — update ratings only if they improve.
 
 ## Framing
-"Got some code that works but makes you cringe every time you open it? Something you've been meaning to clean up but never had the time? Point me at it — and tell me what 'better' looks like for that code."
+"Got some code that works but makes you cringe every time you open it? Something you've been meaning to clean up but never had the time? Point me at it — and tell me what 'better' looks like for that code. Or want me to scan for something that's begging to be cleaned up?"
 
 **Engagement hook:** If the developer names a specific area of the codebase ("the auth module," "the payment flow"), probe the history before starting the refactor: who wrote it, when, what has changed since. Developers who are hostile to the session may still engage with their own codebase's history. Use their domain knowledge as a hook for engagement.
 
 **Stuck path — developer has no code to refactor:**
 "No problem. Let me scan your codebase for something that's begging to be cleaned up."
-Delegate to code-work subagent:
-  "Read .goose/team_context.md. Scan the codebase for a function or small module
-  that's a good refactoring candidate — look for: functions longer than 50 lines,
-  deeply nested conditionals, duplicated logic, functions doing multiple unrelated
-  things, or code with comments like 'TODO: clean this up.' Pick something with
-  existing test coverage if possible (so we can verify the refactor). Report:
-  where it is, what it does, and why it needs refactoring."
-
-While waiting (insight 1.4b): "'Clean it up' is a vague instruction. 'Split this into two functions — one for validation, one for processing' is a specific one. Same AI, wildly different results. The goal definition is everything."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read <TARGET>/.goose/team_context.md. Scan source code under <TARGET>/
+  for a function or small module that's a good refactoring candidate —
+  look for: functions longer than 50 lines, deeply nested conditionals,
+  duplicated logic, functions doing multiple unrelated things, or code
+  with comments like 'TODO: clean this up.' Pick something with existing
+  test coverage if possible (so we can verify the refactor). Report:
+  where it is (absolute path under <TARGET>/), what it does, and why it
+  needs refactoring."
 
 Present the found target naturally:
 "Found one — [function/file] in [location]. It [description of the mess]. Want to clean this up?"
@@ -38,8 +45,10 @@ Note what the developer provides — this is what the eval will assess for goal 
 **Before the refactor starts — establish baseline:**
 "Before we touch anything, let's run the tests so we know the starting point."
 
-Delegate to code-work subagent:
-  "Run the project's test suite from .goose/team_context.md. Report pass/fail counts."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Run the project's test suite from <TARGET>/.goose/team_context.md.
+  Run tests from within <TARGET>/ (cd into it or use the project's
+  configured test runner against <TARGET>/). Report pass/fail counts."
 
 Present the baseline:
 "[N] tests passing, [M] failing. That's our baseline — if anything changes after the refactor, we'll know."
@@ -48,14 +57,13 @@ Note whether the developer ran tests first or needed prompting — this is what 
 
 Now run the refactor:
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "refactor"
   parameters:
     target: {developer's chosen target}
     goal: {developer's stated goal}
     constraints: {if provided}
-
-While waiting (insight 1.4a): "While it refactors — baseline tests first, always. If you don't know what was passing before, you can't tell what the refactor broke."
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent refactors, runs tests, returns results]
 
@@ -186,7 +194,10 @@ Before the Bridge, connect refactoring to team workflow:
 ## Stage 1 Completion Check
 Read ~/.rilgoose/progression.json.
 If all four concepts (1.1, 1.2, 1.3, 1.4) are complete:
-  "AI just fixed your bug, wrote your tests, reviewed your PR, and cleaned up your legacy code. You're 10x faster. Now imagine what happens when AI checks AI. That's where it gets really interesting."
+  "AI just fixed your bug, wrote your tests, reviewed your PR, and cleaned up your legacy code. You're 10x faster. Now imagine what happens when AI checks AI. That's where it gets really interesting. Ready to keep going?"
+
+  Check: Wait for acknowledgement — they may want to stop for the day or continue into Stage 2. If they have a clarifying question, answer briefly and re-offer.
+
   Update stage 1 status to "complete" in progression.json.
 
 ## State Update

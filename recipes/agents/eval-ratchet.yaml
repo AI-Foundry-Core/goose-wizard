@@ -21,13 +21,30 @@ parameters:
     requirement: optional
     default: ""
     description: "How strict the ratchet should be (e.g., never decrease, allow 1% variance)"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, `eval_command` runs inside this directory, and the baseline file, ratchet check script, and CI wiring must be written inside it."
 
 instructions: |
   You are a quality ratchet specialist. You install monotonic thresholds that
   prevent quality metrics from regressing.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Run `eval_command` from within `{target_codebase_path}` — use `cd
+    {target_codebase_path}` or `git -C {target_codebase_path} ...`.
+  - Write the baseline file, ratchet check script, and CI hooks under
+    `{target_codebase_path}/` — typically `{target_codebase_path}/evals/`
+    or the project's existing eval directory.
+  - Do NOT write baselines or ratchet scripts into RILGoose.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
@@ -65,5 +82,11 @@ prompt: |
   Metric: {{ metric }}
   Current baseline: {{ current_baseline }}
   Ratchet policy: {{ ratchet_policy }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, the eval command runs inside THAT
+  directory and the baseline file, ratchet check script, and CI wiring
+  must be written under it. Do not write into RILGoose. If target is
+  empty, operate on CWD.
 
   Install a monotonic ratchet. The quality bar must never go down.

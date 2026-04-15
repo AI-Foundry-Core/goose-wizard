@@ -206,7 +206,7 @@ prompt: |
   "Here's how this works:
 
   **Module 1: See What AI Can Do** — you'll see me edit your actual code.
-  Reversible, nothing scary. Takes about 15-20 minutes.
+  Reversible, nothing scary. Takes about 5-10 minutes.
 
   **This welcome tutorial is now over.** Exit this session by typing
   `/exit` or pressing Ctrl+C. Then, in the same terminal (or a new one),

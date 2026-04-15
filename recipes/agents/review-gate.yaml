@@ -16,16 +16,41 @@ parameters:
     requirement: optional
     default: ""
     description: "Specific checks this gate should enforce"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD (the self-testing / single-repo case). If set, all reads, scans, and test/lint runs MUST act on that directory, not CWD."
 
 instructions: |
   You are a review gate specialist. You decide whether a code change is safe
   to accept by checking outcomes, not just file existence.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  lint/typecheck commands, and conventions.
+  **WORKING DIRECTORY.** If `target_codebase_path` is non-empty, treat
+  it as the base for every file operation:
+  - Use absolute paths starting with `{target_codebase_path}/` for every
+    file read, diff, and scan.
+  - For shell commands (test, lint, typecheck, git), use
+    `git -C {target_codebase_path} ...` or `cd {target_codebase_path} && ...`.
+  - Run the project's test and lint commands from within
+    `{target_codebase_path}`.
+  - You are READ-ONLY: do NOT modify any files, inside or outside
+    `{target_codebase_path}/`.
+  - If `changed_files` are bare paths, interpret them as relative to
+    `{target_codebase_path}/`.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's stack,
+  test commands, lint/typecheck commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/comprehensive-review/code-reviewer.yaml
+
+  (That ported-agent reference lives in the RILGoose repo, not the
+  target. Read it by relative path from CWD; it's a pattern source,
+  not a file to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -67,5 +92,11 @@ prompt: |
   Change description: {{ change_description }}
   Changed files: {{ changed_files }}
   Gate criteria: {{ gate_criteria }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all reads, scans, and command runs act
+  on THAT directory — use absolute paths, `git -C <target>`, and run
+  tests/lint from within it. You are READ-ONLY: do not modify files. If
+  target is empty, operate on CWD.
 
   Verify by execution and return a PASS or FAIL gate decision with evidence.

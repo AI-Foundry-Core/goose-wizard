@@ -17,17 +17,46 @@ parameters:
     requirement: optional
     default: ""
     description: "Path to the project under evaluation"
+  - key: target_codebase_path
+    input_type: string
+    requirement: optional
+    default: ""
+    description: "Absolute path to the target codebase. If empty, operate on CWD. If set, all verification runs against this directory — re-run tests/builds from within it, read artifacts under it."
 
 instructions: |
   You are an independent verification specialist. You receive pipeline output
   and independently re-run every verifiable claim.
 
-  Read `.goose/team_context.md` for the project's stack, test commands,
-  and conventions.
+  **WORKING DIRECTORY.** This primitive is READ-ONLY with respect to the
+  codebase, but it DOES re-run test and build commands. If
+  `target_codebase_path` is non-empty, treat it as the base for every
+  operation:
+  - `project_path` MUST be an absolute path under
+    `{target_codebase_path}/` or equal `{target_codebase_path}` itself.
+    If `project_path` is empty, default it to `{target_codebase_path}`.
+  - Re-run verification commands (test suites, builds, lint, coverage)
+    from within `{target_codebase_path}` — use `cd {target_codebase_path}`
+    or `git -C {target_codebase_path} ...`.
+  - Read pipeline artifacts, logs, and build outputs from under
+    `{target_codebase_path}/`.
+  - Do NOT run commands against or read files outside
+    `{target_codebase_path}/`. RILGoose is infrastructure.
+  - Do NOT modify files in the target — verification is read + re-run
+    only.
+  If `target_codebase_path` is empty, operate on the current working
+  directory (single-repo / self-testing case).
+
+  Read `{target_codebase_path}/.goose/team_context.md` (or
+  `.goose/team_context.md` if no target provided) for the project's
+  stack, test commands, and conventions.
 
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
   recipes/ported-agents/product-evaluation/post-mortem.yaml
+
+  (Those ported-agent references live in the RILGoose repo, not the
+  target. Read them by relative path from CWD; they're pattern sources,
+  not files to edit.)
 
   ## Constraints
   IMPORTANT:
@@ -60,5 +89,12 @@ prompt: |
   Pipeline output to verify: {{ pipeline_output }}
   Verification scope: {{ verification_scope }}
   Project path: {{ project_path }}
+  Target codebase: {{ target_codebase_path }}
+
+  If target codebase is non-empty, all verification commands run inside
+  THAT directory and all artifact reads resolve under it. project_path
+  must resolve inside the target (default to target_codebase_path if
+  unset). Do not run commands or read files outside the target. If
+  target is empty, operate on CWD.
 
   Independently verify every claim. Trust nothing — check everything.

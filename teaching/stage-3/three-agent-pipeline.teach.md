@@ -1,7 +1,16 @@
 # Recipe 3.1: Three-Agent Pipeline - "Build a team of specialists"
 
+> **Path resolution note.** All paths and code operations in this script
+> act on the TARGET codebase (the developer's project). The parent recipe
+> injected a TARGET PROLOGUE — whenever this script says
+> `.goose/team_context.md` or "the codebase," interpret those against
+> `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> call. Pass `target_codebase_path` to the `three-agent-pipeline`,
+> `escalation-routing`, and child sub-recipes (`spec_writer`, `builder`,
+> `code_review`). Spec files live under `<TARGET>/`, not in RILGoose.
+
 ## Setup
-Read .goose/team_context.md for project context (stack, test commands, conventions, ownership model).
+Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, conventions, ownership model).
 Read ~/.rilgoose/progression.json and check concept 3.1 (module 9: three-agent-pipeline).
 If concept 3.1 is already complete with adequate or strong ratings:
   "You've already shown this workflow: specialist roles, explicit handoffs, and safety rails. Want to skip to parallel reviewers, or run another pipeline design against a real task?"
@@ -9,12 +18,18 @@ If concept 3.1 is already complete with adequate or strong ratings:
   If revisit: continue normally and only update ratings that improve.
 
 ## Framing
-"Pick a real development task that is big enough for more than one AI. Not a one-line change - something where a spec pass, an implementation pass, and an independent review pass would each add value."
+"Pick a real development task that is big enough for more than one AI. Not a one-line change - something where a spec pass, an implementation pass, and an independent review pass would each add value. Or want me to scan the repo for a candidate?"
 
 If the developer has no task ready:
   "No problem. I can find a candidate in the repo."
-Delegate to code-work subagent:
-  "Read .goose/team_context.md. Scan recent git changes, TODO/FIXME notes, and small feature-shaped gaps. Find one task that would benefit from a three-agent pipeline. It should be real, bounded, and small enough for one session. Return a short task description, likely files, and why it needs separate spec/build/review roles."
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
+  "Read `<TARGET>/.goose/team_context.md`. Scan recent git changes
+  (`git -C <TARGET> log/status`), TODO/FIXME notes, and small feature-shaped
+  gaps under `<TARGET>/`. Find one task that would benefit from a
+  three-agent pipeline. It should be real, bounded, and small enough for
+  one session. Return a short task description, likely files (absolute
+  paths under `<TARGET>/`), and why it needs separate spec/build/review
+  roles."
 
 Present the candidate naturally:
 "I found a good candidate: [task]. It touches [likely area], and it is large enough that separate spec, build, and review passes make sense. Want to use that?"
@@ -43,13 +58,14 @@ If the developer gives an all-purpose role like "the coding agent does everythin
 If the developer describes handoffs only as prose:
 "That is the idea. Now make the handoff explicit: what fields does the next agent receive?"
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "three-agent-pipeline"
   parameters:
     task_description: {developer's task}
     role_plan: {developer's role sketch}
     handoff_contracts: {developer's handoff sketch}
     safety_policy: {developer's safety thresholds and escalation routes, if provided}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 [Subagent designs and runs the pipeline, then returns roles, contracts, execution log, final result, safety events, and any escalation packet.]
 
@@ -70,12 +86,13 @@ If any of those are missing, coach the missing point before moving on:
 - Missing safety rails: "Add a stop rule. Without a threshold, a failing agent can burn cycles forever."
 
 Optionally run the escalation-only recipe if the safety design is weak or unclear:
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "escalation-routing"
   parameters:
     pipeline_description: {pipeline design returned by three-agent-pipeline}
     failure_scenario: {most likely failure from the run, or developer-provided concern}
     escalation_target: {developer preference, default human}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
 Present the safety patch:
 "Now the failure route is explicit: [failure] retries [N] times, then routes to [owner] with [packet fields]."
@@ -181,7 +198,9 @@ If yes: direct them to run `goose run --recipe recipes/graduated/pipeline-forge.
 If no: proceed to Bridge.
 
 ## Bridge
-"Now that you have a team pipeline, the next problem is coordination under parallel work. Multiple reviewers can catch different classes of issues at the same time, but shared files and temp state need discipline."
+"Now that you have a team pipeline, the next problem is coordination under parallel work. Multiple reviewers can catch different classes of issues at the same time, but shared files and temp state need discipline. Ready for the next one?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

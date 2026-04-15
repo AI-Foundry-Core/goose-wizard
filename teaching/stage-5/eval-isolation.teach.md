@@ -1,30 +1,39 @@
 # Recipe 5.5: Eval Isolation — "Mock external dependencies"
 
+> **Path resolution note.** All paths, test reads, mock/fixture writes,
+> and isolated-test runs in this script act on the TARGET codebase (the
+> developer's project). The parent recipe injected a TARGET PROLOGUE —
+> whenever this script says `.goose/team_context.md`, "your test suite,"
+> "the codebase," or "the repo," interpret those against `<TARGET>/`.
+> Mocks, fixtures, and wiring all live under `<TARGET>/` (typically
+> `<TARGET>/tests/fixtures/`), never in RILGoose. Prepend the TARGET
+> PROLOGUE to every `Delegate to subagent` call. Pass
+> `target_codebase_path` to the `eval-isolation` sub-recipe.
+
 ## Setup
-Read .goose/team_context.md for project context.
+Read `<TARGET>/.goose/team_context.md` for project context.
 Read ~/.rilgoose/progression.json — check if concept 5.5 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
 
 ## Framing
-"Has your test suite ever failed because an external API was slow or down? Not because your code was wrong — just because something outside your control decided not to respond?"
+"Has your test suite ever failed because an external API was slow or down? Gate tests can't depend on whether Stripe or GitHub is having a good day — record real responses once, replay them in your tests. Your evals should test YOUR code, not someone else's uptime. Name an external dependency in your tests, or want me to scan your test suite and flag the candidates?"
 
 Let the developer share their experience with flaky external dependencies.
-
-"That's the isolation problem. Your gate tests — the ones that block a merge or deploy — can't depend on whether Stripe or GitHub or your internal auth service is having a good day. Record real responses once, replay them in your tests. Your evals should test YOUR code, not someone else's uptime."
 
 ## The Task
 Developer identifies an external dependency in their test suite — a REST API, database service, message queue, or any external system their tests call.
 
-Delegate to code-work subagent:
+Delegate to code-work subagent (prepend the TARGET PROLOGUE):
   sub-recipe: "eval-isolation"
   parameters:
     dependency_to_mock: {developer's chosen dependency}
-    test_files: {affected test files if they know them}
+    test_files: {affected test files — absolute paths under <TARGET>/}
     recording_approach: {if they have a preference}
+    target_codebase_path: {TARGET — from the parent recipe's Step 0}
 
-[Subagent identifies dependencies, records responses, updates tests to use fixtures]
+[Subagent identifies dependencies under <TARGET>/, records responses, updates tests under <TARGET>/ to use fixtures]
 
 Present results naturally:
 "I found [number] tests that depend on [service]. Here's what I did: [explain approach — record-replay, fixtures, or contracts]. Your gate tests now use recorded responses. I also set up a separate test target for live integration tests — those run on a schedule, not on every commit."
@@ -120,7 +129,9 @@ If ALL dimensions are Strong:
 "Your eval suite is fully isolated — every dependency identified, gate and live tests separated, realistic fixtures, and a refresh strategy to keep them current. Your evals now test your code, not your network."
 
 ## Bridge
-"You've got independent verification, layered checks, ratchets to prevent regression, specific criteria, and isolated dependencies. There's one piece left: putting it all together into a gate that must pass before anything runs autonomously. That's the final checkpoint before you let the pipeline run on its own."
+"You've got independent verification, layered checks, ratchets to prevent regression, specific criteria, and isolated dependencies. There's one piece left: putting it all together into a gate that must pass before anything runs autonomously. That's the final checkpoint before you let the pipeline run on its own. Ready to move on?"
+
+Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
 Write to ~/.rilgoose/progression.json:

@@ -65,7 +65,9 @@ prompt: |
   ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
-  Read these files now:
+  Read these files now. Files under `teaching/` are in the RILGoose repo
+  (your CWD). Target-side files use the target_codebase_path you resolve
+  in step 0.
   0. `.goose/state/user_config.json` — your target codebase path. If missing
      or empty, STOP and ask the developer: "I don't see a target codebase
      saved. What's the absolute path to the codebase you want to train on?"
@@ -73,8 +75,33 @@ prompt: |
      base directory for all code exploration, diffs, tests, and edits.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-1/test-writer.teach.md` — your playbook for this session
-  3. `.goose/team_context.md` — project context
+  3. `<TARGET>/.goose/team_context.md` — target project context (substitute
+     <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 1.2 is already complete
+
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  the target codebase. Every subagent and sub-recipe call must receive
+  target_codebase_path explicitly. Before each `Delegate to subagent:`
+  call, prepend this target prologue (substitute `<TARGET>` with the
+  resolved target_codebase_path):
+
+    ```
+    TARGET CODEBASE: <TARGET>
+    All file operations in this delegation act on the target codebase.
+    - Use absolute paths starting with <TARGET>/ for every read, edit,
+      scan, and test run.
+    - For shell and git commands, use `git -C <TARGET> ...` or cd into
+      <TARGET> in the same command.
+    - Do NOT read, edit, or test files outside <TARGET>/. RILGoose is
+      infrastructure, not the developer's project.
+    - When a teaching script says `.goose/team_context.md` or refers to
+      "the source code" or "the codebase," interpret those as
+      `<TARGET>/.goose/team_context.md` and code under `<TARGET>/`.
+    ```
+
+  When calling the `test_writer` sub-recipe, pass `target_codebase_path` as
+  a parameter so the agent primitive operates on the developer's code, not
+  RILGoose's.
 
   If concept 1.2 is already complete:
   "You've already shown you can do this well. Want to skip ahead to the next
@@ -94,11 +121,14 @@ prompt: |
   its flow for Framing, The Task, Eval, Coaching, Enterprise Grounding,
   Recipe Reveal, Bridge, and State Update.
 
-  When the script says to delegate code work, call the sub-recipe:
+  When the script says to delegate code work, call the sub-recipe
+  (pass the resolved target so the primitive operates on the developer's
+  code):
   subagent(subrecipe: "test_writer", parameters: {
     target: "{{ target }}",
     test_focus: "{{ test_focus }}",
-    test_framework: "{{ test_framework }}"
+    test_framework: "{{ test_framework }}",
+    target_codebase_path: "<resolved target_codebase_path from step 0>"
   })
 
   Tell the developer what you're doing before calling it:
