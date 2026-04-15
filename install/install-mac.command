@@ -77,14 +77,20 @@ say_phase "Phase 1: Bootstrap prerequisites"
 # --- OS version check ---
 # Claude Code requires macOS 13.0+.
 say_step "Checking macOS version..."
-MACOS_VER="$(sw_vers -productVersion 2>/dev/null || echo "0.0.0")"
-MACOS_MAJOR="$(echo "$MACOS_VER" | cut -d. -f1)"
-if [ "$MACOS_MAJOR" -lt 13 ] 2>/dev/null; then
-    say_err "  ERROR: macOS $MACOS_VER is below the minimum (13.0)."
-    say_err "         Claude Code will not run. Update macOS and re-run."
-    exit 1
+MACOS_VER="$(sw_vers -productVersion 2>/dev/null || echo "")"
+if [ -z "$MACOS_VER" ]; then
+    echo "  WARNING: could not determine macOS version (sw_vers missing or restricted)."
+    echo "           Continuing; Claude Code requires macOS 13.0+. If install fails,"
+    echo "           verify your macOS version manually."
+else
+    MACOS_MAJOR="$(echo "$MACOS_VER" | cut -d. -f1)"
+    if [ "$MACOS_MAJOR" -lt 13 ] 2>/dev/null; then
+        say_err "  ERROR: macOS $MACOS_VER is below the minimum (13.0)."
+        say_err "         Claude Code will not run. Update macOS and re-run."
+        exit 1
+    fi
+    echo "  macOS: $MACOS_VER (OK - 13.0+ required)"
 fi
-echo "  macOS: $MACOS_VER (OK - 13.0+ required)"
 
 # --- Preflight: python3 (needed for config.yaml + ACP patches later) ---
 say_step "Checking python3..."
@@ -119,12 +125,25 @@ fi
 
 # --- Homebrew ---
 say_step "Checking Homebrew..."
+# Always source shellenv if brew exists — existing Homebrew installs may not
+# be on PATH when Terminal.app is launched via Finder double-click.
+if [ -x /opt/homebrew/bin/brew ]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+elif [ -x /usr/local/bin/brew ]; then
+    eval "$(/usr/local/bin/brew shellenv)"
+fi
 if command -v brew >/dev/null 2>&1; then
     echo "  Homebrew: $(brew --version | head -1) (already installed)"
 else
     echo "  Homebrew not found. Installing from the official install script..."
     echo "  (You may be prompted for your Mac password.)"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"; then
+        say_err "Homebrew install failed. This usually means corporate network policy"
+        say_err "blocked the download. Install Homebrew manually:"
+        say_err "  https://brew.sh"
+        say_err "Then re-run this installer."
+        exit 1
+    fi
 
     # Homebrew on Apple Silicon installs to /opt/homebrew; on Intel to /usr/local.
     # Make sure the current shell can find brew immediately.
@@ -727,7 +746,7 @@ fi
 
 # --- Verify recipe list ---
 say_step "Verifying recipes are visible to Goose..."
-RECIPE_CHECK_TMP="/tmp/rilgoose-recipe-check-$$"
+RECIPE_CHECK_TMP="$(mktemp -t rilgoose-recipe-check)"
 if goose recipe list --format text >"$RECIPE_CHECK_TMP" 2>&1; then
     # `grep -c` returns exit 1 on no-match, which would trigger the ERR trap
     # inside `$(...)`. Capture into a plain var, defaulting to 0 if empty.

@@ -149,6 +149,8 @@ Run: `goose recipe open <path to recipes/agents/builder.yaml>`
 Run: `goose recipe open <path to recipes/agents/independent-tester.yaml>`
 "Three files for one workflow — that's what coordinated specialists look like on disk."
 
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
+
 WAIT for any questions about the recipe structure.
 
 ## Bridge

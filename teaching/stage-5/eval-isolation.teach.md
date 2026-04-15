@@ -154,10 +154,12 @@ Read the Eval Isolation agent recipe (recipes/agents/eval-isolation.yaml) and sh
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/eval-isolation.yaml>`
 "The gate/schedule split is the core pattern here — most of the constraints exist to keep
 those two jobs from collapsing back into one."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

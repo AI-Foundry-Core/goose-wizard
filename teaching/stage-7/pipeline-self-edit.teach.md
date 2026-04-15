@@ -225,10 +225,12 @@ Read the Pipeline Self-Edit agent recipe (recipes/agents/pipeline-self-edit.yaml
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/pipeline-self-edit.yaml>`
 "Look at `audit_only` first — that one default is most of what makes this recipe safe
 to ship."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

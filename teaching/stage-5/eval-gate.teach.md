@@ -157,10 +157,12 @@ Read the Eval Gate agent recipe (recipes/agents/eval-gate.yaml) and show the dev
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/eval-gate.yaml>`
 "This recipe is the one you'll actually run before switching on autonomy in Stage 6 — read
 the constraints carefully. Each one is a failure mode someone found the hard way."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

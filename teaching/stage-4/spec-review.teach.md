@@ -251,11 +251,13 @@ Read the Spec Review recipe (recipes/agents/spec-review.yaml) and show the devel
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open recipes/agents/spec-review.yaml`
 "Notice how this one is an evaluator archetype — strict read-only, returns findings.
 Compare it to spec-decomposition.yaml which rewrites the spec. Different archetypes,
 different constraints."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/<file>.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions about the recipe structure.
 

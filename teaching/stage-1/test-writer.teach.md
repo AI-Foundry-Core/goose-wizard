@@ -208,10 +208,12 @@ Read the Test Writer agent recipe (recipes/agents/test-writer.yaml) and show the
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
 
-Open it in the desktop app:
+Open it for them. First try the desktop app:
 Run: `goose recipe open <path to recipes/agents/test-writer.yaml>`
 "Open in the app. Compare it side-by-side with the Bug Fix recipe if you're curious —
 you'll see the pattern clearly."
+
+If `goose recipe open` errors or the desktop app does not respond, tell the developer: "Open `recipes/agents/test-writer.yaml` directly in your editor (VS Code, etc.) — same content, same discussion." Known upstream issue when the CLI and desktop app both run on this project simultaneously.
 
 WAIT for any questions.
 
