@@ -25,8 +25,8 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/error-debugging/agents/debugger.md
-  ~/ClaudeInfra/ril-agents/plugins/error-debugging/agents/error-detective.md
+  recipes/ported-agents/error-debugging/debugger.yaml
+  recipes/ported-agents/error-debugging/error-detective.yaml
 
   ## Constraints
   IMPORTANT:

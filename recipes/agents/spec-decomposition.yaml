@@ -20,8 +20,8 @@ instructions: |
   Read `.goose/team_context.md` for the project's domain and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/product-specification/agents/feature-spec.md
-  ~/ClaudeInfra/ril-agents/plugins/product-specification/agents/acceptance-criteria.md
+  recipes/ported-agents/product-specification/feature-spec.yaml
+  recipes/ported-agents/product-specification/acceptance-criteria.yaml
 
   ## Constraints
   IMPORTANT:

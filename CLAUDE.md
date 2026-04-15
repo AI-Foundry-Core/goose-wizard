@@ -84,7 +84,7 @@ Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluati
 - **Goose fork** — battle-tested runtime, recipe system, sub-recipes, subagents, ACP, MCP extensions, desktop app + CLI
 - **Our pipeline patterns** (from AgenticSystem) — file ownership, circuit breakers, 4-tier testing, escalation routing, separated concerns
 - **DDD spec system** (from ddd-mcp-server) — artifact chain, persona decomposition, testable requirements, quality gates
-- **RIL Agents** (from ~/ClaudeInfra/ril-agents/) — 112+ specialized agents used as the execution layer in recipes
+- **Ported Agents** (local: `recipes/ported-agents/`) — agent patterns ported from the RIL-agents library, used as the execution layer in recipes. Originals at `~/ClaudeInfra/ril-agents/` are lineage only, not a runtime dependency.
 - **Adaptive teaching model** — evolved from CourseForge's scripted model into quality-rated adaptive evaluation
 
 ## Guiding Principles
@@ -109,7 +109,7 @@ Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluati
 - **Facilitator/CodeWork/Eval pattern** — training recipe facilitates, agent primitive does code work, eval subagent rates quality
 - **Quality ratings not binary** — eval subagent rates Strong/Adequate/Weak, not yes/no
 - **Stage 1 ordered by impact** — Bug Fix → Test Writer → Code Review → Refactor (not risk order)
-- **RIL Agents as execution layer** — agent primitives reference patterns from ~/ClaudeInfra/ril-agents/
+- **Ported agents as execution layer** — agent primitives reference patterns from `recipes/ported-agents/` (local, versioned with the repo)
 - **GooseForge** — recipe design system with Recipe Forge (single recipes) and Pipeline Forge (multi-step pipelines)
 - **Pipeline Forge** — replaced Team Forge; thinks in stages/patterns, not team roles; composes from known Stage 2-3 patterns
 
@@ -203,7 +203,7 @@ RILGoose/
 │   │           ├── eval-prompt-template.md
 │   │           ├── example-module.md   # Complete Bug Fix module as reference
 │   │           ├── progression-format.md
-│   │           └── ril-agents-map.md
+│   │           └── ported-agents-map.md
 │   ├── stage-0/                        # Stage 0 is scripted (acts are the teaching)
 │   ├── stage-1/                        # Stage 1 guided-adaptive scripts
 │   │   ├── bug-fix.teach.md
@@ -222,7 +222,7 @@ RILGoose/
 - **This project (RILGoose)**: Recipes, teaching scripts, onboarding, syllabus, plan
 - **AgenticSystem** (`~/ClaudeProjects/AgenticSystem/`): Source pipeline patterns — file ownership, circuit breakers, escalation, cycle review. Read `LEARNINGS.md` and `Evaluations/` for concepts that inform Stages 2-7.
 - **ddd-mcp-server** (`~/ClaudeProjects/ddd-mcp-server/`): DDD spec system — artifact chain, golden prompts, quality gates, executive review simulation. Informs Stage 4.
-- **RIL Agents** (`~/ClaudeInfra/ril-agents/`): 112+ specialized agents used as execution layer. See syllabus "RIL Agents Integration" section for stage-to-agent mapping.
+- **Ported Agents** (`recipes/ported-agents/` inside this repo): 12 agents ported from the RIL-agents library as Goose recipe YAMLs. This is the runtime reference. Lineage only: `~/ClaudeInfra/ril-agents/` (read-only, not a dependency). Conductor was deliberately not ported — it's being redesigned as a native multi-recipe Goose system; see `handoffs/conductor-native-design-2026-04-15.md`.
 - **CourseForge** (`~/ClaudeProjects/CourseForge/`): Original teaching model (Say/Check/Action). Stage 0 still uses this. Stages 1+ evolved to adaptive model.
 - **The Goose fork** (TBD): The actual forked runtime with our recipes added.
 

@@ -103,7 +103,8 @@ prompt: |
   Read recipes/forge-references/design-principles.md — focus on P8 (coordination
   protocols), P4 (separate planning from execution), P11 (map failure modes).
 
-  Search ~/ClaudeInfra/ril-agents/plugins/agent-teams/ for pipeline patterns.
+  Search recipes/forge-references/ for pipeline patterns and the 5 graduated
+  coordinator examples in recipes/graduated/ for composition references.
 
   Share findings:
   "For this kind of pipeline, best practices are:

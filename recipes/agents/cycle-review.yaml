@@ -31,7 +31,7 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/observability-monitoring/agents/post-mortem.md
+  recipes/ported-agents/product-evaluation/post-mortem.yaml
 
   ## Constraints
   IMPORTANT:

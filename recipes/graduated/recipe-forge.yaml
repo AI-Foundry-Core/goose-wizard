@@ -89,12 +89,12 @@ prompt: |
   1. Read recipes/forge-references/archetype-[type].md for patterns,
      constraints, failure modes, and anti-patterns.
   2. Read recipes/forge-references/design-principles.md for relevant principles.
-  3. Search ~/ClaudeInfra/ril-agents/plugins/ for similar existing agents.
+  3. Search recipes/ported-agents/ for similar existing agents.
      List the plugin directories, narrow to 3-5 relevant folders based on
-     the archetype, read the agent files in those folders.
+     the archetype, read the agent YAMLs in those folders.
 
   Share key findings with the user:
-  - "I found [N] similar agents in the RIL library. The most relevant is
+  - "I found [N] similar agents in the ported library. The most relevant is
     [name] which [what it does]. Key pattern: [pattern]."
   - "For [archetype] recipes, the critical constraints are: [list]."
   - "Common failure modes to design for: [list]."

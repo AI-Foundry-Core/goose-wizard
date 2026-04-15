@@ -260,7 +260,7 @@ recipes/
 
 **GooseForge process (used during Stage 3 exercises):**
 1. **Discovery:** "What problem does this agent solve? What inputs? What constraints? How can it fail?"
-2. **Research:** Classify the agent archetype (reviewer, builder, coordinator, evaluator, investigator). Search existing agents in `~/ClaudeInfra/ril-agents/` for similar patterns. Load archetype-specific best practices from `recipes/forge-references/`. Surface relevant design principles and anti-patterns.
+2. **Research:** Classify the agent archetype (reviewer, builder, coordinator, evaluator, investigator). Search existing agents in `recipes/ported-agents/` for similar patterns. Load archetype-specific best practices from `recipes/forge-references/`. Surface relevant design principles and anti-patterns.
 3. **Design:** Map discovery + research onto the canonical recipe structure (Role → Constraints → Process → Failure Modes → Verification → Return Format). Output a working Goose recipe YAML.
 4. **Validate:** Run quality checks — recipe validates, parameters typed correctly, extensions exist, every constraint has a corresponding failure mode, return format is parseable.
 
@@ -373,25 +373,23 @@ recipes/
 
 ---
 
-## RIL Agents Integration
+## Ported Agents Integration
 
-Agents from `~/ClaudeInfra/ril-agents/` that map to each stage. During training, RIL agents power the **agent primitives** (sub-recipe workers called by training recipes). After graduation, the same agents power the **graduated recipes** that replace the training versions.
+Agents in `recipes/ported-agents/` that map to each stage. During training, ported agents power the **agent primitives** (sub-recipe workers called by training recipes). After graduation, the same agents power the **graduated recipes** that replace the training versions. Originals at `~/ClaudeInfra/ril-agents/` are lineage only and not a runtime dependency.
 
-| Stage | RIL Agent(s) | Plugin | Role in Agent Primitive |
+| Stage | Ported Agent(s) | Folder | Role in Agent Primitive |
 | --- | --- | --- | --- |
 | 1 | `debugger`, `error-detective` | error-debugging | `agents/bug-fix.yaml` — investigation and root cause analysis |
-| 1 | `test-automator`, `tdd-orchestrator` | unit-testing, tdd-workflows | `agents/test-writer.yaml` — test generation and TDD discipline |
+| 1 | `test-automator` | unit-testing | `agents/test-writer.yaml` — test generation |
 | 1 | `code-reviewer`, `architect-review` | comprehensive-review | `agents/code-review.yaml` — quality analysis and architectural review |
 | 1 | `legacy-modernizer` | code-refactoring | `agents/refactor.yaml` — safe incremental restructuring |
 | 2 | `test-automator` (separated from builder) | unit-testing | Build-then-test — independent testing agent |
 | 2 | `code-reviewer` (as gate) | comprehensive-review | Review-gate — separate review agent checks builder output |
-| 3 | `team-lead` | agent-teams | Decomposes work into parallel tasks with ownership |
-| 3 | `team-implementer`, `team-reviewer` | agent-teams | Parallel execution with defined roles |
 | 4 | `prd-development` | product-planning | PRD generation from feature ideas |
 | 4 | `feature-spec`, `acceptance-criteria` | product-specification | Detailed spec + testable acceptance criteria |
 | 5 | `product-evaluation`, `post-mortem` | product-evaluation | Structured evaluation and retrospective |
-| 6 | Conductor framework | conductor | Autonomous orchestration with track management |
-| 7 | `tutorial-engineer` | documentation-generation | Meta — generates evolved skill files and teaching content |
+| 6 | Native Conductor Goose system (planned) | — | Next-session design: autonomous orchestration with track management, Context-Driven Development artifacts, TDD task lifecycle |
+| 7 | `tutorial-engineer` | code-documentation | Meta — generates evolved skill files and teaching content |
 
 ---
 
@@ -402,7 +400,7 @@ Agents from `~/ClaudeInfra/ril-agents/` that map to each stage. During training,
 | **Agents that edit files must commit them** | LEARNINGS.md | Implied by Stage 1 git workflow? Or explicit in Stage 2+? |
 | **Revert functions must not destroy untracked work** | LEARNINGS.md | Stage 3 operational safety. |
 | **Declarative pipeline graph** | Synthesis | Stage 7 — self-modifying pipeline architecture. |
-| **Incident response workflow** | ril-agents incident-response plugin | What happens when the autonomous pipeline breaks in production. Stage 6 operational concern. |
+| **Incident response workflow** | future port from ril-agents incident-response plugin | What happens when the autonomous pipeline breaks in production. Stage 6 operational concern. |
 
 ---
 
@@ -494,10 +492,10 @@ Decisions made during syllabus design, recorded for context when building teachi
 **What:** The spec stage uses the DDD artifact chain and quality gates, not generic user stories.
 **Why:** The DDD system was built for Reliance teams — their vocabulary, scale, and decision-making patterns. More rigorous than "write user stories" and maps directly to what an AI pipeline needs.
 
-### Decision: Use RIL Agents as the execution layer
-**What:** Recipes invoke existing agents from `~/ClaudeInfra/ril-agents/` rather than building custom agents.
-**Why:** 112+ specialized agents already tested and composable. The `code-reviewer`, `test-automator`, `debugger`, `team-lead`, `prd-development`, `feature-spec`, and `acceptance-criteria` agents map directly to our stage concepts.
-**Source:** `~/ClaudeInfra/ril-agents/` — 193 agent files, 146 skills, 79 commands.
+### Decision: Port RIL Agents into the repo as the execution layer
+**What:** Recipes invoke ported agents in `recipes/ported-agents/` rather than depending on an external library at runtime.
+**Why:** The RIL-agents library gave us battle-tested patterns for `code-reviewer`, `test-automator`, `debugger`, `prd-development`, `feature-spec`, `acceptance-criteria`, etc. Those patterns map directly to our stage concepts. Porting them into the repo (as of 2026-04-15) means RILGoose has zero external runtime dependencies, and the lineage of each agent is preserved in the port itself.
+**Lineage (not runtime):** `~/ClaudeInfra/ril-agents/` — read-only reference originals. Not loaded, not read by recipes. Conductor was deliberately NOT ported here — it's being redesigned as a native multi-recipe Goose system in a follow-up session.
 
 ### Decision: TDD deferred as standalone concept
 **What:** TDD is available via `tdd-orchestrator` but not a core teaching concept.

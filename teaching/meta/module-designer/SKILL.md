@@ -75,7 +75,7 @@ Every teaching session has exactly three agent roles. Understanding why each exi
 Guides the conversation. Never touches code. Receives eval results and decides what to say. Speaks as a knowledgeable colleague — not an instructor, not an AI, not a system following rules. The developer should feel like they're pair-programming with someone experienced, not sitting through a training module.
 
 ### Agent Primitive (sub-recipe)
-Does all code operations as a non-interactive sub-recipe. Reading files, running tests, making edits, generating diffs. Returns structured results to the facilitator. References RIL agent patterns from `~/ClaudeInfra/ril-agents/` in its instructions. Lives in `recipes/agents/`.
+Does all code operations as a non-interactive sub-recipe. Reading files, running tests, making edits, generating diffs. Returns structured results to the facilitator. References ported agent patterns from `recipes/ported-agents/` in its instructions. Lives in `recipes/agents/`.
 
 ### Eval Subagent
 Runs async after the developer completes the task. Sees the full conversation transcript. Rates quality dimensions as Strong/Adequate/Weak with evidence and suggested coaching language. Returns structured JSON. The facilitator reads this and decides what to say — it never follows eval results blindly.
@@ -189,7 +189,7 @@ These contain templates and detailed examples. Read the specific one you need, n
 | `references/eval-prompt-template.md` | Writing an eval subagent prompt | Complete template with structured JSON output format |
 | `references/example-module.md` | First time designing a module, or reviewing your design against a known-good example | Complete Bug Fix module: agent primitive + training recipe + teaching script + eval prompt |
 | `references/progression-format.md` | Implementing state tracking | JSON schema for progression.json with examples |
-| `references/ril-agents-map.md` | Choosing which RIL agents to reference | Stage-to-agent mapping table from the syllabus |
+| `references/ported-agents-map.md` | Choosing which ported agents to reference | Stage-to-agent mapping table (ports live in `recipes/ported-agents/`) |
 
 ### Additional References (GooseForge)
 

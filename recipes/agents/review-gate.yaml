@@ -25,7 +25,7 @@ instructions: |
   lint/typecheck commands, and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/comprehensive-review/agents/code-reviewer.md
+  recipes/ported-agents/comprehensive-review/code-reviewer.yaml
 
   ## Constraints
   IMPORTANT:

@@ -27,7 +27,7 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/observability-monitoring/agents/product-evaluation.md
+  recipes/ported-agents/product-evaluation/product-evaluation.yaml
 
   ## Constraints
   IMPORTANT:

@@ -49,7 +49,7 @@ Every recipe reads this file at startup. This describes the RILGoose project so 
 
 - **Recipes and teaching scripts:** Doni (project owner, non-technical) — designs with AI assistance
 - **Goose core:** Upstream project — we only touch the recipe layer, never the Rust core
-- **RIL Agents:** Managed separately in ~/ClaudeInfra/ril-agents/ — referenced but not modified here
+- **Ported Agents:** In-repo at `recipes/ported-agents/` — runtime reference. Originals at `~/ClaudeInfra/ril-agents/` are lineage only and not modified.
 
 ---
 

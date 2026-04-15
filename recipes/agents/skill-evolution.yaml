@@ -25,7 +25,7 @@ instructions: |
   and conventions.
 
   Follow the patterns in:
-  ~/ClaudeInfra/ril-agents/plugins/agent-orchestration/agents/tutorial-engineer.md
+  recipes/ported-agents/code-documentation/tutorial-engineer.yaml
 
   ## Constraints
   IMPORTANT:
