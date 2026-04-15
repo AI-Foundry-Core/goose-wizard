@@ -103,11 +103,57 @@ instructions: |
   5. Derive acceptance criteria from the requirements brief. If you can't
      produce at least 2 testable criteria, stop with `brief_too_vague`.
   6. Compose spec.md, plan.md, metadata.json, index.md (each from the
-     canonical templates).
-  7. Stage all files in a temp directory.
-  8. Create the track directory. Rename-into-place each file.
-  9. Append the track row to tracks.md under "Active Tracks".
-  10. Update metadata.json with any final timestamps (created, updated).
+     canonical templates). Also compute the new tracks.md content by
+     reading the existing tracks.md in memory and appending the new
+     track row to the "Active Tracks" table (do NOT touch the file
+     yet).
+  7. Stage all files in `<conductor_dir>/.track-create.<track_id>.tmp/`
+     (a sibling of tracks/, chosen so the staging dir is on the same
+     filesystem as the destinations — rename-into-place must be atomic).
+     Write:
+       a. `<staging>/spec.md`
+       b. `<staging>/plan.md`
+       c. `<staging>/metadata.json`
+       d. `<staging>/index.md`
+       e. `<staging>/tracks.md.new` (the full new content of tracks.md)
+     If any of (a)-(e) fails, delete the staging dir and return
+     `write_failed`. No destination file has been touched yet.
+  8. Back up tracks.md per RECIPE-PREAMBLE.md's Backup Rotation
+     Convention: if `<conductor_dir>/tracks.md` exists, rename it to
+     `<conductor_dir>/tracks.md.bak.<ISO 8601 UTC timestamp>` (e.g.
+     `tracks.md.bak.2026-04-15T173042Z`).
+     If this rename fails, delete the staging dir and return
+     `write_failed` — tracks.md has not been modified.
+  9. Create the destination `tracks/<track_id>/` directory (empty).
+     If it already exists (should have been caught in step 4, but may
+     race), delete the staging dir, restore tracks.md from the .bak
+     just made (if step 8 renamed it), and return `id_collision`.
+  10. Rename each of (a)-(d) from staging into place:
+      `<staging>/spec.md` → `tracks/<track_id>/spec.md`, etc.
+      If any rename fails: unlink every file already renamed, rmdir
+      the empty `tracks/<track_id>/` directory, restore the tracks.md
+      .bak (rename back to tracks.md), delete the staging dir, and
+      return `write_failed`. This rollback order (unwind in reverse)
+      preserves on-disk consistency: either the track exists completely
+      in registry + directory, or neither does.
+  11. Rename `<staging>/tracks.md.new` → `<conductor_dir>/tracks.md`.
+      If this rename fails, unwind steps 9-10 as above AND restore the
+      tracks.md backup. Return `write_failed`.
+  12. Delete the now-empty staging directory.
+  13. Update metadata.json with the final timestamp (created, updated).
+  14. Return `ok` with `registry_updated: true`.
+
+  **Rollback guarantee:** a `write_failed` return from any step leaves
+  the filesystem in exactly one of two states:
+    A. The pre-call state (no track directory, no tracks.md row added,
+       original tracks.md intact — the .bak backup is the guarantee of
+       recovery; if restoring the .bak ALSO fails, the recipe returns
+       `write_failed` with a structured `rollback_incomplete` flag so
+       the user knows to manually check the .bak file).
+    B. The fully committed state (track directory populated, tracks.md
+       updated, .bak file preserved for auditability).
+  There is no valid intermediate "half a track on disk, half in
+  registry" state.
 
   ## Return
   - status: "ok" | "config_unresolved" | "not_initialized" |
@@ -122,6 +168,14 @@ instructions: |
   - phases_count: Integer
   - tasks_count: Integer
   - registry_updated: boolean (tracks.md updated?)
+  - tracks_md_backup_path: Absolute path of the tracks.md.bak.<ts>
+    file created in step 8 (if tracks.md existed and was backed up),
+    else null
+  - rollback_incomplete: boolean — true ONLY when a `write_failed`
+    return could not fully restore pre-call state (e.g., step 8's
+    backup was made but restoring it in rollback also failed). When
+    true, the caller MUST surface the backup path to the user for
+    manual recovery. When false (the normal case), ignore.
 
 extensions:
   - type: builtin
