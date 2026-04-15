@@ -2,7 +2,16 @@
 
 ## Location
 
-`.goose/state/progression.json` in the project directory. Read at session start, written after eval completes.
+`~/.rilgoose/progression.json` — the canonical per-USER progression state file.
+Progression travels with the developer across every codebase they train on; it
+is NOT per-project. Created on first use of any module.
+
+The legacy per-project location was `.goose/state/progression.json`. Recipes
+migrate it automatically on first read this session: if the canonical file is
+missing but the legacy file exists, move it (atomic: write tmp + rename) to
+the canonical path and rename the legacy file to
+`.goose/state/progression.json.migrated`. All subsequent reads and writes use
+the canonical path.
 
 ## Schema
 
@@ -54,3 +63,5 @@
 - The teach-wrapper writes this after the eval subagent returns results
 - Never overwrite a Strong rating with a lower one — track best rating per dimension
 - If a developer re-runs a recipe (e.g., via `/teach`), update ratings only if they improved
+- ALL writes go to `~/.rilgoose/progression.json`. Never write to the legacy
+  per-project path. If you see the legacy file, migrate it once and move on.

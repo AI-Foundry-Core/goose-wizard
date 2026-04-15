@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context (stack, test commands, conventions).
-Read .goose/state/progression.json — check if concept 1.4 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 1.4 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to the next set of skills, or run through another refactor to sharpen this one?"
   If skip: jump to Bridge section.
@@ -184,13 +184,13 @@ Before the Bridge, connect refactoring to team workflow:
 **If the developer was disengaged throughout and did not perform verification themselves:** Adapt the bridge from "you've been catching everything" to a value proposition tied to the session: "That kind of diff risk — behavioral changes the tests don't catch — is exactly why a second AI is useful. It checks the refactor even when the tests stay green." The bridge should match what the developer experienced, not what the script assumes they experienced.
 
 ## Stage 1 Completion Check
-Read .goose/state/progression.json.
+Read ~/.rilgoose/progression.json.
 If all four concepts (1.1, 1.2, 1.3, 1.4) are complete:
   "AI just fixed your bug, wrote your tests, reviewed your PR, and cleaned up your legacy code. You're 10x faster. Now imagine what happens when AI checks AI. That's where it gets really interesting."
   Update stage 1 status to "complete" in progression.json.
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 1.4 dimensions with eval ratings + timestamp.
   Update concept status to "complete" if all required dimensions are Adequate or Strong.
   Never overwrite a Strong rating with a lower one.

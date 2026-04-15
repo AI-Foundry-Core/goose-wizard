@@ -5,7 +5,7 @@ Covers concept 6.2 (cycle-review). Teaches holistic review, feedback loops, and 
 ## Setup
 
 Read `.goose/team_context.md` for project context.
-Read `.goose/state/progression.json` and check concept 6.2 (module 23: cycle-review).
+Read `~/.rilgoose/progression.json` and check concept 6.2 (module 23: cycle-review).
 If concept 6.2 is already demonstrated with Adequate or Strong ratings, offer to skip or revisit.
 
 This is Fully Adaptive mode. Act as a consulting partner. Do not drive a lesson. Help the developer review a real autonomous cycle and coach only where the transcript shows an operational gap.
@@ -177,7 +177,7 @@ If all dimensions are Strong:
 
 ## State Update
 
-Update concept 6.2 (module 23: cycle-review) in `.goose/state/progression.json`:
+Update concept 6.2 (module 23: cycle-review) in `~/.rilgoose/progression.json`:
   Store all dimension ratings (holistic_cycle_review, feedback_loop_closure,
   success_signal_skepticism) as sub-fields of concept 6.2's eval_ratings, plus timestamp.
   Update concept 6.2 status to "complete" when all dimensions are Adequate or Strong.

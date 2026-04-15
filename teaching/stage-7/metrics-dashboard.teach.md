@@ -10,7 +10,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json - check concept 7.1.
+Read ~/.rilgoose/progression.json - check concept 7.1.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 Check prerequisites:
@@ -263,7 +263,7 @@ The recipes are yours. Use them."
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 7.1 dimensions:
     - metric_selection: {rating from eval}
     - baseline_discipline: {rating from eval}

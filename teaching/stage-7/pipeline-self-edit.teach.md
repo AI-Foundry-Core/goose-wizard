@@ -9,7 +9,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json - check concept 7.2 (module 25: pipeline-self-edit).
+Read ~/.rilgoose/progression.json - check concept 7.2 (module 25: pipeline-self-edit).
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 Check prerequisites:
@@ -197,7 +197,7 @@ Next: measuring the impact of pipeline changes with real data."
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   Update concept 7.2 (module 25: pipeline-self-edit) with all dimension ratings
   (duplication_awareness, conflict_resolution_quality, guardrail_skepticism,
   consolidation_follow_through) as sub-fields of concept 7.2's eval_ratings,

@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.6 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 5.6 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -155,5 +155,5 @@ Optional follow-up (pick the most relevant):
 "The ratchet prevents regression on metrics you can count. But what about evaluation criteria that aren't numbers? 'Check quality' produces rubber stamps. 'Rate each assertion as meaningful, weak, or trivial' produces findings. That's eval design — making your criteria specific enough to actually catch problems."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 5.6 dimensions with eval ratings + timestamp

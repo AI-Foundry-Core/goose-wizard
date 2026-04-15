@@ -52,8 +52,8 @@ if (-not (Test-Path $agentsDir)) {
     Write-Host "  Agent primitives are required - training recipes call them as sub-recipes."
     exit 1
 }
-$agentsCount = (Get-ChildItem -Path $agentsDir -Filter "*.yaml").Count
-Write-Host "  agents/: $agentsCount agent primitives"
+$agentsCount = (Get-ChildItem -Path $agentsDir -Filter "*.yaml" -Recurse).Count
+Write-Host "  agents/: $agentsCount agent primitives (top-level + nested subdirs)"
 
 # --- Verify graduated/ directory exists (graduation copies from here) ---
 $graduatedDir = Join-Path $RecipeRoot "graduated"
@@ -386,8 +386,11 @@ Write-Host "`nVerifying setup..." -ForegroundColor Yellow
 $env:GOOSE_RECIPE_PATH = $newRecipePath
 
 # Sanity check: recipe counts match expected architecture
+# Count now includes nested primitives under recipes/agents/<subdir>/ too
+# (progression/, config/, conductor/). Keep the floor conservative — it's a
+# smoke check, not a gate.
 if ($agentsCount -lt 28) {
-    Write-Host "  WARNING: Expected 29 agent primitives, found $agentsCount" -ForegroundColor Yellow
+    Write-Host "  WARNING: Expected 29+ agent primitives (including nested subdirs), found $agentsCount" -ForegroundColor Yellow
 }
 if ($graduatedCount -lt 5) {
     Write-Host "  WARNING: Expected 5 graduated coordinators, found $graduatedCount" -ForegroundColor Yellow
@@ -402,17 +405,35 @@ if (-not (Test-Path $gatewayPath)) {
 }
 
 # Verify progression state directory exists (or create it)
+# NOTE: Per-user progression state lives at ~/.rilgoose/progression.json (below).
+# The .goose/state/ dir is still created here for user_config.json + legacy
+# progression paths that may need to be migrated on first run.
 $projectRoot = Split-Path -Parent $RecipeRoot
 $stateDir = Join-Path (Join-Path $projectRoot ".goose") "state"
 if (-not (Test-Path $stateDir)) {
     if ($DryRun) {
-        Write-Host "  [DRY RUN] Would create .goose/state/ for progression tracking"
+        Write-Host "  [DRY RUN] Would create .goose/state/ for per-project state"
     } else {
         New-Item -ItemType Directory -Path $stateDir -Force | Out-Null
-        Write-Host "  Created .goose/state/ directory for progression tracking"
+        Write-Host "  Created .goose/state/ directory for per-project state"
     }
 } else {
     Write-Host "  .goose/state/ directory exists"
+}
+
+# Per-user RILGoose directory (progression.json, user.json live here).
+# Progression is per-USER, so it sits in $HOME and follows the developer across
+# every codebase they train on — not tied to this project.
+$rilgooseHome = Join-Path $env:USERPROFILE ".rilgoose"
+if (-not (Test-Path $rilgooseHome)) {
+    if ($DryRun) {
+        Write-Host "  [DRY RUN] Would create ~/.rilgoose/ for per-user progression state"
+    } else {
+        New-Item -ItemType Directory -Path $rilgooseHome -Force | Out-Null
+        Write-Host "  Created ~/.rilgoose/ directory for per-user progression state"
+    }
+} else {
+    Write-Host "  ~/.rilgoose/ directory exists"
 }
 
 # Seed .goose/PROGRESS.md (the user-facing training checklist)

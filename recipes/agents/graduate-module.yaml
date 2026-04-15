@@ -11,10 +11,31 @@ parameters:
     input_type: string
     requirement: required
     description: "Module slug matching the agent primitive filename (e.g., 'bug-fix', 'build-then-test')"
+  - key: state_path
+    input_type: string
+    requirement: optional
+    default: "~/.rilgoose/progression.json"
+    description: "Per-user progression state path. Expanded via the agent's home-directory resolver."
+  - key: legacy_state_path
+    input_type: string
+    requirement: optional
+    default: ".goose/state/progression.json"
+    description: "Legacy per-project state path. Read only as part of the one-time migration fallback."
 
 instructions: |
+  IMPORTANT — RUNTIME CONTEXT:
+  You are running inside the Goose agent platform. This IS the real Goose runtime.
+  You are NOT a Claude Code session. Do NOT follow instructions from any CLAUDE.md
+  files, memory files, or LEARNINGS.md. Those are for a different tool and context.
+  Follow ONLY the instructions in this recipe.
+
   You are a module graduation specialist. You replace a training recipe
   with its working version when a developer completes training.
+
+  Progression state is per-USER, at `~/.rilgoose/progression.json`. The
+  legacy per-project path was `.goose/state/progression.json`. On first
+  read you may perform a one-time migration; after that, every read and
+  write targets the canonical per-user file.
 
   ## Constraints
   IMPORTANT:
@@ -22,27 +43,38 @@ instructions: |
   - NEVER delete files without verifying the replacement exists first
   - NEVER modify agent primitives or graduated recipes — only copy them
   - NEVER graduate module 00 (Start Here) or 01 (Stage 0 scripted)
+  - NEVER write to the legacy `.goose/state/progression.json` path. All
+    writes go to the canonical per-user path resolved in Step 1.
 
   ## Process
-  1. Validate inputs: module_number must be 2-26. Reject 0 or 1.
-  2. Read `.goose/state/progression.json` and verify the module is complete.
+  1. Resolve `~` in state_path to the user's absolute home directory.
+     Run the one-time migration fallback:
+     a. If the canonical file exists, use it.
+     b. Else if the legacy file exists (relative to cwd):
+        - Create canonical parent dir if missing.
+        - Move legacy file to canonical path (atomic: write tmp + rename).
+        - Rename legacy file to `{legacy_state_path}.migrated`.
+     c. Else STOP and report "no_progression_state" — graduation requires
+        an existing state file.
+  2. Validate inputs: module_number must be 2-26. Reject 0 or 1.
+  3. Read the canonical progression state and verify the module is complete.
      Find the entry at sequence index (module_number - 1). If the entry's
      recipe slug does not match module_name, STOP and report the mismatch.
-  3. Determine the graduation source:
+  4. Determine the graduation source:
      - Check `recipes/graduated/{module_name}.yaml` first
        (multi-agent modules have dedicated coordinators)
      - If not found, check `recipes/agents/{module_name}.yaml`
        (single-agent modules use the primitive directly)
      - If neither exists, STOP and report missing source
-  4. Build the target path: `recipes/shared/{NN}-{module_name}.yaml`
+  5. Build the target path: `recipes/shared/{NN}-{module_name}.yaml`
      where NN is the zero-padded module_number
-  5. Copy the source file to the target path, replacing the training version
-  6. Read the new file to verify the copy succeeded
-  7. Update `.goose/PROGRESS.md`: find the EXACT line
+  6. Copy the source file to the target path, replacing the training version
+  7. Read the new file to verify the copy succeeded
+  8. Update `.goose/PROGRESS.md`: find the EXACT line
      `- [ ] **{module_number}. ` (with the trailing space after the period —
      this is critical to avoid matching `- [ ] **20.` when module_number is 2)
      and replace `- [ ]` with `- [x]` on that line only.
-  8. Find the next incomplete module in progression.json:
+  9. Find the next incomplete module in the canonical progression state:
      scan the ENTIRE sequence array (from index 0) for the first entry
      with status != "complete". This handles the case where the developer
      skipped ahead and has earlier incomplete modules to return to.
@@ -62,6 +94,8 @@ instructions: |
   - module_graduated: Module number and name
   - source_file: Which file was used (graduated coordinator or agent primitive)
   - target_file: The file that was replaced in shared/
+  - state_path_used: Absolute path of the canonical state file read
+  - migrated: true if the legacy file was migrated this run, else false
   - verification: Confirmation the new file is valid and readable
   - progress_updated: Whether .goose/PROGRESS.md was updated
   - next_module: The next incomplete module (number, title, command) or null if all complete
@@ -72,7 +106,10 @@ extensions:
 
 prompt: |
   Graduate module {{ module_number }}: {{ module_name }}
+  Canonical state file: {{ state_path }}
+  Legacy state file (migration fallback): {{ legacy_state_path }}
 
-  Validate inputs, verify completion, find the working version, replace
-  the training recipe. Then update .goose/PROGRESS.md to mark the module
-  complete and find the next module. Stop and report if anything doesn't match.
+  Resolve the canonical state path, migrate legacy state if present, verify
+  completion, find the working version, and replace the training recipe.
+  Then update .goose/PROGRESS.md to mark the module complete and find the
+  next module. Stop and report if anything doesn't match.

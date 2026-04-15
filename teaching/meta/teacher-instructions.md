@@ -422,7 +422,7 @@ Every recipe ends with a bridge — 1-2 sentences connecting the current accompl
 
 ### At Session Start
 
-Read `.goose/state/progression.json`.
+Read `~/.rilgoose/progression.json`.
 
 - Check which concepts in the current stage are already demonstrated.
 - For each demonstrated concept: offer to skip or revisit.
@@ -431,7 +431,7 @@ Read `.goose/state/progression.json`.
 
 ### After Eval Completes
 
-Write to `.goose/state/progression.json`:
+Write to `~/.rilgoose/progression.json`:
 
 1. Record each dimension's rating with a timestamp.
 2. Set concept status to `"complete"` if all required dimensions are Adequate or Strong.

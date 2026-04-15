@@ -22,7 +22,7 @@ Mode: Adaptive + Checkpoints. Stage 2 completion checkpoint.
 ## Setup
 
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check concept 2.3.
+Read ~/.rilgoose/progression.json — check concept 2.3.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify concepts 2.1, 2.2, and 2.3 are complete. If not, flag it — 2.4 assumes the developer has the build-then-test and review gate patterns.
 
@@ -132,7 +132,7 @@ Read eval results. For each dimension:
 
 This is the stage completion checkpoint. It is NOT optional and must NOT be folded into the bridge.
 
-Read .goose/state/progression.json for all Stage 2 concept ratings.
+Read ~/.rilgoose/progression.json for all Stage 2 concept ratings.
 
 **Checkpoint question (required):** After summarizing the four capabilities below, ask:
 "Which of these would you rely on to stop a wrong-but-working implementation?"
@@ -183,7 +183,7 @@ Deliver one insight per code operation wait. Use in order. Do not repeat.
 
 ## State Update
 
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 2.3 dimensions with eval ratings + timestamp.
   If all Stage 2 concepts are complete, set stage 2 status to "complete".
   Never overwrite a Strong rating with a lower one. If the developer re-runs this recipe, update ratings only if they improve.

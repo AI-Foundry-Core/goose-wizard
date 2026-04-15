@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context (stack, test commands, conventions).
-Read .goose/state/progression.json — check if concept 1.1 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 1.1 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to [next incomplete recipe], or run through another bug fix to sharpen the skill?"
   If skip: jump to Bridge section.
@@ -206,7 +206,7 @@ WAIT for any questions about the recipe structure.
 "Now imagine applying this speed to test writing — pointing AI at a function that has no tests and getting a test suite in 60 seconds. That's next."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 1.1 dimensions with eval ratings + timestamp.
   Update concept status to "complete" if all required dimensions are Adequate or Strong.
   Never overwrite a Strong rating with a lower one.

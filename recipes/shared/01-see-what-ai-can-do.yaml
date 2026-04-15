@@ -33,7 +33,19 @@ instructions: |
 
   ## Step 1: Check Teaching State
 
-  Read `.goose/state/progression.json`. Find the entry in the sequence array
+  PROGRESSION STATE (per-user): progression is at `~/.rilgoose/progression.json`
+  (per-USER, follows the developer across every codebase they train on).
+  Before reading it the first time, run this migration fallback once:
+    - If `~/.rilgoose/progression.json` exists, use it.
+    - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
+      create `~/.rilgoose/` if missing, move the legacy file to
+      `~/.rilgoose/progression.json` (atomic: write tmp + rename), rename
+      the legacy file to `.goose/state/progression.json.migrated`.
+    - Else treat as a NEW user (no progression yet).
+  ALL progression writes go to `~/.rilgoose/progression.json`. Never write to
+  the legacy `.goose/state/progression.json` path again.
+
+  Read `~/.rilgoose/progression.json`. Find the entry in the sequence array
   where concept is "0.1" (See What AI Can Do, module 1).
 
   - If the file does not exist: enter TEACHING MODE.
@@ -74,7 +86,7 @@ instructions: |
   - Follow the Say/Check/Action sequence from each teaching script.
   - Ask for developer approval wherever the teaching script says to check or wait.
   - Never mention eval, ratings, scores, or that this is training.
-  - Update `.goose/state/progression.json`: set this entry's status to "complete",
+  - Update `~/.rilgoose/progression.json`: set this entry's status to "complete",
     completed_at to current ISO timestamp, increment modules_completed,
     update current_module.
   - Update `.goose/PROGRESS.md`: find the EXACT line `- [ ] **1. ` (with
@@ -134,7 +146,7 @@ instructions: |
   Progress state:
   - After Act 3, write .goose/state/.stage-0-progress.json with acts_completed [1, 2, 3], files_touched, and branch.
   - After Act 5, update .goose/state/.stage-0-progress.json with acts_completed [1, 2, 3, 4, 5], files_touched, branch, and completed true.
-  - After Act 5, also update .goose/state/progression.json: set the module 1
+  - After Act 5, also update ~/.rilgoose/progression.json: set the module 1
     entry's status to "complete" and set completed_at to current ISO timestamp.
   - After Act 5, update .goose/PROGRESS.md: find the EXACT line `- [ ] **1. `
     (with trailing space after the period) and replace `- [ ]` with `- [x]`.

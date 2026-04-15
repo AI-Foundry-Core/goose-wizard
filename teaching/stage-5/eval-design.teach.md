@@ -2,7 +2,7 @@
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read .goose/state/progression.json — check if concept 5.2 is already demonstrated.
+Read ~/.rilgoose/progression.json — check if concept 5.2 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -121,5 +121,5 @@ If ALL dimensions are Strong:
 "Specific criteria solve the accuracy problem. But what about reliability? If your eval depends on a live API that's down, the whole gate fails — not because your code is bad, but because Stripe's servers are slow today. That's the isolation problem. Mock your external dependencies and your evals run every time."
 
 ## State Update
-Write to .goose/state/progression.json:
+Write to ~/.rilgoose/progression.json:
   concept 5.2 dimensions with eval ratings + timestamp
