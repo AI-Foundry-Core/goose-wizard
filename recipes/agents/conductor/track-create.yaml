@@ -106,7 +106,7 @@ instructions: |
   ## Process
   1. Verify resolved config: confirm `project_path` is a non-empty
      directory that exists, `project_kind` is one of sandbox/live/unknown,
-     and `project_json_path` points to a readable file. If any check
+     and `{{ project_json_path }}` points to a readable file. If any check
      fails, return `status: config_invalid` with details.
      If `{{ project_kind }}` == "unknown" OR the project carries
      `needs_kind_confirmation: true`, return `status: kind_unconfirmed`
@@ -219,6 +219,9 @@ prompt: |
   (path: {{ project_path }}, kind: {{ project_kind }}).
   Type: {{ track_type }}. Shortname: {{ shortname }}. Title: {{ title }}.
   Live confirmed: {{ live_confirmed }}.
+  Requirements brief: {{ requirements_brief }}.
+  Phases JSON: {{ phases_json }}.
+  Dependencies JSON: {{ dependencies_json }}.
   Refuse live projects without live_confirmed. Follow the Process
   exactly. Do not execute any tasks; just author the track. Return the
   structured result.
