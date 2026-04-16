@@ -1,5 +1,5 @@
 ---
-name: rilgoose-module-designer
+name: goose-wizard-module-designer
 description: Design goose-wizard teaching modules — agent primitives + training recipes + quality-rated eval. Use this skill whenever designing, writing, or reviewing any Stage 0-7 module, recipe, teaching script, eval prompt, or facilitator instruction. Also use when someone asks to "build a module," "create a recipe," "write a teaching script," or "design Stage N content." Load it proactively at the start of any session focused on module creation.
 ---
 

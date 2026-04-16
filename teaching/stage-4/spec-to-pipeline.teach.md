@@ -25,7 +25,7 @@ This wrapper can run in two positions:
 
 Read `<TARGET>/.goose/team_context.md` for project context, including stack, test framework, test commands, and conventions.
 
-Read ~/.rilgoose/progression.json and check concepts 4.1 through 4.4.
+Read ~/.goose-wizard/progression.json and check concepts 4.1 through 4.4.
 
 Before starting, confirm concepts 4.1, 4.2, and 4.3 are complete or that the developer has an equivalent decomposed spec with persona-driven acceptance criteria. If those prerequisites are missing, bridge back to idea-to-spec or spec-decomposition before running this wrapper.
 
@@ -373,7 +373,7 @@ Check: Wait for the developer to confirm. If they decline or hesitate, ask what'
 
 ## State Update
 
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   concept 4.4 dimensions with eval ratings and timestamp:
     - traceability_discipline
     - test_specificity

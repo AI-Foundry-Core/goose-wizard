@@ -36,7 +36,7 @@ See `recipes/shared/02-bug-fix.yaml` for the actual file. Key structure:
 
 ## Setup
 Read .goose/team_context.md for project context.
-Read ~/.rilgoose/progression.json — check if concept 1.1 is already demonstrated.
+Read ~/.goose-wizard/progression.json — check if concept 1.1 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 ## Framing
@@ -87,7 +87,7 @@ function that has no tests and getting a test suite in 60 seconds.
 That's Recipe 1.2."
 
 ## State Update
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   concept 1.1 dimensions with eval ratings + timestamp
 ```
 

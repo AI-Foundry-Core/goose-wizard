@@ -11,7 +11,7 @@
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (test commands, lint/typecheck commands, review conventions, temp file patterns).
-Read ~/.rilgoose/progression.json and check concept 3.2 (module 10: parallel-reviewers).
+Read ~/.goose-wizard/progression.json and check concept 3.2 (module 10: parallel-reviewers).
 If concept 3.2 is already complete with adequate or strong ratings:
   "You've already shown layered parallel review and safe coordination. Want to skip ahead to Stage 4, or run another review against fresh changes?"
   If skip: jump to Bridge.
@@ -216,13 +216,13 @@ WAIT for any questions about the recipe structure.
 Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## Stage 3 Completion Check
-Read ~/.rilgoose/progression.json.
+Read ~/.goose-wizard/progression.json.
 If concepts 3.1 (three-agent-pipeline), 3.2 (parallel-reviewers), and 3.3 (escalation-routing) are all complete:
   "You have the full specialist-team pattern now: roles, contracts, safety rails, layered checks, and safe parallel coordination. The next jump is giving that team better specs."
   Update stage 3 status to "complete" in progression.json.
 
 ## State Update
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   Update concept 3.2 (module 10: parallel-reviewers) with eval ratings and timestamp.
   Store all four dimension ratings (layered_testing, execution_evidence,
   parallel_coordination, result_merge) as sub-fields of concept 3.2's eval_ratings.
