@@ -1,4 +1,4 @@
-# RILGoose — Agentic Development Harness for Reliance Teams
+# Goose Wizard — Agentic Development Harness for Reliance Teams
 
 ## Two Audiences — AIF vs RIL
 

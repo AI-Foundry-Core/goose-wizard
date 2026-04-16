@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-14
 **Status:** All 6 handoff priorities from `gooseforge-complete-next-steps.md` are done. Architecture is fully wired end-to-end.
-**Repo:** https://github.com/AI-Foundry-Core/RILGoose (private)
+**Repo:** https://github.com/AI-Foundry-Core/Goose Wizard (private)
 **Prior handoff:** `handoffs/gooseforge-complete-next-steps.md`
 
 ---
@@ -81,7 +81,7 @@ Created `graduate-module` agent primitive and wired it into all 25 training reci
 
 ### 7. GitHub Repo
 
-Created private repo at https://github.com/AI-Foundry-Core/RILGoose. All work pushed to main.
+Created private repo at https://github.com/AI-Foundry-Core/Goose Wizard. All work pushed to main.
 
 ---
 

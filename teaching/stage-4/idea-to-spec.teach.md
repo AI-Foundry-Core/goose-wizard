@@ -11,7 +11,7 @@ Checkpoint after 4.2: Has the developer internalized progressive elaboration?
 > `.goose/team_context.md`, "the codebase," "the repo," or "the spec
 > file," interpret those against `<TARGET>/`. Spec artifacts belong under
 > `<TARGET>/specs/` (or the project's existing spec directory), never in
-> RILGoose. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> Goose Wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `idea-to-spec` sub-recipe.
 
 ---
@@ -19,7 +19,7 @@ Checkpoint after 4.2: Has the developer internalized progressive elaboration?
 ## Setup
 
 Read `<TARGET>/.goose/team_context.md` for project context.
-Read ~/.rilgoose/progression.json — check if concepts 4.1 and 4.2 are already demonstrated.
+Read ~/.goose-wizard/progression.json — check if concepts 4.1 and 4.2 are already demonstrated.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 If 4.1 demonstrated but not 4.2: skip to the elaboration phase.
 
@@ -257,7 +257,7 @@ Read the Idea to Spec recipe (recipes/agents/idea-to-spec.yaml) and show the dev
 - The **spec-writing target path convention** — "Notice the `target_codebase_path`
   parameter and the working-directory block: 'Write all spec artifacts under
   {target_codebase_path}/specs/.' The spec lands in the developer's project, not
-  RILGoose. Artifacts live where the build agents will look for them — that's why the
+  Goose Wizard. Artifacts live where the build agents will look for them — that's why the
   later recipes in the chain take `spec_path` as input and know where to find it."
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.
@@ -283,7 +283,7 @@ Check: Wait for the developer to confirm. If they decline or hesitate, ask what'
 
 ## State Update
 
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   Update concept 4.1 (module 12: idea-to-spec) with all dimension ratings
   (spec_concreteness, spec_completeness, progressive_discipline, kill_gate_recognition)
   as sub-fields of concept 4.1's eval_ratings, plus timestamp.

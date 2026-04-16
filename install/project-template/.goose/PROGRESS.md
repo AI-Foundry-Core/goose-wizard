@@ -1,6 +1,6 @@
 # Goose Training Progress
 
-**Run all commands from the RILGoose repo directory** (the folder that
+**Run all commands from the goose-wizard repo directory** (the folder that
 contains this file). Then copy-paste the command for the module you
 want to run.
 

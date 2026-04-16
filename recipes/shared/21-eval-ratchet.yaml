@@ -57,16 +57,16 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   IMPORTANT — PROGRESSION STATE (per-user):
-  Progression is per-USER at `~/.rilgoose/progression.json` (it follows the
+  Progression is per-USER at `~/.goose-wizard/progression.json` (it follows the
   developer across every codebase they train on, not tied to this project).
   On FIRST READ this session, run this migration fallback once:
-    - If `~/.rilgoose/progression.json` exists, USE IT.
+    - If `~/.goose-wizard/progression.json` exists, USE IT.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, COPY the legacy file contents to
-      `~/.rilgoose/progression.json` (atomic: write tmp + rename), then
+      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
+      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), then
       rename the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
+  ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
   Read these files now:
@@ -79,9 +79,9 @@ prompt: |
   2. `teaching/stage-5/eval-ratchet.teach.md` — your playbook
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path)
-  4. `~/.rilgoose/progression.json` — check if concept 5.6 is already complete
+  4. `~/.goose-wizard/progression.json` — check if concept 5.6 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
   the target codebase. The eval command being ratcheted, the baseline
   file, and any CI wiring all belong under the target. Every subagent
   and sub-recipe call must receive target-scoped paths explicitly. Before
@@ -93,7 +93,7 @@ prompt: |
     All file operations in this delegation act on the target codebase.
     - Use absolute paths starting with <TARGET>/ for every read, edit,
       and scan. The eval command, existing baseline files, and CI
-      wiring live under <TARGET>/ — never in RILGoose.
+      wiring live under <TARGET>/ — never in Goose Wizard.
     - Write the baseline file, ratchet check script, and CI hooks under
       <TARGET>/ (typically <TARGET>/evals/ or the project's existing
       eval directory).

@@ -1,4 +1,4 @@
-# RILGoose Syllabus — Concept Map Across All Stages
+# Goose Wizard Syllabus — Concept Map Across All Stages
 
 **Purpose:** Single source of truth for what we teach, where we teach it, and what it builds on.
 
@@ -515,7 +515,7 @@ Decisions made during syllabus design, recorded for context when building teachi
 
 ### Decision: Port RIL Agents into the repo as the execution layer
 **What:** Recipes invoke ported agents in `recipes/ported-agents/` rather than depending on an external library at runtime.
-**Why:** The RIL-agents library gave us battle-tested patterns for `code-reviewer`, `test-automator`, `debugger`, `prd-development`, `feature-spec`, `acceptance-criteria`, etc. Those patterns map directly to our stage concepts. Porting them into the repo (as of 2026-04-15) means RILGoose has zero external runtime dependencies, and the lineage of each agent is preserved in the port itself.
+**Why:** The RIL-agents library gave us battle-tested patterns for `code-reviewer`, `test-automator`, `debugger`, `prd-development`, `feature-spec`, `acceptance-criteria`, etc. Those patterns map directly to our stage concepts. Porting them into the repo (as of 2026-04-15) means Goose Wizard has zero external runtime dependencies, and the lineage of each agent is preserved in the port itself.
 **Lineage (not runtime):** `~/ClaudeInfra/ril-agents/` — read-only reference originals. Not loaded, not read by recipes. Conductor was deliberately NOT ported here — it's being redesigned as a native multi-recipe Goose system in a follow-up session.
 
 ### Decision: TDD deferred as standalone concept

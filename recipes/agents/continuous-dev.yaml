@@ -56,7 +56,7 @@ instructions: |
   overnight-pipeline/README.md
   overnight-pipeline/pipeline-kit.md
 
-  (Those pattern references live in the RILGoose repo, not the target.
+  (Those pattern references live in the Goose Wizard repo, not the target.
   Read them by relative path from CWD; they're pattern sources, not
   files to edit.)
 

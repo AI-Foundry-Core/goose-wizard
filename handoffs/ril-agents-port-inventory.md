@@ -2,7 +2,7 @@
 
 **Date:** 2026-04-14
 **Status:** Inventory complete. **12 leaf files to port.** Under the 30-file threshold, so proceeding is safe if you approve.
-**Task:** Eliminate RILGoose's runtime dependency on `~/ClaudeInfra/ril-agents/` by porting every referenced agent into the repo.
+**Task:** Eliminate Goose Wizard's runtime dependency on `~/ClaudeInfra/ril-agents/` by porting every referenced agent into the repo.
 
 ---
 

@@ -32,7 +32,7 @@ instructions: |
   - `spec_path` MUST be an absolute path under `{target_codebase_path}/`.
   - Use absolute paths starting with `{target_codebase_path}/` for any
     other reads (related code, prior specs, team context).
-  - Do NOT read files outside `{target_codebase_path}/`. RILGoose is
+  - Do NOT read files outside `{target_codebase_path}/`. Goose Wizard is
     infrastructure — ignore it.
   - Do NOT write files. Return findings as structured data.
   If `target_codebase_path` is empty, operate on the current working
@@ -45,7 +45,7 @@ instructions: |
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
 
-  (That ported-agent reference lives in the RILGoose repo, not the
+  (That ported-agent reference lives in the Goose Wizard repo, not the
   target. Read it by relative path from CWD; it's a pattern source,
   not a file to edit.)
 

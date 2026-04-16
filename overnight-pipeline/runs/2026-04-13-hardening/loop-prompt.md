@@ -4,11 +4,11 @@ This is the /loop prompt. Each tick executes one full cycle. ALL agent outputs a
 
 ---
 
-You are running an autonomous overnight hardening pipeline for the RILGoose teaching system. Each tick of this loop runs one complete test cycle.
+You are running an autonomous overnight hardening pipeline for the Goose Wizard teaching system. Each tick of this loop runs one complete test cycle.
 
 ## Logging Rule (APPLIES TO EVERY STEP)
 
-Every agent's full output must be saved to `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\logs\cycle-{N}-{step}.md`. Steps are:
+Every agent's full output must be saved to `C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\logs\cycle-{N}-{step}.md`. Steps are:
 - `simulator` — full simulator agent output
 - `mock-dev-responses` — Codex mock dev responses (even cycles only)
 - `eval-opus` — full Opus evaluator output
@@ -21,7 +21,7 @@ When spawning each Agent subagent, capture its returned result text and write it
 
 ## Step 0: Read State
 
-Read `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\state.json`. Check `current_cycle` and `status`.
+Read `C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\state.json`. Check `current_cycle` and `status`.
 
 - If `status` is "complete" or `current_cycle` > 20: stop the loop (do not schedule another wake).
 - If `status` is "ready": proceed with the cycle.
@@ -30,10 +30,10 @@ Read `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\state.json
 Read the `next_planned` field for this cycle's personality, stage, recipe, mock_dev_model, and edge cases.
 
 Also read:
-- `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\cycle-plan.md` — the default sequence
-- `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\personas.md` — persona definitions
-- `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\edge-cases.md` — edge case library
-- `C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\changelog.md` — prior changes
+- `C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\cycle-plan.md` — the default sequence
+- `C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\personas.md` — persona definitions
+- `C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\edge-cases.md` — edge case library
+- `C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\changelog.md` — prior changes
 
 ## Step 1: Reset Flask Repo
 
@@ -49,10 +49,10 @@ Spawn an Agent subagent (Opus) with this structure:
 - The full persona definition for this cycle's personality (copy from personas.md)
 - Which stage and recipe to test
 - Which edge cases to force and when
-- Instructions to read ALL relevant teaching scripts from `C:\Users\donid\ClaudeProjects\RILGoose\teaching\`
+- Instructions to read ALL relevant teaching scripts from `C:\Users\donid\ClaudeProjects\goose-wizard\teaching\`
 - For Stage 0: read all 5 act scripts in `teaching/stage-0/`
 - For Stage 1-7: read the specific recipe's `.teach.md` in the appropriate stage directory
-- Instructions to read `C:\Users\donid\ClaudeProjects\RILGoose\teaching\meta\teacher-instructions.md`
+- Instructions to read `C:\Users\donid\ClaudeProjects\goose-wizard\teaching\meta\teacher-instructions.md`
 - Instructions to do REAL code operations on `C:\Users\donid\ClaudeProjects\MockTestTarget`
 - The facilitator follows scripts exactly; the mock developer follows the persona
 
@@ -74,7 +74,7 @@ The mock developer persona prompt must include stage-specific mistake instructio
 - **Odd cycles — Haiku:** Spawn a HAIKU subagent (model: haiku) at each Check/interaction point to generate the developer's response, passing it the persona definition and conversation context so far
 - **Even cycles — GPT 5.4:** BEFORE starting the simulation, generate all mock developer responses upfront via Codex:
   1. Write prompt to `.codex_mock_dev.md` with: full persona definition, teaching script structure with all Check points, edge cases to force
-  2. Run: `python C:/Users/donid/ClaudeProjects/AgenticSystem/codex_review.py --project-dir C:/Users/donid/ClaudeProjects/RILGoose --prompt-file C:/Users/donid/ClaudeProjects/RILGoose/.codex_mock_dev.md --timeout 300`
+  2. Run: `python C:/Users/donid/ClaudeProjects/AgenticSystem/codex_review.py --project-dir C:/Users/donid/ClaudeProjects/Goose Wizard --prompt-file C:/Users/donid/ClaudeProjects/goose-wizard/.codex_mock_dev.md --timeout 300`
   3. Save Codex output to `logs/cycle-{N}-mock-dev-responses.md`
   4. Parse responses and use them at each Check point during simulation
   5. Clean up `.codex_mock_dev.md`
@@ -110,7 +110,7 @@ Launch TWO evaluators simultaneously:
 
 **Evaluator 2 (Codex via script):**
 - Write prompt to `.codex_prompt_tmp.md`
-- Run: `python C:/Users/donid/ClaudeProjects/AgenticSystem/codex_review.py --project-dir C:/Users/donid/ClaudeProjects/RILGoose --prompt-file C:/Users/donid/ClaudeProjects/RILGoose/.codex_prompt_tmp.md --timeout 300`
+- Run: `python C:/Users/donid/ClaudeProjects/AgenticSystem/codex_review.py --project-dir C:/Users/donid/ClaudeProjects/Goose Wizard --prompt-file C:/Users/donid/ClaudeProjects/goose-wizard/.codex_prompt_tmp.md --timeout 300`
 - **Save raw Codex output** to `logs/cycle-{N}-eval-codex.md`
 - If Codex fails (exit code != 0 or nonsense output): write "FAILED: {reason}" to the log, increment `codex_failures`, proceed with Opus eval only
 - If Codex succeeds: also save formatted version to `evaluations/cycle-{N}-codex.md`
@@ -144,13 +144,13 @@ Spawn an Agent subagent (Opus) that:
 - "Mode mismatch" — facilitator behaves as guided-adaptive when the script specifies fully adaptive
 
 **For Bucket A fixes:** Apply them using the Edit tool. Then:
-- Run `git -C C:/Users/donid/ClaudeProjects/RILGoose add teaching/`
-- Run `git -C C:/Users/donid/ClaudeProjects/RILGoose commit -m "Cycle {N}: {brief description of fixes}"`
+- Run `git -C C:/Users/donid/ClaudeProjects/Goose Wizard add teaching/`
+- Run `git -C C:/Users/donid/ClaudeProjects/Goose Wizard commit -m "Cycle {N}: {brief description of fixes}"`
 
 **For recurring Bucket B items:** Check `bucket_b_recurring` in state.json. If the same finding has appeared 3+ times, promote to Bucket A.
 
 **Quality gate (regression/validation cycles — cycles 14, 19, 20):** For recipes tested in a prior cycle, compare eval scores. If any dimension dropped by 2+ points, revert. For first-time-tested recipes, this is a "validation" cycle — establish the baseline score, no comparison possible. Note this in the changelog.
-- Run `git -C C:/Users/donid/ClaudeProjects/RILGoose revert HEAD`
+- Run `git -C C:/Users/donid/ClaudeProjects/Goose Wizard revert HEAD`
 - Log the revert in the changelog
 
 **Append ALL findings to the changelog** with the before/after/why/confidence format.

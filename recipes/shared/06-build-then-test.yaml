@@ -57,16 +57,16 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   IMPORTANT — PROGRESSION STATE (per-user):
-  Progression is per-USER at `~/.rilgoose/progression.json` (it follows the
+  Progression is per-USER at `~/.goose-wizard/progression.json` (it follows the
   developer across every codebase they train on, not tied to this project).
   On FIRST READ this session, run this migration fallback once:
-    - If `~/.rilgoose/progression.json` exists, USE IT.
+    - If `~/.goose-wizard/progression.json` exists, USE IT.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, COPY the legacy file contents to
-      `~/.rilgoose/progression.json` (atomic: write tmp + rename), then
+      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
+      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), then
       rename the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
+  ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
   Read these files now:
@@ -79,9 +79,9 @@ prompt: |
   2. `teaching/stage-2/build-then-test.teach.md` — your playbook
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path)
-  4. `~/.rilgoose/progression.json` — check if concept 2.1 is already complete
+  4. `~/.goose-wizard/progression.json` — check if concept 2.1 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
   the target codebase. Every subagent and sub-recipe call must receive
   target_codebase_path explicitly. Before each `Delegate to subagent:`
   call, prepend this target prologue (substitute `<TARGET>` with the
@@ -94,7 +94,7 @@ prompt: |
       scan, and test run.
     - For shell and git commands, use `git -C <TARGET> ...` or cd into
       <TARGET> in the same command.
-    - Do NOT read, edit, or test files outside <TARGET>/. RILGoose is
+    - Do NOT read, edit, or test files outside <TARGET>/. Goose Wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md` or refers to
       "the source code" or "the codebase," interpret those as
@@ -103,7 +103,7 @@ prompt: |
 
   When calling sub-recipes (`builder`, `tester`), pass `target_codebase_path`
   as a parameter so the agent primitives operate on the developer's code,
-  not RILGoose's.
+  not Goose Wizard's.
 
   If concept 2.1 is already complete:
   "You've already shown you can do this well. Want to skip ahead to the next
@@ -174,7 +174,7 @@ prompt: |
   STATE UPDATE
   ============================================================
 
-  Update `~/.rilgoose/progression.json`:
+  Update `~/.goose-wizard/progression.json`:
   - Set concept 2.1 status to "complete"
   - Record completed_at timestamp, eval dimension ratings
   - Never overwrite a Strong rating with a lower one

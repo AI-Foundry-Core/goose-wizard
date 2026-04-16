@@ -8,7 +8,7 @@
 
 ## What This Does
 
-Runs 20 automated test cycles against the RILGoose teaching system. Each cycle:
+Runs 20 automated test cycles against the Goose Wizard teaching system. Each cycle:
 1. Simulates a full teaching session with a mock developer persona
 2. Two evaluators (Opus + Codex/GPT 5.4) assess the transcript
 3. A decision-maker applies safe fixes and logs risky ones
@@ -51,12 +51,12 @@ You do NOT need to read the teaching scripts themselves — the simulator subage
 ### Step 1: Verify you're on the right branch
 
 ```
-git -C C:/Users/donid/ClaudeProjects/RILGoose branch
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard branch
 ```
 
 Should show `* overnight-pipeline`. If not:
 ```
-git -C C:/Users/donid/ClaudeProjects/RILGoose checkout overnight-pipeline
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard checkout overnight-pipeline
 ```
 
 ### Step 2: Verify state is clean
@@ -72,7 +72,7 @@ If cycle > 1 (pipeline was partially run before), that's fine — it picks up wh
 Use `/loop` with this prompt (no interval — self-paced dynamic mode):
 
 ```
-/loop Run one cycle of the overnight hardening pipeline for RILGoose teaching scripts. Read the full instructions from C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\loop-prompt.md and execute Steps 0-8 for the current cycle. State is in C:\Users\donid\ClaudeProjects\RILGoose\ideas\overnight-pipeline\state.json. All file paths use forward slashes. One command per Bash call, no compound commands.
+/loop Run one cycle of the overnight hardening pipeline for Goose Wizard teaching scripts. Read the full instructions from C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\loop-prompt.md and execute Steps 0-8 for the current cycle. State is in C:\Users\donid\ClaudeProjects\goose-wizard\ideas\overnight-pipeline\state.json. All file paths use forward slashes. One command per Bash call, no compound commands.
 ```
 
 ### Step 4: Let it run
@@ -139,7 +139,7 @@ Every Bucket A fix is committed on the `overnight-pipeline` branch. Reverts use 
 
 ### Git History
 ```
-git -C C:/Users/donid/ClaudeProjects/RILGoose log --oneline overnight-pipeline
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard log --oneline overnight-pipeline
 ```
 Shows every Bucket A fix as an individual commit with a descriptive message.
 
@@ -163,7 +163,7 @@ After 3 failures, the pipeline automatically switches all remaining cycles to Ha
 ### Scripts seem to be getting worse
 Check the changelog for contradictory fixes (Bucket A fix in cycle N contradicts Bucket A fix in cycle M). The decision-maker checks for this, but if it slips through, manually revert to the baseline:
 ```
-git -C C:/Users/donid/ClaudeProjects/RILGoose reset --hard 685970e
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard reset --hard 685970e
 ```
 (That's the commit hash of the expanded pipeline baseline.)
 

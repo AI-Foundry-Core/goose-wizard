@@ -42,7 +42,7 @@ instructions: |
   - Run gate simulations (deliberate-defect tests) from within
     `{target_codebase_path}` — use `cd {target_codebase_path}` or
     `git -C {target_codebase_path} ...`.
-  - Do NOT install gates into RILGoose.
+  - Do NOT install gates into Goose Wizard.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -54,7 +54,7 @@ instructions: |
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
   recipes/ported-agents/product-evaluation/post-mortem.yaml
 
-  (Those ported-agent references live in the RILGoose repo, not the
+  (Those ported-agent references live in the Goose Wizard repo, not the
   target. Read them by relative path from CWD; they're pattern sources,
   not files to edit.)
 
@@ -95,6 +95,6 @@ prompt: |
   If target codebase is non-empty, pipeline_entrypoint must resolve
   under THAT directory, gate scripts and wiring must be written under
   it, and simulations run from within it. Do not install gates into
-  RILGoose. If target is empty, operate on CWD.
+  Goose Wizard. If target is empty, operate on CWD.
 
   Install a fail-closed gate. The pipeline must not run if evals fail.

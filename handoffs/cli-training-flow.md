@@ -189,7 +189,7 @@ Line 1039: autoMemoryEnabled: false,
 
 ```
 cd C:\Users\donid\ClaudeProjects\GooseTestProject
-goose run --recipe C:\Users\donid\ClaudeProjects\RILGoose\recipes\shared\00-start-here.yaml --interactive
+goose run --recipe C:\Users\donid\ClaudeProjects\goose-wizard\recipes\shared\00-start-here.yaml --interactive
 ```
 
 ## Reset Procedure (between test runs)

@@ -1,4 +1,4 @@
-# RILGoose — Technical Learnings
+# Goose Wizard — Technical Learnings
 
 ## 2026-04-14 (Progression Schema & Setup Script)
 

@@ -97,7 +97,7 @@ The whole point of the walkthrough is to find what the reviewers couldn't. Some 
 
 ### First-run flow (clean slate)
 
-1. Start with no `~/.rilgoose/` and no legacy `user_config.json`.
+1. Start with no `~/.goose-wizard/` and no legacy `user_config.json`.
 2. `goose run --recipe recipes/shared/setup-config.yaml --interactive` — FIRST RUN branch. Should collect name / path / id / kind / language / test_command.
 3. `goose run --recipe recipes/shared/conductor-setup.yaml --interactive` — kind is real (sandbox/live), so no bridging needed. Should walk through product / tech-stack / workflow / tracks / styleguide.
 4. `goose run --recipe recipes/shared/conductor-new-track.yaml --interactive` — collects brief, authors track. Test the 3-retry cap by giving a deliberately vague brief.
@@ -105,7 +105,7 @@ The whole point of the walkthrough is to find what the reviewers couldn't. Some 
 
 ### Stage 0 → conductor bridge (the interesting one)
 
-1. Simulate Start Here: write `.goose/state/user_config.json` with `target_codebase_path` + `captured_at`, nothing in `~/.rilgoose/`.
+1. Simulate Start Here: write `.goose/state/user_config.json` with `target_codebase_path` + `captured_at`, nothing in `~/.goose-wizard/`.
 2. `goose run --recipe recipes/shared/conductor-setup.yaml --interactive` — ensure-config migrates, creates user.json + stub project.json, conductor-setup hits the kind gate and routes you to setup-config.
 3. `goose run --recipe recipes/shared/setup-config.yaml --interactive` — PENDING KIND CONFIRMATION branch should fire. Pick `sandbox`. It should write project.json with real kind, update user.json's index entry, remove the flag entirely (not just set it to false).
 4. Back to conductor-setup — now proceeds normally.

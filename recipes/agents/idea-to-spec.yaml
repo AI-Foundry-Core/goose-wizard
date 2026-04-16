@@ -33,7 +33,7 @@ instructions: |
   - Write all spec artifacts (one-pager, requirements doc) under
     `{target_codebase_path}/` — typically `{target_codebase_path}/specs/`
     or whatever spec directory the project already uses.
-  - Do NOT write specs into the RILGoose repo.
+  - Do NOT write specs into the Goose Wizard repo.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -44,7 +44,7 @@ instructions: |
   Follow the patterns in:
   recipes/ported-agents/product-planning/prd-development.yaml
 
-  (That ported-agent reference lives in the RILGoose repo, not the
+  (That ported-agent reference lives in the Goose Wizard repo, not the
   target. Read it by relative path from CWD; it's a pattern source,
   not a file to edit.)
 
@@ -82,6 +82,6 @@ prompt: |
 
   If target codebase is non-empty, write all spec artifacts under THAT
   directory (e.g., {{ target_codebase_path }}/specs/). Do not write specs
-  into RILGoose. If target is empty, operate on CWD.
+  into Goose Wizard. If target is empty, operate on CWD.
 
   Start with a one-pager. Do not jump to detailed requirements.

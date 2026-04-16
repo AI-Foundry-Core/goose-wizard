@@ -138,7 +138,7 @@ Action: Delegate to subagent (prepend the TARGET PROLOGUE):
   Return confirmation."
 
 ## State Update
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   Set stage 0 status to "complete" with completed_at timestamp.
   Stage 0 has no eval-rated dimensions — completion is based on finishing all 5 acts.
   Do not surface the state update to the developer — it happens silently.

@@ -10,12 +10,12 @@
 
 ### Stage 1.5a: per-user progression — **DONE** (commit fbca70f)
 
-- `recipes/agents/progression/migrate-progression.yaml`: one-shot idempotent migration from `.goose/state/progression.json` to `~/.rilgoose/progression.json`. Atomic tmp + rename; legacy file gets `.migrated` breadcrumb.
+- `recipes/agents/progression/migrate-progression.yaml`: one-shot idempotent migration from `.goose/state/progression.json` to `~/.goose-wizard/progression.json`. Atomic tmp + rename; legacy file gets `.migrated` breadcrumb.
 - `recipes/RECIPE-PREAMBLE.md`: documents the PROGRESSION STATE STANZA (canonical text + when/how to embed it).
 - `recipes/agents/check-progress.yaml`, `graduate-module.yaml`: read canonical per-user path with one-time migration fallback. Never write to legacy.
 - `recipes/shared/01-26`: PROGRESSION STATE stanza inserted after the ISOLATION preamble in every stage recipe; legacy path swapped to canonical.
 - Teaching scripts (`teaching/**/*.teach.md`) + module-designer references: paths swapped; progression-format.md rewritten around the canonical location.
-- `install/setup-goose.ps1`: creates `~/.rilgoose/`, recursively counts agent primitives so nested subdirs (progression, config, conductor) show up.
+- `install/setup-goose.ps1`: creates `~/.goose-wizard/`, recursively counts agent primitives so nested subdirs (progression, config, conductor) show up.
 
 ### Conductor reference docs — **DONE** (commit 4b71ad0)
 
@@ -85,7 +85,7 @@ The four reviewers surfaced these. None are blockers for what's shipped, but the
 
 ## Part 3 — Suggested kickoff prompt for the next session
 
-Copy everything between the dashed lines into a fresh Claude Code session in `C:\Users\donid\ClaudeProjects\RILGoose`.
+Copy everything between the dashed lines into a fresh Claude Code session in `C:\Users\donid\ClaudeProjects\Goose Wizard`.
 
 ---
 
@@ -99,7 +99,7 @@ Continue from Phase A completion. This session's job is **Phase B — wire condu
 
 **Phase B work (Doni's call — pick one to start):**
 
-**Option B1 — Real-project walkthrough first (recommended).** Pick a small real codebase (RILGoose itself works). Run:
+**Option B1 — Real-project walkthrough first (recommended).** Pick a small real codebase (Goose Wizard itself works). Run:
 - `goose run --recipe recipes/shared/setup-config.yaml --interactive`
 - `goose run --recipe recipes/shared/conductor-setup.yaml --interactive`
 - `goose run --recipe recipes/shared/conductor-new-track.yaml --interactive`
@@ -118,8 +118,8 @@ Capture the friction. Many of the 14 deferred items in the Phase A handoff will 
 - `~/ClaudeInfra/ril-agents/` is READ-ONLY.
 - Conductor artifacts go in `<target>/.goose/conductor/`, NOT in target repo root.
 - `project.json` is authoritative; `user.json.projects[]` is just an index.
-- CWD is always RILGoose repo root. Target accessed by absolute path.
-- Use `~/.rilgoose/` NOT `~/.goose/rilgoose/`.
+- CWD is always Goose Wizard repo root. Target accessed by absolute path.
+- Use `~/.goose-wizard/` NOT `~/.goose/goose-wizard/`.
 
 Report back with what you ran, what broke, what you fixed, and which of the Phase A deferred items you addressed.
 

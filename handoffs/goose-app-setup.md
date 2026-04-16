@@ -17,7 +17,7 @@ Updated `C:\Users\donid\AppData\Roaming\Block\goose\config\config.yaml`:
 ### 2. Recipe discovery configured
 Set `GOOSE_RECIPE_PATH` as a persistent user environment variable with all 8 stage directories:
 ```
-C:\Users\donid\ClaudeProjects\RILGoose\recipes\stage-0;...;stage-7
+C:\Users\donid\ClaudeProjects\goose-wizard\recipes\stage-0;...;stage-7
 ```
 - `goose recipe list` now shows all 26 recipes
 - `goose recipe open bug-fix` successfully opens in the desktop app
@@ -41,7 +41,7 @@ C:\Users\donid\ClaudeProjects\RILGoose\recipes\stage-0;...;stage-7
 - **26 recipes visible** via `goose recipe list`
 - **Extensions enabled:** developer, analyze, skills, summon, todo, tom, extensionmanager, apps, memory, chatrecall, orchestrator
 - **Extensions disabled:** code_execution, summarize, computercontroller, autovisualiser, tutorial
-- **Project registered:** `projects.json` has RILGoose at last_accessed 2026-04-13
+- **Project registered:** `projects.json` has Goose Wizard at last_accessed 2026-04-13
 
 ---
 

@@ -14,7 +14,7 @@ parameters:
   - key: state_path
     input_type: string
     requirement: optional
-    default: "~/.rilgoose/progression.json"
+    default: "~/.goose-wizard/progression.json"
     description: "Per-user progression state path. Expanded via the agent's home-directory resolver."
   - key: legacy_state_path
     input_type: string
@@ -32,7 +32,7 @@ instructions: |
   You are a module graduation specialist. You replace a training recipe
   with its working version when a developer completes training.
 
-  Progression state is per-USER, at `~/.rilgoose/progression.json`. The
+  Progression state is per-USER, at `~/.goose-wizard/progression.json`. The
   legacy per-project path was `.goose/state/progression.json`. On first
   read you may perform a one-time migration; after that, every read and
   write targets the canonical per-user file.

@@ -104,7 +104,7 @@ Reset procedure:
 1. `rm %APPDATA%\Block\goose\data\sessions\sessions.db`
 2. Reset `.goose/state/progression.json` in docunator to 0/26
 3. Revert any code changes: `git -C C:\Users\donid\ClaudeInfra\docunator checkout -- .`
-4. Run: `cd C:\Users\donid\ClaudeInfra\docunator && goose run --recipe C:\Users\donid\ClaudeProjects\RILGoose\recipes\shared\00-start-here.yaml --interactive`
+4. Run: `cd C:\Users\donid\ClaudeInfra\docunator && goose run --recipe C:\Users\donid\ClaudeProjects\goose-wizard\recipes\shared\00-start-here.yaml --interactive`
 
 ### Priority 2: Test Module 2 (Bug Fix) with Recipe Reveal
 

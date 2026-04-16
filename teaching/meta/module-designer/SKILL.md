@@ -1,11 +1,11 @@
 ---
-name: rilgoose-module-designer
-description: Design RILGoose teaching modules — agent primitives + training recipes + quality-rated eval. Use this skill whenever designing, writing, or reviewing any Stage 0-7 module, recipe, teaching script, eval prompt, or facilitator instruction. Also use when someone asks to "build a module," "create a recipe," "write a teaching script," or "design Stage N content." Load it proactively at the start of any session focused on module creation.
+name: goose-wizard-module-designer
+description: Design Goose Wizard teaching modules — agent primitives + training recipes + quality-rated eval. Use this skill whenever designing, writing, or reviewing any Stage 0-7 module, recipe, teaching script, eval prompt, or facilitator instruction. Also use when someone asks to "build a module," "create a recipe," "write a teaching script," or "design Stage N content." Load it proactively at the start of any session focused on module creation.
 ---
 
-# RILGoose Module Designer
+# Goose Wizard Module Designer
 
-This skill encodes everything needed to design complete teaching modules for the RILGoose system — an 8-stage progressive AI development training program for Reliance teams.
+This skill encodes everything needed to design complete teaching modules for the Goose Wizard system — an 8-stage progressive AI development training program for Reliance teams.
 
 ## When to Use
 
@@ -17,7 +17,7 @@ This skill encodes everything needed to design complete teaching modules for the
 
 ## When NOT to Use
 
-- General Goose recipe development unrelated to RILGoose teaching
+- General Goose recipe development unrelated to Goose Wizard teaching
 - Editing the syllabus itself (that's a design task, not a module build task)
 - Rollout planning or metrics (see `ideas/rollout-playbook.md`)
 - Modifying the Goose runtime or Rust core

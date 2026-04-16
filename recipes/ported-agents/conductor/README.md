@@ -4,7 +4,7 @@
 > `~/ClaudeInfra/ril-agents/plugins/conductor/` (wshobson's Claude-Code port
 > of Google's Gemini-CLI Conductor extension). The port preserves the full
 > Context-Driven Development philosophy and Track workflow while replacing
-> the `/conductor:*` slash-command interface with RILGoose-native Goose
+> the `/conductor:*` slash-command interface with Goose Wizard-native Goose
 > recipes. Do not modify the lineage source — it is read-only reference.
 
 Conductor transforms an agentic runtime into a project-management tool by
@@ -32,9 +32,9 @@ maintains:
 - **Semantic Reversion**: Git-aware revert by logical work units (tracks, phases, tasks)
 - **State Persistence**: Resume setup across multiple sessions
 
-## Commands (in the lineage source) → Recipes (in RILGoose)
+## Commands (in the lineage source) → Recipes (in Goose Wizard)
 
-| Lineage command         | RILGoose recipe                                     |
+| Lineage command         | Goose Wizard recipe                                     |
 | ----------------------- | --------------------------------------------------- |
 | `/conductor:setup`      | `recipes/shared/conductor-setup.yaml`               |
 | `/conductor:new-track`  | `recipes/shared/conductor-new-track.yaml`           |
@@ -43,12 +43,12 @@ maintains:
 | `/conductor:revert`     | `recipes/shared/conductor-revert.yaml`              |
 | `/conductor:manage`     | `recipes/shared/conductor-manage.yaml`              |
 
-Each RILGoose recipe delegates the actual file operations to
+Each Goose Wizard recipe delegates the actual file operations to
 non-interactive agent primitives under `recipes/agents/conductor/`
 (for example, `track-create.yaml`, `track-task-execute.yaml`,
 `checkpoint-verify.yaml`, and the `context-*` primitives).
 
-## Generated Artifacts (RILGoose location)
+## Generated Artifacts (Goose Wizard location)
 
 Conductor artifacts live at `<target>/.goose/conductor/` — per-project,
 gitignore-recommended:
@@ -73,7 +73,7 @@ gitignore-recommended:
 ```
 
 Note the lineage source places artifacts directly at the repo's
-`conductor/` directory. RILGoose moves them under `.goose/conductor/`
+`conductor/` directory. Goose Wizard moves them under `.goose/conductor/`
 so the target repo's root stays clean and so Conductor artifacts sit
 alongside the rest of Goose's per-project state.
 

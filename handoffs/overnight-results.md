@@ -8,7 +8,7 @@
 
 ## What Happened
 
-An autonomous pipeline ran 20 test cycles overnight against all RILGoose teaching scripts. Each cycle simulated a full teaching session with a mock developer persona, evaluated the transcript with two independent evaluators (Opus + Codex/GPT 5.4), classified findings, applied safe fixes, and designed the next cycle.
+An autonomous pipeline ran 20 test cycles overnight against all Goose Wizard teaching scripts. Each cycle simulated a full teaching session with a mock developer persona, evaluated the transcript with two independent evaluators (Opus + Codex/GPT 5.4), classified findings, applied safe fixes, and designed the next cycle.
 
 **Runtime:** ~6 hours across 20 cycles
 **Codex failures:** 0 (one timeout on the final cycle, non-blocking)
@@ -98,14 +98,14 @@ These scripts have the systematic fixes (wait-time insights, enterprise groundin
 
 To see all changes:
 ```
-git -C C:/Users/donid/ClaudeProjects/RILGoose log --oneline overnight-pipeline
-git -C C:/Users/donid/ClaudeProjects/RILGoose diff main..overnight-pipeline --stat
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard log --oneline overnight-pipeline
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard diff main..overnight-pipeline --stat
 ```
 
 To merge to main when ready:
 ```
-git -C C:/Users/donid/ClaudeProjects/RILGoose checkout main
-git -C C:/Users/donid/ClaudeProjects/RILGoose merge overnight-pipeline
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard checkout main
+git -C C:/Users/donid/ClaudeProjects/Goose Wizard merge overnight-pipeline
 ```
 
 ---
