@@ -6,7 +6,7 @@
 > whenever this script says `.goose/team_context.md`, "the code," "the
 > repo," or "the artifacts," interpret those against `<TARGET>/`. Eval
 > definitions, check scripts, and dry-run inputs all live under
-> `<TARGET>/` (typically `<TARGET>/evals/`), never in Goose Wizard. Prepend
+> `<TARGET>/` (typically `<TARGET>/evals/`), never in goose-wizard. Prepend
 > the TARGET PROLOGUE to every `Delegate to subagent` call. Pass
 > `target_codebase_path` to the `eval-design` sub-recipe.
 

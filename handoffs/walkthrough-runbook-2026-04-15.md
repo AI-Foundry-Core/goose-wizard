@@ -62,7 +62,7 @@ These are the things that will probably surface as friction.
 
 ## Runbook — exact commands to execute in order
 
-All commands assume CWD = `C:/Users/donid/ClaudeProjects/Goose Wizard` (the repo root). Run each in a fresh terminal.
+All commands assume CWD = `C:/Users/donid/ClaudeProjects/goose-wizard` (the repo root). Run each in a fresh terminal.
 
 ### Pre-flight
 
@@ -80,7 +80,7 @@ mv ~/.goose-wizard ~/.goose-wizard.backup-$(date -u +%Y%m%dT%H%M%SZ)
 ### Test 1 — Clean first-run flow (no legacy state)
 
 ```bash
-# Confirm clean: no goose-wizard dir, no legacy state in current target
+# Confirm clean: no rilgoose dir, no legacy state in current target
 ls ~/.goose-wizard/  # expect "No such file"
 ls .goose/state/  # expect either nothing or just progression.json
 ```
@@ -200,7 +200,7 @@ ls <target_path>/.goose/state/user_config.json.migrated  # expect: exists (legac
 
 ```bash
 # Step 2: setup-config PENDING KIND CONFIRMATION branch
-cd C:/Users/donid/ClaudeProjects/Goose Wizard  # back to repo root
+cd C:/Users/donid/ClaudeProjects/goose-wizard  # back to repo root
 goose run --recipe recipes/shared/setup-config.yaml --interactive
 ```
 

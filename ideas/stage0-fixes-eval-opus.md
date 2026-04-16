@@ -25,7 +25,7 @@
 
 2. **Enterprise Insights have no guidance on when to use proactively vs. reactively.** The text says "when contextually relevant, or in response to direct questions" but doesn't tell the facilitator how to detect contextual relevance. A developer at Reliance muttering about Jenkins is a trigger; a developer happily coding is not. The LLM needs a signal-detection heuristic, not just "when contextually relevant."
 
-3. **The Security/Privacy insight is slightly misleading.** "No code is stored on external servers after the session" -- this depends on the provider and configuration. With ACP and Claude Max, the claim is roughly accurate but not guaranteed. For Codex/OpenAI, different retention policies may apply. Since Goose Wizard is "provider-agnostic, Claude Code default" (Principle 8), this insight should hedge or be parameterized by provider.
+3. **The Security/Privacy insight is slightly misleading.** "No code is stored on external servers after the session" -- this depends on the provider and configuration. With ACP and Claude Max, the claim is roughly accurate but not guaranteed. For Codex/OpenAI, different retention policies may apply. Since goose-wizard is "provider-agnostic, Claude Code default" (Principle 8), this insight should hedge or be parameterized by provider.
 
 ### Specific Fixes Needed
 

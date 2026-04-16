@@ -7,7 +7,7 @@
 > `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `parallel-reviewers` sub-recipe.
 > Reviewer temp directories live under `<TARGET>/.goose/tmp/`, not in
-> Goose Wizard.
+> goose-wizard.
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (test commands, lint/typecheck commands, review conventions, temp file patterns).

@@ -36,7 +36,7 @@ instructions: |
     on the target.
   - Ownership model, external systems, dirty-state references, and
     cleanup actions in your output should reference paths/owners inside
-    the developer's project (`{target_codebase_path}/`), not Goose Wizard.
+    the developer's project (`{target_codebase_path}/`), not goose-wizard.
   - You are primarily an analyzer: do NOT modify source files. If you
     persist a `safety_config` artifact, write it under
     `{target_codebase_path}/.goose/` or another conventional location
@@ -97,7 +97,7 @@ prompt: |
 
   If target codebase is non-empty, all reads/scans and
   ownership/state references act on THAT directory. Persist any
-  safety_config artifact inside the target, not in Goose Wizard. If target
+  safety_config artifact inside the target, not in goose-wizard. If target
   is empty, operate on CWD.
 
   Map the pipeline, identify failures, add circuit breakers, define

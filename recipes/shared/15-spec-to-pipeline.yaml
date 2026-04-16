@@ -71,7 +71,7 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.goose-wizard/progression.json` — check if concept 4.4 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. Every subagent and sub-recipe call must receive
   target-scoped paths explicitly. Before each `Delegate to subagent:`
   call, prepend this target prologue (substitute `<TARGET>` with the
@@ -83,10 +83,10 @@ prompt: |
     - Use absolute paths starting with <TARGET>/ for every read, edit,
       and scan. Test specs, skeleton tests, pipeline plans, and the
       coverage matrix all land under <TARGET>/ (typically
-      <TARGET>/tests/ and <TARGET>/specs/) — never in Goose Wizard.
+      <TARGET>/tests/ and <TARGET>/specs/) — never in goose-wizard.
     - For shell and git commands, use `git -C <TARGET> ...` or cd into
       <TARGET> in the same command.
-    - Do NOT read, edit, or test files outside <TARGET>/. Goose Wizard is
+    - Do NOT read, edit, or test files outside <TARGET>/. goose-wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md` or refers to
       "the source code" or "the codebase," interpret those as

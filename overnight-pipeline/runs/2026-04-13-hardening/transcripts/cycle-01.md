@@ -3,7 +3,7 @@
 **Mock Developer:** Priya (Eager/Over-Accepting)
 **Forced Edge Case:** E9 — Developer accepts everything without checking
 **Mock Dev Model:** Haiku (simulated — Agent tool unavailable; responses authored in-persona)
-**Target Codebase:** Flask framework (C:\Users\donid\ClaudeProjects\MockTestTarget)
+**Target Codebase:** Flask framework (<PROJECTS>\MockTestTarget)
 **Date:** 2026-04-12
 
 ---

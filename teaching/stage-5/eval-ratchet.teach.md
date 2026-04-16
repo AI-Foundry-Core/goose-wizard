@@ -7,7 +7,7 @@
 > "your eval," "the codebase," or "the repo," interpret those against
 > `<TARGET>/`. Baseline files, ratchet check scripts, and CI wiring all
 > live under `<TARGET>/` (typically `<TARGET>/evals/`), never in
-> Goose Wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> goose-wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `eval-ratchet` sub-recipe.
 
 ## Setup

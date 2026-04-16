@@ -11,7 +11,7 @@ Checkpoint after 4.2: Has the developer internalized progressive elaboration?
 > `.goose/team_context.md`, "the codebase," "the repo," or "the spec
 > file," interpret those against `<TARGET>/`. Spec artifacts belong under
 > `<TARGET>/specs/` (or the project's existing spec directory), never in
-> Goose Wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> goose-wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `idea-to-spec` sub-recipe.
 
 ---
@@ -257,7 +257,7 @@ Read the Idea to Spec recipe (recipes/agents/idea-to-spec.yaml) and show the dev
 - The **spec-writing target path convention** — "Notice the `target_codebase_path`
   parameter and the working-directory block: 'Write all spec artifacts under
   {target_codebase_path}/specs/.' The spec lands in the developer's project, not
-  Goose Wizard. Artifacts live where the build agents will look for them — that's why the
+  goose-wizard. Artifacts live where the build agents will look for them — that's why the
   later recipes in the chain take `spec_path` as input and know where to find it."
 
 Keep it to 3-4 highlighted snippets. Do NOT dump the whole file.

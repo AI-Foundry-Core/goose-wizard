@@ -1,14 +1,14 @@
 # Team Context
 
-Every recipe reads this file at startup. This describes the Goose Wizard project so the AI understands context.
+Every recipe reads this file at startup. This describes the goose-wizard project so the AI understands context.
 
 ---
 
 ## Project
 
-- **Name:** Goose Wizard
+- **Name:** goose-wizard
 - **Description:** A progressive teaching harness built on Goose (Block/Linux Foundation agent platform) that takes Reliance development teams from zero agentic experience to autonomous development pipelines through an 8-stage curriculum.
-- **Repository:** C:\Users\donid\ClaudeProjects\goose-wizard
+- **Repository:** <PROJECTS>\goose-wizard
 
 ---
 

@@ -40,7 +40,7 @@ Generated the 4 missing pieces using parallel Claude + Codex agents (8 agents to
 One residual found by Codex (spec-first Strong-overwrite) was fixed immediately.
 
 ### Phase 6: Goose Installation + Configuration
-- Goose CLI v1.30.0 installed at `C:\Users\donid\.local\bin\goose.exe`
+- Goose CLI v1.30.0 installed at `<HOME>\.local\bin\goose.exe`
 - ACP adapter `@agentclientprotocol/claude-agent-acp@0.26.0` installed globally via npm
 - Provider configured: `GOOSE_PROVIDER: claude-acp`, `GOOSE_MODEL: default` in config.yaml
 - `goose doctor` passed — Git, Node, Python, npm all detected, Claude ACP connected
@@ -187,8 +187,8 @@ Both evaluators should check:
 
 ## Key Technical Notes for Next Session
 
-- **Goose binary:** `C:\Users\donid\.local\bin\goose.exe` — run directly with full path
-- **Goose config:** `C:\Users\donid\AppData\Roaming\Block\goose\config`
+- **Goose binary:** `<HOME>\.local\bin\goose.exe` — run directly with full path
+- **Goose config:** `<APPDATA>\Block\goose\config`
 - **Run from Claude Code:** `C:/Users/donid/.local/bin/goose.exe run --recipe <path> --params "key=val" --no-session --max-turns 5 -q 2>&1`
 - **Mock developer model:** Use Haiku (`claude-haiku-4-5-20251001`) subagents with persona prompts for 3-5yr Python devs
 - **Evaluation models:** Opus (Agent subagent) + GPT 5.4 (Codex via codex_review.py) in parallel

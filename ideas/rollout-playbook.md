@@ -1,4 +1,4 @@
-# Goose Wizard Rollout Playbook
+# goose-wizard Rollout Playbook
 
 **Purpose:** The operational guide for rolling out the agentic development harness across Reliance development teams. The syllabus defines WHAT we teach. This playbook defines HOW we roll it out, measure success, and sell it internally.
 

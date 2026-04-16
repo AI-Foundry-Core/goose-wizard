@@ -12,7 +12,7 @@ Checkpoint after 4.5: Has the developer gone through a quality gate cycle and re
 > "the spec," interpret those against `<TARGET>/`. The `spec_path` passed
 > to `spec-review` must be an absolute path under `<TARGET>/`. Any
 > revision the developer chooses to apply lands under `<TARGET>/`, never
-> Goose Wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> goose-wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `spec-review` sub-recipe.
 
 ---

@@ -9,7 +9,7 @@
 ## What Was Done This Session
 
 ### 1. Config extensions enabled
-Updated `C:\Users\donid\AppData\Roaming\Block\goose\config\config.yaml`:
+Updated `<APPDATA>\Block\goose\config\config.yaml`:
 - `memory`: false → **true** (preferences across sessions)
 - `chatrecall`: false → **true** (session history search)
 - `orchestrator`: false → **true** (subagent management for multi-agent recipes)
@@ -17,7 +17,7 @@ Updated `C:\Users\donid\AppData\Roaming\Block\goose\config\config.yaml`:
 ### 2. Recipe discovery configured
 Set `GOOSE_RECIPE_PATH` as a persistent user environment variable with all 8 stage directories:
 ```
-C:\Users\donid\ClaudeProjects\goose-wizard\recipes\stage-0;...;stage-7
+<PROJECTS>\goose-wizard\recipes\stage-0;...;stage-7
 ```
 - `goose recipe list` now shows all 26 recipes
 - `goose recipe open bug-fix` successfully opens in the desktop app
@@ -41,7 +41,7 @@ C:\Users\donid\ClaudeProjects\goose-wizard\recipes\stage-0;...;stage-7
 - **26 recipes visible** via `goose recipe list`
 - **Extensions enabled:** developer, analyze, skills, summon, todo, tom, extensionmanager, apps, memory, chatrecall, orchestrator
 - **Extensions disabled:** code_execution, summarize, computercontroller, autovisualiser, tutorial
-- **Project registered:** `projects.json` has Goose Wizard at last_accessed 2026-04-13
+- **Project registered:** `projects.json` has goose-wizard at last_accessed 2026-04-13
 
 ---
 

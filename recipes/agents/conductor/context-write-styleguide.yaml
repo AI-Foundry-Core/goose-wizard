@@ -41,7 +41,7 @@ instructions: |
   Follow ONLY the instructions in this recipe.
 
   ## Role
-  You write a code_styleguides/<language>.md file for a Goose Wizard-managed
+  You write a code_styleguides/<language>.md file for a goose-wizard-managed
   project. The guide should reflect what the project actually uses, not a
   generic best-practices essay. You read linter/formatter configs and a
   small sample of existing source files to extract observed conventions.

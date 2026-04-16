@@ -8,7 +8,7 @@
 
 ## The one-line goal
 
-Port every RIL-agents file currently referenced by Goose Wizard into the Goose Wizard repo itself, so Goose Wizard stops depending on `~/ClaudeInfra/ril-agents/` at runtime. RIL-agents becomes lineage/inspiration, not a live reference. **Do NOT modify `~/ClaudeInfra/ril-agents/` — it's read-only and other systems depend on it.**
+Port every RIL-agents file currently referenced by goose-wizard into the goose-wizard repo itself, so goose-wizard stops depending on `~/ClaudeInfra/ril-agents/` at runtime. RIL-agents becomes lineage/inspiration, not a live reference. **Do NOT modify `~/ClaudeInfra/ril-agents/` — it's read-only and other systems depend on it.**
 
 ---
 
@@ -16,7 +16,7 @@ Port every RIL-agents file currently referenced by Goose Wizard into the Goose W
 
 1. **Scope:** 12 agent `.md` files to port one-for-one → 12 YAML files + 1 new digest doc for conductor patterns = **13 total files to create**.
 2. **Layout:** Everything goes under `recipes/ported-agents/<plugin>/<name>.yaml`.
-3. **Conductor handling:** Don't port the 30+ file conductor plugin. Instead, write ONE digest doc (`recipes/ported-agents/conductor/continuous-dev-patterns.md`, ~100-200 lines) that captures the patterns relevant to `continuous-dev.yaml`, written in Goose Wizard's voice, derived from conductor's three skills.
+3. **Conductor handling:** Don't port the 30+ file conductor plugin. Instead, write ONE digest doc (`recipes/ported-agents/conductor/continuous-dev-patterns.md`, ~100-200 lines) that captures the patterns relevant to `continuous-dev.yaml`, written in goose-wizard's voice, derived from conductor's three skills.
 4. **Misreferences:** Three current recipe paths point to files that don't exist at that path. Fix during port:
    - `observability-monitoring/agents/post-mortem.md` → actually at `product-evaluation/agents/post-mortem.md`
    - `observability-monitoring/agents/product-evaluation.md` → actually at `product-evaluation/agents/product-evaluation.md`
@@ -165,7 +165,7 @@ prompt: |
 
 ## Verification (stage 5)
 
-1. **Grep check** — `grep -r "ClaudeInfra/ril-agents"` across the Goose Wizard repo should return zero matches in `recipes/`, `teaching/`, `CLAUDE.md`, `REFERENCES.md`, `HOW_GOOSE_WORKS.md`. Historical references in `handoffs/` and `overnight-pipeline/runs/*/transcripts/` can stay — flag them in the completion handoff.
+1. **Grep check** — `grep -r "ClaudeInfra/ril-agents"` across the goose-wizard repo should return zero matches in `recipes/`, `teaching/`, `CLAUDE.md`, `REFERENCES.md`, `HOW_GOOSE_WORKS.md`. Historical references in `handoffs/` and `overnight-pipeline/runs/*/transcripts/` can stay — flag them in the completion handoff.
 2. **Validation** — every ported YAML passes the 37-check list at `recipes/forge-references/validation-checklist.md`. For each of the 12 ported agents + updated rewire recipes, run validation (ideally `goose recipe validate <path>`; if Goose can't run in the harness, self-check against the list).
 3. **Completion handoff** — write `handoffs/ril-agents-port-complete.md` with:
    - List of files created (expect 13)
@@ -190,7 +190,7 @@ prompt: |
 - Main branch is `main`. Last commits before this handover:
   - `b7436e4` — Inventory
   - `673bbdf` — single source of truth for target codebase (user_config.json)
-- Goose Wizard uses a three-recipe architecture: `recipes/shared/` (training, visible), `recipes/agents/` (primitives, sub-recipes), `recipes/graduated/` (coordinators, unlocked post-completion). Ported agents go under a NEW directory `recipes/ported-agents/` which is neither on GOOSE_RECIPE_PATH nor in the graduation chain — they're referenced by absolute relative path from other recipes.
+- goose-wizard uses a three-recipe architecture: `recipes/shared/` (training, visible), `recipes/agents/` (primitives, sub-recipes), `recipes/graduated/` (coordinators, unlocked post-completion). Ported agents go under a NEW directory `recipes/ported-agents/` which is neither on GOOSE_RECIPE_PATH nor in the graduation chain — they're referenced by absolute relative path from other recipes.
 - There's a branch-switching linter quirk in this environment — if a commit lands on a feature branch instead of main, do `git checkout main && git merge <branch> --ff-only && git push origin main` and move on. Don't force-push anything.
 - The `.goose/state/user_config.json` file (introduced earlier today) captures the target codebase path. Not relevant to this port but good to know it exists.
 
