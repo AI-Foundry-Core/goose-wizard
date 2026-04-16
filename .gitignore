@@ -4,11 +4,36 @@ __pycache__/
 *.png
 !images/*.png
 
-# Claude Code per-user local settings
+# Claude Code — local dev settings and state
 .claude/settings.local.json
+.claude/scheduled_tasks.lock
 
-# Per-user runtime state (target codebase path, etc.)
+# Goose — per-user runtime state
 .goose/state/
+.goose/PROGRESS.md
+.goose/team_context.md
+.goose/tom-context.md
+
+# Local dev docs — not part of the product
+CLAUDE.md
+Agents.md
+LEARNINGS.md
+REFERENCES.md
+HOW_GOOSE_WORKS.md
+
+# Design docs and plans (syllabus.md moved to root; rest is local)
+ideas/
 
 # Session handoffs — local working docs, never committed
 handoffs/
+
+# Local/superseded recipe docs and testing recipes
+recipes/TWO-MODE-PATTERN.md
+recipes/local/
+
+# Overnight pipeline — keep reference docs, gitignore everything else
+overnight-pipeline/runs/
+overnight-pipeline/configs/
+overnight-pipeline/templates/
+overnight-pipeline/pipeline_runner.py
+overnight-pipeline/recipes/

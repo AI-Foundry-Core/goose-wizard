@@ -19,13 +19,13 @@ This skill encodes everything needed to design complete teaching modules for the
 
 - General Goose recipe development unrelated to goose-wizard teaching
 - Editing the syllabus itself (that's a design task, not a module build task)
-- Rollout planning or metrics (see `ideas/rollout-playbook.md`)
+- Rollout planning or metrics
 - Modifying the Goose runtime or Rust core
 
 ## Required Context
 
 Before designing any module, read these files:
-1. `ideas/syllabus.md` — Source of truth for concepts, quality dimensions, and design decisions
+1. `syllabus.md` — Source of truth for concepts, quality dimensions, and design decisions
 2. This skill file — The patterns and rules for how modules work
 3. `references/goose-recipe-format.md` — Goose YAML template and rules
 4. `references/eval-prompt-template.md` — Eval subagent prompt format
