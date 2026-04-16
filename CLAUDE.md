@@ -207,8 +207,13 @@ goose-wizard/
 │   │   ├── anti-patterns.md            # 6 universal + 15 archetype-specific anti-patterns
 │   │   ├── recipe-hygiene.md           # 21 hygiene rules (Universal, Primitive, Workflow)
 │   │   └── validation-checklist.md     # 37-item checklist + 6 quality detectors
-│   ├── conductor-skills/               # Skill files for conductor recipes
-│   │   └── setup.md                    # Context-write procedures (product, tech-stack, workflow)
+│   ├── conductor-skills/               # Skill files for conductor (loaded on demand)
+│   │   ├── setup.md                    # Project init + context-write procedures
+│   │   ├── track-management.md         # Track types, templates, lifecycle operations
+│   │   ├── implementation.md           # 11-step TDD lifecycle, commit formats
+│   │   ├── verification.md             # Checkpoint gates, approval flow
+│   │   ├── revert.md                   # Semantic revert, plan-first pattern
+│   │   └── status.md                   # Progress display, blocker detection
 │   └── local/                          # 6 pipeline recipes (personal/testing only)
 │       ├── apply-fixes.yaml
 │       └── ...5 more pipeline recipes

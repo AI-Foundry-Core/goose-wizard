@@ -90,7 +90,7 @@ instructions: |
           `YYYYMMDDTHHMMSSZ`, e.g. `user.json.bak.20260415T173042Z`;
           never overwrite an existing .bak).
         - **Also stub the per-project `project.json`** so later recipes
-          (conductor-setup, conductor-new-track, etc.) don't hit
+          (conductor, etc.) don't hit
           `project_json_missing` just because the user completed Stage 0
           (Start Here) and jumped straight to a conductor recipe.
           Target: `<canonical_project_path>/.goose/conductor/project.json`.
@@ -111,7 +111,7 @@ instructions: |
           }
           ```
           The `kind: "unknown"` + `needs_kind_confirmation: true` pair
-          signals to conductor-setup that it must route the user to
+          signals to conductor that it must route the user to
           setup-config to pick sandbox or live BEFORE proceeding with
           any write.
         - Rename legacy file to `{legacy_user_config_path}.migrated`.

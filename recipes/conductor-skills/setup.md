@@ -257,10 +257,8 @@ After writing any artifact, re-read it and confirm:
   not appear for sections where input was provided).
 - Tables are well-formed (header row, separator row, data rows).
 
-## Safety Guards
+## Safety Note
 
-Before writing any artifact:
-- If `project.kind == "live"`, refuse unless the caller has obtained
-  explicit typed user confirmation (`live_confirmed: true`).
-- If `project.kind == "unknown"` or `needs_kind_confirmation: true`,
-  refuse unconditionally until the kind is resolved.
+Kind/live safety gates are enforced by the conductor's kernel before
+any write operation reaches this skill. This skill does not check or
+enforce safety gates — the kernel handles that.
