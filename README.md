@@ -30,20 +30,10 @@ The installer will:
 - Install Goose CLI, Claude CLI, Node, Git (if missing)
 - Clone this repo to `~/goose-wizard`
 - Log you into Claude (a Claude Max subscription is required)
-- Configure Goose to find the training recipes
-- Apply patches to the Claude-ACP adapter so recipes run cleanly
+- Configure Goose for the training recipes
+- Launch the gateway tutorial automatically
 
-See [install/README.md](install/README.md) for details and troubleshooting.
-
-## Start training
-
-Training runs from the **command line**, not the desktop app. Open a terminal in the goose-wizard directory and run:
-
-```
-goose run --recipe 00-start-here --interactive
-```
-
-The gateway tutorial walks you through Goose, the training arc, and captures which codebase you want to train on.
+That's it — one line from install to your first training module. See [install/README.md](install/README.md) for details and troubleshooting.
 
 > Keep the Goose desktop app open on the side during training — it's a good way to **browse the recipe YAML files** after each module's Recipe Reveal. Just don't run recipes from the app; the CLI experience is what the training is designed around.
 

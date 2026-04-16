@@ -143,7 +143,29 @@ if (Test-Cmd "goose") {
     }
 }
 
-# --- 1d. Claude CLI ---
+# --- 1d. Goose desktop app (for browsing recipe YAML) ---
+Write-Step "Checking Goose desktop app"
+$gooseAppPath = Join-Path $env:LOCALAPPDATA "Programs\Goose\Goose.exe"
+if (Test-Path $gooseAppPath) {
+    Write-Host " found" -ForegroundColor Green
+} else {
+    try {
+        $gooseAppUrl = "https://github.com/block/goose/releases/latest/download/Goose.zip"
+        $appZip = Join-Path $env:TEMP "goose-app-$([guid]::NewGuid().ToString('N')).zip"
+        Invoke-WebRequest -Uri $gooseAppUrl -OutFile $appZip -UseBasicParsing
+        $appDir = Join-Path $env:TEMP "goose-app-extract"
+        Expand-Archive -Path $appZip -DestinationPath $appDir -Force
+        $setup = Get-ChildItem -Path $appDir -Filter "*.exe" -Recurse | Select-Object -First 1
+        if ($setup) { Start-Process -Wait $setup.FullName }
+        Remove-Item $appZip -Force -ErrorAction SilentlyContinue
+        Remove-Item $appDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host " installed" -ForegroundColor Green
+    } catch {
+        Write-Host " skipped (optional)" -ForegroundColor Yellow
+    }
+}
+
+# --- 1e. Claude CLI ---
 Write-Step "Checking Claude CLI"
 if (Test-Cmd "claude") {
     $v = (& claude --version 2>&1).Trim()
@@ -236,12 +258,32 @@ $configDir = Join-Path $env:APPDATA "Block\goose\config"
 $configPath = Join-Path $configDir "config.yaml"
 $sourceConfig = Join-Path $InstallDir "install\config.yaml"
 
+New-Item -ItemType Directory -Path $configDir -Force | Out-Null
 if (-not (Test-Path $configPath)) {
-    New-Item -ItemType Directory -Path $configDir -Force | Out-Null
     Copy-Item $sourceConfig $configPath
     Write-Host " created config.yaml" -ForegroundColor Green
 } else {
-    Write-Host " config.yaml exists (skipped)" -ForegroundColor Green
+    # Config exists — ensure provider/model/mode are set (goose configure
+    # creates a config without these, causing "No provider configured").
+    $content = Get-Content $configPath -Raw
+    $updated = $false
+    if ($content -notmatch '(?m)^GOOSE_PROVIDER:') {
+        Add-Content $configPath "`nGOOSE_PROVIDER: claude-acp"
+        $updated = $true
+    }
+    if ($content -notmatch '(?m)^GOOSE_MODEL:') {
+        Add-Content $configPath "`nGOOSE_MODEL: opus"
+        $updated = $true
+    }
+    if ($content -notmatch '(?m)^GOOSE_MODE:') {
+        Add-Content $configPath "`nGOOSE_MODE: smart_approve"
+        $updated = $true
+    }
+    if ($updated) {
+        Write-Host " added provider/model/mode to existing config" -ForegroundColor Green
+    } else {
+        Write-Host " config.yaml already configured" -ForegroundColor Green
+    }
 }
 
 # --- 3b. Set GOOSE_RECIPE_PATH ---
@@ -373,10 +415,10 @@ if (Test-Path $credsPath) {
 # ---------------------------------------------------------------------------
 
 Write-Step "Seeding progression state"
-$rilgooseDir = Join-Path $env:USERPROFILE ".goose-wizard"
-New-Item -ItemType Directory -Path $rilgooseDir -Force | Out-Null
+$gooseWizardDir = Join-Path $env:USERPROFILE ".goose-wizard"
+New-Item -ItemType Directory -Path $gooseWizardDir -Force | Out-Null
 
-$progressionTarget = Join-Path $rilgooseDir "progression.json"
+$progressionTarget = Join-Path $gooseWizardDir "progression.json"
 $progressionSource = Join-Path $InstallDir "install\project-template\.goose\state\progression.json"
 if (-not (Test-Path $progressionTarget)) {
     if (Test-Path $progressionSource) {
@@ -397,8 +439,11 @@ Write-Host ""
 Write-Host ""
 Write-Host "  goose-wizard installed successfully!" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Open a new terminal, then run:"
+
+# Ensure GOOSE_RECIPE_PATH is live in this session
+$env:GOOSE_RECIPE_PATH = "$InstallDir\recipes\shared"
+
+Write-Host "  Launching training..." -ForegroundColor White
 Write-Host ""
-Write-Host "    cd ~\goose-wizard" -ForegroundColor Cyan
-Write-Host "    goose run --recipe 00-start-here --interactive" -ForegroundColor Cyan
-Write-Host ""
+Set-Location $InstallDir
+& goose run --recipe 00-start-here --interactive

@@ -10,10 +10,10 @@ instructions: |
 
   ## Step 0: Check target codebase
 
-  Read `.goose/state/user_config.json`. Use `target_codebase_path` as the
+  Read `~/.goose-wizard/user_config.json`. Use `target_codebase_path` as the
   directory to explore and edit during this module.
 
-  If `.goose/state/user_config.json` does NOT exist OR `target_codebase_path`
+  If `~/.goose-wizard/user_config.json` does NOT exist OR `target_codebase_path`
   is empty, STOP and ask the developer:
 
     "Before we start, I need to know which codebase you want to train on.
@@ -21,7 +21,7 @@ instructions: |
     path to the codebase? You can also just say 'this one' to use the
     current directory."
 
-  WAIT for response. Then save their answer to `.goose/state/user_config.json`:
+  WAIT for response. Then save their answer to `~/.goose-wizard/user_config.json`:
 
     {
       "target_codebase_path": "<absolute path>",
@@ -206,14 +206,18 @@ extensions:
     name: developer
 
 prompt: |
-  Begin Stage 0 onboarding.
+  Greet the developer with a brief, friendly welcome to Module 1:
+  "See What AI Can Do." Do NOT read any files or use any tools on this
+  first message — just say hello, give a one-sentence preview of what
+  this module covers, and ask if they're ready to start.
 
-  1. Resolve target_codebase_path from `.goose/state/user_config.json` (Step 0).
+  After they respond, THEN begin Step 0:
+  1. Resolve target_codebase_path from `~/.goose-wizard/user_config.json`.
   2. Read `~/.goose-wizard/progression.json` to determine TEACHING vs WORKING mode.
   3. Read `teaching/meta/teacher-instructions.md` and
      `teaching/stage-0/act-1-see-your-code.teach.md` — just these two.
   4. Read `<TARGET>/.goose/team_context.md` (if present).
-  5. Greet the developer and start Act 1 per its teach script.
+  5. Start Act 1 per its teach script.
 
   Do NOT pre-load the other act scripts — read each one just-in-time when
   that act begins. Do NOT create the git practice branch here; Act 2 does
