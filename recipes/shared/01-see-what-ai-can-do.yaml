@@ -10,10 +10,10 @@ instructions: |
 
   ## Step 0: Check target codebase
 
-  Read `.goose/state/user_config.json`. Use `target_codebase_path` as the
+  Read `~/.rilgoose/user_config.json`. Use `target_codebase_path` as the
   directory to explore and edit during this module.
 
-  If `.goose/state/user_config.json` does NOT exist OR `target_codebase_path`
+  If `~/.rilgoose/user_config.json` does NOT exist OR `target_codebase_path`
   is empty, STOP and ask the developer:
 
     "Before we start, I need to know which codebase you want to train on.
@@ -21,7 +21,7 @@ instructions: |
     path to the codebase? You can also just say 'this one' to use the
     current directory."
 
-  WAIT for response. Then save their answer to `.goose/state/user_config.json`:
+  WAIT for response. Then save their answer to `~/.rilgoose/user_config.json`:
 
     {
       "target_codebase_path": "<absolute path>",
@@ -208,7 +208,7 @@ extensions:
 prompt: |
   Begin Stage 0 onboarding.
 
-  1. Resolve target_codebase_path from `.goose/state/user_config.json` (Step 0).
+  1. Resolve target_codebase_path from `~/.rilgoose/user_config.json` (Step 0).
   2. Read `~/.rilgoose/progression.json` to determine TEACHING vs WORKING mode.
   3. Read `teaching/meta/teacher-instructions.md` and
      `teaching/stage-0/act-1-see-your-code.teach.md` — just these two.

@@ -16,7 +16,7 @@ instructions: |
   3. ENGAGING: Conversational, colleague tone. Not a textbook.
   4. NEVER instructor-speak: no "Great question!", "Excellent!", "Good job!"
   5. CAPTURE CODEBASE PATH: Section 5 must write the user's answer to
-     `.goose/state/user_config.json` — all future modules read it from there.
+     `~/.rilgoose/user_config.json` — all future modules read it from there.
   6. End by giving them the exact command to launch module 1.
 
 extensions:
@@ -183,7 +183,7 @@ prompt: |
   Once they respond, validate the path:
   1. Check that the directory exists (use `ls <path>` or the developer tool).
   2. If it doesn't exist, say so and ask again.
-  3. If it exists, save it to `.goose/state/user_config.json` using this format:
+  3. If it exists, save it to `~/.rilgoose/user_config.json` using this format:
 
      ```json
      {
@@ -195,7 +195,7 @@ prompt: |
      Create `.goose/state/` if it doesn't exist. Write the file.
 
   4. Confirm to the user:
-     "Got it. I saved that to .goose/state/user_config.json. Every module
+     "Got it. I saved that to ~/.rilgoose/user_config.json. Every module
      will read from there — if you ever want to switch codebases, just
      edit that file or tell me in a future module."
 
