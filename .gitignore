@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .coverage
 *.png
+!images/*.png
 
 # Claude Code per-user local settings
 .claude/settings.local.json
