@@ -161,6 +161,8 @@ Phase {N} tasks:
 - [x] Task {N}.1: {description}
 - [x] Task {N}.2: {description}
 - [-] Task {N}.3: {description} (skipped)
+
+Track: {track_id}
 ```
 
 Include all tasks in the phase with their final status markers.

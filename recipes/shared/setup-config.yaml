@@ -138,7 +138,7 @@ prompt: |
      `needs_kind_confirmation` field from that entry. Atomic write.
 
   6. Confirm: "`<id>` is now marked `<kind>`. You can now run
-     conductor-setup on this project."
+     conductor on this project."
 
   After every flagged project is resolved, proceed to MAIN MENU (or END
   if nothing else is pending and the user wasn't asking for the menu).

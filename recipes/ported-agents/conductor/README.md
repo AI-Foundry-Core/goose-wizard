@@ -34,19 +34,19 @@ maintains:
 
 ## Commands (in the lineage source) → Recipes (in goose-wizard)
 
-| Lineage command         | goose-wizard recipe                                     |
+| Lineage command         | goose-wizard equivalent                             |
 | ----------------------- | --------------------------------------------------- |
-| `/conductor:setup`      | `recipes/shared/conductor-setup.yaml`               |
-| `/conductor:new-track`  | `recipes/shared/conductor-new-track.yaml`           |
-| `/conductor:implement`  | `recipes/shared/conductor-implement.yaml`           |
-| `/conductor:status`     | `recipes/shared/conductor-status.yaml`              |
-| `/conductor:revert`     | `recipes/shared/conductor-revert.yaml`              |
-| `/conductor:manage`     | `recipes/shared/conductor-manage.yaml`              |
+| `/conductor:setup`      | `recipes/shared/conductor.yaml` (setup mode)        |
+| `/conductor:new-track`  | `recipes/shared/conductor.yaml` (new track mode)    |
+| `/conductor:implement`  | `recipes/shared/conductor.yaml` (implement mode)    |
+| `/conductor:status`     | `recipes/shared/conductor.yaml` (status mode)       |
+| `/conductor:revert`     | `recipes/shared/conductor.yaml` (revert mode)       |
+| `/conductor:manage`     | `recipes/shared/conductor.yaml` (manage mode)       |
 
-Each goose-wizard recipe delegates the actual file operations to
-non-interactive agent primitives under `recipes/agents/conductor/`
-(for example, `track-create.yaml`, `track-task-execute.yaml`,
-`checkpoint-verify.yaml`, and the `context-*` primitives).
+All six lineage commands are now handled by a single `conductor.yaml`
+recipe with mode routing. It delegates file operations to leaf
+primitives under `recipes/agents/conductor/` and reads skill files
+from `recipes/conductor-skills/` on demand.
 
 ## Generated Artifacts (goose-wizard location)
 
@@ -79,7 +79,7 @@ alongside the rest of Goose's per-project state.
 
 ## Workflow
 
-### 1. Setup (`conductor-setup.yaml`)
+### 1. Setup (conductor.yaml — setup mode)
 
 Interactive initialization that creates foundational project documentation:
 
@@ -88,7 +88,7 @@ Interactive initialization that creates foundational project documentation:
 - Generates style guides for selected languages
 - Creates tracks registry
 
-### 2. Create Track (`conductor-new-track.yaml`)
+### 2. Create Track (conductor.yaml — new track mode)
 
 Start a new feature or bug fix:
 
@@ -97,7 +97,7 @@ Start a new feature or bug fix:
 - Creates phased implementation plan (plan.md)
 - Registers track in tracks.md
 
-### 3. Implement (`conductor-implement.yaml`)
+### 3. Implement (conductor.yaml — implement mode)
 
 Execute the plan systematically:
 
@@ -106,7 +106,7 @@ Execute the plan systematically:
 - Includes manual verification checkpoints
 - Synchronizes documentation on completion
 
-### 4. Monitor (`conductor-status.yaml`)
+### 4. Monitor (conductor.yaml — status mode)
 
 View project progress:
 
@@ -114,7 +114,7 @@ View project progress:
 - Completion percentage
 - Identified blockers
 
-### 5. Revert (`conductor-revert.yaml`)
+### 5. Revert (conductor.yaml — revert mode)
 
 Undo work by logical unit:
 
@@ -122,7 +122,7 @@ Undo work by logical unit:
 - Git-aware: finds all associated commits
 - Requires confirmation before execution
 
-### 6. Manage (`conductor-manage.yaml`)
+### 6. Manage (conductor.yaml — manage mode)
 
 Manage track lifecycle:
 

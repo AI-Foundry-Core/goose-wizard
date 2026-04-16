@@ -111,13 +111,13 @@ Primitives must NOT declare `sub_recipes:` in their YAML. They are the bottom of
 Every primitive must define a `Return:` section with a top-level `status` field. Use domain-appropriate values that let the caller route on outcome. Common patterns:
 
 - Success values: `ok`, `success`, `PASS`
-- Failure values: `failure`, `FAIL`, `write_failed`, `config_unresolved`
+- Failure values: `failure`, `FAIL`, `write_failed`, `config_invalid`
 - Blocked values: `needs_input`, `live_confirmation_required`
 - Partial values: `partial`, `in_progress`
 
 Additional domain-specific fields (diff, test_results, findings, etc.) sit alongside status.
 
-**Proven by:** Conductor primitives use rich status enums (e.g., `track-create.yaml` returns `status: "ok" | "config_unresolved" | "kind_unconfirmed" | ...`). Non-conductor primitives like `review-gate.yaml` use `gate_result: PASS | FAIL`. The key requirement is a routeable status field, not a fixed vocabulary.
+**Proven by:** Conductor primitives use rich status enums (e.g., `track-create.yaml` returns `status: "ok" | "config_invalid" | "kind_unconfirmed" | ...`). Non-conductor primitives like `review-gate.yaml` use `gate_result: PASS | FAIL`. The key requirement is a routeable status field, not a fixed vocabulary.
 
 ### P3. Operation boundary tied to target_codebase_path
 
@@ -181,7 +181,7 @@ After every sub-recipe call, check the returned status before proceeding. Define
 
 Never proceed unconditionally after a sub-recipe call.
 
-**Proven by:** Conductor recipes have explicit status routing tables. `conductor-setup.yaml` lines 69-84, `conductor-implement.yaml` lines 66-78.
+**Proven by:** `conductor.yaml` has a status routing invariant in its kernel. The conductor primitives return structured status fields that the conductor checks before proceeding.
 
 ### W4. Reread affected artifacts after child mutates state
 
