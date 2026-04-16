@@ -44,7 +44,7 @@ instructions: |
   recipes/ported-agents/error-debugging/debugger.yaml
   recipes/ported-agents/error-debugging/error-detective.yaml
 
-  (Those ported-agent references live in the RILGoose repo, not the
+  (Those ported-agent references live in the Goose Wizard repo, not the
   target. Read them by relative path from CWD; they're pattern sources,
   not files to edit.)
 

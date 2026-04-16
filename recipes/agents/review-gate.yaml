@@ -48,7 +48,7 @@ instructions: |
   Follow the patterns in:
   recipes/ported-agents/comprehensive-review/code-reviewer.yaml
 
-  (That ported-agent reference lives in the RILGoose repo, not the
+  (That ported-agent reference lives in the Goose Wizard repo, not the
   target. Read it by relative path from CWD; it's a pattern source,
   not a file to edit.)
 

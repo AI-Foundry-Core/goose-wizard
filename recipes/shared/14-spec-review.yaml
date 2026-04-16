@@ -52,16 +52,16 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   IMPORTANT — PROGRESSION STATE (per-user):
-  Progression is per-USER at `~/.rilgoose/progression.json` (it follows the
+  Progression is per-USER at `~/.goose-wizard/progression.json` (it follows the
   developer across every codebase they train on, not tied to this project).
   On FIRST READ this session, run this migration fallback once:
-    - If `~/.rilgoose/progression.json` exists, USE IT.
+    - If `~/.goose-wizard/progression.json` exists, USE IT.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, COPY the legacy file contents to
-      `~/.rilgoose/progression.json` (atomic: write tmp + rename), then
+      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
+      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), then
       rename the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
+  ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
   Read these files now:
@@ -74,9 +74,9 @@ prompt: |
   2. `teaching/stage-4/spec-review.teach.md` — your playbook
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path)
-  4. `~/.rilgoose/progression.json` — check if concept 4.3 is already complete
+  4. `~/.goose-wizard/progression.json` — check if concept 4.3 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
   the target codebase. Every subagent and sub-recipe call must receive
   target-scoped paths explicitly. Before each `Delegate to subagent:`
   call, prepend this target prologue (substitute `<TARGET>` with the
@@ -86,11 +86,11 @@ prompt: |
     TARGET CODEBASE: <TARGET>
     All file operations in this delegation act on the target codebase.
     - Use absolute paths starting with <TARGET>/ for every read. The
-      spec under review lives under <TARGET>/ — never in RILGoose.
+      spec under review lives under <TARGET>/ — never in Goose Wizard.
     - Spec-review is read-only; do not edit files. If the developer
       chooses to revise the spec, any revision write must land under
       <TARGET>/.
-    - Do NOT read or edit files outside <TARGET>/. RILGoose is
+    - Do NOT read or edit files outside <TARGET>/. Goose Wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md` or refers to
       "the spec" or "the codebase," interpret those as

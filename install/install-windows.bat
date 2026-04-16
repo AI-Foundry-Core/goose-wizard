@@ -1,6 +1,6 @@
 @echo off
 REM ============================================================
-REM  RILGoose Installer - Windows
+REM  Goose Wizard Installer - Windows
 REM  Double-click this file to install and configure Goose.
 REM ============================================================
 REM
@@ -19,7 +19,7 @@ REM Warn the user before starting so they can cancel if they
 REM double-clicked by accident.
 echo.
 echo ========================================================
-echo   RILGoose Installer
+echo   Goose Wizard Installer
 echo ========================================================
 echo.
 echo This installer will:
@@ -30,7 +30,7 @@ echo   - Install Claude CLI if missing (via Anthropic native installer, npm fall
 echo   - Install the Claude ACP adapter if missing (via npm)
 echo   - Point Claude Code at Git Bash (CLAUDE_CODE_GIT_BASH_PATH setting)
 echo   - Run 'claude doctor' to verify the install
-echo   - Configure Goose for RILGoose training recipes
+echo   - Configure Goose for Goose Wizard training recipes
 echo   - Patch the ACP adapter for clean recipe execution
 echo.
 echo You will be prompted to log in to Claude (browser opens)
@@ -49,12 +49,12 @@ if %EXITCODE% NEQ 0 (
     echo   Installation reported errors ^(exit code %EXITCODE%^)
     echo ========================================================
     echo Scroll up to see what failed. If you need help, share
-    echo the full output above with the RILGoose team.
+    echo the full output above with the Goose Wizard team.
 ) else (
     echo ========================================================
     echo   Installation complete.
     echo ========================================================
-    echo Open a NEW terminal in the RILGoose folder and run:
+    echo Open a NEW terminal in the goose-wizard folder and run:
     echo    goose run --recipe 00-start-here --interactive
     echo.
     echo Training runs from the CLI. The desktop app is just for

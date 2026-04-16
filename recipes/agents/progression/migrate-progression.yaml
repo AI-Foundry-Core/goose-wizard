@@ -1,6 +1,6 @@
 version: 1.0.0
 title: "Migrate Progression Agent"
-description: "One-shot idempotent migration of the progression state from the legacy per-project location (.goose/state/progression.json) to the canonical per-user location (~/.rilgoose/progression.json)."
+description: "One-shot idempotent migration of the progression state from the legacy per-project location (.goose/state/progression.json) to the canonical per-user location (~/.goose-wizard/progression.json)."
 
 parameters:
   - key: legacy_path
@@ -11,7 +11,7 @@ parameters:
   - key: target_path
     input_type: string
     requirement: optional
-    default: "~/.rilgoose/progression.json"
+    default: "~/.goose-wizard/progression.json"
     description: "Canonical per-user progression state path. Expanded via the shell or agent's home-directory resolver."
 
 instructions: |
@@ -45,7 +45,7 @@ instructions: |
   1. Expand `~` in the target path to the user's home directory. On Windows,
      this is `%USERPROFILE%`; on Unix, `$HOME`. Store the resolved absolute
      path as TARGET_ABS.
-  2. Determine the parent directory of TARGET_ABS (e.g., `~/.rilgoose/`) and
+  2. Determine the parent directory of TARGET_ABS (e.g., `~/.goose-wizard/`) and
      create it if it does not exist.
   3. Check four cases:
      a. **Target exists, legacy missing** → Report "already_migrated". Exit.

@@ -28,7 +28,7 @@ See `install/README.md` for details, troubleshooting, and manual-setup instructi
 
 ## Start training
 
-Training runs from the **command line**, not the desktop app. Open a terminal in the RILGoose directory and run:
+Training runs from the **command line**, not the desktop app. Open a terminal in the goose-wizard directory and run:
 
 ```
 goose run --recipe 00-start-here --interactive

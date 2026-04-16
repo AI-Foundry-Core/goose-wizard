@@ -1,13 +1,13 @@
 version: 1.0.0
 title: "Ensure Config Agent"
-description: "Read the per-user RILGoose config (and the active project's config), migrate legacy state if needed, and return the resolved paths callers need to act."
+description: "Read the per-user Goose Wizard config (and the active project's config), migrate legacy state if needed, and return the resolved paths callers need to act."
 
 parameters:
   - key: user_config_path
     input_type: string
     requirement: optional
-    default: "~/.rilgoose/user.json"
-    description: "Per-user RILGoose config path. Expanded via the agent's home-directory resolver."
+    default: "~/.goose-wizard/user.json"
+    description: "Per-user Goose Wizard config path. Expanded via the agent's home-directory resolver."
   - key: legacy_user_config_path
     input_type: string
     requirement: optional
@@ -32,7 +32,7 @@ instructions: |
   Follow ONLY the instructions in this recipe.
 
   ## Role
-  You are a config resolver. You read the per-user RILGoose config and, if
+  You are a config resolver. You read the per-user Goose Wizard config and, if
   requested, the active project's config, returning absolute paths the
   calling recipe can use. You do not ask the user questions — a user-facing
   `setup-config` recipe does that. Your job is read-only (plus one-time
@@ -70,7 +70,7 @@ instructions: |
 
   ## Process
   1. Resolve `~` in `user_config_path` to the absolute home directory.
-     Create `~/.rilgoose/` if missing. Call this USER_DIR.
+     Create `~/.goose-wizard/` if missing. Call this USER_DIR.
   2. One-time migration fallback for `user.json`:
      a. If USER_DIR/user.json exists, parse it. Done.
      b. Else if `legacy_user_config_path` exists (relative to cwd) and
@@ -164,7 +164,7 @@ extensions:
     name: developer
 
 prompt: |
-  Resolve RILGoose config.
+  Resolve Goose Wizard config.
   User config path: {{ user_config_path }}
   Legacy config path (migration fallback): {{ legacy_user_config_path }}
   Project ID (optional): {{ project_id }}

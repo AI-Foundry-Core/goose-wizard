@@ -12,7 +12,7 @@
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context.
-Read ~/.rilgoose/progression.json — check if concept 5.1 is already demonstrated.
+Read ~/.goose-wizard/progression.json — check if concept 5.1 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. You are a consulting resource — available when needed, not driving. The developer at this stage has built pipelines, managed agent teams, and written specs. They know how to work with AI. Your role is to spot gaps in their eval strategy that they haven't thought of.
@@ -222,6 +222,6 @@ Ordered list for this module. Use per teacher-instructions.md Section 13 rules.
 6. `[specialization]` "The agent that produced the result should never be the agent that verifies it. Same principle as code review — the author can't be the reviewer."
 
 ## State Update
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   concept 5.1 dimensions with eval ratings + timestamp
   Never overwrite a Strong rating with a lower one. If the developer re-runs this recipe, update ratings only if they improve.

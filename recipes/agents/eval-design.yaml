@@ -35,7 +35,7 @@ instructions: |
     or whatever eval directory the project already uses.
   - Run dry-runs from within `{target_codebase_path}` — use `cd
     {target_codebase_path}` or `git -C {target_codebase_path} ...`.
-  - Do NOT write eval definitions into RILGoose.
+  - Do NOT write eval definitions into Goose Wizard.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -46,7 +46,7 @@ instructions: |
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
 
-  (That ported-agent reference lives in the RILGoose repo, not the
+  (That ported-agent reference lives in the Goose Wizard repo, not the
   target. Read it by relative path from CWD; it's a pattern source,
   not a file to edit.)
 
@@ -84,7 +84,7 @@ prompt: |
 
   If target codebase is non-empty, target_artifacts paths must resolve
   under THAT directory, dry-runs execute from within it, and any eval
-  definitions you write must land under it. Do not write into RILGoose.
+  definitions you write must land under it. Do not write into Goose Wizard.
   If target is empty, operate on CWD.
 
   Design specific, fail-capable eval checks. Every check must be able to fail.

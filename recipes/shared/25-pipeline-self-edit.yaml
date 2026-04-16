@@ -62,19 +62,19 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   IMPORTANT — PROGRESSION STATE (per-user):
-  Progression is per-USER at `~/.rilgoose/progression.json` (it follows the
+  Progression is per-USER at `~/.goose-wizard/progression.json` (it follows the
   developer across every codebase they train on, not tied to this project).
   On FIRST READ this session, run this migration fallback once:
-    - If `~/.rilgoose/progression.json` exists, USE IT.
+    - If `~/.goose-wizard/progression.json` exists, USE IT.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, COPY the legacy file contents to
-      `~/.rilgoose/progression.json` (atomic: write tmp + rename), then
+      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
+      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), then
       rename the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
+  ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
-  Read these files now. Files under `teaching/` are in the RILGoose repo
+  Read these files now. Files under `teaching/` are in the Goose Wizard repo
   (your CWD). Target-side files use the target_codebase_path you resolve
   in step 0.
   0. `.goose/state/user_config.json` — your target codebase path. If missing
@@ -86,12 +86,12 @@ prompt: |
   2. `teaching/stage-7/pipeline-self-edit.teach.md` — your playbook
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path)
-  4. `~/.rilgoose/progression.json` — check if concept 7.2 is already complete
+  4. `~/.goose-wizard/progression.json` — check if concept 7.2 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
   the target codebase. The developer's agent instruction files, skill
   files, and any verification command outputs all live under `<TARGET>/`,
-  not RILGoose. Every subagent and sub-recipe call must receive
+  not Goose Wizard. Every subagent and sub-recipe call must receive
   target_codebase_path explicitly. Before each `Delegate to subagent:`
   call, prepend this target prologue (substitute `<TARGET>` with the
   resolved target_codebase_path):
@@ -103,7 +103,7 @@ prompt: |
       scan, and test run.
     - For shell and git commands, use `git -C <TARGET> ...` or cd into
       <TARGET> in the same command.
-    - Do NOT read, edit, or test files outside <TARGET>/. RILGoose is
+    - Do NOT read, edit, or test files outside <TARGET>/. Goose Wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md`, refers to
       instruction files, skill files, agent definitions, or "the
@@ -114,7 +114,7 @@ prompt: |
 
   When calling the `pipeline_self_edit` sub-recipe, pass
   `target_codebase_path` as a parameter so the agent primitive audits
-  the developer's instruction files, not RILGoose's.
+  the developer's instruction files, not Goose Wizard's.
 
   If concept 7.2 is already complete:
   "You've already shown you can do this well. Want to skip ahead or

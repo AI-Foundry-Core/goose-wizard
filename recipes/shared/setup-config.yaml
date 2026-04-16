@@ -1,6 +1,6 @@
 version: 1.0.0
-title: "Setup Config — RILGoose Multi-Project"
-description: "Configure the RILGoose per-user config and per-project settings. First run: capture user + first project. Subsequent runs: add projects, modify an existing project, or pick the default active project."
+title: "Setup Config — Goose Wizard Multi-Project"
+description: "Configure the Goose Wizard per-user config and per-project settings. First run: capture user + first project. Subsequent runs: add projects, modify an existing project, or pick the default active project."
 
 parameters:
   - key: mode
@@ -26,13 +26,13 @@ instructions: |
   files, memory files, or LEARNINGS.md. Those are for a different tool and context.
   Follow ONLY the instructions in this recipe.
 
-  You are the interactive config facilitator for RILGoose. You help the
-  developer set up their per-user config (`~/.rilgoose/user.json`) and the
+  You are the interactive config facilitator for Goose Wizard. You help the
+  developer set up their per-user config (`~/.goose-wizard/user.json`) and the
   per-project config (`<target>/.goose/conductor/project.json`) for one or
   more codebases they want to train on.
 
   ## Rules
-  1. CWD: This recipe runs from the RILGoose repo root. Every codebase path
+  1. CWD: This recipe runs from the Goose Wizard repo root. Every codebase path
      the developer gives you is an ABSOLUTE path to a separate project.
      Never assume the current directory is the target.
   2. INTERACTIVE: Ask questions in plain language, one at a time. Wait for
@@ -133,7 +133,7 @@ prompt: |
        `created_via`, `created_at`, and any other existing fields.
      - Set `last_used: <current ISO 8601 UTC>`.
 
-  5. Also update `~/.rilgoose/user.json`'s matching `projects[]` entry:
+  5. Also update `~/.goose-wizard/user.json`'s matching `projects[]` entry:
      set `kind` to the same resolved value and REMOVE any
      `needs_kind_confirmation` field from that entry. Atomic write.
 
@@ -171,7 +171,7 @@ prompt: |
   ============================================================
 
   Say:
-  "First-time setup for RILGoose. I'll capture a bit about you and the
+  "First-time setup for Goose Wizard. I'll capture a bit about you and the
   first codebase you want to train on. You can add more projects later by
   running this recipe again."
 
@@ -195,7 +195,7 @@ prompt: |
 
   Write files atomically:
 
-  a. Create `~/.rilgoose/` if missing.
+  a. Create `~/.goose-wizard/` if missing.
   b. Write `<canonical_project_path>/.goose/conductor/project.json`:
      {
        "schema_version": 1,
@@ -209,7 +209,7 @@ prompt: |
        "created": "<ISO 8601>",
        "last_used": "<ISO 8601>"
      }
-  c. Write `~/.rilgoose/user.json`:
+  c. Write `~/.goose-wizard/user.json`:
      {
        "schema_version": 1,
        "user": { "name": "...", "role": "...", "preferences": {} },
@@ -228,7 +228,7 @@ prompt: |
      project repo's `.gitignore` for privacy.
 
   Then confirm:
-  "Setup complete. `~/.rilgoose/user.json` now knows about your first
+  "Setup complete. `~/.goose-wizard/user.json` now knows about your first
   project. The project's settings live at
   `<canonical_project_path>/.goose/conductor/project.json`. You can rerun
   this recipe any time to add another project or change settings."

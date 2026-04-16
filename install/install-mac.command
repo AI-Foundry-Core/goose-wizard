@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 # ============================================================
-#  RILGoose Installer - macOS
+#  Goose Wizard Installer - macOS
 #  Double-click this file in Finder to install and configure Goose.
 # ============================================================
 #
 # This installer will:
 #   - Install Homebrew if missing
 #   - Install Node.js, Goose, Claude CLI, and the ACP adapter if missing
-#   - Configure Goose for RILGoose training recipes
+#   - Configure Goose for Goose Wizard training recipes
 #   - Patch the ACP adapter for clean recipe execution
 #   - Seed state directories
 #
@@ -49,7 +49,7 @@ say_err()     { printf "${RED}%s${NC}\n" "$1" 1>&2; }
 set -E  # inherit ERR trap into functions and subshells
 trap 'say_err ""; say_err "Installation failed (command: $BASH_COMMAND) on or near line $LINENO."; say_err "Scroll up to see what went wrong."; read -p "Press Enter to close this window." _; exit 1' ERR
 
-say_header "RILGoose Installer (macOS)"
+say_header "Goose Wizard Installer (macOS)"
 
 cat <<'EOF'
 
@@ -59,7 +59,7 @@ This installer will:
   - Install Goose if missing (brew install --cask block-goose)
   - Install Claude CLI if missing (npm install -g @anthropic-ai/claude-code)
   - Install the Claude ACP adapter (npm install -g @agentclientprotocol/claude-agent-acp)
-  - Configure Goose for RILGoose training recipes
+  - Configure Goose for Goose Wizard training recipes
   - Patch the ACP adapter for clean recipe execution
 
 You will be prompted to log in to Claude (browser opens) during setup.
@@ -383,10 +383,10 @@ echo "  'claude doctor' completed."
 say_ok "--- Phase 1 complete ---"
 
 # ================================================================
-# PHASE 2: Configure for RILGoose
+# PHASE 2: Configure for Goose Wizard
 # ================================================================
 
-say_phase "Phase 2: Configure for RILGoose"
+say_phase "Phase 2: Configure for Goose Wizard"
 
 # --- Verify recipe directories ---
 say_step "Verifying recipe directories..."
@@ -439,14 +439,14 @@ fi
 
 touch "$RC_FILE"
 
-# Remove any prior RILGoose-managed block, then append the current one.
+# Remove any prior Goose Wizard-managed block, then append the current one.
 # Use substring matching so a marker merged onto another line still triggers
 # block removal (prevents duplicate blocks on repeated installs).
-RILGOOSE_MARKER_START="# >>> RILGoose (managed) >>>"
-RILGOOSE_MARKER_END="# <<< RILGoose (managed) <<<"
+GOOSE_WIZARD_MARKER_START="# >>> Goose Wizard (managed) >>>"
+GOOSE_WIZARD_MARKER_END="# <<< Goose Wizard (managed) <<<"
 
-if grep -qF "$RILGOOSE_MARKER_START" "$RC_FILE"; then
-    awk -v start="$RILGOOSE_MARKER_START" -v end="$RILGOOSE_MARKER_END" '
+if grep -qF "$GOOSE_WIZARD_MARKER_START" "$RC_FILE"; then
+    awk -v start="$GOOSE_WIZARD_MARKER_START" -v end="$GOOSE_WIZARD_MARKER_END" '
         index($0, start) { inblock=1; next }
         index($0, end)   { inblock=0; next }
         !inblock { print }
@@ -457,18 +457,18 @@ fi
 if [ "$USER_SHELL_NAME" = "fish" ]; then
     cat >> "$RC_FILE" <<EOF
 
-$RILGOOSE_MARKER_START
+$GOOSE_WIZARD_MARKER_START
 set -gx GOOSE_RECIPE_PATH "$RECIPE_PATH_VALUE"
 ${PERUSER_LINE:+set -gx PATH \$HOME/.npm-global/bin \$PATH}
-$RILGOOSE_MARKER_END
+$GOOSE_WIZARD_MARKER_END
 EOF
 else
     cat >> "$RC_FILE" <<EOF
 
-$RILGOOSE_MARKER_START
+$GOOSE_WIZARD_MARKER_START
 export GOOSE_RECIPE_PATH="$RECIPE_PATH_VALUE"
 ${PERUSER_LINE:+$PERUSER_LINE}
-$RILGOOSE_MARKER_END
+$GOOSE_WIZARD_MARKER_END
 EOF
 fi
 
@@ -596,7 +596,7 @@ original = content
 # Patch 1: settingSources - drop "project" scope
 # Keep "user" so ~/.claude/settings.json permissions allowlist imports (we WANT
 # that). Keep "local" so the project's .claude/CLAUDE.md override loads. Drop
-# "project" so the RILGoose design-doc CLAUDE.md doesn't confuse the agent
+# "project" so the Goose Wizard design-doc CLAUDE.md doesn't confuse the agent
 # inside recipes.
 if 'settingSources: ["user", "project", "local"]' in content:
     content = content.replace(
@@ -605,7 +605,7 @@ if 'settingSources: ["user", "project", "local"]' in content:
     )
     print('  Patched: settingSources now ["user", "local"] (drops project scope)')
 elif 'settingSources: ["local"]' in content:
-    # Upgrade path: prior RILGoose installs patched to ["local"] only, which
+    # Upgrade path: prior Goose Wizard installs patched to ["local"] only, which
     # also stripped the user allowlist. Restore "user" scope.
     content = content.replace(
         'settingSources: ["local"]',
@@ -653,7 +653,7 @@ if m:
 elif re.search(r"maxThinkingTokens\s*=\s*process\.env\.MAX_THINKING_TOKENS[\s\S]*?:\s*4096\s*;", content):
     print("  Already patched (maxThinkingTokens capped at 4096)")
 
-# Revert legacy patches if a prior RILGoose install applied them.
+# Revert legacy patches if a prior Goose Wizard install applied them.
 # - disallowedTools=[] caused every tool call to require approval.
 # - custom systemPrompt was unnecessary.
 # - maxThinkingTokens=0 hid thinking blocks.
@@ -708,10 +708,10 @@ fi
 # --- State directories ---
 say_step "Ensuring state directories..."
 PROJECT_STATE="$PROJECT_ROOT/.goose/state"
-RILGOOSE_HOME="$HOME/.rilgoose"
-mkdir -p "$PROJECT_STATE" "$RILGOOSE_HOME"
+GOOSE_WIZARD_HOME="$HOME/.goose-wizard"
+mkdir -p "$PROJECT_STATE" "$GOOSE_WIZARD_HOME"
 echo "  .goose/state/:  $PROJECT_STATE"
-echo "  ~/.rilgoose/:   $RILGOOSE_HOME"
+echo "  ~/.goose-wizard/:   $GOOSE_WIZARD_HOME"
 
 # --- Seed .goose/PROGRESS.md if missing ---
 PROGRESS_TARGET="$PROJECT_ROOT/.goose/PROGRESS.md"
@@ -727,26 +727,26 @@ else
     echo "  .goose/PROGRESS.md exists"
 fi
 
-# --- Seed ~/.rilgoose/progression.json if missing ---
+# --- Seed ~/.goose-wizard/progression.json if missing ---
 # graduate-module.yaml refuses to update progression if the file doesn't
 # exist (returns `no_progression_state`), which would block first-run
 # module graduation. Seeding it here unblocks the flow.
-PROGRESSION_TARGET="$RILGOOSE_HOME/progression.json"
+PROGRESSION_TARGET="$GOOSE_WIZARD_HOME/progression.json"
 PROGRESSION_TEMPLATE="$PROJECT_ROOT/install/project-template/.goose/state/progression.json"
 if [ ! -f "$PROGRESSION_TARGET" ]; then
     if [ -f "$PROGRESSION_TEMPLATE" ]; then
         cp "$PROGRESSION_TEMPLATE" "$PROGRESSION_TARGET"
-        say_ok "  Seeded ~/.rilgoose/progression.json from template"
+        say_ok "  Seeded ~/.goose-wizard/progression.json from template"
     else
         echo "  WARNING: progression.json template not found at $PROGRESSION_TEMPLATE"
     fi
 else
-    echo "  ~/.rilgoose/progression.json exists"
+    echo "  ~/.goose-wizard/progression.json exists"
 fi
 
 # --- Verify recipe list ---
 say_step "Verifying recipes are visible to Goose..."
-RECIPE_CHECK_TMP="$(mktemp -t rilgoose-recipe-check)"
+RECIPE_CHECK_TMP="$(mktemp -t goose-wizard-recipe-check)"
 if goose recipe list --format text >"$RECIPE_CHECK_TMP" 2>&1; then
     # `grep -c` returns exit 1 on no-match, which would trigger the ERR trap
     # inside `$(...)`. Capture into a plain var, defaulting to 0 if empty.
@@ -780,7 +780,7 @@ What was configured:
   7. State directories created
 
 Next steps:
-  1. Open a NEW terminal in the RILGoose folder
+  1. Open a NEW terminal in the goose-wizard folder
   2. Run: goose run --recipe 00-start-here --interactive
 
   Training runs from the CLI only. Keep the Goose desktop app open on

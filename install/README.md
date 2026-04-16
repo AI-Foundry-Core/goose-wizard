@@ -1,4 +1,4 @@
-# RILGoose Installer
+# Goose Wizard Installer
 
 Click-to-run installers for Windows and Mac. One file per platform - you only need your own.
 
@@ -7,7 +7,7 @@ Click-to-run installers for Windows and Mac. One file per platform - you only ne
 1. Double-click **`install-windows.bat`**.
 2. Click "Yes" if Windows asks for permission.
 3. Follow the prompts. Log in to Claude when the browser opens.
-4. When it finishes, open a fresh terminal in the RILGoose folder and run
+4. When it finishes, open a fresh terminal in the goose-wizard folder and run
    `goose run --recipe 00-start-here --interactive` to launch the gateway.
    Training runs from the CLI — the desktop app is for browsing recipe
    YAML files, not for running recipes.
@@ -21,7 +21,7 @@ Click-to-run installers for Windows and Mac. One file per platform - you only ne
 2. If macOS blocks it the first time ("cannot be opened because it is from an
    unidentified developer"), right-click the file → **Open** → confirm.
 3. Follow the prompts. Log in to Claude when the browser opens.
-4. When it finishes, open a fresh terminal in the RILGoose folder and run
+4. When it finishes, open a fresh terminal in the goose-wizard folder and run
    `goose run --recipe 00-start-here --interactive` to launch the gateway.
    Training runs from the CLI — the desktop app is for browsing recipe
    YAML files, not for running recipes.
@@ -59,7 +59,7 @@ warning - you can still proceed but expect download failures.
 opens, you log in, then type `/exit` or Ctrl+D to leave the Claude session and
 return to the installer. A **Claude Max** subscription is required.
 
-### Phase 2 - Configure for RILGoose
+### Phase 2 - Configure for Goose Wizard
 
 - Sets `GOOSE_RECIPE_PATH` so the `shared/` recipes show up in Goose
 - Writes a minimal `config.yaml` if none exists
@@ -75,12 +75,12 @@ return to the installer. A **Claude Max** subscription is required.
   `maxThinkingTokens: 4096` default - caps extended thinking at "medium"
   budget so Opus doesn't monologue for 30-60+ seconds per turn during
   training (set `MAX_THINKING_TOKENS` env var to override, e.g. `0` to
-  disable or `16000` for deep reasoning). If a prior RILGoose install
+  disable or `16000` for deep reasoning). If a prior Goose Wizard install
   applied the older 5-patch set, this script reverts the extra edits
   (disallowedTools, custom systemPrompt, maxThinkingTokens=0) back to
   upstream defaults.
 - Touches `00-start-here.yaml` so the gateway recipe sorts first
-- Creates `.goose/state/` and `~/.rilgoose/` directories
+- Creates `.goose/state/` and `~/.goose-wizard/` directories
 - Seeds `.goose/PROGRESS.md` from the project template
 
 ## Advanced usage

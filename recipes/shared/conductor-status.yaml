@@ -57,7 +57,7 @@ prompt: |
   | status                 | Action                                                                                                                 |
   |------------------------|------------------------------------------------------------------------------------------------------------------------|
   | `ok`                   | Proceed.                                                                                                               |
-  | `no_user_config`       | "No RILGoose config. Run `setup-config`." Stop.                                                                         |
+  | `no_user_config`       | "No Goose Wizard config. Run `setup-config`." Stop.                                                                         |
   | `user_config_corrupt`  | Show parse error + config path. Instruct manual fix or rerun `setup-config`. Stop.                                     |
   | `legacy_ambiguous`     | "Legacy config present but ambiguous. Run `setup-config` to complete migration." Stop.                                  |
   | `project_missing`      | Show `projects[]`. "Project `<id>` not found. Pass --params project_id=<existing> or run `setup-config`." Stop.         |

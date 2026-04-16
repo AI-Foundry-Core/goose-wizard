@@ -1,5 +1,5 @@
-# RILGoose Setup Script
-# Installs and configures Goose for RILGoose training recipes.
+# Goose Wizard Setup Script
+# Installs and configures Goose for Goose Wizard training recipes.
 #
 # Phase 1 (bootstrap): installs Node.js, Goose, Claude CLI, and ACP adapter
 #                      if they're missing. Bootstraps config.yaml.
@@ -35,7 +35,7 @@ $ErrorActionPreference = "Stop"
 # installer patch regexes if needed.
 $ACP_PINNED_VERSION = "0.28.0"
 
-Write-Host "=== RILGoose Setup ===" -ForegroundColor Cyan
+Write-Host "=== Goose Wizard Setup ===" -ForegroundColor Cyan
 
 # ================================================================
 # PHASE 1: Bootstrap - install prerequisites if missing
@@ -596,7 +596,7 @@ extensions:
     }
 
     Write-Host "`n--- Phase 1 complete ---" -ForegroundColor Green
-    Write-Host "`n--- Phase 2: Configure for RILGoose ---" -ForegroundColor Cyan
+    Write-Host "`n--- Phase 2: Configure for Goose Wizard ---" -ForegroundColor Cyan
 }
 
 # --- Locate recipe root ---
@@ -860,7 +860,7 @@ if (-not $SkipExtensions) {
 # WHY THIS EXISTS (do not remove without understanding):
 # The Claude ACP adapter (acp-agent.js) loads settings from three scopes by
 # default: "user" (~/.claude/), "project" (<cwd>/CLAUDE.md), and "local"
-# (<cwd>/.claude/CLAUDE.md). The "project" scope pulls in the RILGoose design-doc
+# (<cwd>/.claude/CLAUDE.md). The "project" scope pulls in the Goose Wizard design-doc
 # CLAUDE.md meant for recipe authors, which confuses the agent inside recipes.
 # Patching to ["user", "local"] keeps the user's permissions allowlist from
 # ~/.claude/settings.json (which we WANT imported) while dropping the project-
@@ -906,7 +906,7 @@ if (Test-Path $acpAgentFile) {
     # Patch 1: settingSources - drop "project" scope
     # Keep "user" so ~/.claude/settings.json permissions allowlist imports (we
     # WANT that). Keep "local" so the project's .claude/CLAUDE.md override loads.
-    # Drop "project" so the RILGoose design-doc CLAUDE.md doesn't confuse the
+    # Drop "project" so the Goose Wizard design-doc CLAUDE.md doesn't confuse the
     # agent inside recipes.
     $originalLine = 'settingSources: ["user", "project", "local"]'
     $patchedLine  = 'settingSources: ["user", "local"]'
@@ -920,7 +920,7 @@ if (Test-Path $acpAgentFile) {
             Write-Host "  Patched: settingSources now [""user"", ""local""] (drops project scope)" -ForegroundColor Green
         }
     } elseif ($acpContent.Contains($oldLocalOnly)) {
-        # Upgrade path: prior RILGoose installs patched to ["local"] only, which
+        # Upgrade path: prior Goose Wizard installs patched to ["local"] only, which
         # also stripped the user allowlist. Restore "user" scope.
         if ($DryRun) {
             Write-Host "  [DRY RUN] Would upgrade settingSources from [""local""] to [""user"", ""local""]"
@@ -979,7 +979,7 @@ ${indent}    : 4096;
         Write-Host "  Already patched (maxThinkingTokens capped at 4096)"
     }
 
-    # Revert legacy patches if a prior RILGoose install applied them.
+    # Revert legacy patches if a prior Goose Wizard install applied them.
     # - disallowedTools=[] caused every tool call to require approval.
     # - custom systemPrompt was unnecessary.
     # - maxThinkingTokens=0 hid thinking blocks.
@@ -1074,7 +1074,7 @@ if (-not (Test-Path $gatewayPath)) {
 }
 
 # Verify progression state directory exists (or create it)
-# NOTE: Per-user progression state lives at ~/.rilgoose/progression.json (below).
+# NOTE: Per-user progression state lives at ~/.goose-wizard/progression.json (below).
 # The .goose/state/ dir is still created here for user_config.json + legacy
 # progression paths that may need to be migrated on first run.
 $projectRoot = Split-Path -Parent $RecipeRoot
@@ -1090,40 +1090,40 @@ if (-not (Test-Path $stateDir)) {
     Write-Host "  .goose/state/ directory exists"
 }
 
-# Per-user RILGoose directory (progression.json, user.json live here).
+# Per-user Goose Wizard directory (progression.json, user.json live here).
 # Progression is per-USER, so it sits in $HOME and follows the developer across
 # every codebase they train on - not tied to this project.
-$rilgooseHome = Join-Path $env:USERPROFILE ".rilgoose"
-if (-not (Test-Path $rilgooseHome)) {
+$gooseWizardHome = Join-Path $env:USERPROFILE ".goose-wizard"
+if (-not (Test-Path $gooseWizardHome)) {
     if ($DryRun) {
-        Write-Host "  [DRY RUN] Would create ~/.rilgoose/ for per-user progression state"
+        Write-Host "  [DRY RUN] Would create ~/.goose-wizard/ for per-user progression state"
     } else {
-        New-Item -ItemType Directory -Path $rilgooseHome -Force | Out-Null
-        Write-Host "  Created ~/.rilgoose/ directory for per-user progression state"
+        New-Item -ItemType Directory -Path $gooseWizardHome -Force | Out-Null
+        Write-Host "  Created ~/.goose-wizard/ directory for per-user progression state"
     }
 } else {
-    Write-Host "  ~/.rilgoose/ directory exists"
+    Write-Host "  ~/.goose-wizard/ directory exists"
 }
 
-# Seed ~/.rilgoose/progression.json from the template if missing.
+# Seed ~/.goose-wizard/progression.json from the template if missing.
 # graduate-module.yaml refuses to update progression if the file doesn't
 # exist (step 1c returns `no_progression_state`), which would block module
 # graduation on first run. Seeding it here unblocks the flow.
-$progressionTarget = Join-Path $rilgooseHome "progression.json"
+$progressionTarget = Join-Path $gooseWizardHome "progression.json"
 if (-not (Test-Path $progressionTarget)) {
     $progressionTemplate = Join-Path (Join-Path (Join-Path (Join-Path (Join-Path $projectRoot "install") "project-template") ".goose") "state") "progression.json"
     if (Test-Path $progressionTemplate) {
         if ($DryRun) {
-            Write-Host "  [DRY RUN] Would seed ~/.rilgoose/progression.json from template"
+            Write-Host "  [DRY RUN] Would seed ~/.goose-wizard/progression.json from template"
         } else {
             Copy-Item $progressionTemplate $progressionTarget
-            Write-Host "  Seeded ~/.rilgoose/progression.json from template" -ForegroundColor Green
+            Write-Host "  Seeded ~/.goose-wizard/progression.json from template" -ForegroundColor Green
         }
     } else {
         Write-Host "  WARNING: progression.json template not found at $progressionTemplate" -ForegroundColor Yellow
     }
 } else {
-    Write-Host "  ~/.rilgoose/progression.json exists"
+    Write-Host "  ~/.goose-wizard/progression.json exists"
 }
 
 # Seed .goose/PROGRESS.md (the user-facing training checklist)
@@ -1131,7 +1131,7 @@ if (-not (Test-Path $progressionTarget)) {
 # nest calls to build deeper paths.
 $progressTarget = Join-Path (Join-Path $projectRoot ".goose") "PROGRESS.md"
 if (-not (Test-Path $progressTarget)) {
-    # In the RILGoose repo, PROGRESS.md is already there. For external projects,
+    # In the Goose Wizard repo, PROGRESS.md is already there. For external projects,
     # we need to copy from the template. Check if template exists.
     $templateProgress = Join-Path (Join-Path (Join-Path (Join-Path $projectRoot "install") "project-template") ".goose") "PROGRESS.md"
     $repoProgress = Join-Path (Join-Path $projectRoot ".goose") "PROGRESS.md"
@@ -1144,7 +1144,7 @@ if (-not (Test-Path $progressTarget)) {
         }
     } else {
         Write-Host "  WARNING: .goose/PROGRESS.md not found. Training flow depends on it." -ForegroundColor Yellow
-        Write-Host "  Copy it from the RILGoose repo: <repo>/.goose/PROGRESS.md -> <project>/.goose/PROGRESS.md"
+        Write-Host "  Copy it from the Goose Wizard repo: <repo>/.goose/PROGRESS.md -> <project>/.goose/PROGRESS.md"
     }
 } else {
     Write-Host "  .goose/PROGRESS.md exists"
@@ -1181,7 +1181,7 @@ Write-Host "  4. ACP adapter patched (context isolation for clean recipe executi
 Write-Host "  5. Gateway recipe touched (will appear first in app)"
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Open a FRESH terminal in the RILGoose folder"
+Write-Host "  1. Open a FRESH terminal in the goose-wizard folder"
 Write-Host "  2. Run: goose run --recipe 00-start-here --interactive"
 Write-Host ""
 Write-Host "  Training runs from the CLI only. Keep the Goose desktop app"

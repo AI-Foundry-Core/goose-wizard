@@ -33,7 +33,7 @@ instructions: |
     edits, and new test files.
   - Spec files (if persisted) live under `{target_codebase_path}/specs/`
     or another conventional location inside the target — never inside
-    the RILGoose repo.
+    the Goose Wizard repo.
   - For shell commands, prefix with `cd {target_codebase_path} && ...` or
     use `git -C {target_codebase_path} ...`.
   - Run the project's test command from within `{target_codebase_path}`.
