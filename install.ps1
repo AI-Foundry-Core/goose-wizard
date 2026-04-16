@@ -295,7 +295,8 @@ Write-Host " done" -ForegroundColor Green
 
 # --- 3c. Detect Git Bash and write to Claude settings ---
 Write-Step "Detecting Git Bash"
-$bashExe = (Get-Command bash.exe -ErrorAction SilentlyContinue)?.Source
+$bashCmd = Get-Command bash.exe -ErrorAction SilentlyContinue
+$bashExe = if ($bashCmd) { $bashCmd.Source } else { $null }
 if (-not $bashExe) {
     $defaultPath = "C:\Program Files\Git\bin\bash.exe"
     if (Test-Path $defaultPath) { $bashExe = $defaultPath }
