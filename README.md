@@ -1,4 +1,4 @@
-# RILGoose
+# Goose Wizard
 
 A progressive AI teaching harness built on [Goose](https://github.com/block/goose). Takes a development team from "never used AI coding tools" to "running autonomous multi-agent pipelines" through 26 hands-on modules across 8 stages.
 
