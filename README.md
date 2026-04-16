@@ -1,5 +1,9 @@
 # goose-wizard
 
+<p align="center">
+  <img src="images/hero.png" alt="The Goose Wizard summoning an army of specialist worker geese" width="600">
+</p>
+
 A progressive AI teaching harness built on [Goose](https://github.com/block/goose). Takes a development team from "never used AI coding tools" to "running autonomous multi-agent pipelines" through 26 hands-on modules across 8 stages.
 
 Every module has you do real work on real code. You get coached on what you're missing. By the end, you can design and run your own AI pipelines — not just use pre-built ones.
