@@ -373,7 +373,7 @@ Example:
 
 ### Creating a Track
 
-1. Run the conductor-new-track recipe
+1. Run the conductor recipe (new track mode)
 2. Answer interactive questions
 3. Review generated spec.md
 4. Review generated plan.md
@@ -404,7 +404,7 @@ Example:
 
 ### Reverting a Track
 
-1. Run the conductor-revert recipe
+1. Run the conductor recipe (revert mode)
 2. Select track to revert
 3. Choose granularity (track/phase/task)
 4. Confirm revert operation

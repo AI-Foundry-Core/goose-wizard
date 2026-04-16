@@ -1,13 +1,25 @@
 version: 1.0.0
+# type: primitive
 title: "Conductor Write Style Guide Agent"
 description: "Generate a language-specific style guide at <target>/.goose/conductor/code_styleguides/<lang>.md using widely accepted defaults plus project signals (linter configs, existing code patterns)."
 
 parameters:
+  - key: project_path
+    input_type: string
+    requirement: required
+    description: "Absolute path to the target project. Resolved by the parent conductor before delegation."
+  - key: project_kind
+    input_type: string
+    requirement: required
+    description: "'sandbox' | 'live' | 'unknown'. Resolved by the parent conductor."
+  - key: project_json_path
+    input_type: string
+    requirement: required
+    description: "Path to project.json. Resolved by the parent conductor."
   - key: project_id
     input_type: string
-    requirement: optional
-    default: ""
-    description: "Project ID. Empty means use the active project from ensure-config."
+    requirement: required
+    description: "Project identifier. Resolved by the parent conductor."
   - key: language
     input_type: string
     requirement: required
@@ -28,11 +40,6 @@ parameters:
     default: false
     description: "Required to be true when project.kind == 'live'. Caller must obtain typed user confirmation before setting true."
 
-sub_recipes:
-  - name: "ensure_config"
-    path: "../config/ensure-config.yaml"
-    description: "Resolves the project path."
-
 instructions: |
   IMPORTANT — RUNTIME CONTEXT:
   You are running inside the Goose agent platform. This IS the real Goose runtime.
@@ -48,6 +55,8 @@ instructions: |
 
   ## Constraints
   IMPORTANT:
+  - All file operations are anchored to {{ project_path }}. Do NOT
+    read or modify files outside this directory.
   - NEVER contradict a linter rule that's actually configured in the
     project. If `ruff.toml` pins line length at 100, the style guide says 100.
   - NEVER invent team conventions (test folder layout, naming prefixes) that
@@ -59,18 +68,17 @@ instructions: |
     Convention: write `<lang>.md.tmp`, rename existing `<lang>.md` to
     `<lang>.md.bak.<UTC compact timestamp>` (format `YYYYMMDDTHHMMSSZ`),
     then rename tmp → canonical. Never overwrite an existing .bak.
-  - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
+  - If `{{ project_kind }}` == "live", REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
-  - If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+  - If `{{ project_kind }}` == "unknown" OR `needs_kind_confirmation: true`,
     REFUSE unconditionally. Return `status: kind_unconfirmed`.
 
   ## Failure Modes
-  - Config resolution via ensure_config returned non-ok →
-    `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status.
-  - `project.kind == "live"` without `live_confirmed: true` →
+  - Config invalid (project_path missing/empty, project_kind unrecognized,
+    project.json unreadable) → `status: config_invalid` with details.
+  - `{{ project_kind }}` == "live" without `live_confirmed: true` →
     `status: live_confirmation_required`.
-  - `project.kind == "unknown"` or `needs_kind_confirmation: true` →
+  - `{{ project_kind }}` == "unknown" or `needs_kind_confirmation: true` →
     `status: kind_unconfirmed`.
   - Unknown language → `status: unsupported_language` with a list of
     languages this recipe understands.
@@ -80,13 +88,15 @@ instructions: |
   - Existing file is malformed in `update` mode → `status: existing_corrupt`.
 
   ## Process
-  1. Call `ensure_config`. If status != `ok`, return
-     `status: config_unresolved` with `config_status` set. If resolved
-     project.kind == "unknown" OR `needs_kind_confirmation: true`,
-     return `status: kind_unconfirmed` immediately. If resolved
-     project.kind == "live" and `live_confirmed` is false, return
+  1. Verify resolved config: confirm `project_path` is a non-empty
+     directory that exists, `project_kind` is one of sandbox/live/unknown,
+     and `{{ project_json_path }}` points to a readable file. If any check
+     fails, return `status: config_invalid` with details.
+     If `{{ project_kind }}` == "unknown" OR `needs_kind_confirmation: true`,
+     return `status: kind_unconfirmed` immediately. If
+     `{{ project_kind }}` == "live" and `live_confirmed` is false, return
      `status: live_confirmation_required` immediately.
-  2. Target path: `<project.path>/.goose/conductor/code_styleguides/<language>.md`.
+  2. Target path: `{{ project_path }}/.goose/conductor/code_styleguides/<language>.md`.
   3. If `detect_from_project`, scan for the language's typical config files
      and a small sample of source files (≤10 files, up to ~500 lines each).
   4. Compose a focused guide covering: formatting (indent, line length),
@@ -95,11 +105,9 @@ instructions: |
   5. Atomic write with backup.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+  - status: "ok" | "config_invalid" | "kind_unconfirmed" |
     "live_confirmation_required" | "unsupported_language" |
     "no_signals" | "already_exists" | "existing_corrupt"
-  - config_status: Underlying ensure_config status when
-    status == "config_unresolved", else null
   - path: absolute path of the style guide file
   - signals_used: list of config files + sample source files the guide
     drew from
@@ -111,8 +119,9 @@ extensions:
     name: developer
 
 prompt: |
-  Write a {{ language }} style guide for project_id: {{ project_id }},
-  mode: {{ mode }}, detect_from_project: {{ detect_from_project }},
+  Write a {{ language }} style guide for project {{ project_id }}
+  at {{ project_path }} (kind: {{ project_kind }}).
+  Mode: {{ mode }}, detect_from_project: {{ detect_from_project }},
   live_confirmed: {{ live_confirmed }}.
   Refuse live projects without live_confirmed. Follow the Process
   exactly and return the structured result.

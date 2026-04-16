@@ -2,6 +2,8 @@
 
 37 items adapted from SubagentForge's 60+ item checklist for Goose recipe YAML. Every forged recipe must pass all REQUIRED items. RECOMMENDED items improve quality.
 
+**See also:** `recipe-hygiene.md` — behavioral rules for Primitives vs Workflow Recipes (runtime patterns, safety gates, information barriers). This checklist covers structure; hygiene rules cover behavior.
+
 ---
 
 ## Identity (REQUIRED)

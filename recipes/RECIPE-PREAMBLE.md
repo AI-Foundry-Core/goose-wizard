@@ -132,8 +132,8 @@ trust the recovery semantics across the whole system.
 is the user's call (or a future dedicated pruning recipe, not any
 recipe that writes during normal work).
 
-Recipes that cite this section: `conductor-setup` (tracks.md), the
-four `context-write-*` primitives, `ensure-config` (user.json
+Recipes that cite this section: `conductor` (inline context writes,
+tracks.md), `context-write-styleguide`, `ensure-config` (user.json
 migration), `track-create` (tracks.md append + all track files),
 `graduate-module`, `migrate-progression`.
 
