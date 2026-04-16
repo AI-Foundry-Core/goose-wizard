@@ -236,12 +236,32 @@ $configDir = Join-Path $env:APPDATA "Block\goose\config"
 $configPath = Join-Path $configDir "config.yaml"
 $sourceConfig = Join-Path $InstallDir "install\config.yaml"
 
+New-Item -ItemType Directory -Path $configDir -Force | Out-Null
 if (-not (Test-Path $configPath)) {
-    New-Item -ItemType Directory -Path $configDir -Force | Out-Null
     Copy-Item $sourceConfig $configPath
     Write-Host " created config.yaml" -ForegroundColor Green
 } else {
-    Write-Host " config.yaml exists (skipped)" -ForegroundColor Green
+    # Config exists — ensure provider/model/mode are set (goose configure
+    # creates a config without these, causing "No provider configured").
+    $content = Get-Content $configPath -Raw
+    $updated = $false
+    if ($content -notmatch '(?m)^GOOSE_PROVIDER:') {
+        Add-Content $configPath "`nGOOSE_PROVIDER: claude-acp"
+        $updated = $true
+    }
+    if ($content -notmatch '(?m)^GOOSE_MODEL:') {
+        Add-Content $configPath "`nGOOSE_MODEL: opus"
+        $updated = $true
+    }
+    if ($content -notmatch '(?m)^GOOSE_MODE:') {
+        Add-Content $configPath "`nGOOSE_MODE: smart_approve"
+        $updated = $true
+    }
+    if ($updated) {
+        Write-Host " added provider/model/mode to existing config" -ForegroundColor Green
+    } else {
+        Write-Host " config.yaml already configured" -ForegroundColor Green
+    }
 }
 
 # --- 3b. Set GOOSE_RECIPE_PATH ---
