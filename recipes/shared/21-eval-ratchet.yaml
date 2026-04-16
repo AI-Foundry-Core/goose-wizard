@@ -81,7 +81,7 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.goose-wizard/progression.json` — check if concept 5.6 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. The eval command being ratcheted, the baseline
   file, and any CI wiring all belong under the target. Every subagent
   and sub-recipe call must receive target-scoped paths explicitly. Before
@@ -93,7 +93,7 @@ prompt: |
     All file operations in this delegation act on the target codebase.
     - Use absolute paths starting with <TARGET>/ for every read, edit,
       and scan. The eval command, existing baseline files, and CI
-      wiring live under <TARGET>/ — never in Goose Wizard.
+      wiring live under <TARGET>/ — never in goose-wizard.
     - Write the baseline file, ratchet check script, and CI hooks under
       <TARGET>/ (typically <TARGET>/evals/ or the project's existing
       eval directory).

@@ -35,7 +35,7 @@ instructions: |
   **WORKING DIRECTORY.** This coordinator does no code work itself. If
   `target_codebase_path` is non-empty, propagate it to every `code_review`
   sub-recipe call so each layer reviewer acts on the developer's code,
-  not Goose Wizard. Reviewer temp directories live under
+  not goose-wizard. Reviewer temp directories live under
   `{target_codebase_path}/.goose/tmp/parallel-review/{run_id}/`. Cleanup
   applies to those paths inside the target. If empty, sub-recipes default
   to CWD (single-repo / self-testing case).

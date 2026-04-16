@@ -7,7 +7,7 @@
 > `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `escalation-routing` sub-recipe.
 > Pipeline ownership and external state references should reference the
-> developer's project, not Goose Wizard.
+> developer's project, not goose-wizard.
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, ownership model, external systems, temp file patterns).

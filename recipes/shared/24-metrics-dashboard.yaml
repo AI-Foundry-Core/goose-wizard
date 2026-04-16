@@ -69,7 +69,7 @@ prompt: |
   ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
-  Read these files now. Files under `teaching/` are in the Goose Wizard repo
+  Read these files now. Files under `teaching/` are in the goose-wizard repo
   (your CWD). Target-side files use the target_codebase_path you resolve
   in step 0.
   0. `.goose/state/user_config.json` — your target codebase path. If missing
@@ -83,10 +83,10 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.goose-wizard/progression.json` — check if concept 7.1 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the Goose Wizard repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. The developer's pipeline outputs, baseline and
   comparison metric files, test results, build artifacts, and any
-  before/after snapshots all live under `<TARGET>/`, not Goose Wizard. Every
+  before/after snapshots all live under `<TARGET>/`, not goose-wizard. Every
   subagent and sub-recipe call must receive target_codebase_path
   explicitly. Before each `Delegate to subagent:` call, prepend this
   target prologue (substitute `<TARGET>` with the resolved
@@ -99,7 +99,7 @@ prompt: |
       scan, and test run.
     - For shell and git commands, use `git -C <TARGET> ...` or cd into
       <TARGET> in the same command.
-    - Do NOT read, edit, or test files outside <TARGET>/. Goose Wizard is
+    - Do NOT read, edit, or test files outside <TARGET>/. goose-wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md`, refers to
       baseline or comparison data files, pipeline outputs, or "the
@@ -108,7 +108,7 @@ prompt: |
 
   When calling the `metrics_dashboard` sub-recipe, pass
   `target_codebase_path` as a parameter so the agent primitive measures
-  the developer's pipeline, not Goose Wizard's.
+  the developer's pipeline, not goose-wizard's.
 
   If concept 7.1 is already complete:
   "You've already shown you can do this well. Want to skip ahead or

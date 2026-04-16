@@ -38,7 +38,7 @@ instructions: |
   - Write the baseline file, ratchet check script, and CI hooks under
     `{target_codebase_path}/` — typically `{target_codebase_path}/evals/`
     or the project's existing eval directory.
-  - Do NOT write baselines or ratchet scripts into Goose Wizard.
+  - Do NOT write baselines or ratchet scripts into goose-wizard.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -86,7 +86,7 @@ prompt: |
 
   If target codebase is non-empty, the eval command runs inside THAT
   directory and the baseline file, ratchet check script, and CI wiring
-  must be written under it. Do not write into Goose Wizard. If target is
+  must be written under it. Do not write into goose-wizard. If target is
   empty, operate on CWD.
 
   Install a monotonic ratchet. The quality bar must never go down.

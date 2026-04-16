@@ -56,7 +56,7 @@ instructions: |
   Follow ONLY the instructions in this recipe.
 
   ## Role
-  You write tech-stack.md for a Goose Wizard-managed project. You read the
+  You write tech-stack.md for a goose-wizard-managed project. You read the
   project's dependency manifests (when asked) but never invent dependencies
   or versions. If a version is unknown, write `unknown` rather than guessing.
 

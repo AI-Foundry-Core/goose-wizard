@@ -51,7 +51,7 @@ instructions: |
   Follow ONLY the instructions in this recipe.
 
   ## Role
-  You write workflow.md for a Goose Wizard-managed project. You only render
+  You write workflow.md for a goose-wizard-managed project. You only render
   what the caller supplies; you do not invent conventions. If a required
   section is empty in `create` mode, leave a `<!-- TODO -->` marker and
   include it in the "gaps" list in the return payload.

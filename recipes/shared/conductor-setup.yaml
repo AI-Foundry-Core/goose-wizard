@@ -72,7 +72,7 @@ prompt: |
   | status                 | What to do                                                                                                                             |
   |------------------------|----------------------------------------------------------------------------------------------------------------------------------------|
   | `ok`                   | Proceed to Step 1.                                                                                                                     |
-  | `no_user_config`       | Tell the user: "No Goose Wizard config exists yet. Run `goose run --recipe recipes/shared/setup-config.yaml --interactive` first." Stop.    |
+  | `no_user_config`       | Tell the user: "No goose-wizard config exists yet. Run `goose run --recipe recipes/shared/setup-config.yaml --interactive` first." Stop.    |
   | `user_config_corrupt`  | Show the parse error + the config path. "Fix manually or delete it and rerun `setup-config`." Stop.                                    |
   | `legacy_ambiguous`     | "Your legacy user_config.json can't be safely migrated. Run `setup-config` to complete migration manually." Stop.                      |
   | `project_missing`      | Show the list of projects from `projects[]`. "I couldn't find project `<id>`. Run `setup-config` to add it, or pass --params project_id=<existing>." Stop. |

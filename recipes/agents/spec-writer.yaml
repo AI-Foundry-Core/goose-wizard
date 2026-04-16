@@ -28,7 +28,7 @@ instructions: |
     file read and scan when exploring the codebase.
   - If you persist a spec file, write it under
     `{target_codebase_path}/specs/` or another conventional location
-    inside the target — never inside the Goose Wizard repo.
+    inside the target — never inside the goose-wizard repo.
   - For shell commands (e.g., listing files, git inspection), use
     `git -C {target_codebase_path} ...` or `cd {target_codebase_path} && ...`.
   - You do NOT write code; you do NOT modify source files.
@@ -75,7 +75,7 @@ prompt: |
 
   If target codebase is non-empty, all reads and scans act on THAT
   directory — use absolute paths and `git -C <target>`. Persist any
-  spec file inside the target, not in Goose Wizard. Do not modify source
+  spec file inside the target, not in goose-wizard. Do not modify source
   files. If target is empty, operate on CWD.
 
   Read the codebase, produce a structured implementation spec.

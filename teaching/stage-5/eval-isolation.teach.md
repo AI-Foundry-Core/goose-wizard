@@ -6,7 +6,7 @@
 > whenever this script says `.goose/team_context.md`, "your test suite,"
 > "the codebase," or "the repo," interpret those against `<TARGET>/`.
 > Mocks, fixtures, and wiring all live under `<TARGET>/` (typically
-> `<TARGET>/tests/fixtures/`), never in Goose Wizard. Prepend the TARGET
+> `<TARGET>/tests/fixtures/`), never in goose-wizard. Prepend the TARGET
 > PROLOGUE to every `Delegate to subagent` call. Pass
 > `target_codebase_path` to the `eval-isolation` sub-recipe.
 

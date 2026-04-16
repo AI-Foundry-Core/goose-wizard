@@ -7,7 +7,7 @@
 > pipeline," "the repo," or "your evals," interpret those against
 > `<TARGET>/`. New deterministic/behavioral/model-graded layer scripts
 > and the orchestration runner all live under `<TARGET>/` (typically
-> `<TARGET>/evals/`), never in Goose Wizard. Prepend the TARGET PROLOGUE to
+> `<TARGET>/evals/`), never in goose-wizard. Prepend the TARGET PROLOGUE to
 > every `Delegate to subagent` call. Pass `target_codebase_path` to the
 > `eval-layers` sub-recipe.
 
