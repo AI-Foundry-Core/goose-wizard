@@ -2,6 +2,8 @@
 
 Every GooseForge-generated recipe follows this structure. The 10 canonical directive sections map to Goose YAML fields as shown below.
 
+**See also:** `recipe-hygiene.md` — behavioral constraints that every recipe generated from this template must satisfy.
+
 ---
 
 ## Section-to-YAML Mapping
@@ -25,6 +27,7 @@ Every GooseForge-generated recipe follows this structure. The 10 canonical direc
 
 ```yaml
 version: 1.0.0
+# type: primitive | training | coordinator       # Hygiene rule U1
 title: "Short Name"                              # Section 1: identity
 description: "One sentence — what it does"       # Section 1: trigger
 
