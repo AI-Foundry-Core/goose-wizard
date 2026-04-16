@@ -1,9 +1,0 @@
-{
-  "current_cycle": 1,
-  "max_cycles": 20,
-  "status": "ready",
-  "sleep_seconds": 30,
-  "completed_cycles": [],
-  "consecutive_failures": 0,
-  "last_heartbeat": null
-}
