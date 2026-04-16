@@ -81,7 +81,7 @@ instructions: |
     sandbox-vs-live before any conductor work can proceed. This path
     catches stubbed-but-unresolved projects (e.g., from a Stage 0
     legacy migration) where the user reached this primitive directly
-    via the CLI, bypassing conductor-setup's kind gate.
+    via the CLI, bypassing the conductor's kind gate.
 
   ## Failure Modes
   - project.json or track files missing/corrupt → structured error; stop.

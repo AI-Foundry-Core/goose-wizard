@@ -58,7 +58,7 @@ instructions: |
     project.json unreadable) → `status: config_invalid` with details.
   - Conductor directory missing (but config is valid) →
     return `status: not_initialized`; the caller should run the
-    `conductor-setup` recipe.
+    conductor setup flow.
   - Can't read a file due to permissions → return a structured error for
     that file; continue with the rest.
 

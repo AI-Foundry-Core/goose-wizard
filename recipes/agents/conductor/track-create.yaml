@@ -96,7 +96,7 @@ instructions: |
   - Config invalid (project_path missing/empty, project_kind unrecognized,
     project.json unreadable) → `status: config_invalid` with details.
   - Conductor directory missing (config valid but no conductor dir) →
-    `not_initialized` (caller runs conductor-setup).
+    `not_initialized` (caller runs conductor setup flow).
   - Requirements brief too vague to produce testable acceptance criteria →
     `brief_too_vague` with the gaps.
   - Track ID collision → `id_collision` with the existing path.
