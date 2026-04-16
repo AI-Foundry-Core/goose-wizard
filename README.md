@@ -14,7 +14,7 @@ Every module has you do real work on real code. You get coached on what you're m
 - **Three recipe types** — training (interactive facilitators), agents (non-interactive workers), graduated (daily-use multi-agent coordinators)
 - **GooseForge** — design your own recipes and pipelines once you know the pattern
 
-The full curriculum is in `ideas/syllabus.md`.
+The full curriculum is in `syllabus.md`.
 
 ## Install
 
@@ -43,12 +43,9 @@ That's it — one line from install to your first training module. See [install/
 
 ## For teachers / recipe authors
 
-If you're adding modules or recipes, start with `CLAUDE.md` at the repo root — it explains the teaching framework, the three recipe types, and the design conventions.
-
-- `CLAUDE.md` — project instructions and conventions
-- `HOW_GOOSE_WORKS.md` — Goose internals (scheduler, recipes, extensions, CLI)
-- `ideas/syllabus.md` — full 8-stage concept map and decision log
+- `syllabus.md` — full 8-stage concept map, teaching framework, and decision log
 - `teaching/meta/module-designer/SKILL.md` — the module-authoring skill
+- `recipes/forge-references/` — design principles, archetypes, hygiene rules
 
 ## Status
 
