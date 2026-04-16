@@ -102,9 +102,9 @@ These rules apply in addition to the Universal rules above.
 
 Primitives must NOT declare `sub_recipes:` in their YAML. They are the bottom of the call chain. If a primitive needs shared logic (like config resolution), the parent must call that logic first and pass the result as parameters.
 
-**Why:** Nesting sub_recipes creates hidden dependencies and makes the call chain opaque. `HOW_GOOSE_WORKS.md` documents that sub-recipes cannot invoke other sub-recipes, though in practice the 9 conductor primitives violate this without runtime errors — treating this as an architectural discipline rule, not a hard platform constraint, until verified.
+**Why:** Goose does not allow sub-recipes to invoke other sub-recipes — nesting is a hard platform constraint (`HOW_GOOSE_WORKS.md:101`). A primitive called as a sub-recipe from a workflow CANNOT itself call another sub-recipe. Recipes that attempt this will fail at runtime.
 
-**Known violation:** 9 conductor primitives currently call `ensure_config`. These are being refactored to accept resolved config as parameters instead.
+**Known violation:** 9 conductor primitives currently declare `ensure_config` as a sub-recipe. These have NOT been end-to-end tested through Goose and are expected to break. They are being refactored to accept resolved config as parameters instead (parent calls `ensure_config` first, passes results down).
 
 ### P2. Structured return with status field
 
