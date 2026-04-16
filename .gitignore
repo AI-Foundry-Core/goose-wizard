@@ -10,9 +10,12 @@ __pycache__/
 
 # Goose — per-user runtime state
 .goose/state/
-.goose/PROGRESS.md
 .goose/team_context.md
 .goose/tom-context.md
+
+# Per-user training state (seeded by installer, updated by recipes)
+progression.json
+user_config.json
 
 # Local dev docs — not part of the product
 CLAUDE.md

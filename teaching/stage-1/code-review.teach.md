@@ -9,7 +9,7 @@
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (stack, conventions, architectural patterns).
-Read ~/.goose-wizard/progression.json — check if concept 1.3 is already demonstrated.
+Read ~/goose-wizard/progression.json — check if concept 1.3 is already demonstrated.
 If already demonstrated (all dimensions adequate+):
   "You've already shown you can do this well. Want to skip ahead to [next incomplete recipe], or run through another review to sharpen the skill?"
   If skip: jump to Bridge section.
@@ -217,7 +217,7 @@ WAIT for any questions about the recipe structure.
 Check: Wait for acknowledgement — they may want to stop for the day or keep going. If they have a clarifying question, answer briefly and re-offer.
 
 ## State Update
-Write to ~/.goose-wizard/progression.json:
+Write to ~/goose-wizard/progression.json:
   concept 1.3 dimensions with eval ratings + timestamp.
   Update concept status to "complete" if all required dimensions are Adequate or Strong.
   Never overwrite a Strong rating with a lower one.

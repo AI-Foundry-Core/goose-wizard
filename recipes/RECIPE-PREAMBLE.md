@@ -34,7 +34,7 @@ and follow this recipe.
 
 Progression state is per-USER, not per-project. Career progress travels with
 the developer across every codebase they train on. The canonical location is
-`~/.goose-wizard/progression.json`. The legacy location was
+`~/goose-wizard/progression.json`. The legacy location was
 `.goose/state/progression.json` (per-project).
 
 Every training recipe's Step 0 must read progression state from the
@@ -43,18 +43,18 @@ verbatim near the top of any recipe that reads or writes progression state:
 
 ```
 PROGRESSION STATE — read before any module logic:
-  Canonical path: `~/.goose-wizard/progression.json` (per-user, all projects).
+  Canonical path: `~/goose-wizard/progression.json` (per-user, all projects).
   On first read in this session, run this fallback once:
-    1. If `~/.goose-wizard/progression.json` exists, USE IT. Done.
+    1. If `~/goose-wizard/progression.json` exists, USE IT. Done.
     2. Else if `.goose/state/progression.json` exists in the project:
-       - Create `~/.goose-wizard/` if missing.
-       - Move `.goose/state/progression.json` to `~/.goose-wizard/progression.json`
+       - Create `~/goose-wizard/` if missing.
+       - Move `.goose/state/progression.json` to `~/goose-wizard/progression.json`
          (atomic: write tmp + rename).
        - Rename the legacy file to `.goose/state/progression.json.migrated`
          so future Step-0 checks skip it.
        - USE the new file.
     3. Else treat as a NEW user — no progression yet.
-  ALL WRITES go to `~/.goose-wizard/progression.json`. Never write to
+  ALL WRITES go to `~/goose-wizard/progression.json`. Never write to
   `.goose/state/progression.json` again. The migrate-progression sub-recipe
   (`recipes/agents/progression/migrate-progression.yaml`) does the same
   fallback as a standalone helper if needed.

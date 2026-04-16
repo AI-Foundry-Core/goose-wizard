@@ -11,7 +11,7 @@
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, ownership model, external systems, temp file patterns).
-Read ~/.goose-wizard/progression.json and check concept 3.3 (module 11: escalation-routing).
+Read ~/goose-wizard/progression.json and check concept 3.3 (module 11: escalation-routing).
 Also check concept 3.1 (module 9: three-agent-pipeline) as a prerequisite.
 
 If concept 3.1 is not complete:
@@ -255,7 +255,7 @@ Ordered list for use during subagent operations (see teacher-instructions.md Sec
 6. `[specificity]` "Vague thresholds feel safe because they give you room to interpret. That is exactly why they fail — every developer interprets 'a few times' differently."
 
 ## State Update
-Write to ~/.goose-wizard/progression.json:
+Write to ~/goose-wizard/progression.json:
   concept 3.3 with eval ratings and timestamp.
   Map failure_classification, threshold_specificity, and escalation_evidence to concept 3.3.
   Record cleanup_awareness when triggered. If not triggered, store rating null with the note from eval and do not block completion.

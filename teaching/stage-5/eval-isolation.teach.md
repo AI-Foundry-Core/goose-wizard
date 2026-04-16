@@ -12,7 +12,7 @@
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context.
-Read ~/.goose-wizard/progression.json — check if concept 5.5 is already demonstrated.
+Read ~/goose-wizard/progression.json — check if concept 5.5 is already demonstrated.
 If already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 This is **Fully Adaptive** mode. Consulting role — the developer leads, you spot gaps.
@@ -169,5 +169,5 @@ WAIT for any questions about the recipe structure.
 Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
-Write to ~/.goose-wizard/progression.json:
+Write to ~/goose-wizard/progression.json:
   concept 5.5 dimensions with eval ratings + timestamp

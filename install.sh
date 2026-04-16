@@ -456,10 +456,8 @@ echo ""
 info "Phase 5: Seed state"
 echo ""
 
-mkdir -p "$HOME/.goose-wizard"
-
 PROGRESSION_SRC="$INSTALL_DIR/install/project-template/.goose/state/progression.json"
-PROGRESSION_DST="$HOME/.goose-wizard/progression.json"
+PROGRESSION_DST="$INSTALL_DIR/progression.json"
 if [ ! -f "$PROGRESSION_DST" ] && [ -f "$PROGRESSION_SRC" ]; then
     cp "$PROGRESSION_SRC" "$PROGRESSION_DST"
     ok "Seeded progression.json"

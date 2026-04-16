@@ -69,23 +69,23 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   IMPORTANT — PROGRESSION STATE (per-user):
-  Progression is per-USER at `~/.goose-wizard/progression.json` (it follows the
+  Progression is per-USER at `~/goose-wizard/progression.json` (it follows the
   developer across every codebase they train on, not tied to this project).
   On FIRST READ this session, run this migration fallback once:
-    - If `~/.goose-wizard/progression.json` exists, USE IT.
+    - If `~/goose-wizard/progression.json` exists, USE IT.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
-      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), then
+      create `~/goose-wizard/` if missing, COPY the legacy file contents to
+      `~/goose-wizard/progression.json` (atomic: write tmp + rename), then
       rename the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
+  ALL progression WRITES go to `~/goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
   Read these files now (do NOT read them on the first message — wait until
   the developer responds). Files under `teaching/` are in the goose-wizard
   repo (your CWD). Target-side files use the target_codebase_path you
   resolve in step 0.
-  0. `~/.goose-wizard/user_config.json` — your target codebase path. If missing
+  0. `~/goose-wizard/user_config.json` — your target codebase path. If missing
      or empty, STOP and ask the developer: "I don't see a target codebase
      saved. What's the absolute path to the codebase you want to train on?"
      Save their answer before continuing. Use target_codebase_path as the
@@ -94,7 +94,7 @@ prompt: |
   2. `teaching/stage-6/continuous-dev.teach.md` — your playbook
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path)
-  4. `~/.goose-wizard/progression.json` — check if concept 6.1 is already complete
+  4. `~/goose-wizard/progression.json` — check if concept 6.1 is already complete
 
   **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. The developer's pipeline state, cycle artifacts,
@@ -184,27 +184,26 @@ prompt: |
   Show the developer the graduation results.
 
   First, check for errors:
-  If graduate_module reported an error OR progress_updated is false:
+  If graduate_module reported an error:
   "Graduation had an issue — your training progress is saved, but the
-  tool upgrade or progress file may not have completed. Error details:
+  tool upgrade may not have completed. Error details:
   [report the specific error]. You can continue to the next module,
   but please report this issue."
   Then still show the next-module message below.
 
   Then show:
-  "Module complete! Your training recipe has been upgraded to the working version."
+  "Progress updated. Module complete! Your training recipe has been
+  upgraded to the working version."
 
-  If graduate_module returned a next_module, display the command exactly as returned
-  (it is already a fenced code block):
-  "Ready for the next one? Open .goose/PROGRESS.md for the full list, or copy this
-  command into your terminal:
+  If graduate_module returned a next_module, display the command:
+  "Ready for the next one? Run this in your project directory:
 
   <next_module.command>
 
-  Your progress has been saved in .goose/PROGRESS.md"
+  Your progress is tracked in ~/goose-wizard/progression.json"
 
   If graduate_module returned next_module as null (all complete):
-  "All 26 modules complete! Your training recipes are now working tools.
-  Full progress saved in .goose/PROGRESS.md"
+  "Progress updated. All 26 modules complete! Your training recipes
+  are now working tools."
 
   Bridge: per teaching script.
