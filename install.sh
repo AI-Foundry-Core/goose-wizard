@@ -172,6 +172,24 @@ step "Checking Goose CLI" check_goose || {
     fi
 }
 
+# ---- 4b. Goose desktop app (for browsing recipe YAML) ----
+check_goose_app() {
+    if [ "$PLATFORM" = "macos" ] && [ -d "/Applications/Goose.app" ]; then
+        echo "found"
+        return 0
+    fi
+    if [ "$PLATFORM" = "macos" ]; then
+        brew install --cask block-goose >/dev/null 2>&1
+        if [ -d "/Applications/Goose.app" ]; then
+            echo "installed"
+            return 0
+        fi
+    fi
+    echo "skipped (optional)"
+    return 0
+}
+step "Checking Goose desktop app" check_goose_app
+
 # ---- 5. Claude CLI ----
 check_claude() {
     if command -v claude >/dev/null 2>&1; then
