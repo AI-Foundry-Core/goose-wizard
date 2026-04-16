@@ -7,7 +7,7 @@
 > "your repo," or "the gate," interpret those against `<TARGET>/`.
 > Preflight gate scripts, wiring, and evidence logs all live under
 > `<TARGET>/` (typically `<TARGET>/scripts/preflight/`), never in
-> RILGoose. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
+> goose-wizard. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `eval-gate` sub-recipe.
 
 ## Setup

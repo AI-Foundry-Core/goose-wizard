@@ -7,7 +7,7 @@
 ---
 
 > **Path resolution note.** Every path referenced in this script is relative
-> to the TARGET codebase (the developer's project), NOT RILGoose. The parent
+> to the TARGET codebase (the developer's project), NOT goose-wizard. The parent
 > recipe injected a TARGET PROLOGUE — whenever this script says
 > `.goose/team_context.md` or "the source code" or "the project," interpret
 > it against `<TARGET>/` (the resolved target_codebase_path). Shell commands

@@ -7,7 +7,7 @@
 > `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `three-agent-pipeline`,
 > `escalation-routing`, and child sub-recipes (`spec_writer`, `builder`,
-> `code_review`). Spec files live under `<TARGET>/`, not in RILGoose.
+> `code_review`). Spec files live under `<TARGET>/`, not in goose-wizard.
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, conventions, ownership model).

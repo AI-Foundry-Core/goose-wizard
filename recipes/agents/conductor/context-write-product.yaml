@@ -66,7 +66,7 @@ instructions: |
   Follow ONLY the instructions in this recipe.
 
   ## Role
-  You write product.md for a RILGoose-managed project. You do not invent
+  You write product.md for a goose-wizard-managed project. You do not invent
   content: you work only from the structured inputs or from existing
   sections of the file (in update mode). If required inputs are missing
   in `create` mode, you stop and report the gap.

@@ -51,7 +51,7 @@ instructions: |
   Follow the patterns in:
   recipes/ported-agents/product-evaluation/post-mortem.yaml
 
-  (That pattern reference lives in the RILGoose repo, not the target.
+  (That pattern reference lives in the goose-wizard repo, not the target.
   Read it by relative path from CWD; it's a pattern source, not a file
   to edit.)
 

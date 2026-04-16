@@ -38,7 +38,7 @@ instructions: |
   **WORKING DIRECTORY.** This coordinator does no code work itself. If
   `target_codebase_path` is non-empty, propagate it to every sub-recipe
   call (builder and tester) so the agent primitives operate on the
-  developer's code, not RILGoose. If empty, sub-recipes default to CWD
+  developer's code, not goose-wizard. If empty, sub-recipes default to CWD
   (single-repo / self-testing case).
 
   Rules:

@@ -40,7 +40,7 @@ instructions: |
   - Read pipeline artifacts, logs, and build outputs from under
     `{target_codebase_path}/`.
   - Do NOT run commands against or read files outside
-    `{target_codebase_path}/`. RILGoose is infrastructure.
+    `{target_codebase_path}/`. goose-wizard is infrastructure.
   - Do NOT modify files in the target — verification is read + re-run
     only.
   If `target_codebase_path` is empty, operate on the current working
@@ -54,7 +54,7 @@ instructions: |
   recipes/ported-agents/product-evaluation/product-evaluation.yaml
   recipes/ported-agents/product-evaluation/post-mortem.yaml
 
-  (Those ported-agent references live in the RILGoose repo, not the
+  (Those ported-agent references live in the goose-wizard repo, not the
   target. Read them by relative path from CWD; they're pattern sources,
   not files to edit.)
 

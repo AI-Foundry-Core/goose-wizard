@@ -76,7 +76,7 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.2 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. Target artifacts, existing criteria, and written
   eval definitions all live under the target. Every subagent and
   sub-recipe call must receive target-scoped paths explicitly. Before
@@ -88,7 +88,7 @@ prompt: |
     All file operations in this delegation act on the target codebase.
     - Use absolute paths starting with <TARGET>/ for every read. Target
       artifacts, existing eval criteria, and dry-run inputs live under
-      <TARGET>/ — never in RILGoose.
+      <TARGET>/ — never in goose-wizard.
     - Write new eval definitions and check scripts under <TARGET>/
       (e.g., <TARGET>/evals/ or the project's existing eval directory).
     - Run dry-runs from within <TARGET>/ — use `cd <TARGET>` or

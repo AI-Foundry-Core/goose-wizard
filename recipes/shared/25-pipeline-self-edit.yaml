@@ -74,7 +74,7 @@ prompt: |
   ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
-  Read these files now. Files under `teaching/` are in the RILGoose repo
+  Read these files now. Files under `teaching/` are in the goose-wizard repo
   (your CWD). Target-side files use the target_codebase_path you resolve
   in step 0.
   0. `.goose/state/user_config.json` — your target codebase path. If missing
@@ -88,10 +88,10 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 7.2 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. The developer's agent instruction files, skill
   files, and any verification command outputs all live under `<TARGET>/`,
-  not RILGoose. Every subagent and sub-recipe call must receive
+  not goose-wizard. Every subagent and sub-recipe call must receive
   target_codebase_path explicitly. Before each `Delegate to subagent:`
   call, prepend this target prologue (substitute `<TARGET>` with the
   resolved target_codebase_path):
@@ -103,7 +103,7 @@ prompt: |
       scan, and test run.
     - For shell and git commands, use `git -C <TARGET> ...` or cd into
       <TARGET> in the same command.
-    - Do NOT read, edit, or test files outside <TARGET>/. RILGoose is
+    - Do NOT read, edit, or test files outside <TARGET>/. goose-wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md`, refers to
       instruction files, skill files, agent definitions, or "the
@@ -114,7 +114,7 @@ prompt: |
 
   When calling the `pipeline_self_edit` sub-recipe, pass
   `target_codebase_path` as a parameter so the agent primitive audits
-  the developer's instruction files, not RILGoose's.
+  the developer's instruction files, not goose-wizard's.
 
   If concept 7.2 is already complete:
   "You've already shown you can do this well. Want to skip ahead or

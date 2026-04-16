@@ -32,7 +32,7 @@ instructions: |
   - Use absolute paths starting with `{target_codebase_path}/` for every read and scan.
   - For git inspection (diffs, logs, blame), use `git -C {target_codebase_path} ...`.
   - Interpret review_target (file paths, PR number, commit range, branch) as anchored to `{target_codebase_path}/`.
-  - Do NOT read files outside `{target_codebase_path}/`. RILGoose is infrastructure, not the code under review.
+  - Do NOT read files outside `{target_codebase_path}/`. goose-wizard is infrastructure, not the code under review.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -46,7 +46,7 @@ instructions: |
   recipes/ported-agents/comprehensive-review/code-reviewer.yaml
   recipes/ported-agents/comprehensive-review/architect-review.yaml
 
-  (Those ported-agent references live in the RILGoose repo, not the
+  (Those ported-agent references live in the goose-wizard repo, not the
   target. Read them by relative path from CWD; they're pattern sources,
   not files to edit.)
 

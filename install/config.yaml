@@ -1,0 +1,36 @@
+GOOSE_PROVIDER: claude-acp
+GOOSE_MODEL: opus
+GOOSE_MODE: smart_approve
+extensions:
+  developer:
+    enabled: true
+    type: builtin
+    name: developer
+  analyze:
+    enabled: true
+    type: builtin
+    name: analyze
+  summon:
+    enabled: true
+    type: builtin
+    name: summon
+  skills:
+    enabled: true
+    type: builtin
+    name: skills
+  todo:
+    enabled: true
+    type: builtin
+    name: todo
+  memory:
+    enabled: true
+    type: builtin
+    name: memory
+  orchestrator:
+    enabled: true
+    type: builtin
+    name: orchestrator
+  chatrecall:
+    enabled: false
+    type: builtin
+    name: chatrecall
