@@ -14,21 +14,30 @@ The full curriculum is in `ideas/syllabus.md`.
 
 ## Install
 
-**Windows:** Double-click `install\install-windows.bat` in a fresh clone.
+One line. Open a terminal and paste:
 
-**Mac:** Double-click `install/install-mac.command` in Finder.
+**Mac / Linux:**
+```
+curl -fsSL https://raw.githubusercontent.com/AI-Foundry-Core/goose-wizard/main/install.sh | bash
+```
 
-Either installer will:
-- Install Goose CLI + desktop app, Claude CLI, Node, Git (if missing)
-- Prompt you to log into Claude (a Claude Max subscription is required)
-- Configure Goose to find this repo's training recipes
-- Apply a small set of patches to the Claude-ACP adapter so recipes run cleanly
+**Windows (PowerShell):**
+```
+irm https://raw.githubusercontent.com/AI-Foundry-Core/goose-wizard/main/install.ps1 | iex
+```
 
-See `install/README.md` for details, troubleshooting, and manual-setup instructions.
+The installer will:
+- Install Goose CLI, Claude CLI, Node, Git (if missing)
+- Clone this repo to `~/goose-wizard`
+- Log you into Claude (a Claude Max subscription is required)
+- Configure Goose to find the training recipes
+- Apply patches to the Claude-ACP adapter so recipes run cleanly
+
+See [install/README.md](install/README.md) for details and troubleshooting.
 
 ## Start training
 
-Training runs from the **command line**, not the desktop app. Open a terminal in the RILGoose directory and run:
+Training runs from the **command line**, not the desktop app. Open a terminal in the goose-wizard directory and run:
 
 ```
 goose run --recipe 00-start-here --interactive

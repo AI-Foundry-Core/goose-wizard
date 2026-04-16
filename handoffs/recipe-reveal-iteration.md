@@ -54,7 +54,7 @@ The original 00-start-here.yaml had ~200 lines in `instructions:` — the agent 
 
 ### 5. Test Codebase Changed
 
-Switched from `GooseTestProject` (toy task tracker) to `C:\Users\donid\ClaudeInfra\docunator` (real MCP server project) for more realistic testing. Set up:
+Switched from `GooseTestProject` (toy task tracker) to `<PROJECTS>\docunator` (real MCP server project) for more realistic testing. Set up:
 - `.goose/state/progression.json` (fresh 0/26)
 - `.goose/team_context.md` (project info for recipes)
 - `.claude/CLAUDE.md` (minimal Goose override)
@@ -103,8 +103,8 @@ The last run on docunator wasn't completed. Reset and run through all 7 acts to 
 Reset procedure:
 1. `rm %APPDATA%\Block\goose\data\sessions\sessions.db`
 2. Reset `.goose/state/progression.json` in docunator to 0/26
-3. Revert any code changes: `git -C C:\Users\donid\ClaudeInfra\docunator checkout -- .`
-4. Run: `cd C:\Users\donid\ClaudeInfra\docunator && goose run --recipe C:\Users\donid\ClaudeProjects\RILGoose\recipes\shared\00-start-here.yaml --interactive`
+3. Revert any code changes: `git -C <PROJECTS>\docunator checkout -- .`
+4. Run: `cd <PROJECTS>\docunator && goose run --recipe <PROJECTS>\goose-wizard\recipes\shared\00-start-here.yaml --interactive`
 
 ### Priority 2: Test Module 2 (Bug Fix) with Recipe Reveal
 

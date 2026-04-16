@@ -81,7 +81,7 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.4 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. The pipeline entrypoint, eval commands, and gate
   scripts all belong inside the target. Every subagent and sub-recipe
   call must receive target-scoped paths explicitly. Before each
@@ -93,7 +93,7 @@ prompt: |
     All file operations in this delegation act on the target codebase.
     - Use absolute paths starting with <TARGET>/ for every read, edit,
       and scan. The pipeline entrypoint, eval commands, and existing
-      preflight logic live under <TARGET>/ — never in RILGoose.
+      preflight logic live under <TARGET>/ — never in goose-wizard.
     - Write the preflight gate script, wiring, and evidence-log
       locations under <TARGET>/ (typically <TARGET>/scripts/preflight/
       or the project's existing gate directory).

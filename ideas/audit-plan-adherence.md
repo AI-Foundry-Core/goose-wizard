@@ -1,4 +1,4 @@
-# Audit: Plan Adherence — RILGoose
+# Audit: Plan Adherence — goose-wizard
 
 **Date:** 2026-04-12
 **Auditor:** Claude Opus 4.6 (second pass — replaces prior audit)

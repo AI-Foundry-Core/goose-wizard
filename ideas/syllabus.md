@@ -1,4 +1,4 @@
-# RILGoose Syllabus — Concept Map Across All Stages
+# goose-wizard Syllabus — Concept Map Across All Stages
 
 **Purpose:** Single source of truth for what we teach, where we teach it, and what it builds on.
 
@@ -498,7 +498,7 @@ Decisions made during syllabus design, recorded for context when building teachi
 ### Decision: Insert Stage 4 (Idea → Spec) before autonomous operation
 **What:** New stage teaching how to turn feature ideas into buildable specifications.
 **Why:** Autonomous pipelines are only as good as what you feed them. The DDD project proved that vague specs produce vague products. The artifact chain (one-pager → requirements → system design) provides structure. Persona-driven decomposition, testable requirements, kill criteria, and AI-assisted quality gates are all patterns from the DDD system.
-**Source:** `C:\Users\donid\ClaudeProjects\ddd-mcp-server`
+**Source:** `<PROJECTS>\ddd-mcp-server`
 
 ### Decision: Insert Stage 5 (Evals) before autonomous operation
 **What:** New stage teaching how to build evaluation systems.
@@ -515,7 +515,7 @@ Decisions made during syllabus design, recorded for context when building teachi
 
 ### Decision: Port RIL Agents into the repo as the execution layer
 **What:** Recipes invoke ported agents in `recipes/ported-agents/` rather than depending on an external library at runtime.
-**Why:** The RIL-agents library gave us battle-tested patterns for `code-reviewer`, `test-automator`, `debugger`, `prd-development`, `feature-spec`, `acceptance-criteria`, etc. Those patterns map directly to our stage concepts. Porting them into the repo (as of 2026-04-15) means RILGoose has zero external runtime dependencies, and the lineage of each agent is preserved in the port itself.
+**Why:** The RIL-agents library gave us battle-tested patterns for `code-reviewer`, `test-automator`, `debugger`, `prd-development`, `feature-spec`, `acceptance-criteria`, etc. Those patterns map directly to our stage concepts. Porting them into the repo (as of 2026-04-15) means goose-wizard has zero external runtime dependencies, and the lineage of each agent is preserved in the port itself.
 **Lineage (not runtime):** `~/ClaudeInfra/ril-agents/` — read-only reference originals. Not loaded, not read by recipes. Conductor was deliberately NOT ported here — it's being redesigned as a native multi-recipe Goose system in a follow-up session.
 
 ### Decision: TDD deferred as standalone concept

@@ -31,7 +31,7 @@ instructions: |
   - Infer test framework and conventions from
     `{target_codebase_path}/.goose/team_context.md` and project config
     files (pyproject.toml, package.json, etc.) inside the target.
-  - Do NOT write anything into RILGoose.
+  - Do NOT write anything into goose-wizard.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -43,7 +43,7 @@ instructions: |
   recipes/ported-agents/product-planning/prd-development.yaml
   recipes/ported-agents/product-specification/feature-spec.yaml
 
-  (Those ported-agent references live in the RILGoose repo, not the
+  (Those ported-agent references live in the goose-wizard repo, not the
   target. Read them by relative path from CWD; they're pattern sources,
   not files to edit.)
 
@@ -85,5 +85,5 @@ prompt: |
 
   If target codebase is non-empty, spec_path must resolve under THAT
   directory, and test specs / skeleton tests / pipeline plans / coverage
-  matrices must be written under it. Do not write into RILGoose. If
+  matrices must be written under it. Do not write into goose-wizard. If
   target is empty, operate on CWD.

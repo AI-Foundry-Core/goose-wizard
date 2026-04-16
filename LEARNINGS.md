@@ -1,4 +1,4 @@
-# RILGoose — Technical Learnings
+# goose-wizard — Technical Learnings
 
 ## 2026-04-14 (Progression Schema & Setup Script)
 
@@ -28,7 +28,7 @@
 
 - **[recipe-ux] Act 3 "Everything is reversible" must explain git.** Developers need to know the mechanism — "All code changes go through git, so everything is reversible" — not just the abstract promise. This connects AI edits to the tools they already know.
 
-- **[test-codebase] docunator used as test codebase.** Switched from GooseTestProject (toy app) to `C:\Users\donid\ClaudeInfra\docunator` (real FastMCP server). More realistic for testing recipe behavior on real codebases. Requires `.goose/state/progression.json`, `.goose/team_context.md`, and `.claude/CLAUDE.md` (Goose override) to be set up.
+- **[test-codebase] docunator used as test codebase.** Switched from GooseTestProject (toy app) to `<PROJECTS>\docunator` (real FastMCP server). More realistic for testing recipe behavior on real codebases. Requires `.goose/state/progression.json`, `.goose/team_context.md`, and `.claude/CLAUDE.md` (Goose override) to be set up.
 
 ## 2026-04-13 (CLI Training Flow & Recipe UX)
 

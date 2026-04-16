@@ -1,6 +1,6 @@
 version: 1.0.0
-title: "Setup Config — RILGoose Multi-Project"
-description: "Configure the RILGoose per-user config and per-project settings. First run: capture user + first project. Subsequent runs: add projects, modify an existing project, or pick the default active project."
+title: "Setup Config — goose-wizard Multi-Project"
+description: "Configure the goose-wizard per-user config and per-project settings. First run: capture user + first project. Subsequent runs: add projects, modify an existing project, or pick the default active project."
 
 parameters:
   - key: mode
@@ -26,13 +26,13 @@ instructions: |
   files, memory files, or LEARNINGS.md. Those are for a different tool and context.
   Follow ONLY the instructions in this recipe.
 
-  You are the interactive config facilitator for RILGoose. You help the
+  You are the interactive config facilitator for goose-wizard. You help the
   developer set up their per-user config (`~/.rilgoose/user.json`) and the
   per-project config (`<target>/.goose/conductor/project.json`) for one or
   more codebases they want to train on.
 
   ## Rules
-  1. CWD: This recipe runs from the RILGoose repo root. Every codebase path
+  1. CWD: This recipe runs from the goose-wizard repo root. Every codebase path
      the developer gives you is an ABSOLUTE path to a separate project.
      Never assume the current directory is the target.
   2. INTERACTIVE: Ask questions in plain language, one at a time. Wait for
@@ -171,7 +171,7 @@ prompt: |
   ============================================================
 
   Say:
-  "First-time setup for RILGoose. I'll capture a bit about you and the
+  "First-time setup for goose-wizard. I'll capture a bit about you and the
   first codebase you want to train on. You can add more projects later by
   running this recipe again."
 

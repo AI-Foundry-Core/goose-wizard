@@ -15,7 +15,7 @@ This wrapper can run in two positions:
 > whenever this script says `.goose/team_context.md`, "the repo," "the
 > codebase," or "the spec," interpret those against `<TARGET>/`.
 > Skeleton tests and coverage matrices belong under `<TARGET>/tests/`
-> and `<TARGET>/specs/`, never in RILGoose. Prepend the TARGET PROLOGUE
+> and `<TARGET>/specs/`, never in goose-wizard. Prepend the TARGET PROLOGUE
 > to every `Delegate to subagent` call. Pass `target_codebase_path` to
 > every sub-recipe.
 

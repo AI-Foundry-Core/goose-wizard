@@ -33,7 +33,7 @@ Minor invented content flagged by reviewers (e.g., "atomic commits" in legacy-mo
 
 **Revised:** Do NOT digest. Conductor is being redesigned as a **native multi-recipe Goose system** for a follow-up session (see Part 2 below). Key insight: conductor's actual scope (interactive project management with humans reviewing phases) is orthogonal to `continuous-dev.yaml`'s scope (unattended overnight pipelines). The digest would have lost what makes conductor valuable AND failed to address what continuous-dev.yaml needs.
 
-**`continuous-dev.yaml` was rewired** to point at RILGoose's own `overnight-pipeline/` docs instead — which is the actual source material for its overnight-pipeline memory/state-audit concerns.
+**`continuous-dev.yaml` was rewired** to point at goose-wizard's own `overnight-pipeline/` docs instead — which is the actual source material for its overnight-pipeline memory/state-audit concerns.
 
 ### Stage 3 (rewire) — COMPLETE
 Rewired 19 recipe YAMLs + 4 teaching/reference docs:
@@ -77,7 +77,7 @@ Per reviewer feedback, progression state needs to move from per-CWD (`.goose/sta
 ## Part 2 — Conductor as a native Goose system (next-session design)
 
 ### The thesis
-Conductor becomes a **multi-recipe Goose system** native to RILGoose — not a reference library, not a digest. Users invoke its recipes from the Goose recipe list. The conductor artifacts (product.md, tech-stack.md, workflow.md, tracks/*) become real files at `<target>/.goose/conductor/` that recipes read and write. Conductor sits in Stage 2 of the curriculum (earliest point where teaching structure matters), NOT at Stage 6.
+Conductor becomes a **multi-recipe Goose system** native to goose-wizard — not a reference library, not a digest. Users invoke its recipes from the Goose recipe list. The conductor artifacts (product.md, tech-stack.md, workflow.md, tracks/*) become real files at `<target>/.goose/conductor/` that recipes read and write. Conductor sits in Stage 2 of the curriculum (earliest point where teaching structure matters), NOT at Stage 6.
 
 ### Locked decisions
 
@@ -89,7 +89,7 @@ Conductor becomes a **multi-recipe Goose system** native to RILGoose — not a r
 | When setup-config runs | **Only when user reaches Conductor** (Stage 2+). Early stages stay focused on doing/seeing. |
 | Conductor curriculum placement | Stage 2 introduction; Stage 4 artifacts; Stage 5 gates; Stage 6 continuous-dev wraps conductor |
 | `~/.goose/rilgoose/` vs `~/.rilgoose/` | **`~/.rilgoose/`** (avoid collision with Goose's own namespace) |
-| CWD contract | **All recipes run from RILGoose repo root. Target accessed by absolute path.** Document in CLAUDE.md + RECIPE-PREAMBLE.md. |
+| CWD contract | **All recipes run from goose-wizard repo root. Target accessed by absolute path.** Document in CLAUDE.md + RECIPE-PREAMBLE.md. |
 | Config sub-recipe count | **Collapse to 2** — `ensure-config.yaml` (read/migrate/create) + inline picker. NOT 4 separate primitives. |
 | Headless/scheduled conductor | Accepts `project_id` parameter. Interactive picker only when interactive AND no param. |
 | Atomic writes | Use tmp + rename + backup pattern for config writes. |
@@ -139,7 +139,7 @@ recipes/ported-agents/conductor/       # Reference docs (faithful port)
 └── progression.json        # per-user career progression (Stage 1.5a)
 
 <target>/.goose/conductor/
-├── project.json            # per-project RILGoose config
+├── project.json            # per-project goose-wizard config
 ├── product.md              # conductor artifact
 ├── tech-stack.md
 ├── workflow.md
@@ -226,11 +226,11 @@ recipes/ported-agents/conductor/       # Reference docs (faithful port)
 
 ## Part 3 — Kickoff prompt for the next session
 
-Copy everything between the dashed lines into a fresh Claude Code session in `C:\Users\donid\ClaudeProjects\RILGoose`.
+Copy everything between the dashed lines into a fresh Claude Code session in `<PROJECTS>\goose-wizard`.
 
 ---
 
-Continue from the RIL-agents port completion. This session's job is to (a) migrate RILGoose progression to per-user state, and (b) build the Conductor-as-native-Goose system.
+Continue from the RIL-agents port completion. This session's job is to (a) migrate goose-wizard progression to per-user state, and (b) build the Conductor-as-native-Goose system.
 
 **Read these first, in order:**
 1. `handoffs/ril-agents-port-complete-and-next-steps-2026-04-15.md` — full design + locked decisions + build order
@@ -255,7 +255,7 @@ Continue from the RIL-agents port completion. This session's job is to (a) migra
 - `recipes/ported-agents/conductor/skills/track-management.md` (from `skills/track-management/SKILL.md`, ~593 lines)
 - `recipes/ported-agents/conductor/skills/workflow-patterns.md` (from `skills/workflow-patterns/SKILL.md`, ~623 lines)
 - `recipes/ported-agents/conductor/references/artifact-templates.md` (from `skills/context-driven-development/references/artifact-templates.md`)
-- Remove frontmatter `name:` / `version:` from top of SKILL files during port (or convert to RILGoose-style).
+- Remove frontmatter `name:` / `version:` from top of SKILL files during port (or convert to goose-wizard-style).
 - Commit: `Port conductor reference docs into recipes/ported-agents/conductor/`.
 
 **Step 3 — Build `ensure-config.yaml` + `setup-config.yaml`.**
@@ -282,7 +282,7 @@ Continue from the RIL-agents port completion. This session's job is to (a) migra
 - `~/ClaudeInfra/ril-agents/` is READ-ONLY. Never modify.
 - Conductor artifacts go in `<target>/.goose/conductor/`, NOT in target repo root.
 - `project.json` is authoritative for project settings; `user.json.projects[]` is just an index.
-- CWD is always RILGoose repo root. Target accessed by absolute path.
+- CWD is always goose-wizard repo root. Target accessed by absolute path.
 - Canonical-path dedup required for Windows (symlinks, slashes, case).
 - All config writes atomic (tmp + rename + backup).
 - Headless/scheduled conductor: accept `project_id` parameter, no interactive picker in that path.

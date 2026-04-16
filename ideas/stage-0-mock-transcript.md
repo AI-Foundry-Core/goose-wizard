@@ -1,6 +1,6 @@
 # Stage 0 Mock Test Transcript
 
-**Target codebase:** Flask framework (`C:\Users\donid\ClaudeProjects\MockTestTarget`)
+**Target codebase:** Flask framework (`<PROJECTS>\MockTestTarget`)
 **Mock developer:** Rahul Sharma, 28, Python developer at Reliance, 4 years experience, works on internal Flask APIs
 **Profile:** Competent but not exceptional. Mildly skeptical — his manager told him to attend. Gives short, guarded answers at first.
 **Date of simulated session:** 2026-04-12

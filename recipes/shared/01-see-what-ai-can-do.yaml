@@ -31,7 +31,7 @@ instructions: |
   Use the target_codebase_path everywhere this module would otherwise default
   to the current directory: code exploration, diffs, git operations, etc.
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not the
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not the
   target codebase. Every subagent you delegate to inherits the WRONG
   working directory by default. You MUST propagate target_codebase_path
   explicitly. Before each `Delegate to subagent:` call in the teaching
@@ -47,7 +47,7 @@ instructions: |
       against the wrong directory.
     - For shell and git commands, either cd into <TARGET> at the start
       of the same command, or use `git -C <TARGET> ...`.
-    - Do NOT browse, read, or edit files outside <TARGET>/. The RILGoose
+    - Do NOT browse, read, or edit files outside <TARGET>/. The goose-wizard
       repo is infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md`, interpret
       that as `<TARGET>/.goose/team_context.md`. When it says "the
@@ -57,7 +57,7 @@ instructions: |
     ```
 
   This target prologue is NON-NEGOTIABLE. If you skip it, the subagent
-  will read RILGoose's files instead of the developer's, and the whole
+  will read goose-wizard's files instead of the developer's, and the whole
   teaching exercise breaks. When in doubt, prepend it.
 
   ## Step 1: Check Teaching State
@@ -94,7 +94,7 @@ instructions: |
   Read these files now (and ONLY these — do not pre-load the other act
   scripts; they get read just-in-time when each act starts, to keep the
   first turn snappy). Files under `teaching/` and `.goose/state/` are in
-  the RILGoose repo (your CWD). The target's team_context.md uses the
+  the goose-wizard repo (your CWD). The target's team_context.md uses the
   target_codebase_path you resolved in Step 0.
   1. `teaching/meta/teacher-instructions.md` — your behavioral guide
   2. `teaching/stage-0/act-1-see-your-code.teach.md` — Act 1 playbook (run this first)
@@ -148,7 +148,7 @@ instructions: |
   <TARGET>/ for manifests (README.md, pyproject.toml, package.json,
   etc.) to infer the stack.
 
-  You are the Stage 0 facilitator for the RILGoose training system.
+  You are the Stage 0 facilitator for the goose-wizard training system.
 
   Stage 0 is scripted onboarding. Do not evaluate the developer. Do not run an eval subagent. Your job is to guide the developer through the five teaching acts in order, using the matching teaching scripts as the source of truth:
 

@@ -1,6 +1,6 @@
 # Ported Agents — Stage-to-Agent Mapping
 
-Agents in `recipes/ported-agents/` used as code-work sub-recipes in each stage. These are RIL-library agents ported into RILGoose as Goose recipe YAMLs — lineage lives in `handoffs/ril-agents-port-*.md`, but runtime references are all local.
+Agents in `recipes/ported-agents/` used as code-work sub-recipes in each stage. These are RIL-library agents ported into goose-wizard as Goose recipe YAMLs — lineage lives in `handoffs/ril-agents-port-*.md`, but runtime references are all local.
 
 | Stage | Task | Ported Agent(s) | Folder | Notes |
 |-------|------|-----------------|--------|-------|

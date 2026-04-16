@@ -36,7 +36,7 @@ instructions: |
   **WORKING DIRECTORY.** This coordinator does no code work itself. If
   `target_codebase_path` is non-empty, propagate it to every sub-recipe
   call (spec_writer, builder, code_review) so the agent primitives operate
-  on the developer's code, not RILGoose. Spec files live under the target.
+  on the developer's code, not goose-wizard. Spec files live under the target.
   If empty, sub-recipes default to CWD (single-repo / self-testing case).
 
   Rules:

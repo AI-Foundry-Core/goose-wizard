@@ -161,7 +161,7 @@ Same recipe-reveal pattern. By module 3, the developer should start anticipating
 | `recipes/shared/00-start-here.yaml` | Gateway recipe — current working version with 5-act flow |
 | `install/setup-goose.ps1` | Setup script with all ACP patches |
 | `install/project-template/` | Deployable test project template |
-| `C:\Users\donid\ClaudeProjects\GooseTestProject\` | Live test project (deployed from template) |
+| `<PROJECTS>\GooseTestProject\` | Live test project (deployed from template) |
 | `%APPDATA%\npm\node_modules\@agentclientprotocol\claude-agent-acp\dist\acp-agent.js` | Patched ACP adapter |
 | `%APPDATA%\Block\goose\config\config.yaml` | Goose config (chatrecall off, smart_approve mode) |
 | `handoffs/two-mode-recipes.md` | Previous session's handoff (two-mode pattern, project structure) |
@@ -188,8 +188,8 @@ Line 1039: autoMemoryEnabled: false,
 ## CLI Command for Testing
 
 ```
-cd C:\Users\donid\ClaudeProjects\GooseTestProject
-goose run --recipe C:\Users\donid\ClaudeProjects\RILGoose\recipes\shared\00-start-here.yaml --interactive
+cd <PROJECTS>\GooseTestProject
+goose run --recipe <PROJECTS>\goose-wizard\recipes\shared\00-start-here.yaml --interactive
 ```
 
 ## Reset Procedure (between test runs)

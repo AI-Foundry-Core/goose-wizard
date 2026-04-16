@@ -1,11 +1,11 @@
-# RILGoose Config + Conductor Design
+# goose-wizard Config + Conductor Design
 
 > **Status:** Phase A foundation in place. Config recipes built
 > (`recipes/agents/config/ensure-config.yaml` +
 > `recipes/shared/setup-config.yaml`). Conductor agent primitives and
 > working recipes are the remaining Phase A work.
 
-This doc is the source of truth for how RILGoose stores per-user and
+This doc is the source of truth for how goose-wizard stores per-user and
 per-project state, how Conductor artifacts are laid out, and the contracts
 between recipes.
 
@@ -19,7 +19,7 @@ between recipes.
 | When `setup-config` runs | Only when the user reaches Conductor (Stage 2+). Early stages stay focused on doing/seeing. |
 | Curriculum placement for Conductor | Stage 2 introduction; Stage 4 artifacts; Stage 5 checkpoints with teeth; Stage 6 wraps Conductor |
 | Config root | `~/.rilgoose/` (NOT `~/.goose/rilgoose/` — avoid collision with Goose's own namespace) |
-| CWD contract | All RILGoose recipes run from the RILGoose repo root. Target codebases are accessed by absolute path. |
+| CWD contract | All goose-wizard recipes run from the goose-wizard repo root. Target codebases are accessed by absolute path. |
 | Config sub-recipe count | **Two total** — `ensure-config` (agent primitive, read/migrate) + `setup-config` (interactive shared recipe). No separate primitives for picking/adding/modifying. |
 | Headless/scheduled mode | Every Conductor recipe accepts a `project_id` parameter. Interactive picker only runs when there is no `project_id` AND the session is interactive. |
 | Atomic writes | Every config write uses tmp + rename + backup. |
@@ -34,7 +34,7 @@ between recipes.
 └── progression.json          # per-user career progression (Stage 1.5a)
 
 <target>/.goose/conductor/
-├── project.json              # per-project RILGoose config (authoritative)
+├── project.json              # per-project goose-wizard config (authoritative)
 ├── index.md                  # navigation hub
 ├── product.md                # Conductor artifact: product vision
 ├── product-guidelines.md     # Conductor artifact: comms standards

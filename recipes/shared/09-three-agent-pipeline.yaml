@@ -78,7 +78,7 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 3.1 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. Every subagent and sub-recipe call must receive
   target_codebase_path explicitly. Before each `Delegate to subagent:`
   call, prepend this target prologue (substitute `<TARGET>` with the
@@ -91,18 +91,18 @@ prompt: |
       scan, and test run.
     - For shell and git commands, use `git -C <TARGET> ...` or cd into
       <TARGET> in the same command.
-    - Do NOT read, edit, or test files outside <TARGET>/. RILGoose is
+    - Do NOT read, edit, or test files outside <TARGET>/. goose-wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md` or refers to
       "the source code" or "the codebase," interpret those as
       `<TARGET>/.goose/team_context.md` and code under `<TARGET>/`.
     - Spec files written by the spec_writer agent live under `<TARGET>/`
-      (e.g., `<TARGET>/specs/`), not in the RILGoose repo.
+      (e.g., `<TARGET>/specs/`), not in the goose-wizard repo.
     ```
 
   When calling sub-recipes (`spec_writer`, `builder`, `code_review`), pass
   `target_codebase_path` as a parameter so the agent primitives operate on
-  the developer's code, not RILGoose's.
+  the developer's code, not goose-wizard's.
 
   If concept 3.1 is already complete:
   "You've already shown you can do this well. Want to skip ahead or run

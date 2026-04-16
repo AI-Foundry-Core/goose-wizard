@@ -96,7 +96,7 @@ The session makes no reference to enterprise context. Priya never asks about CI/
 
 ### Fix 1: act-2-first-edit.teach.md -- Add review verification check
 
-**File:** `C:/Users/donid/ClaudeProjects/RILGoose/teaching/stage-0/act-2-first-edit.teach.md`
+**File:** `C:/Users/donid/ClaudeProjects/goose-wizard/teaching/stage-0/act-2-first-edit.teach.md`
 **Location:** Step 3, after "Check: Wait for the developer to confirm they see the change."
 **What to add:**
 ```
@@ -111,14 +111,14 @@ This plants the review habit before Act 4 tests it under pressure.
 
 ### Fix 2: act-3-undo-button.teach.md -- Add developer hands-on step
 
-**File:** `C:/Users/donid/ClaudeProjects/RILGoose/teaching/stage-0/act-3-undo-button.teach.md`
+**File:** `C:/Users/donid/ClaudeProjects/goose-wizard/teaching/stage-0/act-3-undo-button.teach.md`
 **Location:** Between current Step 2 and Step 3
 **What to add:** A step where the developer performs git diff and git checkout themselves (see Weakness 3 above for full text).
 **Why:** "Everything is reversible" is a claim until the developer experiences it firsthand. Watching the facilitator undo is not the same as undoing it yourself.
 
 ### Fix 3: act-1-see-your-code.teach.md -- Add fallback for missing team_context.md
 
-**File:** `C:/Users/donid/ClaudeProjects/RILGoose/teaching/stage-0/act-1-see-your-code.teach.md`
+**File:** `C:/Users/donid/ClaudeProjects/goose-wizard/teaching/stage-0/act-1-see-your-code.teach.md`
 **Location:** Setup section, after "Action: Read `.goose/team_context.md`"
 **What to add:**
 ```
@@ -133,13 +133,13 @@ If `.goose/team_context.md` does not exist:
 
 ### Fix 4: personas.md or cycle-plan.md -- Require at least one enterprise question per persona
 
-**File:** Whichever file defines persona simulation behavior (likely `C:/Users/donid/ClaudeProjects/RILGoose/ideas/overnight-pipeline/personas.md` or `cycle-plan.md`)
+**File:** Whichever file defines persona simulation behavior (likely `C:/Users/donid/ClaudeProjects/goose-wizard/ideas/overnight-pipeline/personas.md` or `cycle-plan.md`)
 **What to add:** A directive that every persona simulation must include at least one question about enterprise workflow integration (CI/CD, code review, IDE, security, team visibility) to exercise the facilitator's enterprise insight responses.
 **Why:** Without this, the enterprise readiness dimension is untestable. The teacher-instructions.md has six prepared enterprise responses that were never triggered.
 
 ### Fix 5: act-3-undo-button.teach.md -- Clarify adaptive shortcut threshold
 
-**File:** `C:/Users/donid/ClaudeProjects/RILGoose/teaching/stage-0/act-3-undo-button.teach.md`
+**File:** `C:/Users/donid/ClaudeProjects/goose-wizard/teaching/stage-0/act-3-undo-button.teach.md`
 **Location:** Adaptive Shortcut section
 **Current text:** "If the developer has used git terminology unprompted"
 **What to change:** Replace with:

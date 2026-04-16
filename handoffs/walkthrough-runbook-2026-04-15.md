@@ -62,7 +62,7 @@ These are the things that will probably surface as friction.
 
 ## Runbook — exact commands to execute in order
 
-All commands assume CWD = `C:/Users/donid/ClaudeProjects/RILGoose` (the repo root). Run each in a fresh terminal.
+All commands assume CWD = `C:/Users/donid/ClaudeProjects/goose-wizard` (the repo root). Run each in a fresh terminal.
 
 ### Pre-flight
 
@@ -183,7 +183,7 @@ cat <target_path>/.goose/state/user_config.json  # planted file
 ```bash
 # Step 1: conductor-setup hits the kind gate
 cd <target_path>  # so the legacy file is in CWD/.goose/state/
-goose run --recipe C:/Users/donid/ClaudeProjects/RILGoose/recipes/shared/conductor-setup.yaml --interactive
+goose run --recipe C:/Users/donid/ClaudeProjects/goose-wizard/recipes/shared/conductor-setup.yaml --interactive
 ```
 
 Expected:
@@ -200,7 +200,7 @@ ls <target_path>/.goose/state/user_config.json.migrated  # expect: exists (legac
 
 ```bash
 # Step 2: setup-config PENDING KIND CONFIRMATION branch
-cd C:/Users/donid/ClaudeProjects/RILGoose  # back to repo root
+cd C:/Users/donid/ClaudeProjects/goose-wizard  # back to repo root
 goose run --recipe recipes/shared/setup-config.yaml --interactive
 ```
 
@@ -215,7 +215,7 @@ cat ~/.rilgoose/user.json  # expect projects[0].kind: "sandbox", NO needs_kind_c
 ```bash
 # Step 3: re-run conductor-setup, should now proceed
 cd <target_path>
-goose run --recipe C:/Users/donid/ClaudeProjects/RILGoose/recipes/shared/conductor-setup.yaml --interactive
+goose run --recipe C:/Users/donid/ClaudeProjects/goose-wizard/recipes/shared/conductor-setup.yaml --interactive
 ```
 
 Should run the full setup flow this time.

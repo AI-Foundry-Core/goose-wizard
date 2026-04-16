@@ -8,7 +8,7 @@
 
 ## What Was Done
 
-Generated complete V1 teaching modules for all 8 stages of RILGoose using two models in parallel:
+Generated complete V1 teaching modules for all 8 stages of goose-wizard using two models in parallel:
 - **Claude Opus 4.6** — via Agent subagents (6 parallel agents for Stages 2-7)
 - **Codex / GPT 5.4** — via codex_review.py (7 parallel calls for Stages 1-7)
 

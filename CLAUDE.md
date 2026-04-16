@@ -1,4 +1,4 @@
-# RILGoose — Agentic Development Harness for Reliance Teams
+# goose-wizard — Agentic Development Harness for Reliance Teams
 
 ## Current Work
 **Three-recipe-type architecture is complete.** All 26 modules converted:
@@ -119,7 +119,7 @@ Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluati
 
 ## Project Structure
 ```
-RILGoose/
+goose-wizard/
 ├── CLAUDE.md                           # This file
 ├── HOW_GOOSE_WORKS.md                  # Goose operational learnings (scheduler, recipes, extensions, CLI)
 ├── ideas/
@@ -217,13 +217,16 @@ RILGoose/
 │   ├── stage-2/ through stage-7/       # All stages now have teaching scripts
 ├── onboarding/                         # Project onboarding recipe
 │   └── onboard.yaml
-└── install/                            # Setup scripts
-    ├── setup-goose.ps1                 # Windows setup (recipes, extensions, env vars)
-    └── install.sh
+├── install.sh                              # macOS/Linux one-line installer (curl | bash)
+├── install.ps1                             # Windows one-line installer (irm | iex)
+└── install/                                # Installer support files
+    ├── config.yaml                         # Default Goose config (copied at install time)
+    ├── README.md                           # Install docs and troubleshooting
+    └── project-template/                   # State templates seeded at install
 ```
 
 ## Cross-Project References
-- **This project (RILGoose)**: Recipes, teaching scripts, onboarding, syllabus, plan
+- **This project (goose-wizard)**: Recipes, teaching scripts, onboarding, syllabus, plan
 - **AgenticSystem** (`~/ClaudeProjects/AgenticSystem/`): Source pipeline patterns — file ownership, circuit breakers, escalation, cycle review. Read `LEARNINGS.md` and `Evaluations/` for concepts that inform Stages 2-7.
 - **ddd-mcp-server** (`~/ClaudeProjects/ddd-mcp-server/`): DDD spec system — artifact chain, golden prompts, quality gates, executive review simulation. Informs Stage 4.
 - **Ported Agents** (`recipes/ported-agents/` inside this repo): 12 agents ported from the RIL-agents library as Goose recipe YAMLs. This is the runtime reference. Lineage only: `~/ClaudeInfra/ril-agents/` (read-only, not a dependency). Conductor was deliberately not ported — it's being redesigned as a native multi-recipe Goose system; see `handoffs/conductor-native-design-2026-04-15.md`.

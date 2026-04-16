@@ -85,7 +85,7 @@ The four reviewers surfaced these. None are blockers for what's shipped, but the
 
 ## Part 3 — Suggested kickoff prompt for the next session
 
-Copy everything between the dashed lines into a fresh Claude Code session in `C:\Users\donid\ClaudeProjects\RILGoose`.
+Copy everything between the dashed lines into a fresh Claude Code session in `<PROJECTS>\goose-wizard`.
 
 ---
 
@@ -99,7 +99,7 @@ Continue from Phase A completion. This session's job is **Phase B — wire condu
 
 **Phase B work (Doni's call — pick one to start):**
 
-**Option B1 — Real-project walkthrough first (recommended).** Pick a small real codebase (RILGoose itself works). Run:
+**Option B1 — Real-project walkthrough first (recommended).** Pick a small real codebase (goose-wizard itself works). Run:
 - `goose run --recipe recipes/shared/setup-config.yaml --interactive`
 - `goose run --recipe recipes/shared/conductor-setup.yaml --interactive`
 - `goose run --recipe recipes/shared/conductor-new-track.yaml --interactive`
@@ -118,7 +118,7 @@ Capture the friction. Many of the 14 deferred items in the Phase A handoff will 
 - `~/ClaudeInfra/ril-agents/` is READ-ONLY.
 - Conductor artifacts go in `<target>/.goose/conductor/`, NOT in target repo root.
 - `project.json` is authoritative; `user.json.projects[]` is just an index.
-- CWD is always RILGoose repo root. Target accessed by absolute path.
+- CWD is always goose-wizard repo root. Target accessed by absolute path.
 - Use `~/.rilgoose/` NOT `~/.goose/rilgoose/`.
 
 Report back with what you ran, what broke, what you fixed, and which of the Phase A deferred items you addressed.

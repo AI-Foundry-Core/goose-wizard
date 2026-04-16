@@ -1,7 +1,7 @@
 # Installer build-out + ACP patch bisect plan — 2026-04-15
 
 **Date:** 2026-04-15 (late session, context-compacted handoff)
-**Branch:** `practice/stage-0` (pushed to `origin/AI-Foundry-Core/RILGoose`)
+**Branch:** `practice/stage-0` (pushed to `origin/AI-Foundry-Core/goose-wizard`)
 **Last pushed commit:** `d8f82e2` Lazy-load act scripts in Stage 0 recipe.
 **Uncommitted state:** clean working tree.
 
@@ -53,7 +53,7 @@ All applied to `acp-agent.js` inside the installed `@agentclientprotocol/claude-
 
 **Current state:** either the upstream `const maxThinkingTokens = process.env.MAX_THINKING_TOKENS ? parseInt(...) : undefined;` OR our earlier `const maxThinkingTokens = 0;` (disabled). Current installer restores the upstream form if it finds our old `= 0` patch.
 
-**Why it exists:** Earlier we had this set to 0 to hide thinking blocks from the Goose UI. Doni explicitly reversed that this session ("I want people to be impressed with the AI — leave thinking on"). So this patch now just reverts any prior RILGoose disable-patch.
+**Why it exists:** Earlier we had this set to 0 to hide thinking blocks from the Goose UI. Doni explicitly reversed that this session ("I want people to be impressed with the AI — leave thinking on"). So this patch now just reverts any prior goose-wizard disable-patch.
 
 **Likely verdict:** NO-OP on a fresh unpatched adapter (the regex finds no match; it only acts if an older disable is present). Safe to leave as-is.
 

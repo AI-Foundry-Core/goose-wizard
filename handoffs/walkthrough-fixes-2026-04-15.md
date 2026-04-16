@@ -10,13 +10,13 @@
 
 1. **Push Phase B first, then start the walkthrough.** Pushed 9 commits to origin/main (2912aa8..0bc4ac8) before doing any other work.
 2. **Picked Option A — real-project walkthrough.** Curriculum integration (Option B) and Phase B's 4 deferred follow-ups (Option C) explicitly punted to a later session.
-3. **Walkthrough target:** the docunator project at `C:\Users\donid\ClaudeInfra\docunator`, not RILGoose itself. Drove all friction findings.
+3. **Walkthrough target:** the docunator project at `<PROJECTS>\docunator`, not goose-wizard itself. Drove all friction findings.
 4. **Time estimates: lower them.** Stage 0 should feel like 5-10 min, not 15-20. Underestimate to lower stakes for skeptical onboardees.
 5. **Wall-of-text trim:** facilitator Say: blocks should be 1-2 sentences max when waiting for subagents. The exemplar pattern in `act-1-see-your-code.teach.md` Step 1 is the canonical reference for all other teaching scripts.
 6. **Always offer an escape hatch on user picks.** Wherever the facilitator asks the developer to pick/bring/name something, also offer "or want me to pick one?" Adapted to context. Codified as Rule #9 in `module-designer/SKILL.md`.
 7. **Interpret user engagement broadly.** When the facilitator asks "pick a file and ask a question," a developer who asks about a *concept* (e.g. "explain the MCP pieces") IS engaging — not deflecting. Subagent specs that hard-code `{user_specified_file}` are traps. Codified as Rule #10.
 8. **End every bridge with a question.** Bridge sections must end with "Ready?" / "Want to keep going?" + a `Check: Wait for confirmation` line. Statements trail off; questions create handoffs. Codified as Rule #11.
-9. **The target-propagation bug is in the recipe, not in Claude Code defaults.** Doni hypothesized Claude Code's project context was overriding Goose injections. Investigation showed the actual cause: teaching scripts use relative paths that resolve against CWD (RILGoose root) instead of the target codebase. Fix is in the recipes, not in moving RILGoose out of `~/ClaudeProjects/`.
+9. **The target-propagation bug is in the recipe, not in Claude Code defaults.** Doni hypothesized Claude Code's project context was overriding Goose injections. Investigation showed the actual cause: teaching scripts use relative paths that resolve against CWD (goose-wizard root) instead of the target codebase. Fix is in the recipes, not in moving goose-wizard out of `~/ClaudeProjects/`.
 10. **Fix tactical, not strategic.** Did not refactor Stage 0 to use `ensure-config` + `project.json` (the Phase A/B infrastructure). Kept the legacy `user_config.json` flow and just plumbed `target_codebase_path` through every subagent and sub-recipe call. The strategic ensure-config migration is deferred.
 
 ---
@@ -64,7 +64,7 @@ Codified as Rule #11 in SKILL.md and as "End Every Bridge With a Question" in te
 
 ### Round 6 — TARGET PROPAGATION fix (in progress, ~70 files touched)
 
-**The bug:** Teaching recipes' Step 0 reads `target_codebase_path` from `.goose/state/user_config.json` correctly. But teaching scripts then use relative paths (`.goose/team_context.md`, "find a file in the source code") that resolve against CWD = RILGoose repo root, not the target. The subagent reads RILGoose's own files and operates on RILGoose's source tree instead of the developer's project.
+**The bug:** Teaching recipes' Step 0 reads `target_codebase_path` from `.goose/state/user_config.json` correctly. But teaching scripts then use relative paths (`.goose/team_context.md`, "find a file in the source code") that resolve against CWD = goose-wizard repo root, not the target. The subagent reads goose-wizard's own files and operates on goose-wizard's source tree instead of the developer's project.
 
 **The fix pattern:**
 
@@ -137,9 +137,9 @@ Plus 3 principle files updated: `module-designer/SKILL.md` (Rules #9, #10, #11),
 All 6 stages are done. Spot-check a couple of files to confirm:
 
 ```
-Read C:\Users\donid\ClaudeProjects\RILGoose\recipes\shared\21-eval-ratchet.yaml
-Read C:\Users\donid\ClaudeProjects\RILGoose\teaching\stage-5\eval-ratchet.teach.md
-Read C:\Users\donid\ClaudeProjects\RILGoose\recipes\agents\eval-ratchet.yaml
+Read <PROJECTS>\goose-wizard\recipes\shared\21-eval-ratchet.yaml
+Read <PROJECTS>\goose-wizard\teaching\stage-5\eval-ratchet.teach.md
+Read <PROJECTS>\goose-wizard\recipes\agents\eval-ratchet.yaml
 ```
 
 Each should have:
@@ -155,7 +155,7 @@ His existing `~/.rilgoose/` and `.goose/state/user_config.json` are intact. He s
 goose run --recipe recipes/shared/00-start-here.yaml --interactive
 ```
 
-then proceed through Module 1 → Module 2. The new target-propagation behavior should make the subagent operate on `C:\Users\donid\ClaudeInfra\docunator` instead of RILGoose. Confirm by checking what file the act-1 subagent picks (should be a docunator file, not `recipes/agents/code-review.yaml`).
+then proceed through Module 1 → Module 2. The new target-propagation behavior should make the subagent operate on `<PROJECTS>\docunator` instead of goose-wizard. Confirm by checking what file the act-1 subagent picks (should be a docunator file, not `recipes/agents/code-review.yaml`).
 
 ### Step 3 — friction capture
 

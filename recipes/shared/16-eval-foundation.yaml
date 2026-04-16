@@ -76,7 +76,7 @@ prompt: |
      <TARGET> with target_codebase_path)
   4. `~/.rilgoose/progression.json` — check if concept 5.1 is already complete
 
-  **CRITICAL — TARGET PROPAGATION.** Your CWD is the RILGoose repo, not
+  **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. Pipeline outputs, test commands, and artifacts
   under review all live under the target. Every subagent and sub-recipe
   call must receive target-scoped paths explicitly. Before each
@@ -88,11 +88,11 @@ prompt: |
     All verification in this delegation runs against the target codebase.
     - Use absolute paths starting with <TARGET>/ for every read. Pipeline
       outputs, test artifacts, and build logs being verified live under
-      <TARGET>/ — never in RILGoose.
+      <TARGET>/ — never in goose-wizard.
     - Re-run test and build commands from within <TARGET>/ (cd <TARGET>
       or `git -C <TARGET>` equivalents). Exit codes must come from the
       target's own toolchain.
-    - Do NOT read or write files outside <TARGET>/. RILGoose is
+    - Do NOT read or write files outside <TARGET>/. goose-wizard is
       infrastructure, not the developer's project.
     - When a teaching script says `.goose/team_context.md` or refers to
       "the codebase," interpret those as `<TARGET>/.goose/team_context.md`
@@ -102,7 +102,7 @@ prompt: |
   The `project_path` parameter (if the developer set one) must be an
   absolute path under `<TARGET>/` or equal `<TARGET>` itself. If the
   developer did not set `project_path`, default it to the resolved
-  target_codebase_path — never leave it pointing at RILGoose.
+  target_codebase_path — never leave it pointing at goose-wizard.
 
   If concept 5.1 is already complete:
   "You've already shown you can do this well. Want to skip ahead or

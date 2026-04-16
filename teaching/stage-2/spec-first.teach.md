@@ -7,7 +7,7 @@
 > `<TARGET>/`. Prepend the TARGET PROLOGUE to every `Delegate to subagent`
 > call. Pass `target_codebase_path` to the `spec-first` sub-recipe. Spec
 > files written by the agent live under `<TARGET>/` (e.g.,
-> `<TARGET>/specs/`), not in the RILGoose repo.
+> `<TARGET>/specs/`), not in the goose-wizard repo.
 
 Covers concept 2.3 (spec-first). Teaches defining success before building.
 Mode: Adaptive + Checkpoints. Stage 2 completion checkpoint.

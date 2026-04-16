@@ -28,7 +28,7 @@ instructions: |
   - Write all decomposed-spec artifacts under `{target_codebase_path}/`
     — typically `{target_codebase_path}/specs/` or whatever spec
     directory the project already uses.
-  - Do NOT write specs into the RILGoose repo.
+  - Do NOT write specs into the goose-wizard repo.
   If `target_codebase_path` is empty, operate on the current working
   directory (single-repo / self-testing case).
 
@@ -40,7 +40,7 @@ instructions: |
   recipes/ported-agents/product-specification/feature-spec.yaml
   recipes/ported-agents/product-specification/acceptance-criteria.yaml
 
-  (Those ported-agent references live in the RILGoose repo, not the
+  (Those ported-agent references live in the goose-wizard repo, not the
   target. Read them by relative path from CWD; they're pattern sources,
   not files to edit.)
 
@@ -79,4 +79,4 @@ prompt: |
 
   If target codebase is non-empty, spec_path must resolve under THAT
   directory, and decomposition artifacts must be written under it. Do
-  not write into RILGoose. If target is empty, operate on CWD.
+  not write into goose-wizard. If target is empty, operate on CWD.
