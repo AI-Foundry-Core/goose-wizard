@@ -1,13 +1,25 @@
 version: 1.0.0
+# type: primitive
 title: "Conductor Track Task Execute Agent"
 description: "Execute one task from a track's plan.md using the 11-step TDD lifecycle: select → mark in-progress → RED → GREEN → REFACTOR → verify coverage → document deviations → commit → git notes → record SHA → commit plan update."
 
 parameters:
+  - key: project_path
+    input_type: string
+    requirement: required
+    description: "Absolute path to the target project. Resolved by the parent conductor before delegation."
+  - key: project_kind
+    input_type: string
+    requirement: required
+    description: "'sandbox' | 'live' | 'unknown'. Resolved by the parent conductor."
+  - key: project_json_path
+    input_type: string
+    requirement: required
+    description: "Path to project.json. Resolved by the parent conductor."
   - key: project_id
     input_type: string
-    requirement: optional
-    default: ""
-    description: "Project ID. Empty means use the active project from ensure-config."
+    requirement: required
+    description: "Project identifier. Resolved by the parent conductor."
   - key: track_id
     input_type: string
     requirement: required
@@ -28,11 +40,6 @@ parameters:
     default: false
     description: "Required to be true when project.kind == 'live'. The caller must have obtained an explicit typed confirmation from the user before setting this true. Headless callers must refuse to set it true unprompted."
 
-sub_recipes:
-  - name: "ensure_config"
-    path: "../config/ensure-config.yaml"
-    description: "Resolves the project path + project.json."
-
 instructions: |
   IMPORTANT — RUNTIME CONTEXT:
   You are running inside the Goose agent platform. This IS the real Goose runtime.
@@ -43,11 +50,15 @@ instructions: |
   ## Role
   You execute one task from a track's plan.md following the TDD workflow
   defined in `recipes/ported-agents/conductor/skills/workflow-patterns.md`.
+  If this file is missing, follow the TDD lifecycle steps defined in
+  this recipe's Process section as the canonical reference.
   You update plan.md status markers, make commits with the canonical
   message format, attach git notes, and record the SHA in plan.md.
 
   ## Constraints
   IMPORTANT:
+  - All file operations are anchored to {{ project_path }}. Do NOT
+    read or modify files outside this directory.
   - NEVER skip RED. Tests come before implementation, period. If RED is
     not reachable (e.g., the task is pure documentation), the task doesn't
     belong in the TDD lifecycle — return `status: not_tdd_task` so the
@@ -61,10 +72,10 @@ instructions: |
     semantic reverts.
   - ALL commits use the canonical format:
       `<type>(<scope>): <subject>\n\n<body>\n\nTask: <id>\nTrack: <track_id>`
-  - If `project.kind == "live"`, REFUSE to execute unless `live_confirmed`
+  - If `{{ project_kind }}` == "live", REFUSE to execute unless `live_confirmed`
     is true. Return `status: live_confirmation_required`. This is a hard
     gate; do NOT do any work (including marking [~]) without the flag.
-  - If `project.kind == "unknown"` OR the project has
+  - If `{{ project_kind }}` == "unknown" OR the project has
     `needs_kind_confirmation: true`, REFUSE unconditionally. Return
     `status: kind_unconfirmed`. The user must run `setup-config` to pick
     sandbox-vs-live before any conductor work can proceed. This path
@@ -74,13 +85,12 @@ instructions: |
 
   ## Failure Modes
   - project.json or track files missing/corrupt → structured error; stop.
-  - `project.kind == "live"` without `live_confirmed: true` →
+  - `{{ project_kind }}` == "live" without `live_confirmed: true` →
     `status: live_confirmation_required`.
-  - `project.kind == "unknown"` or `needs_kind_confirmation: true` →
+  - `{{ project_kind }}` == "unknown" or `needs_kind_confirmation: true` →
     `status: kind_unconfirmed`. User must resolve via setup-config.
-  - Config resolution via ensure_config returned non-ok →
-    `status: config_unresolved` with the underlying ensure_config status
-    in `config_status`.
+  - Config invalid (project_path missing/empty, project_kind unrecognized,
+    project.json unreadable) → `status: config_invalid` with details.
   - Task not in pending state → `status: task_not_pending`.
   - Test suite fails to run at all (environment problem) → `env_broken`.
   - RED doesn't fail (tests pass without implementation) → `red_not_red`;
@@ -94,13 +104,14 @@ instructions: |
   Follow the 11-step lifecycle. Every step runs in sequence; commit only
   when the preceding step's gate passes.
 
-  1. Call `ensure_config` with the supplied `project_id` and
-     `require_project: true`. If the returned status is not `ok`, return
-     `status: config_unresolved` with `config_status: <returned_status>`.
-     If resolved `project.kind == "unknown"` or the project carries
+  1. Verify resolved config: confirm `project_path` is a non-empty
+     directory that exists, `project_kind` is one of sandbox/live/unknown,
+     and `project_json_path` points to a readable file. If any check
+     fails, return `status: config_invalid` with details.
+     If `{{ project_kind }}` == "unknown" or the project carries
      `needs_kind_confirmation: true`, return
      `status: kind_unconfirmed` immediately — no further work.
-     If resolved `project.kind == "live"` and `live_confirmed` is false,
+     If `{{ project_kind }}` == "live" and `live_confirmed` is false,
      return `status: live_confirmation_required` without any further work.
   2. Load `<project.path>/.goose/conductor/tracks/<track_id>/plan.md`.
      Select the next pending `[ ]` task (or the supplied `task_id`).
@@ -115,8 +126,10 @@ instructions: |
      add tests and rerun. If still below after a reasonable attempt, return
      `coverage_gap`.
   8. Document deviations. If dependencies changed, update tech-stack.md
-     via `context-write-tech-stack` (caller is responsible for invoking
-     that recipe; this one just records the intent in the task notes).
+     via the conductor's inline context-write procedures (see
+     `recipes/conductor-skills/setup.md`). The caller is responsible for
+     invoking that procedure; this primitive just records the intent in
+     the task notes.
   9. Commit implementation with the canonical message format.
   10. Best-effort: attach a git note with a rich task summary (files
       changed, decisions, coverage). If `git notes add` fails (notes ref
@@ -130,13 +143,11 @@ instructions: |
       the plan update as `docs: update plan — task <task_id> complete`.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+  - status: "ok" | "config_invalid" | "kind_unconfirmed" |
     "live_confirmation_required" | "dirty_working_tree" |
     "task_not_pending" | "not_tdd_task" | "env_broken" | "red_not_red" |
     "green_unreachable" | "refactor_broke_green" | "coverage_gap" |
     "write_failed"
-  - config_status: Underlying ensure_config status when
-    status == "config_unresolved", else null
   - task_id: The task executed (or attempted)
   - implementation_sha: Commit SHA of the implementation commit
   - plan_update_sha: Commit SHA of the plan update commit
@@ -155,9 +166,10 @@ extensions:
     name: developer
 
 prompt: |
-  Execute one task for project_id: {{ project_id }}, track: {{ track_id }},
-  task_id: {{ task_id }}, test_command: {{ test_command }},
-  live_confirmed: {{ live_confirmed }}.
+  Execute one task for project_id: {{ project_id }}
+  (path: {{ project_path }}, kind: {{ project_kind }}),
+  track: {{ track_id }}, task_id: {{ task_id }},
+  test_command: {{ test_command }}, live_confirmed: {{ live_confirmed }}.
 
   Follow the 11-step TDD lifecycle exactly. Refuse live projects without
   live_confirmed. Commit cleanly. Return the structured result.

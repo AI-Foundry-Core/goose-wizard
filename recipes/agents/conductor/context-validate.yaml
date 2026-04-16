@@ -1,23 +1,30 @@
 version: 1.0.0
+# type: primitive
 title: "Conductor Context Validate Agent"
 description: "Read all conductor artifacts for a project, verify they exist and parse cleanly, and report which are stale, incomplete, or missing."
 
 parameters:
+  - key: project_path
+    input_type: string
+    requirement: required
+    description: "Absolute path to the target project. Resolved by the parent conductor before delegation."
+  - key: project_kind
+    input_type: string
+    requirement: required
+    description: "'sandbox' | 'live' | 'unknown'. Resolved by the parent conductor."
+  - key: project_json_path
+    input_type: string
+    requirement: required
+    description: "Path to project.json. Resolved by the parent conductor."
   - key: project_id
     input_type: string
-    requirement: optional
-    default: ""
-    description: "Project ID to validate. Empty means use the resolved active project from ensure-config."
+    requirement: required
+    description: "Project identifier. Resolved by the parent conductor."
   - key: focus
     input_type: string
     requirement: optional
     default: ""
     description: "Optional focus: 'product', 'tech-stack', 'workflow', 'tracks', or empty for all."
-
-sub_recipes:
-  - name: "ensure_config"
-    path: "../config/ensure-config.yaml"
-    description: "Resolves the project path and project.json."
 
 instructions: |
   IMPORTANT — RUNTIME CONTEXT:
@@ -33,6 +40,8 @@ instructions: |
 
   ## Constraints
   IMPORTANT:
+  - All file operations are anchored to {{ project_path }}. Do NOT
+    read or modify files outside this directory.
   - NEVER edit any artifact. This is a read-only audit.
   - NEVER invent findings. Every issue must point at a specific file + line
     range or a specific missing field.
@@ -41,39 +50,37 @@ instructions: |
     concrete signals: dependency manifests, recent commits, changed
     files in active tracks).
   - NEVER stop at the first issue. Collect them all and return a batch.
+  - NEVER use the write/edit capabilities of the developer extension.
+    This agent is strictly read-only.
 
   ## Failure Modes
-  - Config resolution via ensure_config returned non-ok →
-    `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status. (This covers project.json missing
-    or corrupt — ensure_config returns `project_json_missing` or
-    `project_corrupt`; callers should switch on `config_status` and
-    route the user to `setup-config` when those values appear.)
-  - Conductor directory missing (but ensure_config returned `ok`) →
+  - Config invalid (project_path missing/empty, project_kind unrecognized,
+    project.json unreadable) → `status: config_invalid` with details.
+  - Conductor directory missing (but config is valid) →
     return `status: not_initialized`; the caller should run the
     `conductor-setup` recipe.
   - Can't read a file due to permissions → return a structured error for
     that file; continue with the rest.
 
   ## Process
-  1. Call the `ensure_config` sub-recipe with the provided `project_id`
-     and `require_project: true`.
-  2. If status != "ok", return `status: config_unresolved` with
-     `config_status` carrying the underlying ensure_config status.
-  3. Resolve the conductor directory: `<project.path>/.goose/conductor/`.
+  1. Verify resolved config: confirm `project_path` is a non-empty
+     directory that exists, `project_kind` is one of sandbox/live/unknown,
+     and `project_json_path` points to a readable file. If any check
+     fails, return `status: config_invalid` with details.
+  2. Resolve the conductor directory: `{{ project_path }}/.goose/conductor/`.
      If missing, return `status: not_initialized`.
-  4. For each artifact in the `focus` set (or all if focus is empty):
+  3. For each artifact in the `focus` set (or all if focus is empty):
      - Check the file exists and parses as markdown/JSON as appropriate.
      - Record size, mtime, section headings.
      - Run freshness checks against project signals (see below).
-  5. Cross-artifact checks:
+  4. Cross-artifact checks:
      - tech-stack.md claims vs. actual dependency manifests in the project
        (requirements.txt, package.json, Cargo.toml, go.mod — whichever is
        present).
      - tracks.md entries vs. actual directories under tracks/.
      - Any track in `in-progress` status vs. recent commits on its
        checkpoint branch.
-  6. Return a structured report.
+  5. Return a structured report.
 
   ### Freshness signals
 
@@ -93,9 +100,7 @@ instructions: |
     any listed track has no directory.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "not_initialized" | "has_findings"
-  - config_status: Underlying ensure_config status when
-    status == "config_unresolved", else null
+  - status: "ok" | "config_invalid" | "not_initialized" | "has_findings"
   - project: { id, path, kind }
   - artifacts: array of { name, path, present, parseable, size_bytes, mtime, headings? }
   - findings: array of { severity: "blocker"|"warning"|"info",
@@ -108,8 +113,9 @@ extensions:
     name: developer
 
 prompt: |
-  Validate conductor context for project_id: {{ project_id }}.
+  Validate conductor context for project {{ project_id }}
+  at {{ project_path }} (kind: {{ project_kind }}).
   Focus: {{ focus }}.
 
-  Resolve the project via ensure_config, read artifacts, and return
+  Verify the resolved config parameters, read artifacts, and return
   structured findings. Do not modify anything.

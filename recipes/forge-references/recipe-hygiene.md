@@ -104,7 +104,7 @@ Primitives must NOT declare `sub_recipes:` in their YAML. They are the bottom of
 
 **Why:** Goose does not allow sub-recipes to invoke other sub-recipes — nesting is a hard platform constraint (`HOW_GOOSE_WORKS.md:101`). A primitive called as a sub-recipe from a workflow CANNOT itself call another sub-recipe. Recipes that attempt this will fail at runtime.
 
-**Known violation:** 9 conductor primitives currently declare `ensure_config` as a sub-recipe. These have NOT been end-to-end tested through Goose and are expected to break. They are being refactored to accept resolved config as parameters instead (parent calls `ensure_config` first, passes results down).
+**Known violation (resolved):** Previously violated by 9 conductor primitives that called `ensure_config`. Refactored: 6 primitives now accept resolved config as parameters; 3 context-write primitives were deleted (procedures moved to `recipes/conductor-skills/setup.md` skill file).
 
 ### P2. Structured return with status field
 
@@ -140,7 +140,7 @@ Every primitive that writes files must define three things in its instructions:
 2. **Atomic backup:** Before overwriting, create `<original>.bak.<YYYYMMDDTHHMMSSZ>`. Write to `.tmp` first, rename original to `.bak`, rename `.tmp` to final. If rename fails, leave both files and report failure.
 3. **Verification:** After writing, read the file back and confirm it matches intent.
 
-**Proven by:** Conductor primitives implement all three (`track-create.yaml` lines 120-181, `context-write-product.yaml` line 83-88). `RECIPE-PREAMBLE.md` lines 87-138 define the canonical backup convention.
+**Proven by:** Conductor primitives implement all three (`track-create.yaml` lines 120-181). `RECIPE-PREAMBLE.md` lines 87-138 define the canonical backup convention.
 
 ### P5. Information barrier — producer side
 
