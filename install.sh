@@ -243,16 +243,30 @@ CONFIG_DIR="$HOME/.config/goose"
 CONFIG_PATH="$CONFIG_DIR/config.yaml"
 SOURCE_CONFIG="$INSTALL_DIR/install/config.yaml"
 
+mkdir -p "$CONFIG_DIR"
 if [ ! -f "$CONFIG_PATH" ]; then
-    mkdir -p "$CONFIG_DIR"
     if [ -f "$SOURCE_CONFIG" ]; then
         cp "$SOURCE_CONFIG" "$CONFIG_PATH"
-        ok "Copied config.yaml to $CONFIG_PATH"
+        ok "Copied config.yaml"
     else
         err "Source config not found at $SOURCE_CONFIG"
     fi
 else
-    ok "config.yaml already exists"
+    # Config exists — ensure provider/model/mode are set (goose configure
+    # creates a config without these, which causes "No provider configured").
+    needs_update=false
+    grep -q "^GOOSE_PROVIDER:" "$CONFIG_PATH" || needs_update=true
+    grep -q "^GOOSE_MODEL:" "$CONFIG_PATH" || needs_update=true
+    grep -q "^GOOSE_MODE:" "$CONFIG_PATH" || needs_update=true
+    if [ "$needs_update" = true ]; then
+        # Merge: append our config keys without clobbering user extensions
+        grep -q "^GOOSE_PROVIDER:" "$CONFIG_PATH" || echo "GOOSE_PROVIDER: claude-acp" >> "$CONFIG_PATH"
+        grep -q "^GOOSE_MODEL:" "$CONFIG_PATH" || echo "GOOSE_MODEL: opus" >> "$CONFIG_PATH"
+        grep -q "^GOOSE_MODE:" "$CONFIG_PATH" || echo "GOOSE_MODE: smart_approve" >> "$CONFIG_PATH"
+        ok "Added provider/model/mode to existing config"
+    else
+        ok "config.yaml already configured"
+    fi
 fi
 
 # ---- Set GOOSE_RECIPE_PATH in shell rc ----
