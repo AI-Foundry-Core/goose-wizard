@@ -42,6 +42,7 @@ When discussing "the team" or "our workflow," it means AIF unless explicitly sta
 4. **Self-merge is fine.** PRs exist for history and visibility, not as a review gate. Merge your own PR when ready.
 5. **Keep PRs focused.** One logical change per PR. Don't bundle unrelated work.
 6. **Delete branches after merge.** Don't let stale branches pile up.
+7. **Handoffs stay local.** Files in `handoffs/` are working documents for session continuity — never commit or push them.
 
 ## What This Is
 A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's agent platform) extended with progressive teaching recipes that take development teams from zero agentic experience to autonomous development pipelines.
