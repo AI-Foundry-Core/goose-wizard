@@ -154,7 +154,7 @@ check_goose() {
         return 0
     fi
     if [ "$PLATFORM" = "macos" ]; then
-        brew install --cask block-goose >/dev/null 2>&1
+        brew install block-goose-cli >/dev/null 2>&1
         hash -r 2>/dev/null || true
         if command -v goose >/dev/null 2>&1; then
             echo "installed ($(goose --version 2>&1 | tr -d '[:space:]'))"
@@ -168,9 +168,27 @@ step "Checking Goose CLI" check_goose || {
     if [ "$PLATFORM" = "linux" ]; then
         fatal "Goose CLI is required. Install from https://block.github.io/goose/docs/getting-started/installation"
     else
-        fatal "Goose CLI install failed. Run 'brew install --cask block-goose' and re-run."
+        fatal "Goose CLI install failed. Run 'brew install block-goose-cli' and re-run."
     fi
 }
+
+# ---- 4b. Goose desktop app (for browsing recipe YAML) ----
+check_goose_app() {
+    if [ "$PLATFORM" = "macos" ] && [ -d "/Applications/Goose.app" ]; then
+        echo "found"
+        return 0
+    fi
+    if [ "$PLATFORM" = "macos" ]; then
+        brew install --cask block-goose >/dev/null 2>&1
+        if [ -d "/Applications/Goose.app" ]; then
+            echo "installed"
+            return 0
+        fi
+    fi
+    echo "skipped (optional)"
+    return 0
+}
+step "Checking Goose desktop app" check_goose_app
 
 # ---- 5. Claude CLI ----
 check_claude() {
@@ -243,16 +261,30 @@ CONFIG_DIR="$HOME/.config/goose"
 CONFIG_PATH="$CONFIG_DIR/config.yaml"
 SOURCE_CONFIG="$INSTALL_DIR/install/config.yaml"
 
+mkdir -p "$CONFIG_DIR"
 if [ ! -f "$CONFIG_PATH" ]; then
-    mkdir -p "$CONFIG_DIR"
     if [ -f "$SOURCE_CONFIG" ]; then
         cp "$SOURCE_CONFIG" "$CONFIG_PATH"
-        ok "Copied config.yaml to $CONFIG_PATH"
+        ok "Copied config.yaml"
     else
         err "Source config not found at $SOURCE_CONFIG"
     fi
 else
-    ok "config.yaml already exists"
+    # Config exists — ensure provider/model/mode are set (goose configure
+    # creates a config without these, which causes "No provider configured").
+    needs_update=false
+    grep -q "^GOOSE_PROVIDER:" "$CONFIG_PATH" || needs_update=true
+    grep -q "^GOOSE_MODEL:" "$CONFIG_PATH" || needs_update=true
+    grep -q "^GOOSE_MODE:" "$CONFIG_PATH" || needs_update=true
+    if [ "$needs_update" = true ]; then
+        # Merge: append our config keys without clobbering user extensions
+        grep -q "^GOOSE_PROVIDER:" "$CONFIG_PATH" || echo "GOOSE_PROVIDER: claude-acp" >> "$CONFIG_PATH"
+        grep -q "^GOOSE_MODEL:" "$CONFIG_PATH" || echo "GOOSE_MODEL: opus" >> "$CONFIG_PATH"
+        grep -q "^GOOSE_MODE:" "$CONFIG_PATH" || echo "GOOSE_MODE: smart_approve" >> "$CONFIG_PATH"
+        ok "Added provider/model/mode to existing config"
+    else
+        ok "config.yaml already configured"
+    fi
 fi
 
 # ---- Set GOOSE_RECIPE_PATH in shell rc ----
@@ -393,17 +425,25 @@ echo ""
 info "Phase 4: Claude authentication"
 echo ""
 
-CLAUDE_CREDS="$HOME/.claude/.credentials.json"
-if [ -f "$CLAUDE_CREDS" ]; then
-    ok "Claude credentials found"
+# Claude Code stores auth in different locations depending on the auth method.
+# Check for OAuth credentials file or test with `claude -p` (quick, non-interactive).
+claude_is_authed() {
+    [ -f "$HOME/.claude/.credentials.json" ] && return 0
+    claude -p "hello" >/dev/null 2>&1 && return 0
+    return 1
+}
+
+if claude_is_authed; then
+    ok "Claude is authenticated"
 else
-    info "No credentials found. Launching Claude for login..."
+    info "Not authenticated. Launching Claude for login..."
     info "(After login, type /exit to return here.)"
-    claude || true
-    if [ -f "$CLAUDE_CREDS" ]; then
+    # Run claude interactively with explicit tty
+    claude </dev/tty || true
+    if claude_is_authed; then
         ok "Login successful"
     else
-        info "WARNING: Credentials not detected. Run 'claude' later to log in."
+        info "WARNING: Auth not detected. Run 'claude' manually to log in."
     fi
 fi
 
@@ -440,11 +480,12 @@ echo ""
 # ================================================================
 
 printf "\n${GREEN}${BOLD}  goose-wizard installed successfully!${RESET}\n"
-cat <<'EOF'
+echo ""
 
-  Open a new terminal, then run:
+# Source the shell rc so GOOSE_RECIPE_PATH is live in this session
+export GOOSE_RECIPE_PATH="$INSTALL_DIR/recipes/shared"
 
-    cd ~/goose-wizard
-    goose run --recipe 00-start-here --interactive
-
-EOF
+info "Launching training..."
+echo ""
+cd "$INSTALL_DIR"
+exec goose run --recipe 00-start-here --interactive </dev/tty

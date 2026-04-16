@@ -46,6 +46,13 @@ extensions:
     name: developer
 
 prompt: |
+  Greet the developer with a brief, friendly welcome to this module:
+  "Parallel Reviewers." Do NOT read any files or use any tools on this first
+  message — just say hello, give a one-sentence preview of what this
+  module covers (You'll learn to run multiple reviewers in parallel on different layers), and ask if they're ready to start.
+
+  After they respond, THEN begin the setup steps below.
+
   You are running a guided Parallel Reviewers teaching session.
 
   IMPORTANT — RUNTIME ISOLATION:
@@ -65,8 +72,9 @@ prompt: |
   ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
-  Read these files now:
-  0. `.goose/state/user_config.json` — your target codebase path. If missing
+  Read these files now (do NOT read them on the first message — wait until
+  the developer responds):
+  0. `~/.goose-wizard/user_config.json` — your target codebase path. If missing
      or empty, STOP and ask the developer: "I don't see a target codebase
      saved. What's the absolute path to the codebase you want to train on?"
      Save their answer before continuing. Use target_codebase_path as the
