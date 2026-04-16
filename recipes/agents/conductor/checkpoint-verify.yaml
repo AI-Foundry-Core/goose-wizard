@@ -75,7 +75,7 @@ instructions: |
   ## Process
   1. Verify resolved config: confirm `project_path` is a non-empty
      directory that exists, `project_kind` is one of sandbox/live/unknown,
-     and `project_json_path` points to a readable file. If any check
+     and `{{ project_json_path }}` points to a readable file. If any check
      fails, return `status: config_invalid` with details.
   2. Load plan.md. Verify all tasks in the requested phase are `[x]`.
      If any aren't, return `phase_incomplete`.
