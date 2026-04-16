@@ -448,11 +448,12 @@ echo ""
 # ================================================================
 
 printf "\n${GREEN}${BOLD}  goose-wizard installed successfully!${RESET}\n"
-cat <<'EOF'
+echo ""
 
-  Open a new terminal, then run:
+# Source the shell rc so GOOSE_RECIPE_PATH is live in this session
+export GOOSE_RECIPE_PATH="$INSTALL_DIR/recipes/shared"
 
-    cd ~/goose-wizard
-    goose run --recipe 00-start-here --interactive
-
-EOF
+info "Launching training..."
+echo ""
+cd "$INSTALL_DIR"
+exec goose run --recipe 00-start-here --interactive </dev/tty

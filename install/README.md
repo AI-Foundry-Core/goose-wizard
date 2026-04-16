@@ -12,13 +12,9 @@ curl -fsSL https://raw.githubusercontent.com/AI-Foundry-Core/goose-wizard/main/i
 irm https://raw.githubusercontent.com/AI-Foundry-Core/goose-wizard/main/install.ps1 | iex
 ```
 
-The script clones the repo, installs prerequisites, configures Goose, and
-authenticates with Claude. When it finishes, open a new terminal and run:
-
-```
-cd ~/goose-wizard
-goose run --recipe 00-start-here --interactive
-```
+The script clones the repo, installs prerequisites, configures Goose,
+authenticates with Claude, and launches the gateway tutorial automatically.
+One line from install to first training module.
 
 ## What the installer does
 

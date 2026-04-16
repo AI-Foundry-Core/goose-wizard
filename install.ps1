@@ -397,8 +397,11 @@ Write-Host ""
 Write-Host ""
 Write-Host "  goose-wizard installed successfully!" -ForegroundColor Green
 Write-Host ""
-Write-Host "  Open a new terminal, then run:"
+
+# Ensure GOOSE_RECIPE_PATH is live in this session
+$env:GOOSE_RECIPE_PATH = "$InstallDir\recipes\shared"
+
+Write-Host "  Launching training..." -ForegroundColor White
 Write-Host ""
-Write-Host "    cd ~\goose-wizard" -ForegroundColor Cyan
-Write-Host "    goose run --recipe 00-start-here --interactive" -ForegroundColor Cyan
-Write-Host ""
+Set-Location $InstallDir
+& goose run --recipe 00-start-here --interactive
