@@ -70,7 +70,7 @@ Reframed RIL-agents as lineage (not runtime) in:
 All `handoffs/*.md` and `overnight-pipeline/runs/*/transcripts/` references are historical and intentionally preserved.
 
 ### Stage 1.5a (progression migration) — DEFERRED
-Per reviewer feedback, progression state needs to move from per-CWD (`.goose/state/progression.json`) to per-user (`~/.rilgoose/progression.json`). 86 files touch progression.json. Too broad a sweep to do safely in this session's remaining context. Decisions are locked (per-user, compat loader, migrate-on-every-entry). Next session executes.
+Per reviewer feedback, progression state needs to move from per-CWD (`.goose/state/progression.json`) to per-user (`~/.goose-wizard/progression.json`). 86 files touch progression.json. Too broad a sweep to do safely in this session's remaining context. Decisions are locked (per-user, compat loader, migrate-on-every-entry). Next session executes.
 
 ---
 
@@ -83,12 +83,12 @@ Conductor becomes a **multi-recipe Goose system** native to goose-wizard — not
 
 | Topic | Decision |
 |---|---|
-| Progression state | **Per-user** at `~/.rilgoose/progression.json` |
+| Progression state | **Per-user** at `~/.goose-wizard/progression.json` |
 | Conductor artifacts location | **`<target>/.goose/conductor/`** (Goose-managed, gitignored suggestion) |
 | Project "kind" | **Required** — `kind: sandbox \| live` in project.json; Stage 0 refuses `live` without confirmation |
 | When setup-config runs | **Only when user reaches Conductor** (Stage 2+). Early stages stay focused on doing/seeing. |
 | Conductor curriculum placement | Stage 2 introduction; Stage 4 artifacts; Stage 5 gates; Stage 6 continuous-dev wraps conductor |
-| `~/.goose/rilgoose/` vs `~/.rilgoose/` | **`~/.rilgoose/`** (avoid collision with Goose's own namespace) |
+| `~/.goose/rilgoose/` vs `~/.goose-wizard/` | **`~/.goose-wizard/`** (avoid collision with Goose's own namespace) |
 | CWD contract | **All recipes run from goose-wizard repo root. Target accessed by absolute path.** Document in CLAUDE.md + RECIPE-PREAMBLE.md. |
 | Config sub-recipe count | **Collapse to 2** — `ensure-config.yaml` (read/migrate/create) + inline picker. NOT 4 separate primitives. |
 | Headless/scheduled conductor | Accepts `project_id` parameter. Interactive picker only when interactive AND no param. |
@@ -134,7 +134,7 @@ recipes/ported-agents/conductor/       # Reference docs (faithful port)
 ### Config file layout
 
 ```
-~/.rilgoose/
+~/.goose-wizard/
 ├── user.json               # user-level data + projects[] registry
 └── progression.json        # per-user career progression (Stage 1.5a)
 
@@ -218,7 +218,7 @@ recipes/ported-agents/conductor/       # Reference docs (faithful port)
 - **Canonical path** — resolve symlinks, normalize slashes, lowercase drive letters on Windows. Dedupe by canonical path.
 - **Project.json privacy** — decide committed vs gitignored; document. Default: gitignored (recommend users add `.goose/conductor/` to target repo's .gitignore).
 - **RECIPE-PREAMBLE carve-out** — if conductor recipes read `<target>/.goose/conductor/*.md`, the "ignore CLAUDE.md" rule in preamble needs a carve-out for those reads.
-- **Installer update** — `setup-goose.ps1` needs to create `~/.rilgoose/`. May need to count nested `recipes/agents/config/*.yaml` (currently only counts top-level).
+- **Installer update** — `setup-goose.ps1` needs to create `~/.goose-wizard/`. May need to count nested `recipes/agents/config/*.yaml` (currently only counts top-level).
 - **Graduated recipes have no project-picker step today.** Decide: add one, or leave graduated as single-cwd tools for now.
 - **Multi-user-on-one-laptop** — out of scope unless Reliance explicitly needs it. Flag.
 
@@ -241,11 +241,11 @@ Continue from the RIL-agents port completion. This session's job is to (a) migra
 **Execute Phase A:**
 
 **Step 1 — Stage 1.5a (per-user progression).** 86 files reference `progression.json`. Safe order per reviewer feedback:
-- Write `recipes/agents/progression/migrate-progression.yaml` — one-shot idempotent migration from `.goose/state/progression.json` to `~/.rilgoose/progression.json`.
-- Write a shared preamble stanza (or update `recipes/RECIPE-PREAMBLE.md`) that every recipe's Step 0 includes: "Read `~/.rilgoose/progression.json`. If missing, check `.goose/state/progression.json` and migrate."
+- Write `recipes/agents/progression/migrate-progression.yaml` — one-shot idempotent migration from `.goose/state/progression.json` to `~/.goose-wizard/progression.json`.
+- Write a shared preamble stanza (or update `recipes/RECIPE-PREAMBLE.md`) that every recipe's Step 0 includes: "Read `~/.goose-wizard/progression.json`. If missing, check `.goose/state/progression.json` and migrate."
 - Update `recipes/agents/check-progress.yaml` and `recipes/agents/graduate-module.yaml` to use the new path.
 - Sweep the 27 stage recipes in `recipes/shared/` to use the new path.
-- Update `install/setup-goose.ps1` to create `~/.rilgoose/` on install.
+- Update `install/setup-goose.ps1` to create `~/.goose-wizard/` on install.
 - Verify with a grep: no live recipe still reads `.goose/state/progression.json` directly; all go through the preamble stanza or have migration-compat.
 - Commit: `Stage 1.5a: Migrate progression to per-user state`.
 
@@ -259,7 +259,7 @@ Continue from the RIL-agents port completion. This session's job is to (a) migra
 - Commit: `Port conductor reference docs into recipes/ported-agents/conductor/`.
 
 **Step 3 — Build `ensure-config.yaml` + `setup-config.yaml`.**
-- `recipes/agents/config/ensure-config.yaml` — read `~/.rilgoose/user.json`. If missing, trigger first-time flow. If present, return the active project's paths. Migrate legacy `.goose/state/user_config.json` if detected.
+- `recipes/agents/config/ensure-config.yaml` — read `~/.goose-wizard/user.json`. If missing, trigger first-time flow. If present, return the active project's paths. Migrate legacy `.goose/state/user_config.json` if detected.
 - `recipes/shared/setup-config.yaml` — the unified multi-project config recipe. First run: ask user+project questions, write user.json + project.json. Subsequent runs: show projects list, ask (add new / modify / set active). Writes use atomic tmp+rename+backup pattern.
 - Write schema doc `docs/config-schema.md` (or inline in ensure-config.yaml).
 - Design doc in `ideas/conductor-config-design.md` (NOT `handoffs/`).
@@ -286,7 +286,7 @@ Continue from the RIL-agents port completion. This session's job is to (a) migra
 - Canonical-path dedup required for Windows (symlinks, slashes, case).
 - All config writes atomic (tmp + rename + backup).
 - Headless/scheduled conductor: accept `project_id` parameter, no interactive picker in that path.
-- Use `~/.rilgoose/` NOT `~/.goose/rilgoose/`.
+- Use `~/.goose-wizard/` NOT `~/.goose/rilgoose/`.
 
 **Curriculum integration (Phase B) is NOT in scope for this session.** Just build the foundation.
 

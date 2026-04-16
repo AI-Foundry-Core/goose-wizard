@@ -149,7 +149,7 @@ Each should have:
 
 ### Step 2 — restart Doni's walkthrough from Stage 0 against docunator
 
-His existing `~/.rilgoose/` and `.goose/state/user_config.json` are intact. He should be able to just run:
+His existing `~/.goose-wizard/` and `.goose/state/user_config.json` are intact. He should be able to just run:
 
 ```
 goose run --recipe recipes/shared/00-start-here.yaml --interactive

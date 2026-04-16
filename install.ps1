@@ -415,10 +415,10 @@ if (Test-Path $credsPath) {
 # ---------------------------------------------------------------------------
 
 Write-Step "Seeding progression state"
-$rilgooseDir = Join-Path $env:USERPROFILE ".rilgoose"
-New-Item -ItemType Directory -Path $rilgooseDir -Force | Out-Null
+$gooseWizardDir = Join-Path $env:USERPROFILE ".goose-wizard"
+New-Item -ItemType Directory -Path $gooseWizardDir -Force | Out-Null
 
-$progressionTarget = Join-Path $rilgooseDir "progression.json"
+$progressionTarget = Join-Path $gooseWizardDir "progression.json"
 $progressionSource = Join-Path $InstallDir "install\project-template\.goose\state\progression.json"
 if (-not (Test-Path $progressionTarget)) {
     if (Test-Path $progressionSource) {

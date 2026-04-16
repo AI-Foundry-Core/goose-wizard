@@ -50,7 +50,7 @@ subscription is required.
   1. `settingSources: ["user", "local"]` — drops project-scope CLAUDE.md
   2. `autoMemoryEnabled: false` — prevents Claude Code memory leaking into recipes
   3. `maxThinkingTokens: 4096` — caps thinking budget (override with `MAX_THINKING_TOKENS` env var)
-- Seeds `~/.rilgoose/progression.json` for training state
+- Seeds `~/.goose-wizard/progression.json` for training state
 
 ## Requirements
 

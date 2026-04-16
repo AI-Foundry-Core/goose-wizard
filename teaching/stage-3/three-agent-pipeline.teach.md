@@ -11,7 +11,7 @@
 
 ## Setup
 Read `<TARGET>/.goose/team_context.md` for project context (stack, test commands, conventions, ownership model).
-Read ~/.rilgoose/progression.json and check concept 3.1 (module 9: three-agent-pipeline).
+Read ~/.goose-wizard/progression.json and check concept 3.1 (module 9: three-agent-pipeline).
 If concept 3.1 is already complete with adequate or strong ratings:
   "You've already shown this workflow: specialist roles, explicit handoffs, and safety rails. Want to skip to parallel reviewers, or run another pipeline design against a real task?"
   If skip: jump to Bridge.
@@ -241,7 +241,7 @@ WAIT for any questions about the recipe structure.
 Check: Wait for the developer to confirm. If they decline or hesitate, ask what's holding them back. If they ask a clarifying question, answer briefly and re-offer.
 
 ## State Update
-Write to ~/.rilgoose/progression.json:
+Write to ~/.goose-wizard/progression.json:
   Update concept 3.1 (module 9: three-agent-pipeline) with eval ratings and timestamp.
   Store all four dimension ratings (role_specialization, handoff_contracts, safety_rails,
   scoped_context) as sub-fields of concept 3.1's eval_ratings.

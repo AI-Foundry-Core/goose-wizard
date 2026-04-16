@@ -6,7 +6,7 @@ parameters:
   - key: state_path
     input_type: string
     requirement: optional
-    default: "~/.rilgoose/progression.json"
+    default: "~/.goose-wizard/progression.json"
     description: "Per-user progression state path. Expanded via the agent's home-directory resolver."
   - key: legacy_state_path
     input_type: string

@@ -13,12 +13,12 @@ between recipes.
 
 | Topic | Decision |
 |---|---|
-| Progression state | **Per-user** at `~/.rilgoose/progression.json` (see Stage 1.5a) |
+| Progression state | **Per-user** at `~/.goose-wizard/progression.json` (see Stage 1.5a) |
 | Conductor artifacts | `<target>/.goose/conductor/` — per-project, gitignore recommended |
 | Project "kind" | Required field on every project: `sandbox` or `live`. `live` needs explicit confirmation before save. |
 | When `setup-config` runs | Only when the user reaches Conductor (Stage 2+). Early stages stay focused on doing/seeing. |
 | Curriculum placement for Conductor | Stage 2 introduction; Stage 4 artifacts; Stage 5 checkpoints with teeth; Stage 6 wraps Conductor |
-| Config root | `~/.rilgoose/` (NOT `~/.goose/rilgoose/` — avoid collision with Goose's own namespace) |
+| Config root | `~/.goose-wizard/` (NOT `~/.goose/rilgoose/` — avoid collision with Goose's own namespace) |
 | CWD contract | All goose-wizard recipes run from the goose-wizard repo root. Target codebases are accessed by absolute path. |
 | Config sub-recipe count | **Two total** — `ensure-config` (agent primitive, read/migrate) + `setup-config` (interactive shared recipe). No separate primitives for picking/adding/modifying. |
 | Headless/scheduled mode | Every Conductor recipe accepts a `project_id` parameter. Interactive picker only runs when there is no `project_id` AND the session is interactive. |
@@ -29,7 +29,7 @@ between recipes.
 ## File layout
 
 ```
-~/.rilgoose/
+~/.goose-wizard/
 ├── user.json                 # per-user data + projects index
 └── progression.json          # per-user career progression (Stage 1.5a)
 
@@ -215,7 +215,7 @@ interactive, or (b) stops with a clear error packet when headless.
   overriding recipe instructions. Document this carve-out in
   `RECIPE-PREAMBLE.md` when the conductor recipes ship.
 - **Installer update** — `install/setup-goose.ps1` now creates
-  `~/.rilgoose/` and counts nested `recipes/agents/config/*.yaml`
+  `~/.goose-wizard/` and counts nested `recipes/agents/config/*.yaml`
   recursively. Done in Stage 1.5a.
 - **Graduated recipes have no project-picker today** — current graduated
   recipes are single-cwd tools. Decide in Phase B whether to add a picker

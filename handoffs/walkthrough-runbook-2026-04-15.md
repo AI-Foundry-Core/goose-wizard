@@ -68,20 +68,20 @@ All commands assume CWD = `C:/Users/donid/ClaudeProjects/goose-wizard` (the repo
 
 ```bash
 goose --version  # confirms 1.30.0 or later
-ls ~/.rilgoose/  # should NOT exist for a clean first-run test
+ls ~/.goose-wizard/  # should NOT exist for a clean first-run test
 ```
 
-If `~/.rilgoose/` exists from prior testing and you want a clean slate:
+If `~/.goose-wizard/` exists from prior testing and you want a clean slate:
 
 ```bash
-mv ~/.rilgoose ~/.rilgoose.backup-$(date -u +%Y%m%dT%H%M%SZ)
+mv ~/.goose-wizard ~/.goose-wizard.backup-$(date -u +%Y%m%dT%H%M%SZ)
 ```
 
 ### Test 1 — Clean first-run flow (no legacy state)
 
 ```bash
 # Confirm clean: no rilgoose dir, no legacy state in current target
-ls ~/.rilgoose/  # expect "No such file"
+ls ~/.goose-wizard/  # expect "No such file"
 ls .goose/state/  # expect either nothing or just progression.json
 ```
 
@@ -100,8 +100,8 @@ For the kind question:
 
 After completion:
 ```bash
-ls ~/.rilgoose/  # expect: user.json
-cat ~/.rilgoose/user.json  # spot check schema
+ls ~/.goose-wizard/  # expect: user.json
+cat ~/.goose-wizard/user.json  # spot check schema
 ls <project_path>/.goose/conductor/  # expect: project.json
 cat <project_path>/.goose/conductor/project.json  # kind matches what you picked, conductor_initialized: false
 ```
@@ -156,7 +156,7 @@ If anything other than #5 advances the phase, that's a bug — file it.
 
 ```bash
 # Clean slate
-mv ~/.rilgoose ~/.rilgoose.backup-bridge-$(date -u +%Y%m%dT%H%M%SZ)
+mv ~/.goose-wizard ~/.goose-wizard.backup-bridge-$(date -u +%Y%m%dT%H%M%SZ)
 ```
 
 Plant a legacy `user_config.json`. Pick a target path (e.g. `C:/Users/donid/ClaudeProjects/General` again).
@@ -175,7 +175,7 @@ Then write `<target_path>/.goose/state/user_config.json` containing:
 
 ```bash
 # Verify clean
-ls ~/.rilgoose/  # expect: No such file
+ls ~/.goose-wizard/  # expect: No such file
 ls <target_path>/.goose/conductor/  # expect: No such file
 cat <target_path>/.goose/state/user_config.json  # planted file
 ```
@@ -187,12 +187,12 @@ goose run --recipe C:/Users/donid/ClaudeProjects/goose-wizard/recipes/shared/con
 ```
 
 Expected:
-- ensure-config migrates: writes `~/.rilgoose/user.json` AND stubs `<target_path>/.goose/conductor/project.json` with `kind: "unknown"`, `needs_kind_confirmation: true`, `created_via: "legacy_user_config_migration"`.
+- ensure-config migrates: writes `~/.goose-wizard/user.json` AND stubs `<target_path>/.goose/conductor/project.json` with `kind: "unknown"`, `needs_kind_confirmation: true`, `created_via: "legacy_user_config_migration"`.
 - conductor-setup hits kind gate (lines 86-100), tells user to run setup-config, **stops without writing any conductor artifacts**.
 
 ```bash
 # Verify ensure-config did its job
-cat ~/.rilgoose/user.json  # expect projects[0].kind: "unknown", needs_kind_confirmation: true
+cat ~/.goose-wizard/user.json  # expect projects[0].kind: "unknown", needs_kind_confirmation: true
 cat <target_path>/.goose/conductor/project.json  # expect kind: "unknown", needs_kind_confirmation: true, created_via: "legacy_user_config_migration"
 ls <target_path>/.goose/conductor/  # expect ONLY project.json (no product.md, no tracks.md)
 ls <target_path>/.goose/state/user_config.json.migrated  # expect: exists (legacy file renamed)
@@ -209,7 +209,7 @@ Expected: runs the PENDING KIND CONFIRMATION branch (lines 97-144), asks for san
 ```bash
 # Verify the resolution
 cat <target_path>/.goose/conductor/project.json  # expect kind: "sandbox", NO needs_kind_confirmation key (deleted, not set to false)
-cat ~/.rilgoose/user.json  # expect projects[0].kind: "sandbox", NO needs_kind_confirmation key
+cat ~/.goose-wizard/user.json  # expect projects[0].kind: "sandbox", NO needs_kind_confirmation key
 ```
 
 ```bash
@@ -246,7 +246,7 @@ Same drill for `conductor-setup` and `conductor-implement`.
 After running setup-config a second time on an existing project (e.g. the `modify project` branch on user.json), check:
 
 ```bash
-ls ~/.rilgoose/user.json.bak.*
+ls ~/.goose-wizard/user.json.bak.*
 # Expect: filename matches user.json.bak.YYYYMMDDTHHMMSSZ — compact, no hyphens or colons
 # Example: user.json.bak.20260415T173042Z
 ```

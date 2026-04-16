@@ -64,21 +64,21 @@ prompt: |
   or LEARNINGS.md. Follow ONLY these instructions and the teaching script.
 
   IMPORTANT — PROGRESSION STATE (per-user):
-  Progression is per-USER at `~/.rilgoose/progression.json` (it follows the
+  Progression is per-USER at `~/.goose-wizard/progression.json` (it follows the
   developer across every codebase they train on, not tied to this project).
   On FIRST READ this session, run this migration fallback once:
-    - If `~/.rilgoose/progression.json` exists, USE IT.
+    - If `~/.goose-wizard/progression.json` exists, USE IT.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, COPY the legacy file contents to
-      `~/.rilgoose/progression.json` (atomic: write tmp + rename), then
+      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
+      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), then
       rename the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression WRITES go to `~/.rilgoose/progression.json`. Never write
+  ALL progression WRITES go to `~/.goose-wizard/progression.json`. Never write
   to the legacy `.goose/state/progression.json` path again.
 
   Read these files now (do NOT read them on the first message — wait until
   the developer responds):
-  0. `~/.rilgoose/user_config.json` — your target codebase path. If missing
+  0. `~/.goose-wizard/user_config.json` — your target codebase path. If missing
      or empty, STOP and ask the developer: "I don't see a target codebase
      saved. What's the absolute path to the codebase you want to train on?"
      Save their answer before continuing. Use target_codebase_path as the
@@ -87,7 +87,7 @@ prompt: |
   2. `teaching/stage-2/build-then-test.teach.md` — your playbook
   3. `<TARGET>/.goose/team_context.md` — target project context (substitute
      <TARGET> with target_codebase_path)
-  4. `~/.rilgoose/progression.json` — check if concept 2.1 is already complete
+  4. `~/.goose-wizard/progression.json` — check if concept 2.1 is already complete
 
   **CRITICAL — TARGET PROPAGATION.** Your CWD is the goose-wizard repo, not
   the target codebase. Every subagent and sub-recipe call must receive
@@ -182,7 +182,7 @@ prompt: |
   STATE UPDATE
   ============================================================
 
-  Update `~/.rilgoose/progression.json`:
+  Update `~/.goose-wizard/progression.json`:
   - Set concept 2.1 status to "complete"
   - Record completed_at timestamp, eval dimension ratings
   - Never overwrite a Strong rating with a lower one

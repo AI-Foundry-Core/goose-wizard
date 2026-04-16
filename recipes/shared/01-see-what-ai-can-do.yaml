@@ -10,10 +10,10 @@ instructions: |
 
   ## Step 0: Check target codebase
 
-  Read `~/.rilgoose/user_config.json`. Use `target_codebase_path` as the
+  Read `~/.goose-wizard/user_config.json`. Use `target_codebase_path` as the
   directory to explore and edit during this module.
 
-  If `~/.rilgoose/user_config.json` does NOT exist OR `target_codebase_path`
+  If `~/.goose-wizard/user_config.json` does NOT exist OR `target_codebase_path`
   is empty, STOP and ask the developer:
 
     "Before we start, I need to know which codebase you want to train on.
@@ -21,7 +21,7 @@ instructions: |
     path to the codebase? You can also just say 'this one' to use the
     current directory."
 
-  WAIT for response. Then save their answer to `~/.rilgoose/user_config.json`:
+  WAIT for response. Then save their answer to `~/.goose-wizard/user_config.json`:
 
     {
       "target_codebase_path": "<absolute path>",
@@ -62,19 +62,19 @@ instructions: |
 
   ## Step 1: Check Teaching State
 
-  PROGRESSION STATE (per-user): progression is at `~/.rilgoose/progression.json`
+  PROGRESSION STATE (per-user): progression is at `~/.goose-wizard/progression.json`
   (per-USER, follows the developer across every codebase they train on).
   Before reading it the first time, run this migration fallback once:
-    - If `~/.rilgoose/progression.json` exists, use it.
+    - If `~/.goose-wizard/progression.json` exists, use it.
     - Else if `.goose/state/progression.json` exists in this repo, MIGRATE:
-      create `~/.rilgoose/` if missing, COPY the legacy file contents to
-      `~/.rilgoose/progression.json` (atomic: write tmp + rename), rename
+      create `~/.goose-wizard/` if missing, COPY the legacy file contents to
+      `~/.goose-wizard/progression.json` (atomic: write tmp + rename), rename
       the legacy file to `.goose/state/progression.json.migrated`.
     - Else treat as a NEW user (no progression yet).
-  ALL progression writes go to `~/.rilgoose/progression.json`. Never write to
+  ALL progression writes go to `~/.goose-wizard/progression.json`. Never write to
   the legacy `.goose/state/progression.json` path again.
 
-  Read `~/.rilgoose/progression.json`. Find the entry in the sequence array
+  Read `~/.goose-wizard/progression.json`. Find the entry in the sequence array
   where concept is "0.1" (See What AI Can Do, module 1).
 
   - If the file does not exist: enter TEACHING MODE.
@@ -121,7 +121,7 @@ instructions: |
   - Follow the Say/Check/Action sequence from each teaching script.
   - Ask for developer approval wherever the teaching script says to check or wait.
   - Never mention eval, ratings, scores, or that this is training.
-  - Update `~/.rilgoose/progression.json`: set this entry's status to "complete",
+  - Update `~/.goose-wizard/progression.json`: set this entry's status to "complete",
     completed_at to current ISO timestamp, increment modules_completed,
     update current_module.
   - Update `.goose/PROGRESS.md`: find the EXACT line `- [ ] **1. ` (with
@@ -184,7 +184,7 @@ instructions: |
   Progress state:
   - After Act 3, write .goose/state/.stage-0-progress.json with acts_completed [1, 2, 3], files_touched, and branch.
   - After Act 5, update .goose/state/.stage-0-progress.json with acts_completed [1, 2, 3, 4, 5], files_touched, branch, and completed true.
-  - After Act 5, also update ~/.rilgoose/progression.json: set the module 1
+  - After Act 5, also update ~/.goose-wizard/progression.json: set the module 1
     entry's status to "complete" and set completed_at to current ISO timestamp.
   - After Act 5, update .goose/PROGRESS.md: find the EXACT line `- [ ] **1. `
     (with trailing space after the period) and replace `- [ ]` with `- [x]`.
@@ -212,8 +212,8 @@ prompt: |
   this module covers, and ask if they're ready to start.
 
   After they respond, THEN begin Step 0:
-  1. Resolve target_codebase_path from `~/.rilgoose/user_config.json`.
-  2. Read `~/.rilgoose/progression.json` to determine TEACHING vs WORKING mode.
+  1. Resolve target_codebase_path from `~/.goose-wizard/user_config.json`.
+  2. Read `~/.goose-wizard/progression.json` to determine TEACHING vs WORKING mode.
   3. Read `teaching/meta/teacher-instructions.md` and
      `teaching/stage-0/act-1-see-your-code.teach.md` — just these two.
   4. Read `<TARGET>/.goose/team_context.md` (if present).
