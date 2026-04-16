@@ -2,7 +2,7 @@
 
 ## Current Work
 **Three-recipe-type architecture is complete.** All 26 modules converted:
-- 40 agent primitives in `recipes/agents/` (top-level modules + nested
+- 37 agent primitives in `recipes/agents/` (top-level modules + nested
   `config/`, `progression/`, `conductor/` subdirs)
 - 34 recipes in `recipes/shared/`: gateway + 26 numbered training
   modules + 7 support recipes (conductor, setup, etc.)
@@ -175,7 +175,7 @@ goose-wizard/
 │   │   ├── 02-bug-fix.yaml             # Stage 1: training facilitator (calls agents/bug-fix)
 │   │   ├── 03-test-writer.yaml         # ...through 26-skill-evolution.yaml
 │   │   └── ...26 module recipes total
-│   ├── agents/                         # 40 agent primitives — non-interactive workers (incl. nested config/, progression/, conductor/; NOT in GOOSE_RECIPE_PATH)
+│   ├── agents/                         # 37 agent primitives — non-interactive workers (incl. nested config/, progression/, conductor/; NOT in GOOSE_RECIPE_PATH)
 │   │   ├── bug-fix.yaml                # Stage 1: bug investigation + fix + test + diff
 │   │   ├── test-writer.yaml            # Stage 1: generate and run tests
 │   │   ├── code-review.yaml            # Stage 1: review code, return categorized findings
@@ -206,6 +206,8 @@ goose-wizard/
 │   │   ├── anti-patterns.md            # 6 universal + 15 archetype-specific anti-patterns
 │   │   ├── recipe-hygiene.md           # 21 hygiene rules (Universal, Primitive, Workflow)
 │   │   └── validation-checklist.md     # 37-item checklist + 6 quality detectors
+│   ├── conductor-skills/               # Skill files for conductor recipes
+│   │   └── setup.md                    # Context-write procedures (product, tech-stack, workflow)
 │   └── local/                          # 6 pipeline recipes (personal/testing only)
 │       ├── apply-fixes.yaml
 │       └── ...5 more pipeline recipes

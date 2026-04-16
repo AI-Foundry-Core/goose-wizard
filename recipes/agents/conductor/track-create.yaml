@@ -1,13 +1,25 @@
 version: 1.0.0
+# type: primitive
 title: "Conductor Track Create Agent"
 description: "Author a new track's spec.md, plan.md, metadata.json, and index.md under <target>/.goose/conductor/tracks/<track_id>/ and register it in tracks.md. Atomic writes; idempotent on repeated calls."
 
 parameters:
+  - key: project_path
+    input_type: string
+    requirement: required
+    description: "Absolute path to the target project. Resolved by the parent conductor before delegation."
+  - key: project_kind
+    input_type: string
+    requirement: required
+    description: "'sandbox' | 'live' | 'unknown'. Resolved by the parent conductor."
+  - key: project_json_path
+    input_type: string
+    requirement: required
+    description: "Path to project.json. Resolved by the parent conductor."
   - key: project_id
     input_type: string
-    requirement: optional
-    default: ""
-    description: "Project ID. Empty means use the active project from ensure-config."
+    requirement: required
+    description: "Project identifier. Resolved by the parent conductor."
   - key: track_type
     input_type: string
     requirement: required
@@ -40,11 +52,6 @@ parameters:
     default: false
     description: "Required to be true when project.kind == 'live'. Authoring a track writes files into the project's conductor dir — treat as a live-project mutation. Caller obtains typed user confirmation before setting true."
 
-sub_recipes:
-  - name: "ensure_config"
-    path: "../config/ensure-config.yaml"
-    description: "Resolves the project path."
-
 instructions: |
   IMPORTANT — RUNTIME CONTEXT:
   You are running inside the Goose agent platform. This IS the real Goose runtime.
@@ -60,9 +67,13 @@ instructions: |
   Reference the ported skill:
   `recipes/ported-agents/conductor/skills/track-management.md` for the
   canonical spec.md and plan.md structure, track types, and status markers.
+  If this file is missing, use the spec.md and plan.md structure
+  definitions in this recipe's Process section as the canonical reference.
 
   ## Constraints
   IMPORTANT:
+  - All file operations are anchored to {{ project_path }}. Do NOT
+    read or modify files outside this directory.
   - NEVER reuse a track ID. If a track with the same `<shortname>_<YYYYMMDD>`
     already exists, append a disambiguator (e.g., `-2`) or return
     `status: id_collision`.
@@ -75,20 +86,17 @@ instructions: |
     only after all files are prepared; roll back partial state on failure.
   - DO register the track in tracks.md. A track that exists on disk but
     not in the registry is worse than not creating it at all.
-  - If `project.kind == "live"`, REFUSE unless `live_confirmed` is true.
+  - If `{{ project_kind }}` == "live", REFUSE unless `live_confirmed` is true.
     Return `status: live_confirmation_required` without any write.
-  - If `project.kind == "unknown"` OR `needs_kind_confirmation: true`,
+  - If `{{ project_kind }}` == "unknown" OR `needs_kind_confirmation: true`,
     REFUSE unconditionally. Return `status: kind_unconfirmed` — user
     must resolve via setup-config before any track can be authored.
 
   ## Failure Modes
-  - Config resolution via ensure_config returned non-ok →
-    `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status. (project.json missing/corrupt
-    surfaces here as `config_status: project_json_missing` or
-    `project_corrupt`; caller routes to `setup-config`.)
-  - Conductor directory missing (ensure_config `ok`) → `not_initialized`
-    (caller runs conductor-setup).
+  - Config invalid (project_path missing/empty, project_kind unrecognized,
+    project.json unreadable) → `status: config_invalid` with details.
+  - Conductor directory missing (config valid but no conductor dir) →
+    `not_initialized` (caller runs conductor-setup).
   - Requirements brief too vague to produce testable acceptance criteria →
     `brief_too_vague` with the gaps.
   - Track ID collision → `id_collision` with the existing path.
@@ -96,12 +104,14 @@ instructions: |
     `write_failed` with details.
 
   ## Process
-  1. Call `ensure_config`. If status != `ok`, return
-     `status: config_unresolved` with `config_status` set. If resolved
-     project.kind == "unknown" OR `needs_kind_confirmation: true`,
-     return `status: kind_unconfirmed` immediately. If resolved
-     project.kind == "live" and `live_confirmed` is false, return
-     `status: live_confirmation_required` immediately.
+  1. Verify resolved config: confirm `project_path` is a non-empty
+     directory that exists, `project_kind` is one of sandbox/live/unknown,
+     and `project_json_path` points to a readable file. If any check
+     fails, return `status: config_invalid` with details.
+     If `{{ project_kind }}` == "unknown" OR the project carries
+     `needs_kind_confirmation: true`, return `status: kind_unconfirmed`
+     immediately. If `{{ project_kind }}` == "live" and `live_confirmed`
+     is false, return `status: live_confirmation_required` immediately.
   2. Verify conductor directory exists. If not, return `not_initialized`.
   3. Build track_id: `{shortname}_{YYYYMMDD}` (UTC).
   4. Check for ID collision; apply disambiguation if needed.
@@ -181,11 +191,9 @@ instructions: |
   registry" state.
 
   ## Return
-  - status: "ok" | "config_unresolved" | "kind_unconfirmed" |
+  - status: "ok" | "config_invalid" | "kind_unconfirmed" |
     "not_initialized" | "live_confirmation_required" |
     "brief_too_vague" | "id_collision" | "write_failed"
-  - config_status: Underlying ensure_config status when
-    status == "config_unresolved", else null
   - track_id: Final track ID used
   - track_path: Absolute path of the track directory
   - files_created: List of absolute paths written
@@ -207,7 +215,8 @@ extensions:
     name: developer
 
 prompt: |
-  Create a new track for project_id: {{ project_id }}.
+  Create a new track for project_id: {{ project_id }}
+  (path: {{ project_path }}, kind: {{ project_kind }}).
   Type: {{ track_type }}. Shortname: {{ shortname }}. Title: {{ title }}.
   Live confirmed: {{ live_confirmed }}.
   Refuse live projects without live_confirmed. Follow the Process
