@@ -176,7 +176,7 @@ Before starting any track:
 
 For new projects:
 
-1. Run the conductor-setup recipe to create all artifacts interactively
+1. Run the conductor recipe (setup mode) to create all artifacts interactively
 2. Answer questions about product vision, tech preferences, and workflow
 3. Generate initial style guides for chosen languages
 4. Create empty tracks registry
@@ -191,7 +191,7 @@ Characteristics:
 
 For existing codebases:
 
-1. Run the conductor-setup recipe with existing codebase detection
+1. Run the conductor recipe (setup mode) with existing codebase detection
 2. System analyzes existing code, configs, and documentation
 3. Pre-populate artifacts based on discovered patterns
 4. Review and refine generated context
@@ -254,7 +254,7 @@ Characteristics:
 
 ## Context Lifecycle
 
-1. **Creation**: Initial setup via the conductor-setup recipe
+1. **Creation**: Initial setup via the conductor recipe (setup mode)
 2. **Validation**: Verify before each track
 3. **Evolution**: Update as project grows
 4. **Synchronization**: Keep artifacts aligned

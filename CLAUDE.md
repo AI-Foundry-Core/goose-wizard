@@ -2,10 +2,11 @@
 
 ## Current Work
 **Three-recipe-type architecture is complete.** All 26 modules converted:
-- 40 agent primitives in `recipes/agents/` (top-level modules + nested
+- 37 agent primitives in `recipes/agents/` (top-level modules + nested
   `config/`, `progression/`, `conductor/` subdirs)
-- 34 recipes in `recipes/shared/`: gateway + 26 numbered training
-  modules + 7 support recipes (conductor, setup, etc.)
+- 28 recipes in `recipes/shared/`: gateway + 26 numbered training
+  modules + setup-config (6 old conductor shared recipes deleted —
+  replaced by single conductor.yaml, not yet written)
 - 5 graduated coordinators in `recipes/graduated/`
 - GooseForge: Recipe Forge + Pipeline Forge
 - Gateway (Start Here) with check-progress sub-recipe
@@ -34,6 +35,16 @@ When discussing "the team" or "our workflow," it means AIF unless explicitly sta
 - **Handoffs go in `handoffs/`.** When ending a session or switching context, write a handoff document to `handoffs/` with enough context for a fresh session to continue the work. Name it descriptively (e.g., `tonight-untested-recipes.md`).
 - **Every handoff MUST include a "Decisions Doni made this session" section.** List every non-trivial decision he made — scope calls ("do X not Y"), design picks ("use A instead of B"), cadence rules ("review after every series"), deferred-vs-now calls. Include the reasoning when he gave one. A handoff without this section is incomplete: the next session won't know which design calls are locked-in vs still open, and will re-litigate them. When in doubt, err toward including more.
 
+## Git Workflow
+1. **`main` is the stable branch.** Never push directly to `main`. All changes go through a branch + PR.
+2. **Branch from `main`, PR back to `main`.** No long-lived develop/staging branches — keep it simple.
+3. **Branch naming:** `<type>/<short-description>` — e.g., `feature/pipeline-forge`, `fix/install-path`, `cleanup/rename-modules`, `docs/rollout-playbook`.
+   - Types: `feature/`, `fix/`, `cleanup/`, `docs/`
+4. **Self-merge is fine.** PRs exist for history and visibility, not as a review gate. Merge your own PR when ready.
+5. **Keep PRs focused.** One logical change per PR. Don't bundle unrelated work.
+6. **Delete branches after merge.** Don't let stale branches pile up.
+7. **Handoffs stay local.** Files in `handoffs/` are working documents for session continuity — never commit or push them.
+
 ## What This Is
 A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's agent platform) extended with progressive teaching recipes that take development teams from zero agentic experience to autonomous development pipelines.
 
@@ -50,6 +61,7 @@ A fork of [Goose](https://github.com/aaif-goose/goose) (Block/Linux Foundation's
 | `HOW_GOOSE_WORKS.md` | Goose operational learnings — scheduler, recipes, subagents, ACP providers, extensions, CLI reference | When building anything on Goose or debugging Goose behavior |
 | `handoffs/stage1-detail.md` | Original handoff for Stage 1 work — lists 4 gaps to resolve before writing scripts | Before writing any Stage 1 content (gaps need re-evaluation against new adaptive model) |
 | `overnight-pipeline/README.md` | Overnight pipeline framework — how to run, adapt, and start new runs | When setting up an overnight run or reviewing past results |
+| `recipes/forge-references/recipe-hygiene.md` | 21 hygiene rules for recipe creation — Universal, Primitive, and Workflow categories. Every rule validated against Goose behavior | When writing or reviewing any recipe |
 
 ## Teaching Framework (Adaptive Evaluation)
 
@@ -116,6 +128,7 @@ Full details in `ideas/syllabus.md` under "Teaching Framework: Adaptive Evaluati
 - **Ported agents as execution layer** — agent primitives reference patterns from `recipes/ported-agents/` (local, versioned with the repo)
 - **GooseForge** — recipe design system with Recipe Forge (single recipes) and Pipeline Forge (multi-step pipelines)
 - **Pipeline Forge** — replaced Team Forge; thinks in stages/patterns, not team roles; composes from known Stage 2-3 patterns
+- **Recipe hygiene rules** — 21 rules (8 universal, 5 primitive, 8 workflow) validated against actual Goose behavior. Includes: text-only first turn (smart_approve constraint), information barriers, operation boundaries, runtime isolation. See `recipes/forge-references/recipe-hygiene.md`
 
 ## Project Structure
 ```
@@ -163,7 +176,7 @@ goose-wizard/
 │   │   ├── 02-bug-fix.yaml             # Stage 1: training facilitator (calls agents/bug-fix)
 │   │   ├── 03-test-writer.yaml         # ...through 26-skill-evolution.yaml
 │   │   └── ...26 module recipes total
-│   ├── agents/                         # 40 agent primitives — non-interactive workers (incl. nested config/, progression/, conductor/; NOT in GOOSE_RECIPE_PATH)
+│   ├── agents/                         # 37 agent primitives — non-interactive workers (incl. nested config/, progression/, conductor/; NOT in GOOSE_RECIPE_PATH)
 │   │   ├── bug-fix.yaml                # Stage 1: bug investigation + fix + test + diff
 │   │   ├── test-writer.yaml            # Stage 1: generate and run tests
 │   │   ├── code-review.yaml            # Stage 1: review code, return categorized findings
@@ -192,7 +205,15 @@ goose-wizard/
 │   │   ├── canonical-recipe-structure.md # 10-section template + YAML generation rules
 │   │   ├── archetype-*.md              # 5 archetype references (reviewer, builder, coordinator, evaluator, investigator)
 │   │   ├── anti-patterns.md            # 6 universal + 15 archetype-specific anti-patterns
+│   │   ├── recipe-hygiene.md           # 21 hygiene rules (Universal, Primitive, Workflow)
 │   │   └── validation-checklist.md     # 37-item checklist + 6 quality detectors
+│   ├── conductor-skills/               # Skill files for conductor (loaded on demand)
+│   │   ├── setup.md                    # Project init + context-write procedures
+│   │   ├── track-management.md         # Track types, templates, lifecycle operations
+│   │   ├── implementation.md           # 11-step TDD lifecycle, commit formats
+│   │   ├── verification.md             # Checkpoint gates, approval flow
+│   │   ├── revert.md                   # Semantic revert, plan-first pattern
+│   │   └── status.md                   # Progress display, blocker detection
 │   └── local/                          # 6 pipeline recipes (personal/testing only)
 │       ├── apply-fixes.yaml
 │       └── ...5 more pipeline recipes

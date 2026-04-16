@@ -1,13 +1,25 @@
 version: 1.0.0
+# type: primitive
 title: "Conductor Revert By Unit Agent"
 description: "Plan a semantic git revert by track, phase, or task. Returns the ordered revert plan + guardrails but does NOT execute without explicit confirmation from the caller."
 
 parameters:
+  - key: project_path
+    input_type: string
+    requirement: required
+    description: "Absolute path to the target project. Resolved by the parent conductor before delegation."
+  - key: project_kind
+    input_type: string
+    requirement: required
+    description: "'sandbox' | 'live' | 'unknown'. Resolved by the parent conductor."
+  - key: project_json_path
+    input_type: string
+    requirement: required
+    description: "Path to project.json. Resolved by the parent conductor."
   - key: project_id
     input_type: string
-    requirement: optional
-    default: ""
-    description: "Project ID."
+    requirement: required
+    description: "Project identifier. Resolved by the parent conductor."
   - key: unit
     input_type: string
     requirement: required
@@ -37,11 +49,6 @@ parameters:
     default: false
     description: "Required to be true when `execute: true` AND project.kind == 'live'. Planning (`execute: false`) never requires this flag. Caller must obtain typed user confirmation before setting."
 
-sub_recipes:
-  - name: "ensure_config"
-    path: "../config/ensure-config.yaml"
-    description: "Resolves the project path + project.json."
-
 instructions: |
   IMPORTANT — RUNTIME CONTEXT:
   You are running inside the Goose agent platform. This IS the real Goose runtime.
@@ -57,6 +64,8 @@ instructions: |
 
   ## Constraints
   IMPORTANT:
+  - All file operations are anchored to {{ project_path }}. Do NOT
+    read or modify files outside this directory.
   - NEVER force-push or rewrite history. Use `git revert` (which creates
     new commits) not `git reset`.
   - NEVER execute without `execute: true`. Return the plan first so the
@@ -68,21 +77,20 @@ instructions: |
     the phase it checkpoints.
   - DO update plan.md status markers after a successful revert: the
     reverted tasks go from `[x]` back to `[ ]` and lose their SHAs.
-  - If `execute: true` AND `project.kind == "live"`, REFUSE unless
+  - If `execute: true` AND `{{ project_kind }}` == "live", REFUSE unless
     `live_confirmed` is true. Return `status: live_confirmation_required`.
-  - If `execute: true` AND `project.kind == "unknown"` OR
+  - If `execute: true` AND `{{ project_kind }}` == "unknown" OR
     `needs_kind_confirmation: true`, REFUSE unconditionally. Return
     `status: kind_unconfirmed`. Planning (`execute: false`) is still
     allowed — reading git history and producing a plan doesn't mutate
     the project.
 
   ## Failure Modes
-  - Config resolution via ensure_config returned non-ok →
-    `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status.
+  - Config invalid (project_path missing/empty, project_kind unrecognized,
+    project.json unreadable) → `status: config_invalid` with details.
   - `execute: true` + live project without `live_confirmed: true` →
     `status: live_confirmation_required` (no write, no plan mutation).
-  - `execute: true` + `project.kind == "unknown"` or
+  - `execute: true` + `{{ project_kind }}` == "unknown" or
     `needs_kind_confirmation: true` → `status: kind_unconfirmed`.
   - Unit not found (track/phase/task doesn't exist in plan.md) → `unit_not_found`.
   - Commits referenced in plan.md are missing from git history → `history_drift`.
@@ -92,13 +100,15 @@ instructions: |
   - `execute: true` but any precondition failure above → do not execute.
 
   ## Process
-  1. Call `ensure_config`. If status != `ok`, return
-     `status: config_unresolved` with `config_status` carrying the
-     returned status. If `execute: true` AND
-     (resolved project.kind == "unknown" OR
+  1. Verify resolved config: confirm `project_path` is a non-empty
+     directory that exists, `project_kind` is one of sandbox/live/unknown,
+     and `{{ project_json_path }}` points to a readable file. If any check
+     fails, return `status: config_invalid` with details.
+     If `execute: true` AND
+     (`{{ project_kind }}` == "unknown" OR
       `needs_kind_confirmation: true`), return
      `status: kind_unconfirmed` immediately. If `execute: true` AND
-     resolved project.kind == "live" AND `live_confirmed` is false,
+     `{{ project_kind }}` == "live" AND `live_confirmed` is false,
      return `status: live_confirmation_required` immediately.
   2. Load plan.md. Extract SHAs for the requested unit:
      - task: single implementation_sha + its plan-update commit
@@ -123,12 +133,10 @@ instructions: |
      f. Record the revert in metadata.json.
 
   ## Return
-  - status: "plan_only" | "reverted" | "config_unresolved" |
+  - status: "plan_only" | "reverted" | "config_invalid" |
     "kind_unconfirmed" | "live_confirmation_required" |
     "unit_not_found" | "history_drift" | "dirty_working_tree" |
     "conflicts_present" | "write_failed"
-  - config_status: Underlying ensure_config status when
-    status == "config_unresolved", else null
   - unit: "track" | "phase" | "task"
   - commits_to_revert: ordered array of { sha, subject, belongs_to }
   - revert_commit_sha: SHA of the revert commit (if execute=true succeeded)
@@ -141,7 +149,8 @@ extensions:
     name: developer
 
 prompt: |
-  Plan {{ unit }} revert for track {{ track_id }} in project {{ project_id }}.
+  Plan {{ unit }} revert for track {{ track_id }} in project {{ project_id }}
+  at {{ project_path }} (kind: {{ project_kind }}).
   Phase: {{ phase }}. Task: {{ task_id }}. Execute: {{ execute }}.
   Live confirmed: {{ live_confirmed }}.
 

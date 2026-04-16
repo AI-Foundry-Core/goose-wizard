@@ -2,6 +2,8 @@
 
 Adapted from SubagentForge's 18 principles for the Goose recipe platform. These principles guide how GooseForge designs agent recipes.
 
+**See also:** `recipe-hygiene.md` — concrete, checkable rules that operationalize these principles for Primitives vs Workflow Recipes.
+
 ---
 
 ## The 12 Core Principles

@@ -93,16 +93,16 @@ These rules are ALWAYS in the system prompt. They never move to skill files.
 
 8. **Mode routing table** — Recognize intent and load the right skill file:
 
-   | Intent | Skill File | Delegates To |
-   |--------|-----------|--------------|
-   | Initialize project context | setup.md | context-write-* agents |
-   | Create a new track | track-management.md | track-create agent |
-   | Implement tasks from a track | implementation.md | track-task-execute agent |
-   | Check status / progress | status.md | (inline — no delegation needed) |
-   | Verify a phase checkpoint | verification.md | checkpoint-verify agent |
-   | Revert work | revert.md | revert-by-unit agent |
-   | Manage tracks (archive/restore/delete/rename) | track-management.md | track-lifecycle-manage agent |
-   | Update context artifacts | setup.md | context-write-* agents |
+   | Intent | Skill File | Execution |
+   |--------|-----------|-----------|
+   | Initialize project context | setup.md | Inline (conductor writes context artifacts itself) |
+   | Create a new track | track-management.md | Delegate → track-create agent |
+   | Implement tasks from a track | implementation.md | Delegate → track-task-execute agent |
+   | Check status / progress | status.md | Inline (no delegation needed) |
+   | Verify a phase checkpoint | verification.md | Delegate → checkpoint-verify agent |
+   | Revert work | revert.md | Delegate → revert-by-unit agent |
+   | Manage tracks (archive/restore/delete/rename) | track-management.md | Delegate → track-lifecycle-manage agent |
+   | Update context artifacts | setup.md | Inline (conductor writes context artifacts itself) |
 
 ### Layer 2: Skill Files (loaded on demand, in recipes/conductor-skills/)
 
@@ -134,6 +134,31 @@ recipes/conductor-skills/
 (`recipes/ported-agents/conductor/skills/`) and the current recipe instructions.
 Not new content — reorganized for on-demand loading.
 
+### Layer 2b: Inline Operations (conductor does these itself)
+
+Three context-write operations are simple enough that the conductor
+executes them directly after reading the setup.md skill file. These
+do NOT become sub-recipes — the conductor reads the instruction and
+does the work itself.
+
+**Why inline instead of sub-recipe:** These are template-fill-and-write
+operations. Passing project context through parameters to a cold LLM
+session risks context degradation — information gets compressed or lost
+in serialization. The conductor already has full project context, so
+doing these inline preserves fidelity and reduces overhead.
+
+Inline operations (procedures live in setup.md skill file):
+- Write/update product.md — fill template from structured inputs, merge sections
+- Write/update tech-stack.md — fill template, optionally detect from manifests
+- Write/update workflow.md — fill template from methodology/conventions inputs
+
+All three follow the same pattern: validate mode (create/update), merge
+with existing sections if updating, write atomically with backup rotation.
+
+**What gets deleted:** `context-write-product.yaml`, `context-write-tech-stack.yaml`,
+and `context-write-workflow.yaml` from `recipes/agents/conductor/`. Their
+procedural knowledge moves into setup.md.
+
 ### Layer 3: Leaf Agent Primitives (true leaves — no sub-recipe calls)
 
 `recipes/agents/conductor/` is refactored so primitives are **true leaf
@@ -146,16 +171,19 @@ config once at startup and passes `{project_id, path, kind, project_json}`
 to every primitive via parameters. This eliminates the Goose no-nested-
 subrecipe constraint violation.
 
-Primitives:
-- `track-create.yaml` — author spec + plan + metadata (accepts resolved config)
-- `track-task-execute.yaml` — 11-step TDD for one task
+**Which operations stay as sub-recipes and why:** Operations that involve
+multi-step choreography, gates, rollback logic, or specialized domain
+parsing earn a sub-recipe. The separate LLM session gives them focused
+context and contained failure. Simple template-fill operations (context
+writes) are inline — see Layer 2b.
+
+Primitives (7, down from 10):
+- `track-create.yaml` — author spec + plan + metadata (5-file atomic write with rollback)
+- `track-task-execute.yaml` — 11-step TDD lifecycle with 3 git commits
 - `checkpoint-verify.yaml` — automated + manual verification gates
-- `context-write-product.yaml` — generate/update product.md
-- `context-write-tech-stack.yaml` — generate/update tech-stack.md
-- `context-write-workflow.yaml` — generate/update workflow.md
-- `context-write-styleguide.yaml` — generate style guide
-- `context-validate.yaml` — check artifact freshness/validity
-- `revert-by-unit.yaml` — semantic git revert
+- `context-write-styleguide.yaml` — language-specific style guide from linter configs (multi-language parsing too complex for inline)
+- `context-validate.yaml` — cross-artifact staleness detection
+- `revert-by-unit.yaml` — semantic git revert with conflict detection
 - `track-lifecycle-manage.yaml` — **NEW** — archive/restore/delete/rename
   tracks (moved from inline to dedicated primitive because these ops
   mutate directories and registries)

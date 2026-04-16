@@ -1,13 +1,25 @@
 version: 1.0.0
+# type: primitive
 title: "Conductor Checkpoint Verify Agent"
 description: "Run automated gates (full test suite, coverage, lint, type check) for a phase and prepare a manual-verification checklist. Record the outcome but do NOT create the checkpoint commit — that requires explicit user approval."
 
 parameters:
+  - key: project_path
+    input_type: string
+    requirement: required
+    description: "Absolute path to the target project. Resolved by the parent conductor before delegation."
+  - key: project_kind
+    input_type: string
+    requirement: required
+    description: "'sandbox' | 'live' | 'unknown'. Resolved by the parent conductor."
+  - key: project_json_path
+    input_type: string
+    requirement: required
+    description: "Path to project.json. Resolved by the parent conductor."
   - key: project_id
     input_type: string
-    requirement: optional
-    default: ""
-    description: "Project ID. Empty means use the active project."
+    requirement: required
+    description: "Project identifier. Resolved by the parent conductor."
   - key: track_id
     input_type: string
     requirement: required
@@ -21,11 +33,6 @@ parameters:
     requirement: optional
     default: ""
     description: "SHA of the previous checkpoint. Used to compute changed files via `git diff --name-only`. Empty means diff against the track's first commit (or HEAD~ if the track has no checkpoints yet)."
-
-sub_recipes:
-  - name: "ensure_config"
-    path: "../config/ensure-config.yaml"
-    description: "Resolves the project path + project.json."
 
 instructions: |
   IMPORTANT — RUNTIME CONTEXT:
@@ -43,6 +50,8 @@ instructions: |
 
   ## Constraints
   IMPORTANT:
+  - All file operations are anchored to {{ project_path }}. Do NOT
+    read or modify files outside this directory.
   - NEVER claim verification passed without the actual tool output. Every
     gate result must include the command that was run and its exit code.
   - NEVER run the checkpoint commit yourself. Return `ready_for_user_review`
@@ -53,9 +62,8 @@ instructions: |
     80%, say so; don't write "approximately 80%".
 
   ## Failure Modes
-  - Config resolution via ensure_config returned non-ok →
-    `status: config_unresolved` with `config_status` carrying the
-    underlying ensure_config status.
+  - Config invalid (project_path missing/empty, project_kind unrecognized,
+    project.json unreadable) → `status: config_invalid` with details.
   - Phase not complete (tasks in non-terminal states) → `phase_incomplete`.
   - Test command missing in project.json → `no_test_command`.
   - Test suite fails to run at all → `env_broken`.
@@ -65,8 +73,10 @@ instructions: |
     gates; compute changed files vs. HEAD.
 
   ## Process
-  1. Call `ensure_config`. If status != `ok`, return
-     `status: config_unresolved` with `config_status` set.
+  1. Verify resolved config: confirm `project_path` is a non-empty
+     directory that exists, `project_kind` is one of sandbox/live/unknown,
+     and `{{ project_json_path }}` points to a readable file. If any check
+     fails, return `status: config_invalid` with details.
   2. Load plan.md. Verify all tasks in the requested phase are `[x]`.
      If any aren't, return `phase_incomplete`.
   3. Compute changed files: `git diff --name-only <last_checkpoint_sha>..HEAD`.
@@ -96,10 +106,8 @@ instructions: |
      phase ready for commit.
 
   ## Return
-  - status: "ready_for_user_review" | "config_unresolved" |
+  - status: "ready_for_user_review" | "config_invalid" |
     "phase_incomplete" | "no_test_command" | "env_broken" | "gate_failed"
-  - config_status: Underlying ensure_config status when
-    status == "config_unresolved", else null
   - phase: Integer
   - changed_files: List of paths relative to project.path
   - gates: array of { name, command, exit_code, summary, details,
@@ -115,7 +123,8 @@ extensions:
     name: developer
 
 prompt: |
-  Verify phase {{ phase }} for track {{ track_id }} (project {{ project_id }}).
+  Verify phase {{ phase }} for track {{ track_id }}
+  (project {{ project_id }}, path: {{ project_path }}, kind: {{ project_kind }}).
   Previous checkpoint SHA: {{ last_checkpoint_sha }}.
 
   Run the automated gates, assemble the manual checklist, and return the

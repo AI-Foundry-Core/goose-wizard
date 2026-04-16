@@ -204,3 +204,4 @@ These contain templates and detailed examples. Read the specific one you need, n
 | `recipes/forge-references/canonical-recipe-structure.md` | Designing agent primitives | 10-section template + YAML generation rules |
 | `recipes/forge-references/validation-checklist.md` | Validating any recipe | 37-item checklist + 6 quality detectors |
 | `recipes/forge-references/archetype-*.md` | Choosing patterns for an agent | 5 archetype references (reviewer, builder, coordinator, evaluator, investigator) |
+| `recipes/forge-references/recipe-hygiene.md` | Writing any agent primitive or training recipe | 21 behavioral rules (safety gates, first-turn, info barriers, operation boundaries) |
