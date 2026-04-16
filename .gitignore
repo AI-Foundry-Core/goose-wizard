@@ -34,7 +34,8 @@ handoffs/
 recipes/TWO-MODE-PATTERN.md
 recipes/local/
 
-# Overnight pipeline — keep reference docs, gitignore everything else
+# Overnight pipeline — keep harness code + reference docs, gitignore results
+overnight-pipeline/results/
 overnight-pipeline/runs/
 overnight-pipeline/configs/
 overnight-pipeline/templates/

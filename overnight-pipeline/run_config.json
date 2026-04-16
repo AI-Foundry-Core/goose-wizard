@@ -1,0 +1,16 @@
+{
+  "recipes": [
+    "02-bug-fix",
+    "03-test-writer",
+    "04-code-review",
+    "05-refactor"
+  ],
+  "personas": ["all"],
+  "edge_case_schedule": {},
+  "parallel_workers": 3,
+  "max_interactions": 15,
+  "wait_timeout_seconds": 8.0,
+  "session_timeout_seconds": 600,
+  "target_codebase_template": "install/project-template",
+  "output_dir": "overnight-pipeline/results"
+}
