@@ -143,7 +143,29 @@ if (Test-Cmd "goose") {
     }
 }
 
-# --- 1d. Claude CLI ---
+# --- 1d. Goose desktop app (for browsing recipe YAML) ---
+Write-Step "Checking Goose desktop app"
+$gooseAppPath = Join-Path $env:LOCALAPPDATA "Programs\Goose\Goose.exe"
+if (Test-Path $gooseAppPath) {
+    Write-Host " found" -ForegroundColor Green
+} else {
+    try {
+        $gooseAppUrl = "https://github.com/block/goose/releases/latest/download/Goose.zip"
+        $appZip = Join-Path $env:TEMP "goose-app-$([guid]::NewGuid().ToString('N')).zip"
+        Invoke-WebRequest -Uri $gooseAppUrl -OutFile $appZip -UseBasicParsing
+        $appDir = Join-Path $env:TEMP "goose-app-extract"
+        Expand-Archive -Path $appZip -DestinationPath $appDir -Force
+        $setup = Get-ChildItem -Path $appDir -Filter "*.exe" -Recurse | Select-Object -First 1
+        if ($setup) { Start-Process -Wait $setup.FullName }
+        Remove-Item $appZip -Force -ErrorAction SilentlyContinue
+        Remove-Item $appDir -Recurse -Force -ErrorAction SilentlyContinue
+        Write-Host " installed" -ForegroundColor Green
+    } catch {
+        Write-Host " skipped (optional)" -ForegroundColor Yellow
+    }
+}
+
+# --- 1e. Claude CLI ---
 Write-Step "Checking Claude CLI"
 if (Test-Cmd "claude") {
     $v = (& claude --version 2>&1).Trim()
