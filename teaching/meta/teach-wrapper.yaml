@@ -61,7 +61,7 @@ instructions: |
 
   ## Load Progression State
 
-  Read `~/.goose-wizard/progression.json`. Check whether concept {{ concept_id }}
+  Read `~/goose-wizard/progression.json`. Check whether concept {{ concept_id }}
   is already demonstrated (all required dimensions Adequate or Strong).
 
   - If already demonstrated: offer to skip or revisit per teacher-instructions.md
@@ -109,7 +109,7 @@ instructions: |
 
   ## State Update
 
-  After eval completes, write to `~/.goose-wizard/progression.json`:
+  After eval completes, write to `~/goose-wizard/progression.json`:
   1. Record each dimension's rating with ISO 8601 timestamp.
   2. Never overwrite a Strong rating with a lower one — keep best per dimension.
   3. Set concept {{ concept_id }} status to "complete" if all required dimensions
@@ -149,6 +149,6 @@ prompt: |
   1. Read teaching/meta/teacher-instructions.md — your behavioral reference
   2. Read {{ teach_script_path }} — your playbook for this session
   3. Read .goose/team_context.md — the developer's project context
-  4. Read ~/.goose-wizard/progression.json — current progression state
+  4. Read ~/goose-wizard/progression.json — current progression state
 
   Then begin the session by following the teaching script's Setup and Framing sections.

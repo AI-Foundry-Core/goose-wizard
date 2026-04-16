@@ -6,7 +6,7 @@ parameters:
   - key: user_config_path
     input_type: string
     requirement: optional
-    default: "~/.goose-wizard/user.json"
+    default: "~/goose-wizard/user.json"
     description: "Per-user goose-wizard config path. Expanded via the agent's home-directory resolver."
   - key: legacy_user_config_path
     input_type: string
@@ -70,7 +70,7 @@ instructions: |
 
   ## Process
   1. Resolve `~` in `user_config_path` to the absolute home directory.
-     Create `~/.goose-wizard/` if missing. Call this USER_DIR.
+     Create `~/goose-wizard/` if missing. Call this USER_DIR.
   2. One-time migration fallback for `user.json`:
      a. If USER_DIR/user.json exists, parse it. Done.
      b. Else if `legacy_user_config_path` exists (relative to cwd) and

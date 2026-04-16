@@ -34,7 +34,7 @@ Mode: Adaptive + Checkpoints.
 ## Setup
 
 Read `<TARGET>/.goose/team_context.md` for project context.
-Read ~/.goose-wizard/progression.json — check concepts 2.1 and 2.2.
+Read ~/goose-wizard/progression.json — check concepts 2.1 and 2.2.
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 Verify Stage 1 is complete. If not, flag it — Stage 2 assumes the developer already knows single-agent workflows.
 
@@ -161,7 +161,7 @@ Check: Wait for the developer to confirm. If they decline or hesitate, ask what'
 
 ## State Update
 
-Write to ~/.goose-wizard/progression.json:
+Write to ~/goose-wizard/progression.json:
   Update concept 2.1 (module 6: build-then-test) with all four dimension ratings
   (separation_awareness, result_inspection, role_separation, information_boundary)
   as sub-fields of concept 2.1's eval_ratings, plus timestamp.

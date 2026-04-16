@@ -2,7 +2,7 @@
 
 ## Location
 
-`~/.goose-wizard/progression.json` — the canonical per-USER progression state file.
+`~/goose-wizard/progression.json` — the canonical per-USER progression state file.
 Progression travels with the developer across every codebase they train on; it
 is NOT per-project. Created on first use of any module.
 

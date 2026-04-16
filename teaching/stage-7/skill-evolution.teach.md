@@ -19,7 +19,7 @@ Mode: Fully Adaptive. Facilitator is pure consulting - available when the develo
 ## Setup
 
 Read <TARGET>/.goose/team_context.md for project context.
-Read ~/.goose-wizard/progression.json - check concept 7.3 (module 26: skill-evolution).
+Read ~/goose-wizard/progression.json - check concept 7.3 (module 26: skill-evolution).
 If both already demonstrated (all dimensions adequate+): offer to skip or revisit.
 
 Check prerequisites:
@@ -286,7 +286,7 @@ Check: Wait for the developer to respond. If they want to reflect or ask questio
 
 ## State Update
 
-Write to ~/.goose-wizard/progression.json:
+Write to ~/goose-wizard/progression.json:
   Update concept 7.3 (module 26: skill-evolution) with all dimension ratings
   (finding_to_instruction_tracing, curator_loop_understanding,
   edit_specificity, verification_intent) as sub-fields of concept 7.3's eval_ratings,
