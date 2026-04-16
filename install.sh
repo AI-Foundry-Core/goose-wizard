@@ -154,7 +154,7 @@ check_goose() {
         return 0
     fi
     if [ "$PLATFORM" = "macos" ]; then
-        brew install --cask block-goose >/dev/null 2>&1
+        brew install block-goose-cli >/dev/null 2>&1
         hash -r 2>/dev/null || true
         if command -v goose >/dev/null 2>&1; then
             echo "installed ($(goose --version 2>&1 | tr -d '[:space:]'))"
@@ -168,7 +168,7 @@ step "Checking Goose CLI" check_goose || {
     if [ "$PLATFORM" = "linux" ]; then
         fatal "Goose CLI is required. Install from https://block.github.io/goose/docs/getting-started/installation"
     else
-        fatal "Goose CLI install failed. Run 'brew install --cask block-goose' and re-run."
+        fatal "Goose CLI install failed. Run 'brew install block-goose-cli' and re-run."
     fi
 }
 
@@ -393,17 +393,25 @@ echo ""
 info "Phase 4: Claude authentication"
 echo ""
 
-CLAUDE_CREDS="$HOME/.claude/.credentials.json"
-if [ -f "$CLAUDE_CREDS" ]; then
-    ok "Claude credentials found"
+# Claude Code stores auth in different locations depending on the auth method.
+# Check for OAuth credentials file or test with `claude -p` (quick, non-interactive).
+claude_is_authed() {
+    [ -f "$HOME/.claude/.credentials.json" ] && return 0
+    claude -p "hello" >/dev/null 2>&1 && return 0
+    return 1
+}
+
+if claude_is_authed; then
+    ok "Claude is authenticated"
 else
-    info "No credentials found. Launching Claude for login..."
+    info "Not authenticated. Launching Claude for login..."
     info "(After login, type /exit to return here.)"
-    claude || true
-    if [ -f "$CLAUDE_CREDS" ]; then
+    # Run claude interactively with explicit tty
+    claude </dev/tty || true
+    if claude_is_authed; then
         ok "Login successful"
     else
-        info "WARNING: Credentials not detected. Run 'claude' later to log in."
+        info "WARNING: Auth not detected. Run 'claude' manually to log in."
     fi
 fi
 
