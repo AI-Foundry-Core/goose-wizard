@@ -11,7 +11,7 @@ parameters:
   - key: legacy_user_config_path
     input_type: string
     requirement: optional
-    default: ".goose/state/user_config.json"
+    default: "~/.rilgoose/user_config.json"
     description: "Legacy per-project user_config.json path. Read only as part of the one-time migration fallback."
   - key: project_id
     input_type: string

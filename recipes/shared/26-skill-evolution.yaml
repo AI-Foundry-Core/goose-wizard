@@ -67,7 +67,7 @@ prompt: |
   Read these files now. Files under `teaching/` are in the goose-wizard repo
   (your CWD). Target-side files use the target_codebase_path you resolve
   in step 0.
-  0. `.goose/state/user_config.json` — your target codebase path. If missing
+  0. `~/.rilgoose/user_config.json` — your target codebase path. If missing
      or empty, STOP and ask the developer: "I don't see a target codebase
      saved. What's the absolute path to the codebase you want to train on?"
      Save their answer before continuing. Use target_codebase_path as the
