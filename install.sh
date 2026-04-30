@@ -324,12 +324,19 @@ if grep -qF "$MARKER_START" "$RC_FILE" 2>/dev/null; then
     ' "$RC_FILE" > "$RC_FILE.tmp" && mv "$RC_FILE.tmp" "$RC_FILE"
 fi
 
+# Goose plugin path — points at the cross-provider skills plugin (~/.agents/).
+# Required for claude-acp's substrate (Claude Code SDK) to discover Goose-canonical
+# skills via the SDK's `plugins` option. See Phase 3 plugin-manifest creation and
+# Patch 4 below.
+PLUGIN_PATH_VALUE="$HOME/.agents"
+
 # Write the managed block
 if [ "$USER_SHELL_NAME" = "fish" ]; then
     cat >> "$RC_FILE" <<EOF
 
 $MARKER_START
 set -gx GOOSE_RECIPE_PATH "$RECIPE_PATH_VALUE"
+set -gx GOOSE_PLUGIN_PATH "$PLUGIN_PATH_VALUE"
 $MARKER_END
 EOF
 else
@@ -337,12 +344,50 @@ else
 
 $MARKER_START
 export GOOSE_RECIPE_PATH="$RECIPE_PATH_VALUE"
+export GOOSE_PLUGIN_PATH="$PLUGIN_PATH_VALUE"
 $MARKER_END
 EOF
 fi
 
 export GOOSE_RECIPE_PATH="$RECIPE_PATH_VALUE"
-ok "Set GOOSE_RECIPE_PATH in $RC_FILE"
+export GOOSE_PLUGIN_PATH="$PLUGIN_PATH_VALUE"
+ok "Set GOOSE_RECIPE_PATH and GOOSE_PLUGIN_PATH in $RC_FILE"
+
+# ---- Create goose-skills plugin manifest ----
+# Required so the Claude Agent SDK recognizes ~/.agents/ as a plugin and loads
+# the skills under ~/.agents/skills/. Without the manifest, the SDK's `plugins`
+# option (set by Patch 4 below via GOOSE_PLUGIN_PATH env var) cannot find the
+# plugin root. See LEARNINGS.md (2026-04-26) for full context.
+PLUGIN_MANIFEST_DIR="$HOME/.agents/.claude-plugin"
+mkdir -p "$PLUGIN_MANIFEST_DIR"
+cat > "$PLUGIN_MANIFEST_DIR/plugin.json" <<'JSON'
+{
+  "name": "goose-skills",
+  "version": "1.0.0",
+  "description": "Cross-provider Goose skills (model-selection, etc.) — discoverable by claude-agent-acp via the plugins option."
+}
+JSON
+ok "Created goose-skills plugin manifest at $PLUGIN_MANIFEST_DIR/plugin.json"
+
+# Ensure the skills directory exists (skills land here per the model-selection
+# convention; LEARNINGS.md 2026-04-26).
+mkdir -p "$HOME/.agents/skills"
+
+# ---- Provision goose-skills from the install tree ----
+# Source-of-truth lives in the repo at install/skills/. Each skill subdirectory
+# is copied into ~/.agents/skills/ so it's discoverable by claude-acp (via the
+# plugin manifest + Patch 4) and codex-acp (via its own native discovery).
+# Re-running the installer overwrites any local edits to skills — edits should
+# happen in the repo, not in ~/.agents/skills/.
+SKILLS_SRC="$INSTALL_DIR/install/skills"
+if [ -d "$SKILLS_SRC" ]; then
+    for skill_dir in "$SKILLS_SRC"/*/; do
+        [ -d "$skill_dir" ] || continue
+        skill_name="$(basename "$skill_dir")"
+        cp -R "$skill_dir" "$HOME/.agents/skills/"
+    done
+    ok "Provisioned goose-skills from $SKILLS_SRC"
+fi
 
 # ---- Patch ACP adapter ----
 ACP_FILE=""
@@ -367,17 +412,25 @@ content = acp.read_text()
 original = content
 patches = 0
 
-# Patch 1: settingSources — drop "project" scope
+# Patch 1: settingSources — use only project-scoped Claude instructions for
+# Goose ACP runs. This lets a repo-provided CLAUDE.md bridge to AGENTS.md while
+# preventing personal user/local Claude memory from contaminating recipe execution.
 if 'settingSources: ["user", "project", "local"]' in content:
     content = content.replace(
         'settingSources: ["user", "project", "local"]',
+        'settingSources: []',
+    )
+    patches += 1
+elif 'settingSources: ["user", "local"]' in content:
+    content = content.replace(
         'settingSources: ["user", "local"]',
+        'settingSources: []',
     )
     patches += 1
 elif 'settingSources: ["local"]' in content:
     content = content.replace(
         'settingSources: ["local"]',
-        'settingSources: ["user", "local"]',
+        'settingSources: []',
     )
     patches += 1
 
@@ -404,6 +457,65 @@ if m:
         f"{indent}    : 4096;"
     ) + content[m.end():]
     patches += 1
+
+# Patch 4: GOOSE_PLUGIN_PATH — surface Goose-canonical skills to the Claude
+# Agent SDK via its `plugins` option. Without this, claude-acp's substrate
+# (Claude Code) only discovers skills from ~/.claude/skills/ — Goose's skill
+# folder (~/.agents/skills/) stays invisible to the agent. With this patch
+# plus the plugin manifest at ~/.agents/.claude-plugin/plugin.json, skills
+# appear in the agent's list as `goose-skills:<skill-name>`.
+# Verified 2026-04-26 against claude-agent-acp 0.28.0.
+if "process.env.GOOSE_PLUGIN_PATH" not in content:
+    options_anchor = re.compile(
+        r"(?P<indent>[ \t]*)const\s+options\s*=\s*\{\s*\n"
+        r"\s*systemPrompt,"
+    )
+    m = options_anchor.search(content)
+    if m:
+        indent = m.group("indent")
+        injection = (
+            f"{indent}const goosePluginPath = process.env.GOOSE_PLUGIN_PATH;\n"
+            f"{indent}const goosePlugins = goosePluginPath\n"
+            f"{indent}    ? [{{ type: \"local\", path: goosePluginPath }}]\n"
+            f"{indent}    : [];\n"
+        )
+        # Inject before `const options = {`
+        content = content[:m.start()] + injection + content[m.start():]
+        # Then add `...(goosePlugins.length > 0 && { plugins: goosePlugins }),`
+        # right after `autoMemoryEnabled: false,`
+        content = content.replace(
+            "autoMemoryEnabled: false,",
+            "autoMemoryEnabled: false,\n            ...(goosePlugins.length > 0 && { plugins: goosePlugins }),",
+            1,
+        )
+        patches += 1
+
+# Patch 7: drop the default `claude_code` system-prompt preset when env var
+# CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT=1 is set on the spawning process.
+# The preset includes Anthropic's <local-command-caveat> rules, which cause
+# opus to refuse acting on Goose recipe content (it treats the recipe as
+# untrusted command output). When CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT=1,
+# the adapter passes systemPrompt=undefined and the SDK falls back to its
+# minimal default — essential tool instructions only, no caveat layer.
+# Tools still work (definitions come via the SDK's tool channel, not the
+# system prompt).
+# Backward-compat: default behavior (no env var) is unchanged. Only
+# Goose-Wizard harness runs that explicitly opt in get the new behavior.
+# Verified 2026-04-30 in goose-acp-smoke:patch7 image (run-032 turn 1
+# produced the recipe-requested orientation report verbatim).
+if "CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT" not in content:
+    preset_decl = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
+    preset_replace = 'let systemPrompt = process.env.CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT === "1" ? undefined : { type: "preset", preset: "claude_code" };'
+    if preset_decl in content:
+        content = content.replace(preset_decl, preset_replace, 1)
+        # Make systemPrompt conditional in the options object so the SDK
+        # actually sees the field omitted when undefined (some SDK paths
+        # treat systemPrompt: undefined as "use default").
+        opts_old = "        const options = {\n            systemPrompt,"
+        opts_new = "        const options = {\n            ...(systemPrompt !== undefined && { systemPrompt }),"
+        if opts_old in content:
+            content = content.replace(opts_old, opts_new, 1)
+        patches += 1
 
 if content != original:
     acp.write_text(content)

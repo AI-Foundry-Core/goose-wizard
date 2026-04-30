@@ -293,6 +293,54 @@ $recipePath = Join-Path $InstallDir "recipes\shared"
 $env:GOOSE_RECIPE_PATH = $recipePath
 Write-Host " done" -ForegroundColor Green
 
+# --- 3b2. Set GOOSE_PLUGIN_PATH (cross-provider goose-skills plugin root) ---
+# Required for claude-acp's substrate (Claude Code SDK) to discover Goose-canonical
+# skills via the SDK's `plugins` option. Paired with the manifest creation below
+# and Patch 4. See LEARNINGS.md (2026-04-26).
+Write-Step "Setting GOOSE_PLUGIN_PATH"
+$pluginPath = Join-Path $env:USERPROFILE ".agents"
+[System.Environment]::SetEnvironmentVariable("GOOSE_PLUGIN_PATH", $pluginPath, "User")
+$env:GOOSE_PLUGIN_PATH = $pluginPath
+Write-Host " $pluginPath" -ForegroundColor Green
+
+# --- 3b3. Create goose-skills plugin manifest ---
+# Without `.claude-plugin/plugin.json` at ~/.agents/, the Claude Agent SDK's
+# `plugins` option (set by Patch 4 below via GOOSE_PLUGIN_PATH) cannot find
+# the plugin root, and skills under ~/.agents/skills/ stay invisible to
+# claude-acp agents.
+Write-Step "Creating goose-skills plugin manifest"
+$pluginManifestDir = Join-Path $pluginPath ".claude-plugin"
+New-Item -ItemType Directory -Path $pluginManifestDir -Force | Out-Null
+$pluginManifest = @'
+{
+  "name": "goose-skills",
+  "version": "1.0.0",
+  "description": "Cross-provider Goose skills (model-selection, etc.) — discoverable by claude-agent-acp via the plugins option."
+}
+'@
+Set-Content -Path (Join-Path $pluginManifestDir "plugin.json") -Value $pluginManifest -NoNewline
+# Ensure the skills directory exists
+New-Item -ItemType Directory -Path (Join-Path $pluginPath "skills") -Force | Out-Null
+Write-Host " done" -ForegroundColor Green
+
+# --- 3b4. Provision goose-skills from the install tree ---
+# Source-of-truth lives in the repo at install\skills\. Each skill subdirectory
+# is copied into %USERPROFILE%\.agents\skills\ so it's discoverable by claude-acp
+# (via the plugin manifest + Patch 4) and codex-acp (via its own native
+# discovery). Re-running the installer overwrites any local edits to skills —
+# edits should happen in the repo, not in ~/.agents/skills/.
+Write-Step "Provisioning goose-skills"
+$skillsSrc = Join-Path $InstallDir "install\skills"
+if (Test-Path $skillsSrc) {
+    Get-ChildItem -Path $skillsSrc -Directory | ForEach-Object {
+        $dest = Join-Path $pluginPath "skills\$($_.Name)"
+        Copy-Item -Path $_.FullName -Destination $dest -Recurse -Force
+    }
+    Write-Host " done" -ForegroundColor Green
+} else {
+    Write-Host " skipped (no install\skills directory)" -ForegroundColor Yellow
+}
+
 # --- 3c. Detect Git Bash and write to Claude settings ---
 Write-Step "Detecting Git Bash"
 $bashCmd = Get-Command bash.exe -ErrorAction SilentlyContinue
@@ -345,11 +393,21 @@ if (Test-Path $acpFile) {
     $content = Get-Content $acpFile -Raw
     $patched = $false
 
-    # Patch 1: Drop "project" scope from settingSources
+    # Patch 1: Use only project-scoped Claude instructions for Goose ACP runs.
+    # This lets a repo-provided CLAUDE.md bridge to AGENTS.md while preventing
+    # personal user/local Claude memory from contaminating recipe execution.
     $orig1 = 'settingSources: ["user", "project", "local"]'
-    $repl1 = 'settingSources: ["user", "local"]'
+    $repl1 = 'settingSources: []'
     if ($content.Contains($orig1)) {
         $content = $content.Replace($orig1, $repl1)
+        $patched = $true
+    }
+    elseif ($content.Contains('settingSources: ["user", "local"]')) {
+        $content = $content.Replace('settingSources: ["user", "local"]', $repl1)
+        $patched = $true
+    }
+    elseif ($content.Contains('settingSources: ["local"]')) {
+        $content = $content.Replace('settingSources: ["local"]', $repl1)
         $patched = $true
     }
 
@@ -374,9 +432,77 @@ ${indent}    : 4096;
         $patched = $true
     }
 
+    # Patch 4: GOOSE_PLUGIN_PATH — surface Goose-canonical skills to the Claude
+    # Agent SDK via its `plugins` option. Without this, claude-acp's substrate
+    # (Claude Code) only discovers skills from ~/.claude/skills/ — Goose's skill
+    # folder (~/.agents/skills/) stays invisible to the agent. With this patch
+    # plus the plugin manifest at ~/.agents/.claude-plugin/plugin.json, skills
+    # appear in the agent's list as `goose-skills:<skill-name>`.
+    # Verified 2026-04-26 against claude-agent-acp 0.28.0.
+    if (-not $content.Contains("process.env.GOOSE_PLUGIN_PATH")) {
+        $optionsAnchorPattern = '(?<indent>[ \t]*)const\s+options\s*=\s*\{\s*\r?\n\s*systemPrompt,'
+        if ($content -match $optionsAnchorPattern) {
+            $indent = $Matches['indent']
+            $injection = @"
+${indent}const goosePluginPath = process.env.GOOSE_PLUGIN_PATH;
+${indent}const goosePlugins = goosePluginPath
+${indent}    ? [{ type: "local", path: goosePluginPath }]
+${indent}    : [];
+"@
+            $content = [regex]::Replace($content, $optionsAnchorPattern, $injection + '$0', 1)
+            $content = $content.Replace(
+                "autoMemoryEnabled: false,",
+                "autoMemoryEnabled: false,`n            ...(goosePlugins.length > 0 && { plugins: goosePlugins }),"
+            )
+            $patched = $true
+        }
+    }
+
+    # Patch 7: drop the default `claude_code` system-prompt preset when env var
+    # CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT=1 is set on the spawning process.
+    # Without this patch, the adapter hardcodes
+    # `systemPrompt: { type: "preset", preset: "claude_code" }` at session
+    # creation. That preset includes Anthropic's <local-command-caveat> rules,
+    # which cause opus to refuse acting on Goose recipe content (treated as
+    # untrusted command output) — see LEARNINGS.md 2026-04-30 (afternoon).
+    # When CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT=1, the adapter passes
+    # systemPrompt=undefined, which the SDK falls back to its minimal default
+    # (essential tool instructions only — no caveat layer). Tools still work
+    # because their definitions come via the SDK's tool channel, not via the
+    # system prompt.
+    # Backward-compat: default behavior (no env var) is unchanged. Only
+    # Goose-Wizard harness runs that explicitly opt in get the new behavior.
+    # Verified 2026-04-30 in goose-acp-smoke:patch7 image (run-032 turn 1
+    # produced the recipe-requested orientation report verbatim).
+    if (-not $content.Contains("CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT")) {
+        $presetDecl = 'let systemPrompt = { type: "preset", preset: "claude_code" };'
+        $presetReplace = 'let systemPrompt = process.env.CLAUDE_ACP_DROP_DEFAULT_SYSTEM_PROMPT === "1" ? undefined : { type: "preset", preset: "claude_code" };'
+        if ($content.Contains($presetDecl)) {
+            $content = $content.Replace($presetDecl, $presetReplace)
+            # Make systemPrompt conditional in the options object so the SDK
+            # actually sees the field omitted when undefined (rather than
+            # systemPrompt: undefined, which some SDK code paths treat as
+            # "use default"). Spread-with-conditional is idiomatic JS.
+            $optsLine = "        const options = {`r`n            systemPrompt,"
+            $optsReplace = "        const options = {`r`n            ...(systemPrompt !== undefined && { systemPrompt }),"
+            if (-not $content.Contains($optsLine)) {
+                # Try LF-only line endings (some checkouts on macOS/Linux)
+                $optsLine = "        const options = {`n            systemPrompt,"
+                $optsReplace = "        const options = {`n            ...(systemPrompt !== undefined && { systemPrompt }),"
+            }
+            if ($content.Contains($optsLine)) {
+                $content = $content.Replace($optsLine, $optsReplace)
+                $patched = $true
+            } else {
+                Write-Host " Patch 7 systemPrompt-decl applied but options-anchor not matched (manual check needed)" -ForegroundColor Yellow
+                $patched = $true
+            }
+        }
+    }
+
     if ($patched) {
         Set-Content -Path $acpFile -Value $content -NoNewline
-        Write-Host " 3 patches applied" -ForegroundColor Green
+        Write-Host " patches applied" -ForegroundColor Green
     } else {
         Write-Host " already patched" -ForegroundColor Green
     }
