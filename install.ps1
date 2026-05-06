@@ -43,6 +43,41 @@ function Test-Cmd([string]$name) {
     return [bool](Get-Command $name -ErrorAction SilentlyContinue)
 }
 
+function Find-Python {
+    $script:PythonExe = $null
+    $script:PythonBaseArgs = @()
+
+    if (Test-Cmd "python") {
+        try {
+            & python --version 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                $script:PythonExe = "python"
+                return $true
+            }
+        } catch {}
+    }
+
+    if (Test-Cmd "py") {
+        try {
+            & py -3 --version 2>&1 | Out-Null
+            if ($LASTEXITCODE -eq 0) {
+                $script:PythonExe = "py"
+                $script:PythonBaseArgs = @("-3")
+                return $true
+            }
+        } catch {}
+    }
+
+    return $false
+}
+
+function Invoke-Python([string[]]$arguments) {
+    $allArgs = @()
+    if ($script:PythonBaseArgs) { $allArgs += $script:PythonBaseArgs }
+    if ($arguments) { $allArgs += $arguments }
+    & $script:PythonExe @allArgs
+}
+
 # ---------------------------------------------------------------------------
 # Phase 1: Prerequisites
 # ---------------------------------------------------------------------------
@@ -93,7 +128,48 @@ if (Test-Cmd "node") {
     Write-Ok "Node.js installed: $((& node --version 2>&1).Trim())"
 }
 
-# --- 1c. Goose CLI ---
+# --- 1c. Python + PyYAML (Conductor runtime) ---
+Write-Step "Checking Python"
+if (Find-Python) {
+    $v = (Invoke-Python @("--version") 2>&1).Trim()
+    Write-Host " $v" -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "  Installing Python 3 via winget..."
+    if (-not (Test-Cmd "winget")) {
+        Write-Err "winget not available. Install Python 3 manually: https://www.python.org/downloads/windows/"
+        exit 1
+    }
+    & winget install Python.Python.3.12 --accept-package-agreements --accept-source-agreements --silent 2>&1 | Out-Null
+    Refresh-Path
+    if (-not (Find-Python)) {
+        Write-Err "Python install failed. Install Python 3 manually from https://www.python.org/downloads/windows/ and re-run."
+        exit 1
+    }
+    Write-Ok "Python installed: $((Invoke-Python @("--version") 2>&1).Trim())"
+}
+
+Write-Step "Checking PyYAML"
+Invoke-Python @("-c", "import yaml") 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 0) {
+    Write-Host " found" -ForegroundColor Green
+} else {
+    Write-Host ""
+    Write-Host "  Installing PyYAML for Conductor runtime..."
+    Invoke-Python @("-m", "pip", "install", "--user", "PyYAML") 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "PyYAML install failed. Run manually: $script:PythonExe $($script:PythonBaseArgs -join ' ') -m pip install --user PyYAML"
+        exit 1
+    }
+    Invoke-Python @("-c", "import yaml") 2>&1 | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "PyYAML installed but is not importable by the selected Python."
+        exit 1
+    }
+    Write-Ok "PyYAML installed"
+}
+
+# --- 1d. Goose CLI ---
 Write-Step "Checking Goose CLI"
 if (Test-Cmd "goose") {
     $v = (& goose --version 2>&1).Trim()
@@ -143,7 +219,16 @@ if (Test-Cmd "goose") {
     }
 }
 
-# --- 1d. Goose desktop app (for browsing recipe YAML) ---
+# --- 1e. Docker Desktop / Docker CLI (optional Conductor harness path) ---
+Write-Step "Checking Docker"
+if (Test-Cmd "docker") {
+    $v = (& docker --version 2>&1).Trim()
+    Write-Host " $v" -ForegroundColor Green
+} else {
+    Write-Host " skipped (optional; required only for autonomous/full-chain Conductor harness runs)" -ForegroundColor Yellow
+}
+
+# --- 1f. Goose desktop app (for browsing recipe YAML) ---
 Write-Step "Checking Goose desktop app"
 $gooseAppPath = Join-Path $env:LOCALAPPDATA "Programs\Goose\Goose.exe"
 if (Test-Path $gooseAppPath) {
@@ -165,7 +250,7 @@ if (Test-Path $gooseAppPath) {
     }
 }
 
-# --- 1e. Claude CLI ---
+# --- 1g. Claude CLI ---
 Write-Step "Checking Claude CLI"
 if (Test-Cmd "claude") {
     $v = (& claude --version 2>&1).Trim()
@@ -192,7 +277,7 @@ if (Test-Cmd "claude") {
     Write-Ok "Claude CLI installed: $((& claude --version 2>&1).Trim())"
 }
 
-# --- 1e. ACP adapter ---
+# --- 1h. ACP adapter ---
 Write-Step "Checking ACP adapter"
 $acpOk = $false
 try {

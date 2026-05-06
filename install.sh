@@ -147,7 +147,55 @@ step "Checking Node.js" check_node || {
     fi
 }
 
-# ---- 4. Goose CLI ----
+# ---- 4. Python + PyYAML (Conductor runtime) ----
+check_python() {
+    if command -v python3 >/dev/null 2>&1; then
+        echo "found ($(python3 --version 2>&1))"
+        return 0
+    fi
+    if [ "$PLATFORM" = "macos" ]; then
+        brew install python >/dev/null 2>&1
+    else
+        if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq python3 python3-pip >/dev/null
+        elif command -v dnf >/dev/null 2>&1; then
+            sudo dnf install -y -q python3 python3-pip >/dev/null
+        fi
+    fi
+    if command -v python3 >/dev/null 2>&1; then
+        echo "installed ($(python3 --version 2>&1))"
+        return 0
+    fi
+    echo "missing"
+    return 1
+}
+step "Checking Python" check_python || fatal "Python 3 is required for Conductor. Install Python 3 and re-run."
+
+check_pyyaml() {
+    if python3 -c "import yaml" >/dev/null 2>&1; then
+        echo "found"
+        return 0
+    fi
+    if [ "$PLATFORM" = "linux" ]; then
+        if command -v apt-get >/dev/null 2>&1; then
+            sudo apt-get update -qq && sudo apt-get install -y -qq python3-yaml >/dev/null
+        elif command -v dnf >/dev/null 2>&1; then
+            sudo dnf install -y -q python3-pyyaml >/dev/null
+        fi
+    fi
+    if ! python3 -c "import yaml" >/dev/null 2>&1; then
+        python3 -m pip install --user PyYAML >/dev/null 2>&1 || return 1
+    fi
+    if python3 -c "import yaml" >/dev/null 2>&1; then
+        echo "installed"
+        return 0
+    fi
+    echo "missing"
+    return 1
+}
+step "Checking PyYAML" check_pyyaml || fatal "PyYAML is required for Conductor. Run 'python3 -m pip install --user PyYAML' and re-run."
+
+# ---- 5. Goose CLI ----
 check_goose() {
     if command -v goose >/dev/null 2>&1; then
         echo "found ($(goose --version 2>&1 | tr -d '[:space:]'))"
@@ -172,7 +220,18 @@ step "Checking Goose CLI" check_goose || {
     fi
 }
 
-# ---- 4b. Goose desktop app (for browsing recipe YAML) ----
+# ---- 5b. Docker CLI (optional Conductor harness path) ----
+check_docker() {
+    if command -v docker >/dev/null 2>&1; then
+        echo "found ($(docker --version 2>&1))"
+    else
+        echo "skipped (optional; required only for autonomous/full-chain Conductor harness runs)"
+    fi
+    return 0
+}
+step "Checking Docker" check_docker
+
+# ---- 5c. Goose desktop app (for browsing recipe YAML) ----
 check_goose_app() {
     if [ "$PLATFORM" = "macos" ] && [ -d "/Applications/Goose.app" ]; then
         echo "found"
@@ -190,7 +249,7 @@ check_goose_app() {
 }
 step "Checking Goose desktop app" check_goose_app
 
-# ---- 5. Claude CLI ----
+# ---- 6. Claude CLI ----
 check_claude() {
     if command -v claude >/dev/null 2>&1; then
         echo "found ($(claude --version 2>&1 | head -1))"
@@ -211,7 +270,7 @@ check_claude() {
 }
 step "Checking Claude CLI" check_claude || fatal "Claude CLI install failed. Visit https://claude.ai/install.sh"
 
-# ---- 6. ACP adapter ----
+# ---- 7. ACP adapter ----
 check_acp() {
     local installed=""
     local npm_root
